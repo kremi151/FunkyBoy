@@ -65,6 +65,8 @@ namespace FunkyBoy {
 
         void cp(u8 val);
         void _xor(u8 val);
+
+        bool doPrefix(u8 prefix);
     public:
         explicit CPU(std::shared_ptr<Memory> memory);
 

@@ -23,6 +23,8 @@ set(HEADERS
         source/memory/memory.h
         )
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
+
 #add_library(core SHARED ${SOURCES} ${HEADERS})
 add_executable(core ${SOURCES} ${HEADERS})
 

@@ -20,8 +20,9 @@
 #include <utility>
 #include <util/typedefs.h>
 
-// TODO: For debugging, remove it afterwards:
+#ifdef FB_DEBUG
 #include <sstream>
+#endif
 
 using namespace FunkyBoy;
 
@@ -110,14 +111,18 @@ bool CPU::doTick() {
 
     auto opcode = memory->read8BitsAt(progCounter++);
 
+#ifdef FB_DEBUG
     std::stringstream ss;
     ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
-    std::cout << "> instr " << ss.str() << std::endl;
+    std::cout << "> instr 0x" << ss.str() << std::endl;
+#endif
 
     switch (opcode) {
         // nop
         case 0x00:
+#ifdef FB_DEBUG
             std::cout << "nop" << std::endl;
+#endif
             break;
         // ld reg,reg
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // ld b,reg
@@ -128,7 +133,9 @@ bool CPU::doTick() {
         case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: case 0x6f: // ld l,reg
         case 0x78: case 0x79: case 0x7a: case 0x7b: case 0x7c: case 0x7d: case 0x7f: // ld a,reg
         {
+#ifdef FB_DEBUG
             std::cout << "ld reg,reg" << std::endl;
+#endif
             u8 &dst = registers[opcode >> 3 & 7];
             u8 src = registers[opcode & 7];
             dst = src;
@@ -158,9 +165,20 @@ bool CPU::doTick() {
             *regA = memory->read8BitsAt(0xFF00 + *regC);
             return true;
         }
+        // ld A,d8
+        case 0x3E: {
+            *regA = memory->read8BitsAt(progCounter++);
+#ifdef FB_DEBUG
+            std::cout << "ldh A,d8 A <- " << (*regA & 0xff) << std::endl;
+#endif
+            return true;
+        }
         // ldh (a8),A
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);
+#ifdef FB_DEBUG
+            std::cout << "ldh (a8),A " << (0xFF00 + addr) << " <- " << (*regA & 0xff) << std::endl;
+#endif
             memory->write8BitsTo(0xFF00 + addr, *regA);
             return true;
         }
@@ -174,7 +192,9 @@ bool CPU::doTick() {
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // add a,reg
         case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: // adc a,reg
         {
+#ifdef FB_DEBUG
             std::cout << "add reg,reg" << std::endl;
+#endif
             bool carry = (opcode & 8) && isCarry();
             addWithCarry(*regA, registers[opcode & 7], carry);
             setCarry(false);
@@ -200,20 +220,30 @@ bool CPU::doTick() {
         case 0xC3:
         {
 jump_absolute:
-            std::cout << "jp a16" << std::endl;
+#ifdef FB_DEBUG
+            std::cout << "jp a16 from " << progCounter;
+#endif
             progCounter = memory->read16BitsAt(progCounter);
+#ifdef FB_DEBUG
+            std::cout << " to " << progCounter << std::endl;
+#endif
             return true;
         }
         // jp AF
         case 0xE9:
         {
+#ifdef FB_DEBUG
             std::cout << "jp AF" << std::endl;
+#endif
             progCounter = *regAF;
             return true;
         }
         // jr (N)Z,r8
         case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
             bool set = opcode & 0b00001000;
+#ifdef FB_DEBUG
+            std::cout << "jr (N)Z,r8 set ? " << set << isZero() << std::endl;
+#endif
             if ((!set && !isZero()) || (set && isZero())) {
                 goto jump_relative;
             }
@@ -222,6 +252,9 @@ jump_absolute:
         // jr (N)C,r8
         case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
             bool set = opcode & 0b00001000;
+#ifdef FB_DEBUG
+            std::cout << "jr (N)C,r8 set? " << set << std::endl;
+#endif
             if ((!set && !isCarry()) || (set && isCarry())) {
                 goto jump_relative;
             }
@@ -229,14 +262,26 @@ jump_absolute:
         }
         // unconditional jr
         case 0x18: {
+#ifdef FB_DEBUG
+            std::cout << "jr" << std::endl;
+#endif
 jump_relative:
-            auto rel = memory->read8BitsAt(progCounter);
+#ifdef FB_DEBUG
+            std::cout << "JR from " << progCounter;
+#endif
+            auto rel = memory->read8BitsAt(progCounter++); // TODO: Verify that we should increment here, but it seems logical
             progCounter += rel;
+#ifdef FB_DEBUG
+            std::cout << " to " << progCounter << std::endl;
+#endif
             return true;
         }
         // call (N)Z,a16
         case 0xC4: case 0xCC: {
             bool set = opcode & 0b00001000;
+#ifdef FB_DEBUG
+            std::cout << "call (N)Z,a16 set? " << set << std::endl;
+#endif
             if ((!set && !isZero()) || (set && isZero())) {
                 goto call;
             }
@@ -245,6 +290,9 @@ jump_relative:
         // call (N)C,a16
         case 0xD4: case 0xDC: {
             bool set = opcode & 0b00001000;
+#ifdef FB_DEBUG
+            std::cout << "call (N)C,a16 set? " << set << std::endl;
+#endif
             if ((!set && !isCarry()) || (set && isCarry())) {
                 goto call;
             }
@@ -252,14 +300,23 @@ jump_relative:
         }
         case 0xCD: {
 call:
+#ifdef FB_DEBUG
+            std::cout << "call from " << progCounter;
+#endif
             u16 val = memory->read16BitsAt(progCounter);
             push16Bits(progCounter + 2);
             progCounter = val;
+#ifdef FB_DEBUG
+            std::cout << " to " << progCounter << std::endl;
+#endif
             return true;
         }
         // ret (N)Z,a16
         case 0xC0: case 0xC8: {
             bool set = opcode & 0b00001000;
+#ifdef FB_DEBUG
+            std::cout << "ret (N)Z,a16 set? " << set << std::endl;
+#endif
             if ((!set && !isZero()) || (set && isZero())) {
                 goto return_;
             }
@@ -268,6 +325,9 @@ call:
         // ret (N)C,a16
         case 0xD0: case 0xD8: {
             bool set = opcode & 0b00001000;
+#ifdef FB_DEBUG
+            std::cout << "ret (N)C,a16 set? " << set << std::endl;
+#endif
             if ((!set && !isCarry()) || (set && isCarry())) {
                 goto return_;
             }
@@ -275,6 +335,9 @@ call:
         }
         // ret a16
         case 0xC9: {
+#ifdef FB_DEBUG
+            std::cout << "ret a16" << std::endl;
+#endif
 return_:
             progCounter = pop16Bits();
             return true;
@@ -368,13 +431,31 @@ return_:
             // floating point calculator. The rst instruction does not affect the flags either.
             goto unknown_instr;
         }
-        default:
-unknown_instr:
+        case 0xCB: {
+            return doPrefix(opcode);
+        }
+        default: {
+            unknown_instr:
+#ifdef FB_DEBUG
             std::stringstream ss;
             ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
             std::cerr << "Illegal instruction: 0x" << ss.str() << std::endl;
+#endif
             return false;
+        }
     }
+}
+
+bool CPU::doPrefix(u8 prefix) {
+#ifdef FB_DEBUG
+    std::stringstream ss;
+    ss << std::uppercase << std::hex << (prefix & 0xff);
+    std::cerr << "Encountered not yet implemented prefix " << ss.str();
+    ss = std::stringstream();
+    ss << std::uppercase << std::hex << (memory->read8BitsAt(progCounter++) & 0xff);
+    std::cerr << " followed by instruction " << ss.str() << std::endl;
+#endif
+    return false;
 }
 
 void CPU::setProgramCounter(u16 offset) {
@@ -394,16 +475,20 @@ u16 CPU::pop16Bits() {
 }
 
 void CPU::cp(u8 val) {
-    std::cout << "cp " << (val & 0xff) << std::endl;
+#ifdef FB_DEBUG
+    std::cout << "cp " << (*regA & 0xff) << " - " << (val & 0xff) << std::endl;
+#endif
     // See http://z80-heaven.wikidot.com/instructions-set:cp
     setZero(*regA == val);
     setSubstraction(true);
-    setHalfCarry(((*regA & 0xF) - (val & 0xF)) < 0);
+    setHalfCarry((*regA & 0xF) < (val & 0xF));
     setCarry(*regA < val);
 }
 
 void CPU::_xor(u8 val) {
-    std::cout << "xor " << (val & 0xff) << std::endl;
+#ifdef FB_DEBUG
+    std::cout << "xor " << (*regA & 0xff) << " ^ " << (val & 0xff) << std::endl;
+#endif
     *regA ^= val;
     setZero(*regA == 0);
     setSubstraction(false);
