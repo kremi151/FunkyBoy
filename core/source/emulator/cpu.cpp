@@ -123,7 +123,7 @@ bool CPU::doTick() {
 
     std::stringstream ss;
     ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
-    std::cout << "instr " << ss.str() << std::endl;
+    std::cout << "> instr " << ss.str() << std::endl;
 
     switch (opcode) {
         // nop
@@ -167,6 +167,18 @@ bool CPU::doTick() {
         // ld A,(C)
         case 0xF2: {
             *regA = ram[0xFF00 + *regC];
+            return true;
+        }
+        // ldh (a8),A
+        case 0xE0: {
+            auto addr = cartridge->instructionAt(progCounter++);
+            ram[0xFF00 + addr] = *regA;
+            return true;
+        }
+        // ldh A,(a8)
+        case 0xF0: {
+            auto addr = cartridge->instructionAt(progCounter++);
+            *regA = ram[0xFF00 + addr];
             return true;
         }
         // add reg,reg TODO: Correct notation?
@@ -350,6 +362,16 @@ return_:
             // TODO: RETI instruction
             // Returns from an interrupt routine. Note: RETI cannot use return conditions.
             goto unknown_instr;
+        }
+        case 0xF3: {
+            // TODO: Implement "Disable Interrupts"
+            std::cerr << "Disable Interrupts is not yet implemented" << std::endl;
+            return true;
+        }
+        case 0xFB: {
+            // TODO: Implement "Enable Interrupts"
+            std::cerr << "Enable Interrupts is not yet implemented" << std::endl;
+            return true;
         }
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
             // TODO: RST (reset) instruction
