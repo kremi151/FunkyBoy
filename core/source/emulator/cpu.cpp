@@ -264,6 +264,17 @@ return_:
             cp(cartridge->instructionAt(progCounter++));
             return true;
         }
+        // inc ss
+        case 0x03: case 0x13: case 0x23: {
+            auto _16bitReg = FB_CAST_8_TO_16_BIT(registers);
+            *(_16bitReg + (opcode >> 4 & 3)) += 1;
+            return true;
+        }
+        // inc SP:
+        case 0x33: {
+            stackPointer++; // TODO: Is this correct?
+            return true;
+        }
         case 0xD9: {
             // TODO: RETI instruction
             // Returns from an interrupt routine. Note: RETI cannot use return conditions.
