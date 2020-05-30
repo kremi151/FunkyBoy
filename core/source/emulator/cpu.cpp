@@ -28,10 +28,7 @@
 using namespace FunkyBoy;
 
 CPU::CPU(std::shared_ptr<Cartridge> cartridge): progCounter(0), stackPointer(0), cartridge(std::move(cartridge)) {
-    ram = new u8[FB_RAM_SIZE];
-    for (size_t i = 0 ; i < FB_RAM_SIZE ; i++) {
-        ram[i] = 0;
-    }
+    ram = new u8[FB_RAM_SIZE]{};
 
     regB = registers;
     regC = registers + 1;

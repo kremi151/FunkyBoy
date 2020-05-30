@@ -24,6 +24,8 @@
 
 namespace FunkyBoy {
 
+    class Memory;
+
     enum CartridgeStatus {
         NoROMLoaded,
         ROMFileNotReadable,
@@ -36,8 +38,11 @@ namespace FunkyBoy {
     class Cartridge {
     private:
         u8 *rom;
+        u8 *ram;
         size_t romSize;
         CartridgeStatus status;
+
+        friend class Memory;
 
     public:
         Cartridge();

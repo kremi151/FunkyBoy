@@ -24,10 +24,12 @@
 using namespace FunkyBoy;
 
 Cartridge::Cartridge(): rom(nullptr), romSize(0), status(CartridgeStatus::NoROMLoaded) {
+    ram = new u8[8 * 1924];
 }
 
 Cartridge::~Cartridge() {
     delete[] rom;
+    delete[] ram;
 }
 
 void Cartridge::loadROM(std::ifstream &file) {
