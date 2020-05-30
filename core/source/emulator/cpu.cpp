@@ -281,8 +281,8 @@ jump_relative:
 #ifdef FB_DEBUG
             std::cout << "JR from " << asHex(progCounter);
 #endif
-            auto rel = memory->read8BitsAt(progCounter++); // TODO: Verify that we should increment here, but it seems logical
-            progCounter += rel;
+            auto signedByte = static_cast<i8>(memory->read8BitsAt(progCounter++)); // TODO: Verify that we should increment here, but it seems logical
+            progCounter += signedByte;
 #ifdef FB_DEBUG
             std::cout << " to " << asHex(progCounter) << std::endl;
 #endif
