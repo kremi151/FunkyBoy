@@ -130,6 +130,29 @@ jump_static:
             progCounter = *regAF;
             return true;
         }
+        // jr (N)Z,r8
+        case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
+            bool set = opcode & 0b00001000;
+            if ((!set && !isZero()) || (set && isZero())) {
+                goto jump_relative;
+            }
+            return true;
+        }
+        // jr (N)C,r8
+        case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
+            bool set = opcode & 0b00001000;
+            if ((!set && !isCarry()) || (set && isCarry())) {
+                goto jump_relative;
+            }
+            return true;
+        }
+        // unconditional jr
+        case 0x18: {
+jump_relative:
+            auto rel = cartridge->instructionAt(progCounter);
+            progCounter += rel;
+            return true;
+        }
         default:
             std::cerr << "Illegal instruction: " << (opcode & 0xff) << std::endl;
             return false;
