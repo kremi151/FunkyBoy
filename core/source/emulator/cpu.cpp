@@ -104,6 +104,9 @@ bool CPU::doTick() {
     // http://tutorials.eeems.ca/Z80ASM/app1d.htm
     // http://www.z80.info/z80sflag.htm
 
+    // For test ROMs:
+    // https://gbdev.gg8.se/wiki/articles/Test_ROMs
+
     // TODO: Remove logs
 
     auto opcode = memory->read8BitsAt(progCounter++);
@@ -158,6 +161,40 @@ bool CPU::doTick() {
         case 0x3E: {
             *regA = memory->read8BitsAt(progCounter++);
             debug_print("ldh A,d8 A <- 0x%02X\n", *regA);
+            return true;
+        }
+        // ld (ss),d16
+        case 0x01: case 0x11: case 0x21: {
+            debug_print("ld (ss),d16\n");
+            auto _16bitReg = FB_CAST_8_TO_16_BIT(registers);
+            *(_16bitReg + (opcode >> 4 & 3)) = memory->read16BitsAt(progCounter);
+            progCounter += 2;
+            return true;
+        }
+        // ld SP,d16
+        case 0x31: {
+            debug_print("ld SP,d16\n");
+            stackPointer = memory->read16BitsAt(progCounter); // TODO: Correct?
+            progCounter += 2;
+            return true;
+        }
+        // ld (a16),SP
+        case 0x08: {
+            debug_print("ld (a16),SP\n");
+            memory->write16BitsTo(memory->read16BitsAt(progCounter), stackPointer);
+            progCounter += 2;
+            return true;
+        }
+        // ld s,d8
+        case 0x06: case 0x0E: case 0x16: case 0x1E: case 0x26: case 0x2E: {
+            debug_print("ld s,d8\n");
+            *(registers + (opcode >> 3 & 5)) = memory->read8BitsAt(progCounter++);
+            return true;
+        }
+        // ld (HL),d8
+        case 0x36: {
+            debug_print("ld (HL),d8\n");
+            memory->write8BitsTo(*regHL, memory->read8BitsAt(progCounter++)); // TODO: Correct?
             return true;
         }
         // ldh (a8),A
@@ -323,7 +360,7 @@ return_:
         }
         // inc SP
         case 0x33: {
-            stackPointer++; // TODO: Is this correct?
+            stackPointer--; // TODO: Is this correct?
             return true;
         }
         // inc (HL)

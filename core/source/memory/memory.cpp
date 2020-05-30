@@ -115,3 +115,7 @@ void Memory::incrementAt(memory_address offset) {
 u16 Memory::read16BitsAt(memory_address offset) {
     return *FB_CAST_8_TO_16_BIT(getMemoryAddress(offset));
 }
+
+void Memory::write16BitsTo(memory_address offset, u16 val) {
+    *FB_CAST_8_TO_16_BIT(getMemoryAddress(offset)) = val;
+}

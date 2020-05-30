@@ -56,6 +56,7 @@ namespace FunkyBoy {
         void incrementAt(memory_address offset);
 
         u16 read16BitsAt(memory_address offset);
+        void write16BitsTo(memory_address offset, u16 val);
     };
 
 }
