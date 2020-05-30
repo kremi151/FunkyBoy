@@ -25,12 +25,7 @@
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(): cartridge(new Cartridge), cpu(cartridge) {
-    vram = new u8[16384];
-}
-
-Emulator::~Emulator() {
-    delete[] vram;
+Emulator::Emulator(): cartridge(new Cartridge), memory(new Memory(cartridge)), cpu(memory) {
 }
 
 void Emulator::loadGame(const std::filesystem::path &romPath) {

@@ -52,8 +52,6 @@ namespace FunkyBoy {
 
         const ROMHeader *getHeader();
         CartridgeStatus getStatus();
-        u8 instructionAt(u32 offset);
-        u16 read16BitsAt(u32 offset);
     };
 
 }

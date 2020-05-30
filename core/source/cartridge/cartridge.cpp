@@ -84,12 +84,3 @@ const ROMHeader * Cartridge::getHeader() {
 CartridgeStatus Cartridge::getStatus() {
     return status;
 }
-
-u8 Cartridge::instructionAt(u32 offset) {
-    return rom[offset];
-}
-
-u16 Cartridge::read16BitsAt(u32 offset) {
-    // Beautiful, isn't it?
-    return *static_cast<u16*>(static_cast<void *>(rom + offset));
-}

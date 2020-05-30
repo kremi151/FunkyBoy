@@ -19,6 +19,8 @@
 
 #include <cstdint>
 
+#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
+
 namespace FunkyBoy {
 
     typedef uint8_t u8;

@@ -18,18 +18,14 @@
 
 #include <iostream>
 #include <utility>
+#include <util/typedefs.h>
 
 // TODO: For debugging, remove it afterwards:
 #include <sstream>
 
-#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
-#define FB_RAM_SIZE 32768
-
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Cartridge> cartridge): progCounter(0), stackPointer(0), cartridge(std::move(cartridge)) {
-    ram = new u8[FB_RAM_SIZE]{};
-
+CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0), memory(std::move(memory)) {
     regB = registers;
     regC = registers + 1;
     regD = registers + 2;
@@ -43,10 +39,6 @@ CPU::CPU(std::shared_ptr<Cartridge> cartridge): progCounter(0), stackPointer(0),
     regDE = FB_CAST_8_TO_16_BIT(regD);
     regHL = FB_CAST_8_TO_16_BIT(regH);
     regAF = FB_CAST_8_TO_16_BIT(regA);
-}
-
-CPU::~CPU() {
-    delete[] ram;
 }
 
 inline bool CPU::isCarry() {
@@ -116,7 +108,7 @@ bool CPU::doTick() {
 
     // TODO: Remove logs
 
-    auto opcode = cartridge->instructionAt(progCounter++);
+    auto opcode = memory->read8BitsAt(progCounter++);
 
     std::stringstream ss;
     ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
@@ -144,38 +136,38 @@ bool CPU::doTick() {
         }
         // ld (a16),A
         case 0xEA: {
-            auto destAddr = cartridge->read16BitsAt(progCounter);
+            auto destAddr = memory->read16BitsAt(progCounter);
             progCounter += 2;
-            ram[destAddr] = *regA;
+            memory->write8BitsTo(destAddr, *regA);
             return true;
         }
         // ld A,(a16)
         case 0xFA: {
-            auto srcAddr = cartridge->read16BitsAt(progCounter);
+            auto srcAddr = memory->read16BitsAt(progCounter);
             progCounter += 2;
-            *regA = ram[srcAddr];
+            *regA = memory->read8BitsAt(srcAddr);
             return true;
         }
         // ld (C),A
         case 0xE2: {
-            ram[0xFF00 + *regC] = *regA;
+            memory->write8BitsTo(0xFF00 + *regC, *regA);
             return true;
         }
         // ld A,(C)
         case 0xF2: {
-            *regA = ram[0xFF00 + *regC];
+            *regA = memory->read8BitsAt(0xFF00 + *regC);
             return true;
         }
         // ldh (a8),A
         case 0xE0: {
-            auto addr = cartridge->instructionAt(progCounter++);
-            ram[0xFF00 + addr] = *regA;
+            auto addr = memory->read8BitsAt(progCounter++);
+            memory->write8BitsTo(0xFF00 + addr, *regA);
             return true;
         }
         // ldh A,(a8)
         case 0xF0: {
-            auto addr = cartridge->instructionAt(progCounter++);
-            *regA = ram[0xFF00 + addr];
+            auto addr = memory->read8BitsAt(progCounter++);
+            *regA = memory->read8BitsAt(0xFF00 + addr);
             return true;
         }
         // add reg,reg TODO: Correct notation?
@@ -209,7 +201,7 @@ bool CPU::doTick() {
         {
 jump_absolute:
             std::cout << "jp a16" << std::endl;
-            progCounter = cartridge->read16BitsAt(progCounter);
+            progCounter = memory->read16BitsAt(progCounter);
             return true;
         }
         // jp AF
@@ -238,7 +230,7 @@ jump_absolute:
         // unconditional jr
         case 0x18: {
 jump_relative:
-            auto rel = cartridge->instructionAt(progCounter);
+            auto rel = memory->read8BitsAt(progCounter);
             progCounter += rel;
             return true;
         }
@@ -260,7 +252,7 @@ jump_relative:
         }
         case 0xCD: {
 call:
-            u16 val = cartridge->read16BitsAt(progCounter);
+            u16 val = memory->read16BitsAt(progCounter);
             push16Bits(progCounter + 2);
             progCounter = val;
             return true;
@@ -299,12 +291,12 @@ return_:
         }
         // cp HL
         case 0xBE: {
-            cp(ram[*regHL]);
+            cp(memory->read8BitsAt(*regHL));
             return true;
         }
         // cp d8
         case 0xFE: {
-            cp(cartridge->instructionAt(progCounter++));
+            cp(memory->read8BitsAt(progCounter++));
             return true;
         }
         // inc ss
@@ -320,7 +312,7 @@ return_:
         }
         // inc (HL)
         case 0x34: {
-            ram[*regHL]++;
+            memory->incrementAt(*regHL);
             return true;
         }
         // inc s
@@ -341,7 +333,7 @@ return_:
         }
         // xor (HL)
         case 0xAE: {
-            _xor(ram[*regHL]);
+            _xor(memory->read8BitsAt(*regHL));
             return true;
         }
         // xor A
@@ -351,7 +343,7 @@ return_:
         }
         // xor d8
         case 0xEE: {
-            auto val = cartridge->instructionAt(progCounter++);
+            auto val = memory->read8BitsAt(progCounter++);
             _xor(val);
             return true;
         }
@@ -392,13 +384,13 @@ void CPU::setProgramCounter(u16 offset) {
 }
 
 void CPU::push16Bits(FunkyBoy::u16 val) {
-    ram[stackPointer - 2] = (u8) (val);
-    ram[stackPointer - 1] = (u8) (val >> 8u);
+    memory->write8BitsTo(stackPointer - 2, (u8) (val));
+    memory->write8BitsTo(stackPointer - 1, (u8) (val >> 8u));
     stackPointer -= 2;
 }
 
 u16 CPU::pop16Bits() {
-    u16 val = ram[stackPointer - 2] | (ram[stackPointer - 1] << 8u);
+    u16 val = memory->read8BitsAt(stackPointer - 2) | (memory->read8BitsAt(stackPointer - 1) << 8u);
     stackPointer += 2;
     return val;
 }

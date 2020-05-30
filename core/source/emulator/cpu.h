@@ -19,16 +19,14 @@
 
 #include "util/typedefs.h"
 
-#include <cartridge/cartridge.h>
+#include <memory/memory.h>
 #include <memory>
 
 namespace FunkyBoy {
 
     class CPU {
     private:
-        std::shared_ptr<Cartridge> cartridge;
-
-        u8 *ram;
+        std::shared_ptr<Memory> memory;
 
         u8 registers[8]{};
         u16 progCounter;
@@ -68,8 +66,7 @@ namespace FunkyBoy {
         void cp(u8 val);
         void _xor(u8 val);
     public:
-        explicit CPU(std::shared_ptr<Cartridge> cartridge);
-        ~CPU();
+        explicit CPU(std::shared_ptr<Memory> memory);
 
         void setProgramCounter(u16 offset);
 

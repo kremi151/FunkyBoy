@@ -25,10 +25,13 @@
 
 namespace FunkyBoy {
 
+    typedef u32 memory_address;
+
     class Memory {
     private:
         u8 *restartInterruptVectorTable;
         std::shared_ptr<Cartridge> cartridge;
+        u8 romBank;
         u8 *vram; // Character RAM
         u8 *bgMapData1;
         u8 *bgMapData2;
@@ -37,9 +40,20 @@ namespace FunkyBoy {
         u8 *hwIO;
         u8 *hram;
         u8 interruptEnableFlag;
+
+        // Do not free these pointers, they are proxies to the ones above:
+        u8 *dynamicRamBank;
+
+        u8 *getMemoryAddress(memory_address offset);
     public:
-        Memory(std::shared_ptr<Cartridge> cartridge);
+        explicit Memory(std::shared_ptr<Cartridge> cartridge);
         ~Memory();
+
+        u8 read8BitsAt(memory_address offset);
+        void write8BitsTo(memory_address offset, u8 val);
+        void incrementAt(memory_address offset);
+
+        u16 read16BitsAt(memory_address offset);
     };
 
 }

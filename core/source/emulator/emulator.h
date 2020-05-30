@@ -22,6 +22,7 @@
 #include <emulator/cpu.h>
 #include <util/typedefs.h>
 #include <cartridge/cartridge.h>
+#include <memory/memory.h>
 #include <memory>
 
 namespace FunkyBoy {
@@ -29,13 +30,11 @@ namespace FunkyBoy {
     class Emulator {
     private:
         std::shared_ptr<Cartridge> cartridge;
-
-        u8 *vram;
+        std::shared_ptr<Memory> memory;
 
         CPU cpu;
     public:
         Emulator();
-        ~Emulator();
 
         void loadGame(const std::filesystem::path &romPath);
 

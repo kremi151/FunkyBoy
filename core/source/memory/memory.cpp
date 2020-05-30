@@ -16,11 +16,14 @@
 
 #include "memory.h"
 
+#include <util/typedefs.h>
+
 using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
+#define FB_ROM_BANK_SIZE (16 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0) {
+Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0), romBank(1) {
     restartInterruptVectorTable = new u8[255]{};
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
@@ -29,6 +32,8 @@ Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartri
     oam = new u8[160]{};
     hwIO = new u8[128]{};
     hram = new u8[127]{};
+
+    dynamicRamBank = internalRam + FB_INTERNAL_RAM_BANK_SIZE;
 }
 
 Memory::~Memory() {
@@ -40,4 +45,73 @@ Memory::~Memory() {
     delete[] oam;
     delete[] hwIO;
     delete[] hram;
+}
+
+u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
+    if (offset <= 0x00FF) {
+        return restartInterruptVectorTable + offset;
+    } else if (offset <= 0x3FFF) {
+        return cartridge->rom + offset;
+    } else if (offset <= 0x7FFF) {
+        // TODO: Make this switchable
+        return cartridge->rom + (romBank * FB_ROM_BANK_SIZE) + (offset - 0x4000);
+    } else if (offset <= 0x97FF) {
+        return vram + (offset - 0x8000);
+    } else if (offset <= 0x9BFF) {
+        return bgMapData1 + (offset - 0x9800);
+    } else if (offset <= 0x9FFF) {
+        return bgMapData2 + (offset - 0x9C00);
+    } else if (offset <= 0xBFFF) {
+        return cartridge->ram + (offset - 0xA000);
+    } else if (offset <= 0xCFFF) {
+        return internalRam + (offset - 0xC000);
+    } else if (offset <= 0xDFFF) {
+        // TODO: Make this switchable
+        return dynamicRamBank + (offset - 0xD000);
+    } else if (offset <= 0xFDFF) {
+        return nullptr;
+    } else if (offset <= 0xFE9F) {
+        return oam + (offset - 0xFE00);
+    } else if (offset <= 0xFEFF) {
+        return nullptr;
+    } else if (offset <= 0xFF7F) {
+        return hwIO + (offset - 0xFF00);
+    } else if (offset <= 0xFFFE) {
+        return hram + (offset - 0xFF80);
+    } else if (offset == 0xFFFF) {
+        return &interruptEnableFlag;
+    } else {
+        return nullptr;
+    }
+}
+
+u8 Memory::read8BitsAt(memory_address offset) {
+    return *getMemoryAddress(offset);
+}
+
+void Memory::write8BitsTo(memory_address offset, u8 val) {
+    if (offset >= 0x0100 && offset <= 0x7FFF) {
+        // Writing to ROM, meaning a ROM bank switch was requested
+        romBank = val & 7;
+        std::cout << "Switch ROM bank to " << (romBank & 0xff) << std::endl;
+        return;
+    }
+    // TODO: Enable ram, switch ram bank, disable ram
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        return;
+    }
+    *ptr = val;
+}
+
+void Memory::incrementAt(memory_address offset) {
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        return;
+    }
+    (*ptr)++;
+}
+
+u16 Memory::read16BitsAt(memory_address offset) {
+    return *FB_CAST_8_TO_16_BIT(getMemoryAddress(offset));
 }
