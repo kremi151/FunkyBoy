@@ -53,7 +53,6 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     } else if (offset <= 0x3FFF) {
         return cartridge->rom + offset;
     } else if (offset <= 0x7FFF) {
-        // TODO: Make this switchable
         return cartridge->rom + (romBank * FB_ROM_BANK_SIZE) + (offset - 0x4000);
     } else if (offset <= 0x97FF) {
         return vram + (offset - 0x8000);
@@ -110,6 +109,14 @@ void Memory::incrementAt(memory_address offset) {
         return;
     }
     (*ptr)++;
+}
+
+void Memory::decrementAt(memory_address offset) {
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        return;
+    }
+    (*ptr)--;
 }
 
 u16 Memory::read16BitsAt(memory_address offset) {

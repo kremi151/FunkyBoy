@@ -10,7 +10,12 @@ int main() {
 
     FunkyBoy::Emulator emulator;
     emulator.loadGame(std::filesystem::path("funkyboy.gb"));
-    while (emulator.doTick());
+
+    unsigned long long instructions = 0;
+    while (emulator.doTick()) {
+        instructions++;
+    }
+    fprintf(stdout, "Executed %llu instructions\n", instructions);
 
     return 0;
 }

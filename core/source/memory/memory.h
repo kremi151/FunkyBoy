@@ -54,6 +54,7 @@ namespace FunkyBoy {
         u8 read8BitsAt(memory_address offset);
         void write8BitsTo(memory_address offset, u8 val);
         void incrementAt(memory_address offset);
+        void decrementAt(memory_address offset);
 
         u16 read16BitsAt(memory_address offset);
         void write16BitsTo(memory_address offset, u16 val);

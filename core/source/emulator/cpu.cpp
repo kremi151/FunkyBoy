@@ -232,7 +232,7 @@ bool CPU::doTick() {
         }
         // ld A,(HLI)
         case 0x2A: {
-            debug_print("ld ld A,(HLI)\n");
+            debug_print("ld A,(HLI)\n");
             *regA = memory->read8BitsAt(*regHL);
             (*regHL)++;
             return true;
@@ -434,6 +434,34 @@ return_:
             (*regA)++;
             setZero(*regA == 0);
             setSubstraction(false);
+            // Leave carry as-is
+            return true;
+        }
+        // dec (HL)
+        case 0x35: {
+            setHalfCarry(((memory->read8BitsAt(*regHL) & 0xf) - (1 & 0xf)) & 0x10);
+            memory->decrementAt(*regHL);
+            setZero(memory->read8BitsAt(*regHL) == 0);
+            setSubstraction(true);
+            // Leave carry as-is
+            return true;
+        }
+        // dec s
+        case 0x05: case 0x0D: case 0x15: case 0x1D: case 0x25: case 0x2D: {
+            auto reg = registers + (opcode >> 3 & 7);
+            setHalfCarry(((*reg & 0xf) - (1 & 0xf)) & 0x10);
+            (*reg)--;
+            setZero(*reg == 0);
+            setSubstraction(true);
+            // Leave carry as-is
+            return true;
+        }
+        // dec A
+        case 0x3D: {
+            setHalfCarry(((*regA & 0xf) - (1 & 0xf)) & 0x10);
+            (*regA)--;
+            setZero(*regA == 0);
+            setSubstraction(true);
             // Leave carry as-is
             return true;
         }
