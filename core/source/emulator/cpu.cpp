@@ -21,7 +21,21 @@
 #include <util/typedefs.h>
 
 #ifdef FB_DEBUG
+
 #include <sstream>
+
+std::string asHex(FunkyBoy::u8 val) {
+    std::stringstream ss;
+    ss << "0x" << std::uppercase << std::hex << (val & 0xff);
+    return ss.str();
+}
+
+std::string asHex(FunkyBoy::u16 val) {
+    std::stringstream ss;
+    ss << "0x" << std::uppercase << std::hex << (val & 0xffff);
+    return ss.str();
+}
+
 #endif
 
 using namespace FunkyBoy;
@@ -112,9 +126,7 @@ bool CPU::doTick() {
     auto opcode = memory->read8BitsAt(progCounter++);
 
 #ifdef FB_DEBUG
-    std::stringstream ss;
-    ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
-    std::cout << "> instr 0x" << ss.str() << std::endl;
+    std::cout << "> instr " << asHex(opcode) << std::endl;
 #endif
 
     switch (opcode) {
@@ -169,7 +181,7 @@ bool CPU::doTick() {
         case 0x3E: {
             *regA = memory->read8BitsAt(progCounter++);
 #ifdef FB_DEBUG
-            std::cout << "ldh A,d8 A <- " << (*regA & 0xff) << std::endl;
+            std::cout << "ldh A,d8 A <- " << asHex(*regA) << std::endl;
 #endif
             return true;
         }
@@ -177,7 +189,7 @@ bool CPU::doTick() {
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);
 #ifdef FB_DEBUG
-            std::cout << "ldh (a8),A " << (0xFF00 + addr) << " <- " << (*regA & 0xff) << std::endl;
+            std::cout << "ldh (a8),A " << (0xFF00 + addr) << " <- " << asHex(*regA) << std::endl;
 #endif
             memory->write8BitsTo(0xFF00 + addr, *regA);
             return true;
@@ -221,11 +233,11 @@ bool CPU::doTick() {
         {
 jump_absolute:
 #ifdef FB_DEBUG
-            std::cout << "jp a16 from " << progCounter;
+            std::cout << "jp a16 from " << asHex(progCounter);
 #endif
             progCounter = memory->read16BitsAt(progCounter);
 #ifdef FB_DEBUG
-            std::cout << " to " << progCounter << std::endl;
+            std::cout << " to " << asHex(progCounter) << std::endl;
 #endif
             return true;
         }
@@ -267,12 +279,12 @@ jump_absolute:
 #endif
 jump_relative:
 #ifdef FB_DEBUG
-            std::cout << "JR from " << progCounter;
+            std::cout << "JR from " << asHex(progCounter);
 #endif
             auto rel = memory->read8BitsAt(progCounter++); // TODO: Verify that we should increment here, but it seems logical
             progCounter += rel;
 #ifdef FB_DEBUG
-            std::cout << " to " << progCounter << std::endl;
+            std::cout << " to " << asHex(progCounter) << std::endl;
 #endif
             return true;
         }
@@ -301,13 +313,13 @@ jump_relative:
         case 0xCD: {
 call:
 #ifdef FB_DEBUG
-            std::cout << "call from " << progCounter;
+            std::cout << "call from " << asHex(progCounter);
 #endif
             u16 val = memory->read16BitsAt(progCounter);
             push16Bits(progCounter + 2);
             progCounter = val;
 #ifdef FB_DEBUG
-            std::cout << " to " << progCounter << std::endl;
+            std::cout << " to " << asHex(progCounter) << std::endl;
 #endif
             return true;
         }
@@ -437,9 +449,7 @@ return_:
         default: {
             unknown_instr:
 #ifdef FB_DEBUG
-            std::stringstream ss;
-            ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
-            std::cerr << "Illegal instruction: 0x" << ss.str() << std::endl;
+            std::cerr << "Illegal instruction: " << asHex(opcode) << std::endl;
 #endif
             return false;
         }
@@ -448,12 +458,8 @@ return_:
 
 bool CPU::doPrefix(u8 prefix) {
 #ifdef FB_DEBUG
-    std::stringstream ss;
-    ss << std::uppercase << std::hex << (prefix & 0xff);
-    std::cerr << "Encountered not yet implemented prefix " << ss.str();
-    ss = std::stringstream();
-    ss << std::uppercase << std::hex << (memory->read8BitsAt(progCounter++) & 0xff);
-    std::cerr << " followed by instruction " << ss.str() << std::endl;
+    std::cerr << "Encountered not yet implemented prefix " << asHex(prefix);
+    std::cerr << " followed by instruction " << asHex(memory->read8BitsAt(progCounter++));
 #endif
     return false;
 }
@@ -476,7 +482,7 @@ u16 CPU::pop16Bits() {
 
 void CPU::cp(u8 val) {
 #ifdef FB_DEBUG
-    std::cout << "cp " << (*regA & 0xff) << " - " << (val & 0xff) << std::endl;
+    std::cout << "cp " << asHex(*regA) << " - " << asHex(val) << std::endl;
 #endif
     // See http://z80-heaven.wikidot.com/instructions-set:cp
     setZero(*regA == val);
@@ -487,7 +493,7 @@ void CPU::cp(u8 val) {
 
 void CPU::_xor(u8 val) {
 #ifdef FB_DEBUG
-    std::cout << "xor " << (*regA & 0xff) << " ^ " << (val & 0xff) << std::endl;
+    std::cout << "xor " << asHex(*regA) << " ^ " << asHex(val) << std::endl;
 #endif
     *regA ^= val;
     setZero(*regA == 0);
