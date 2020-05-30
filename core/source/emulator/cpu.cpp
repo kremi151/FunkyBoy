@@ -353,13 +353,11 @@ return_:
             goto unknown_instr;
         }
         case 0xF3: {
-            // TODO: Implement "Disable Interrupts"
-            std::cerr << "Disable Interrupts is not yet implemented" << std::endl;
+            memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 0);
             return true;
         }
         case 0xFB: {
-            // TODO: Implement "Enable Interrupts"
-            std::cerr << "Enable Interrupts is not yet implemented" << std::endl;
+            memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
             return true;
         }
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {

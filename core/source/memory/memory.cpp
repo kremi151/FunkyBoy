@@ -78,7 +78,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         return hwIO + (offset - 0xFF00);
     } else if (offset <= 0xFFFE) {
         return hram + (offset - 0xFF80);
-    } else if (offset == 0xFFFF) {
+    } else if (offset == FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER) {
         return &interruptEnableFlag;
     } else {
         return nullptr;

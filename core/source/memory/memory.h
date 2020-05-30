@@ -23,6 +23,8 @@
 // Useful resources:
 // http://gameboy.mongenel.com/dmg/asmmemmap.html
 
+#define FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER 0xFFFF
+
 namespace FunkyBoy {
 
     typedef u32 memory_address;
