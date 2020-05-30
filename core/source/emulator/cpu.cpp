@@ -270,14 +270,31 @@ return_:
             *(_16bitReg + (opcode >> 4 & 3)) += 1;
             return true;
         }
-        // inc SP:
+        // inc SP
         case 0x33: {
             stackPointer++; // TODO: Is this correct?
+            return true;
+        }
+        // inc (HL)
+        case 0x34: {
+            ram[*regHL]++;
+            return true;
+        }
+        // inc s
+        case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: {
+            auto reg = registers + (opcode >> 3 & 7);
+            (*reg)++;
+            return true;
+        }
+        // inc A
+        case 0x3C: {
+            (*regA)++;
             return true;
         }
         case 0xD9: {
             // TODO: RETI instruction
             // Returns from an interrupt routine. Note: RETI cannot use return conditions.
+            goto unknown_instr;
         }
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
             // TODO: RST (reset) instruction
@@ -285,6 +302,7 @@ return_:
             // taken by the rst’s depends on what kind of hardware you have. On the TI calculators they are equivalent
             // to some of the most important ROM calls. Another example from the Spectrum: rst $28 activates the built-in
             // floating point calculator. The rst instruction does not affect the flags either.
+            goto unknown_instr;
         }
         default:
 unknown_instr:
