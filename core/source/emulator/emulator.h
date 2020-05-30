@@ -30,7 +30,6 @@ namespace FunkyBoy {
     private:
         std::shared_ptr<Cartridge> cartridge;
 
-        u8 *ram;
         u8 *vram;
 
         CPU cpu;

@@ -24,6 +24,8 @@
 using namespace FunkyBoy;
 
 CPU::CPU(std::shared_ptr<Cartridge> cartridge): progCounter(0), stackPointer(0), cartridge(std::move(cartridge)) {
+    ram = new u8[32768];
+
     regB = registers;
     regC = registers + 1;
     regD = registers + 2;
@@ -37,6 +39,10 @@ CPU::CPU(std::shared_ptr<Cartridge> cartridge): progCounter(0), stackPointer(0),
     regDE = FB_CAST_8_TO_16_BIT(regD);
     regHL = FB_CAST_8_TO_16_BIT(regH);
     regAF = FB_CAST_8_TO_16_BIT(regA);
+}
+
+CPU::~CPU() {
+    delete[] ram;
 }
 
 inline bool CPU::isCarry() {
@@ -103,7 +109,7 @@ bool CPU::doTick() {
         case 0xC2: case 0xCA: {
             bool set = opcode & 0b00001000;
             if ((!set && !isZero()) || (set && isZero())) {
-                goto jump_static;
+                goto jump_absolute;
             }
             return true;
         }
@@ -111,14 +117,14 @@ bool CPU::doTick() {
         case 0xD2: case 0xDA: {
             bool set = opcode & 0b00001000;
             if ((!set && !isCarry()) || (set && isCarry())) {
-                goto jump_static;
+                goto jump_absolute;
             }
             return true;
         }
         // unconditional jp
         case 0xC3:
         {
-jump_static:
+jump_absolute:
             std::cout << "jp a16" << std::endl;
             progCounter = cartridge->read16BitsAt(progCounter);
             return true;
@@ -153,6 +159,29 @@ jump_relative:
             progCounter += rel;
             return true;
         }
+        // call (N)Z,a16
+        case 0xC4: case 0xCC: {
+            bool set = opcode & 0b00001000;
+            if ((!set && !isZero()) || (set && isZero())) {
+                goto call;
+            }
+            return true;
+        }
+        // call (N)C,a16
+        case 0xD4: case 0xDC: {
+            bool set = opcode & 0b00001000;
+            if ((!set && !isCarry()) || (set && isCarry())) {
+                goto call;
+            }
+            return true;
+        }
+        case 0xCD: {
+call:
+            u16 val = cartridge->read16BitsAt(progCounter);
+            push16Bits(progCounter + 2);
+            progCounter = val;
+            return true;
+        }
         default:
             std::cerr << "Illegal instruction: " << (opcode & 0xff) << std::endl;
             return false;
@@ -161,4 +190,16 @@ jump_relative:
 
 void CPU::setProgramCounter(u16 offset) {
     progCounter = offset;
+}
+
+void CPU::push16Bits(FunkyBoy::u16 val) {
+    ram[stackPointer - 2] = (u8) (val);
+    ram[stackPointer - 1] = (u8) (val >> 8u);
+    stackPointer -= 2;
+}
+
+u16 CPU::pop16Bits() {
+    u16 val = ram[stackPointer - 2] | (ram[stackPointer - 1] << 8u);
+    stackPointer += 2;
+    return val;
 }

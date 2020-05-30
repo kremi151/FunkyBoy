@@ -26,12 +26,10 @@
 using namespace FunkyBoy;
 
 Emulator::Emulator(): cartridge(new Cartridge), cpu(cartridge) {
-    ram = new u8[32768];
     vram = new u8[16384];
 }
 
 Emulator::~Emulator() {
-    delete[] ram;
     delete[] vram;
 }
 

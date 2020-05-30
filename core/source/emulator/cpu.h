@@ -28,6 +28,8 @@ namespace FunkyBoy {
     private:
         std::shared_ptr<Cartridge> cartridge;
 
+        u8 *ram;
+
         u8 registers[8]{};
         u16 progCounter;
         u16 stackPointer;
@@ -53,9 +55,11 @@ namespace FunkyBoy {
         inline bool isSubstraction();
         inline bool isZero();
 
-
+        void push16Bits(u16 val);
+        u16 pop16Bits();
     public:
         explicit CPU(std::shared_ptr<Cartridge> cartridge);
+        ~CPU();
 
         void setProgramCounter(u16 offset);
 
