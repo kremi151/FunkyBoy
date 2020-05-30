@@ -49,7 +49,11 @@ void Cartridge::loadROM(std::ifstream &file) {
         return;
     }
 
-    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(length);
+    // It is important to always allocate 8MB for ROMs even if they are smaller
+    // Some ROMs might (because of whatever reason) switch the ROM bank to an area outside of the ROM's size.
+    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4096K);
+    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(maxRomSize);
+    memset(romBytes.get(), 0, maxRomSize * sizeof(u8));
 
     // TODO: Improve this so that I don't have to do this ugly to-char conversion
     auto voidPtr = static_cast<void*>(romBytes.get());
