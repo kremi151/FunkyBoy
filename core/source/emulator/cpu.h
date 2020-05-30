@@ -54,11 +54,18 @@ namespace FunkyBoy {
         void setCarry(bool carry);
 
         inline bool isHalfCarry();
+        void setHalfCarry(bool halfCarry);
+
         inline bool isSubstraction();
+        void setSubstraction(bool substration);
+
         inline bool isZero();
+        void setZero(bool zero);
 
         void push16Bits(u16 val);
         u16 pop16Bits();
+
+        void cp(u8 val);
     public:
         explicit CPU(std::shared_ptr<Cartridge> cartridge);
         ~CPU();

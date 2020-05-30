@@ -19,6 +19,9 @@
 #include <iostream>
 #include <utility>
 
+// TODO: For debugging, remove it afterwards:
+#include <sstream>
+
 #define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
 
 using namespace FunkyBoy;
@@ -61,12 +64,36 @@ inline bool CPU::isHalfCarry() {
     return *regF & 0b00100000;
 }
 
+void CPU::setHalfCarry(bool halfCarry) {
+    if (halfCarry) {
+        *regF |= 0b00100000;
+    } else {
+        *regF &= 0b11011111;
+    }
+}
+
 inline bool CPU::isSubstraction() {
     return *regF & 0b01000000;
 }
 
+void CPU::setSubstraction(bool substration) {
+    if (substration) {
+        *regF |= 0b01000000;
+    } else {
+        *regF &= 0b10111111;
+    }
+}
+
 inline bool CPU::isZero() {
     return *regF & 0b10000000;
+}
+
+void CPU::setZero(bool zero) {
+    if (zero) {
+        *regF |= 0b10000000;
+    } else {
+        *regF &= 0b01111111;
+    }
 }
 
 inline void addWithCarry(u8 &a, u8 &s, bool carry) {
@@ -78,9 +105,12 @@ bool CPU::doTick() {
     // https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     // http://www.devrs.com/gb/files/opcodes.html
     // https://www.reddit.com/r/EmuDev/comments/7ljc41/how_to_algorithmically_parse_gameboy_opcodes/
+    // https://www.reddit.com/r/EmuDev/comments/4clh23/trouble_with_halfcarrycarry_flag/
     // https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header
     // https://gbdev.gg8.se/wiki/articles/Gameboy_ROM_Header_Info
     // http://z80-heaven.wikidot.com/instructions-set
+    // http://tutorials.eeems.ca/Z80ASM/app1d.htm
+    // http://www.z80.info/z80sflag.htm
 
     // TODO: Remove logs
 
@@ -214,12 +244,43 @@ return_:
             progCounter = pop16Bits();
             return true;
         }
+        // cp s
+        case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: {
+            cp(registers[opcode & 0b00000111]);
+            return true;
+        }
+        // cp A
+        case 0xBF: {
+            cp(*regA);
+            return true;
+        }
+        // cp HL
+        case 0xBE: {
+            // TODO: Implement
+            goto unknown_instr;
+            return true;
+        }
+        // cp d8
+        case 0xFE: {
+            cp(cartridge->instructionAt(progCounter++));
+            return true;
+        }
         case 0xD9: {
             // TODO: RETI instruction
             // Returns from an interrupt routine. Note: RETI cannot use return conditions.
         }
+        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
+            // TODO: RST (reset) instruction
+            // The long name of this instruction is Restart; it is basically a call to the given address. The action
+            // taken by the rst’s depends on what kind of hardware you have. On the TI calculators they are equivalent
+            // to some of the most important ROM calls. Another example from the Spectrum: rst $28 activates the built-in
+            // floating point calculator. The rst instruction does not affect the flags either.
+        }
         default:
-            std::cerr << "Illegal instruction: " << (opcode & 0xff) << std::endl;
+unknown_instr:
+            std::stringstream ss;
+            ss << std::hex << static_cast<unsigned int>(opcode & 0xff);
+            std::cerr << "Illegal instruction: 0x" << ss.str() << std::endl;
             return false;
     }
 }
@@ -238,4 +299,13 @@ u16 CPU::pop16Bits() {
     u16 val = ram[stackPointer - 2] | (ram[stackPointer - 1] << 8u);
     stackPointer += 2;
     return val;
+}
+
+void CPU::cp(u8 val) {
+    std::cout << "cp " << (val & 0xff) << std::endl;
+    // See http://z80-heaven.wikidot.com/instructions-set:cp
+    setZero(*regA == val);
+    setSubstraction(true);
+    setHalfCarry(((*regA & 0xF) - (val & 0xF)) < 0);
+    setCarry(*regA < val);
 }
