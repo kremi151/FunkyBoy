@@ -182,6 +182,32 @@ call:
             progCounter = val;
             return true;
         }
+        // ret (N)Z,a16
+        case 0xC0: case 0xC8: {
+            bool set = opcode & 0b00001000;
+            if ((!set && !isZero()) || (set && isZero())) {
+                goto return_;
+            }
+            return true;
+        }
+        // ret (N)C,a16
+        case 0xD0: case 0xD8: {
+            bool set = opcode & 0b00001000;
+            if ((!set && !isCarry()) || (set && isCarry())) {
+                goto return_;
+            }
+            return true;
+        }
+        // ret a16
+        case 0xC9: {
+return_:
+            progCounter = pop16Bits();
+            return true;
+        }
+        case 0xD9: {
+            // TODO: RETI instruction
+            // Returns from an interrupt routine. Note: RETI cannot use return conditions.
+        }
         default:
             std::cerr << "Illegal instruction: " << (opcode & 0xff) << std::endl;
             return false;
