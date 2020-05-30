@@ -43,6 +43,8 @@ namespace FunkyBoy {
         u8 *regA;
         u8 *regF;
 
+        u16 *reg16bit;
+
         u16 *regBC;
         u16 *regDE;
         u16 *regHL;

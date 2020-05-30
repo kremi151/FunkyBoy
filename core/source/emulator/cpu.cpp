@@ -33,6 +33,8 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0), memor
     regA = registers + 6;
     regF = registers + 7;
 
+    reg16bit = FB_CAST_8_TO_16_BIT(registers);
+
     regBC = FB_CAST_8_TO_16_BIT(regB);
     regDE = FB_CAST_8_TO_16_BIT(regD);
     regHL = FB_CAST_8_TO_16_BIT(regH);
@@ -172,8 +174,7 @@ bool CPU::doTick() {
         // ld (ss),d16
         case 0x01: case 0x11: case 0x21: {
             debug_print("ld (ss),d16\n");
-            auto _16bitReg = FB_CAST_8_TO_16_BIT(registers);
-            *(_16bitReg + (opcode >> 4 & 3)) = memory->read16BitsAt(progCounter);
+            *(reg16bit + (opcode >> 4 & 3)) = memory->read16BitsAt(progCounter);
             progCounter += 2;
             return true;
         }
@@ -201,6 +202,46 @@ bool CPU::doTick() {
         case 0x36: {
             debug_print("ld (HL),d8\n");
             memory->write8BitsTo(*regHL, memory->read8BitsAt(progCounter++)); // TODO: Correct?
+            return true;
+        }
+        // ld (ss),A
+        case 0x02: case 0x12: {
+            debug_print("ld (ss),A\n");
+            memory->write8BitsTo(*(reg16bit + (opcode >> 4 & 1)), *regA);
+            return true;
+        }
+        // ld A,(ss)
+        case 0x0A: case 0x1A: {
+            debug_print("ld A,(ss)\n");
+            *regA = memory->read8BitsAt(*(reg16bit + (opcode >> 4 & 1)));
+            return true;
+        }
+        // ld (HLI),A
+        case 0x22: {
+            debug_print("ld (HLI),A\n");
+            memory->write8BitsTo(*regHL, *regA);
+            (*regHL)++;
+            return true;
+        }
+        // ld (HLD),A
+        case 0x32: {
+            debug_print("ld (HLD),A\n");
+            memory->write8BitsTo(*regHL, *regA);
+            (*regHL)--;
+            return true;
+        }
+        // ld A,(HLI)
+        case 0x2A: {
+            debug_print("ld ld A,(HLI)\n");
+            *regA = memory->read8BitsAt(*regHL);
+            (*regHL)++;
+            return true;
+        }
+        // ld A,(HLD)
+        case 0x3A: {
+            debug_print("ld A,(HLD)\n");
+            *regA = memory->read8BitsAt(*regHL);
+            (*regHL)--;
             return true;
         }
         // ldh (a8),A
@@ -360,8 +401,7 @@ return_:
         }
         // inc ss
         case 0x03: case 0x13: case 0x23: {
-            auto _16bitReg = FB_CAST_8_TO_16_BIT(registers);
-            *(_16bitReg + (opcode >> 4 & 3)) += 1;
+            *(reg16bit + (opcode >> 4 & 3)) += 1;
             return true;
         }
         // inc SP
