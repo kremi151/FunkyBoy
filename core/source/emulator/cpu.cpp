@@ -23,11 +23,15 @@
 #include <sstream>
 
 #define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
+#define FB_RAM_SIZE 32768
 
 using namespace FunkyBoy;
 
 CPU::CPU(std::shared_ptr<Cartridge> cartridge): progCounter(0), stackPointer(0), cartridge(std::move(cartridge)) {
-    ram = new u8[32768];
+    ram = new u8[FB_RAM_SIZE];
+    for (size_t i = 0 ; i < FB_RAM_SIZE ; i++) {
+        ram[i] = 0;
+    }
 
     regB = registers;
     regC = registers + 1;
@@ -104,6 +108,7 @@ bool CPU::doTick() {
     // Useful resources:
     // https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     // http://www.devrs.com/gb/files/opcodes.html
+    // https://rednex.github.io/rgbds/gbz80.7.html
     // https://www.reddit.com/r/EmuDev/comments/7ljc41/how_to_algorithmically_parse_gameboy_opcodes/
     // https://www.reddit.com/r/EmuDev/comments/4clh23/trouble_with_halfcarrycarry_flag/
     // https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header
@@ -115,6 +120,11 @@ bool CPU::doTick() {
     // TODO: Remove logs
 
     auto opcode = cartridge->instructionAt(progCounter++);
+
+    std::stringstream ss;
+    ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
+    std::cout << "instr " << ss.str() << std::endl;
+
     switch (opcode) {
         // nop
         case 0x00:
@@ -134,6 +144,30 @@ bool CPU::doTick() {
             u8 src = registers[opcode & 7];
             dst = src;
             return true;;
+        }
+        // ld (a16),A
+        case 0xEA: {
+            auto destAddr = cartridge->read16BitsAt(progCounter);
+            progCounter += 2;
+            ram[destAddr] = *regA;
+            return true;
+        }
+        // ld A,(a16)
+        case 0xFA: {
+            auto srcAddr = cartridge->read16BitsAt(progCounter);
+            progCounter += 2;
+            *regA = ram[srcAddr];
+            return true;
+        }
+        // ld (C),A
+        case 0xE2: {
+            ram[0xFF00 + *regC] = *regA;
+            return true;
+        }
+        // ld A,(C)
+        case 0xF2: {
+            *regA = ram[0xFF00 + *regC];
+            return true;
         }
         // add reg,reg TODO: Correct notation?
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // add a,reg
@@ -328,7 +362,7 @@ return_:
         default:
 unknown_instr:
             std::stringstream ss;
-            ss << std::hex << static_cast<unsigned int>(opcode & 0xff);
+            ss << std::uppercase << std::hex << static_cast<unsigned int>(opcode & 0xff);
             std::cerr << "Illegal instruction: 0x" << ss.str() << std::endl;
             return false;
     }
