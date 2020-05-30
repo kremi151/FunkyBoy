@@ -291,6 +291,27 @@ return_:
             (*regA)++;
             return true;
         }
+        // xor s
+        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: {
+            _xor(*(registers + (opcode & 7)));
+            return true;
+        }
+        // xor (HL)
+        case 0xAE: {
+            _xor(ram[*regHL]);
+            return true;
+        }
+        // xor A
+        case 0xAF: {
+            _xor(*regA);
+            return true;
+        }
+        // xor d8
+        case 0xEE: {
+            auto val = cartridge->instructionAt(progCounter++);
+            _xor(val);
+            return true;
+        }
         case 0xD9: {
             // TODO: RETI instruction
             // Returns from an interrupt routine. Note: RETI cannot use return conditions.
@@ -329,11 +350,20 @@ u16 CPU::pop16Bits() {
     return val;
 }
 
-void CPU::cp(u8_or_16 val) {
+void CPU::cp(u8 val) {
     std::cout << "cp " << (val & 0xff) << std::endl;
     // See http://z80-heaven.wikidot.com/instructions-set:cp
     setZero(*regA == val);
     setSubstraction(true);
     setHalfCarry(((*regA & 0xF) - (val & 0xF)) < 0);
     setCarry(*regA < val);
+}
+
+void CPU::_xor(u8 val) {
+    std::cout << "xor " << (val & 0xff) << std::endl;
+    *regA ^= val;
+    setZero(*regA == 0);
+    setSubstraction(false);
+    setHalfCarry(false);
+    setCarry(false);
 }
