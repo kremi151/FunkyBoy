@@ -19,24 +19,7 @@
 #include <iostream>
 #include <utility>
 #include <util/typedefs.h>
-
-#ifdef FB_DEBUG
-
-#include <sstream>
-
-std::string asHex(FunkyBoy::u8 val) {
-    std::stringstream ss;
-    ss << "0x" << std::uppercase << std::hex << (val & 0xff);
-    return ss.str();
-}
-
-std::string asHex(FunkyBoy::u16 val) {
-    std::stringstream ss;
-    ss << "0x" << std::uppercase << std::hex << (val & 0xffff);
-    return ss.str();
-}
-
-#endif
+#include <util/debug.h>
 
 using namespace FunkyBoy;
 
@@ -125,16 +108,12 @@ bool CPU::doTick() {
 
     auto opcode = memory->read8BitsAt(progCounter++);
 
-#ifdef FB_DEBUG
-    std::cout << "> instr " << asHex(opcode) << std::endl;
-#endif
+    debug_print("> instr 0x%02X\n", opcode);
 
     switch (opcode) {
         // nop
         case 0x00:
-#ifdef FB_DEBUG
-            std::cout << "nop" << std::endl;
-#endif
+            debug_print("nop\n");
             break;
         // ld reg,reg
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // ld b,reg
@@ -145,9 +124,7 @@ bool CPU::doTick() {
         case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: case 0x6f: // ld l,reg
         case 0x78: case 0x79: case 0x7a: case 0x7b: case 0x7c: case 0x7d: case 0x7f: // ld a,reg
         {
-#ifdef FB_DEBUG
-            std::cout << "ld reg,reg" << std::endl;
-#endif
+            debug_print("ld reg,reg\n");
             u8 &dst = registers[opcode >> 3 & 7];
             u8 src = registers[opcode & 7];
             dst = src;
@@ -180,17 +157,13 @@ bool CPU::doTick() {
         // ld A,d8
         case 0x3E: {
             *regA = memory->read8BitsAt(progCounter++);
-#ifdef FB_DEBUG
-            std::cout << "ldh A,d8 A <- " << asHex(*regA) << std::endl;
-#endif
+            debug_print("ldh A,d8 A <- 0x%02X\n", *regA);
             return true;
         }
         // ldh (a8),A
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);
-#ifdef FB_DEBUG
-            std::cout << "ldh (a8),A " << (0xFF00 + addr) << " <- " << asHex(*regA) << std::endl;
-#endif
+            debug_print("ldh (a8),A 0x%04X <- 0x%02X\n", 0xFF00 + addr, *regA);
             memory->write8BitsTo(0xFF00 + addr, *regA);
             return true;
         }
@@ -204,9 +177,7 @@ bool CPU::doTick() {
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // add a,reg
         case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: // adc a,reg
         {
-#ifdef FB_DEBUG
-            std::cout << "add reg,reg" << std::endl;
-#endif
+            debug_print("add reg,reg\n");
             bool carry = (opcode & 8) && isCarry();
             addWithCarry(*regA, registers[opcode & 7], carry);
             setCarry(false);
@@ -232,30 +203,22 @@ bool CPU::doTick() {
         case 0xC3:
         {
 jump_absolute:
-#ifdef FB_DEBUG
-            std::cout << "jp a16 from " << asHex(progCounter);
-#endif
+            debug_print("jp a16 from 0x%04X", progCounter);
             progCounter = memory->read16BitsAt(progCounter);
-#ifdef FB_DEBUG
-            std::cout << " to " << asHex(progCounter) << std::endl;
-#endif
+            debug_print(" to 0x%04X\n", progCounter);
             return true;
         }
         // jp AF
         case 0xE9:
         {
-#ifdef FB_DEBUG
-            std::cout << "jp AF" << std::endl;
-#endif
+            debug_print("jp AF\n");
             progCounter = *regAF;
             return true;
         }
         // jr (N)Z,r8
         case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
             bool set = opcode & 0b00001000;
-#ifdef FB_DEBUG
-            std::cout << "jr (N)Z,r8 set ? " << set << isZero() << std::endl;
-#endif
+            debug_print("jr (N)Z,r8 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
                 goto jump_relative;
             }
@@ -264,9 +227,7 @@ jump_absolute:
         // jr (N)C,r8
         case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
             bool set = opcode & 0b00001000;
-#ifdef FB_DEBUG
-            std::cout << "jr (N)C,r8 set? " << set << std::endl;
-#endif
+            debug_print("jr (N)C,r8 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
                 goto jump_relative;
             }
@@ -274,26 +235,18 @@ jump_absolute:
         }
         // unconditional jr
         case 0x18: {
-#ifdef FB_DEBUG
-            std::cout << "jr" << std::endl;
-#endif
+            debug_print("jr\n");
 jump_relative:
-#ifdef FB_DEBUG
-            std::cout << "JR from " << asHex(progCounter);
-#endif
+            debug_print("JR from 0x%04X", progCounter);
             auto signedByte = static_cast<i8>(memory->read8BitsAt(progCounter++)); // TODO: Verify that we should increment here, but it seems logical
             progCounter += signedByte;
-#ifdef FB_DEBUG
-            std::cout << " to " << asHex(progCounter) << std::endl;
-#endif
+            debug_print(" to 0x%04X\n", progCounter);
             return true;
         }
         // call (N)Z,a16
         case 0xC4: case 0xCC: {
             bool set = opcode & 0b00001000;
-#ifdef FB_DEBUG
-            std::cout << "call (N)Z,a16 set? " << set << std::endl;
-#endif
+            debug_print("call (N)Z,a16 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
                 goto call;
             }
@@ -302,9 +255,7 @@ jump_relative:
         // call (N)C,a16
         case 0xD4: case 0xDC: {
             bool set = opcode & 0b00001000;
-#ifdef FB_DEBUG
-            std::cout << "call (N)C,a16 set? " << set << std::endl;
-#endif
+            debug_print("call (N)C,a16 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
                 goto call;
             }
@@ -312,23 +263,17 @@ jump_relative:
         }
         case 0xCD: {
 call:
-#ifdef FB_DEBUG
-            std::cout << "call from " << asHex(progCounter);
-#endif
+            debug_print("call from 0x%04X", progCounter);
             u16 val = memory->read16BitsAt(progCounter);
             push16Bits(progCounter + 2);
             progCounter = val;
-#ifdef FB_DEBUG
-            std::cout << " to " << asHex(progCounter) << std::endl;
-#endif
+            debug_print(" to 0x%04X\n", progCounter);
             return true;
         }
         // ret (N)Z,a16
         case 0xC0: case 0xC8: {
             bool set = opcode & 0b00001000;
-#ifdef FB_DEBUG
-            std::cout << "ret (N)Z,a16 set? " << set << std::endl;
-#endif
+            debug_print("ret (N)Z,a16 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
                 goto return_;
             }
@@ -337,9 +282,7 @@ call:
         // ret (N)C,a16
         case 0xD0: case 0xD8: {
             bool set = opcode & 0b00001000;
-#ifdef FB_DEBUG
-            std::cout << "ret (N)C,a16 set? " << set << std::endl;
-#endif
+            debug_print("ret (N)C,a16 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
                 goto return_;
             }
@@ -347,9 +290,7 @@ call:
         }
         // ret a16
         case 0xC9: {
-#ifdef FB_DEBUG
-            std::cout << "ret a16" << std::endl;
-#endif
+            debug_print("ret a16\n");
 return_:
             progCounter = pop16Bits();
             return true;
@@ -448,19 +389,14 @@ return_:
         }
         default: {
             unknown_instr:
-#ifdef FB_DEBUG
-            std::cerr << "Illegal instruction: " << asHex(opcode) << std::endl;
-#endif
+            fprintf(stderr,"Illegal instruction: 0x%02X\n", opcode);
             return false;
         }
     }
 }
 
 bool CPU::doPrefix(u8 prefix) {
-#ifdef FB_DEBUG
-    std::cerr << "Encountered not yet implemented prefix " << asHex(prefix);
-    std::cerr << " followed by instruction " << asHex(memory->read8BitsAt(progCounter++));
-#endif
+    fprintf(stderr, "Encountered not yet implemented prefix 0x%02X followed by instruction 0x%02X\n", prefix, memory->read8BitsAt(progCounter++));
     return false;
 }
 
@@ -481,9 +417,7 @@ u16 CPU::pop16Bits() {
 }
 
 void CPU::cp(u8 val) {
-#ifdef FB_DEBUG
-    std::cout << "cp " << asHex(*regA) << " - " << asHex(val) << std::endl;
-#endif
+    debug_print("cp 0x%02X - 0x%02X\n", *regA, val);
     // See http://z80-heaven.wikidot.com/instructions-set:cp
     setZero(*regA == val);
     setSubstraction(true);
@@ -492,9 +426,7 @@ void CPU::cp(u8 val) {
 }
 
 void CPU::_xor(u8 val) {
-#ifdef FB_DEBUG
-    std::cout << "xor " << asHex(*regA) << " ^ " << asHex(val) << std::endl;
-#endif
+    debug_print("xor 0x%02X ^ 0x%02X\n", *regA, val);
     *regA ^= val;
     setZero(*regA == 0);
     setSubstraction(false);
