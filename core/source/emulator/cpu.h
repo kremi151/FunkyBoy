@@ -24,6 +24,8 @@
 
 namespace FunkyBoy {
 
+    typedef u16 u8_or_16;
+
     class CPU {
     private:
         std::shared_ptr<Cartridge> cartridge;
@@ -65,7 +67,7 @@ namespace FunkyBoy {
         void push16Bits(u16 val);
         u16 pop16Bits();
 
-        void cp(u8 val);
+        void cp(u8_or_16 val);
     public:
         explicit CPU(std::shared_ptr<Cartridge> cartridge);
         ~CPU();

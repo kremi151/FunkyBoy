@@ -256,8 +256,7 @@ return_:
         }
         // cp HL
         case 0xBE: {
-            // TODO: Implement
-            goto unknown_instr;
+            cp(ram[*regHL]);
             return true;
         }
         // cp d8
@@ -301,7 +300,7 @@ u16 CPU::pop16Bits() {
     return val;
 }
 
-void CPU::cp(u8 val) {
+void CPU::cp(u8_or_16 val) {
     std::cout << "cp " << (val & 0xff) << std::endl;
     // See http://z80-heaven.wikidot.com/instructions-set:cp
     setZero(*regA == val);
