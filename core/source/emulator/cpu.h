@@ -60,6 +60,8 @@ namespace FunkyBoy {
         inline bool isZero();
         void setZero(bool zero);
 
+        void setFlags(bool zero, bool subtraction, bool halfCarry, bool carry);
+
         void push16Bits(u16 val);
         u16 pop16Bits();
 

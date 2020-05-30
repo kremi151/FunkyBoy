@@ -87,6 +87,29 @@ void CPU::setZero(bool zero) {
     }
 }
 
+void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
+    if (zero) {
+        *regF |= 0b10000000;
+    } else {
+        *regF &= 0b01111111;
+    }
+    if (subtraction) {
+        *regF |= 0b01000000;
+    } else {
+        *regF &= 0b10111111;
+    }
+    if (halfCarry) {
+        *regF |= 0b00100000;
+    } else {
+        *regF &= 0b11011111;
+    }
+    if (carry) {
+        *regF |= 0b00010000;
+    } else {
+        *regF &= 0b11101111;
+    }
+}
+
 inline void addWithCarry(u8 &a, u8 &s, bool carry) {
     a = carry ? (a + s + 1) : (a + s);
 }
@@ -348,18 +371,30 @@ return_:
         }
         // inc (HL)
         case 0x34: {
+            setHalfCarry(((memory->read8BitsAt(*regHL) & 0xf) + (1 & 0xf)) & 0x10);
             memory->incrementAt(*regHL);
+            setZero(memory->read8BitsAt(*regHL) == 0);
+            setSubstraction(false);
+            // Leave carry as-is
             return true;
         }
         // inc s
         case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: {
             auto reg = registers + (opcode >> 3 & 7);
+            setHalfCarry(((*reg & 0xf) + (1 & 0xf)) & 0x10);
             (*reg)++;
+            setZero(*reg == 0);
+            setSubstraction(false);
+            // Leave carry as-is
             return true;
         }
         // inc A
         case 0x3C: {
+            setHalfCarry(((*regA & 0xf) + (1 & 0xf)) & 0x10);
             (*regA)++;
+            setZero(*regA == 0);
+            setSubstraction(false);
+            // Leave carry as-is
             return true;
         }
         // xor s
@@ -439,17 +474,11 @@ u16 CPU::pop16Bits() {
 void CPU::cp(u8 val) {
     debug_print("cp 0x%02X - 0x%02X\n", *regA, val);
     // See http://z80-heaven.wikidot.com/instructions-set:cp
-    setZero(*regA == val);
-    setSubstraction(true);
-    setHalfCarry((*regA & 0xF) < (val & 0xF));
-    setCarry(*regA < val);
+    setFlags(*regA == val, true, (*regA & 0xF) < (val & 0xF), *regA < val);
 }
 
 void CPU::_xor(u8 val) {
     debug_print("xor 0x%02X ^ 0x%02X\n", *regA, val);
     *regA ^= val;
-    setZero(*regA == 0);
-    setSubstraction(false);
-    setHalfCarry(false);
-    setCarry(false);
+    setFlags(*regA == 0, false, false, false);
 }
