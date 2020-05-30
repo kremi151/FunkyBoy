@@ -49,6 +49,14 @@ inline bool CPU::isCarry() {
     return *regF & 0b00010000;
 }
 
+void CPU::setCarry(bool carry) {
+    if (carry) {
+        *regF |= 0b00010000;
+    } else {
+        *regF &= 0b11101111;
+    }
+}
+
 inline bool CPU::isHalfCarry() {
     return *regF & 0b00100000;
 }
@@ -72,6 +80,7 @@ bool CPU::doTick() {
     // https://www.reddit.com/r/EmuDev/comments/7ljc41/how_to_algorithmically_parse_gameboy_opcodes/
     // https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header
     // https://gbdev.gg8.se/wiki/articles/Gameboy_ROM_Header_Info
+    // http://z80-heaven.wikidot.com/instructions-set
 
     // TODO: Remove logs
 
@@ -103,6 +112,7 @@ bool CPU::doTick() {
             std::cout << "add reg,reg" << std::endl;
             bool carry = (opcode & 8) && isCarry();
             addWithCarry(*regA, registers[opcode & 7], carry);
+            setCarry(false);
             return true;
         }
         // jp (N)Z,a16

@@ -51,6 +51,8 @@ namespace FunkyBoy {
         u16 *regAF;
 
         inline bool isCarry();
+        void setCarry(bool carry);
+
         inline bool isHalfCarry();
         inline bool isSubstraction();
         inline bool isZero();
