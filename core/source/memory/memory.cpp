@@ -124,5 +124,32 @@ u16 Memory::read16BitsAt(memory_address offset) {
 }
 
 void Memory::write16BitsTo(memory_address offset, u16 val) {
+    if (offset >= 0x0100 && offset <= 0x7FFF) {
+        // Writing to ROM, meaning a ROM bank switch was requested
+        romBank = val & 7;
+        std::cout << "Switch ROM bank to " << (romBank & 0xff) << std::endl;
+        return;
+    }
+    // TODO: Enable ram, switch ram bank, disable ram
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        return;
+    }
     *FB_CAST_8_TO_16_BIT(getMemoryAddress(offset)) = val;
+}
+
+void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
+    if (offset >= 0x0100 && offset <= 0x7FFF) {
+        // Writing to ROM, meaning a ROM bank switch was requested
+        romBank = lsb & 7;
+        std::cout << "Switch ROM bank to " << (romBank & 0xff) << std::endl;
+        return;
+    }
+    // TODO: Enable ram, switch ram bank, disable ram
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        return;
+    }
+    *ptr = lsb;
+    *(ptr+1) = msb;
 }

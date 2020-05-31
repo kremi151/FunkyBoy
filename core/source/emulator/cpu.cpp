@@ -379,6 +379,14 @@ return_:
             progCounter = pop16Bits();
             return true;
         }
+        // rst vec
+        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
+            u8 rstAddr = (opcode >> 3 & 7) * 8;
+            debug_print("rst %02XH\n", rstAddr);
+            push16Bits(progCounter);
+            progCounter = rstAddr;
+            return true;
+        }
         // cp s
         case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: {
             cp(registers[opcode & 0b00000111]);
@@ -498,14 +506,6 @@ return_:
         case 0xFB: {
             memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
             return true;
-        }
-        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
-            // TODO: RST (reset) instruction
-            // The long name of this instruction is Restart; it is basically a call to the given address. The action
-            // taken by the rst’s depends on what kind of hardware you have. On the TI calculators they are equivalent
-            // to some of the most important ROM calls. Another example from the Spectrum: rst $28 activates the built-in
-            // floating point calculator. The rst instruction does not affect the flags either.
-            goto unknown_instr;
         }
         case 0xCB: {
             return doPrefix(opcode);
