@@ -26,6 +26,10 @@ http://www.z80.info/z80sflag.htm
 
 http://gameboy.mongenel.com/dmg/asmmemmap.html
 
+http://bgb.bircd.org/pandocs.htm#powerupsequence
+
+http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
+
 ## Test ROMS
 
 https://gbdev.gg8.se/wiki/articles/Test_ROMs

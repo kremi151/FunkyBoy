@@ -19,6 +19,9 @@
 
 #ifdef FB_DEBUG
 
+// Uncomment to enable step-by-step breakpoints
+// #define FB_DEBUG_STEPS
+
 #include <cstdio>
 
 #define debug_print(fmt, ...) \

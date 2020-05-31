@@ -117,9 +117,10 @@ inline void addWithCarry(u8 &a, u8 &s, bool carry) {
 }
 
 bool CPU::doTick() {
+    auto currOffset = progCounter;
     auto opcode = memory->read8BitsAt(progCounter++);
 
-    debug_print("> instr 0x%02X\n", opcode);
+    debug_print("> instr 0x%02X at 0x%04X\n", opcode, currOffset);
 
     switch (opcode) {
         // nop

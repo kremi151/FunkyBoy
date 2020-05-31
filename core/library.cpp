@@ -4,6 +4,7 @@
 
 #include <emulator/emulator.h>
 #include <cartridge/header.h>
+#include <util/debug.h>
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
@@ -14,6 +15,9 @@ int main() {
     unsigned long long instructions = 0;
     while (emulator.doTick()) {
         instructions++;
+#ifdef FB_DEBUG_STEPS
+        while (getchar() != '\n');
+#endif
     }
     fprintf(stdout, "Executed %llu instructions\n", instructions);
 
