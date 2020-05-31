@@ -24,7 +24,7 @@ using namespace FunkyBoy;
 #define FB_ROM_BANK_SIZE (16 * 1024)
 
 Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0), romBank(1) {
-    restartInterruptVectorTable = new u8[255]{};
+    restartInterruptVectorTable = new u8[256]{};
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
     bgMapData2 = new u8[1024]{};

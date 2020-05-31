@@ -20,9 +20,6 @@
 #include <util/typedefs.h>
 #include <cartridge/cartridge.h>
 
-// Useful resources:
-// http://gameboy.mongenel.com/dmg/asmmemmap.html
-
 #define FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER 0xFFFF
 
 namespace FunkyBoy {
