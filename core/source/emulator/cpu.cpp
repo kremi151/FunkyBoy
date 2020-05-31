@@ -512,7 +512,7 @@ return_:
         }
         default: {
             unknown_instr:
-            fprintf(stderr,"Illegal instruction: 0x%02X\n", opcode);
+            fprintf(stderr,"Illegal instruction 0x%02X at 0x%04X\n", opcode, progCounter - 1);
             return false;
         }
     }
