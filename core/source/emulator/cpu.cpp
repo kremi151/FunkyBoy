@@ -30,15 +30,15 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     regE = registers + 3;
     regH = registers + 4;
     regL = registers + 5;
-    regA = registers + 6;
-    regF = registers + 7;
+    regF = registers + 6;
+    regA = registers + 7;
 
     reg16bit = FB_CAST_8_TO_16_BIT(registers);
 
     regBC = FB_CAST_8_TO_16_BIT(regB);
     regDE = FB_CAST_8_TO_16_BIT(regD);
     regHL = FB_CAST_8_TO_16_BIT(regH);
-    regAF = FB_CAST_8_TO_16_BIT(regA);
+    regAF = FB_CAST_8_TO_16_BIT(regF);
 
     // Initialize registers
 
