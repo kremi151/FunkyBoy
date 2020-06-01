@@ -43,13 +43,6 @@ namespace FunkyBoy {
         u8 *regF;
         u8 *regA;
 
-        u16 *reg16bit;
-
-        u16 *regBC;
-        u16 *regDE;
-        u16 *regHL;
-        u16 *regAF;
-
         inline bool isCarry();
         void setCarry(bool carry);
 
@@ -69,6 +62,15 @@ namespace FunkyBoy {
 
         void cp(u8 val);
         void _xor(u8 val);
+        void adc(u8 val, bool carry);
+
+        u16 readHL();
+        void writeHL(u16 val);
+
+        u16 readAF();
+
+        u16 read16BitRegister(u8 position);
+        void write16BitRegister(u8 position, u16 val);
 
         bool doPrefix(u8 prefix);
     public:

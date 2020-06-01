@@ -33,13 +33,6 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     regF = registers + 6;
     regA = registers + 7;
 
-    reg16bit = FB_CAST_8_TO_16_BIT(registers);
-
-    regBC = FB_CAST_8_TO_16_BIT(regB);
-    regDE = FB_CAST_8_TO_16_BIT(regD);
-    regHL = FB_CAST_8_TO_16_BIT(regH);
-    regAF = FB_CAST_8_TO_16_BIT(regF);
-
     // Initialize registers
 
     // AF -> 0x01b0
@@ -195,7 +188,7 @@ bool CPU::doTick() {
         // ld (ss),d16
         case 0x01: case 0x11: case 0x21: {
             debug_print("ld (ss),d16\n");
-            *(reg16bit + (opcode >> 4 & 3)) = memory->read16BitsAt(progCounter);
+            write16BitRegister(opcode >> 4 & 3, memory->read16BitsAt(progCounter));
             progCounter += 2;
             return true;
         }
@@ -222,47 +215,51 @@ bool CPU::doTick() {
         // ld (HL),d8
         case 0x36: {
             debug_print("ld (HL),d8\n");
-            memory->write8BitsTo(*regHL, memory->read8BitsAt(progCounter++)); // TODO: Correct?
+            memory->write8BitsTo(readHL(), memory->read8BitsAt(progCounter++)); // TODO: Correct?
             return true;
         }
         // ld (ss),A
         case 0x02: case 0x12: {
             debug_print("ld (ss),A\n");
-            memory->write8BitsTo(*(reg16bit + (opcode >> 4 & 1)), *regA);
+            memory->write8BitsTo(read16BitRegister(opcode >> 4 & 1), *regA);
             return true;
         }
         // ld A,(ss)
         case 0x0A: case 0x1A: {
             debug_print("ld A,(ss)\n");
-            *regA = memory->read8BitsAt(*(reg16bit + (opcode >> 4 & 1)));
+            *regA = memory->read8BitsAt(read16BitRegister(opcode >> 4 & 1));
             return true;
         }
         // ld (HLI),A
         case 0x22: {
             debug_print("ld (HLI),A\n");
-            memory->write8BitsTo(*regHL, *regA);
-            (*regHL)++;
+            u16 hl = readHL();
+            memory->write8BitsTo(hl, *regA);
+            writeHL(hl + 1);
             return true;
         }
         // ld (HLD),A
         case 0x32: {
             debug_print("ld (HLD),A\n");
-            memory->write8BitsTo(*regHL, *regA);
-            (*regHL)--;
+            u16 hl = readHL();
+            memory->write8BitsTo(hl, *regA);
+            writeHL(hl - 1);
             return true;
         }
         // ld A,(HLI)
         case 0x2A: {
             debug_print("ld A,(HLI)\n");
-            *regA = memory->read8BitsAt(*regHL);
-            (*regHL)++;
+            u16 hl = readHL();
+            *regA = memory->read8BitsAt(hl);
+            writeHL(hl + 1);
             return true;
         }
         // ld A,(HLD)
         case 0x3A: {
             debug_print("ld A,(HLD)\n");
-            *regA = memory->read8BitsAt(*regHL);
-            (*regHL)--;
+            u16 hl = readHL();
+            *regA = memory->read8BitsAt(hl);
+            writeHL(hl - 1);
             return true;
         }
         // ldh (a8),A
@@ -284,8 +281,7 @@ bool CPU::doTick() {
         {
             debug_print("add reg,reg\n");
             bool carry = (opcode & 8) && isCarry();
-            addWithCarry(*regA, registers[opcode & 7], carry);
-            setCarry(false);
+            adc(registers[opcode & 7], carry);
             return true;
         }
         // jp (N)Z,a16
@@ -317,7 +313,7 @@ jump_absolute:
         case 0xE9:
         {
             debug_print("jp AF\n");
-            progCounter = *regAF;
+            progCounter = readAF();
             return true;
         }
         // jr (N)Z,r8
@@ -420,7 +416,7 @@ return_:
         }
         // cp HL
         case 0xBE: {
-            cp(memory->read8BitsAt(*regHL));
+            cp(memory->read8BitsAt(readHL()));
             return true;
         }
         // cp d8
@@ -430,7 +426,9 @@ return_:
         }
         // inc ss
         case 0x03: case 0x13: case 0x23: {
-            *(reg16bit + (opcode >> 4 & 3)) += 1;
+            u8 position = opcode >> 4 & 3;
+            u16 val = read16BitRegister(position);
+            write16BitRegister(position, val + 1);
             return true;
         }
         // inc SP
@@ -440,9 +438,10 @@ return_:
         }
         // inc (HL)
         case 0x34: {
-            setHalfCarry(((memory->read8BitsAt(*regHL) & 0xf) + (1 & 0xf)) & 0x10);
-            memory->incrementAt(*regHL);
-            setZero(memory->read8BitsAt(*regHL) == 0);
+            u16 hl = readHL();
+            setHalfCarry(((memory->read8BitsAt(hl) & 0xf) + (1 & 0xf)) & 0x10);
+            memory->incrementAt(hl);
+            setZero(memory->read8BitsAt(hl) == 0);
             setSubstraction(false);
             // Leave carry as-is
             return true;
@@ -468,9 +467,10 @@ return_:
         }
         // dec (HL)
         case 0x35: {
-            setHalfCarry(((memory->read8BitsAt(*regHL) & 0xf) - (1 & 0xf)) & 0x10);
-            memory->decrementAt(*regHL);
-            setZero(memory->read8BitsAt(*regHL) == 0);
+            u16 hl = readHL();
+            setHalfCarry(((memory->read8BitsAt(hl) & 0xf) - (1 & 0xf)) & 0x10);
+            memory->decrementAt(hl);
+            setZero(memory->read8BitsAt(hl) == 0);
             setSubstraction(true);
             // Leave carry as-is
             return true;
@@ -501,7 +501,7 @@ return_:
         }
         // xor (HL)
         case 0xAE: {
-            _xor(memory->read8BitsAt(*regHL));
+            _xor(memory->read8BitsAt(readHL()));
             return true;
         }
         // xor A
@@ -597,6 +597,30 @@ u16 CPU::pop16Bits() {
     return val;
 }
 
+u16 CPU::readHL() {
+    return (*regH << 8) | (*regL & 0xff);
+}
+
+void CPU::writeHL(FunkyBoy::u16 val) {
+    *regH = (val >> 8) & 0xff;
+    *regL = val & 0xff;
+}
+
+u16 CPU::readAF() {
+    return (*regA << 8) | (*regF & 0xff);
+}
+
+u16 CPU::read16BitRegister(FunkyBoy::u8 position) {
+    u8 *reg = registers + (position * 2);
+    return (*reg << 8) | (*(reg + 1) & 0xff);
+}
+
+void CPU::write16BitRegister(FunkyBoy::u8 position, FunkyBoy::u16 val) {
+    u8 *reg = registers + (position * 2);
+    *reg = (val >> 8) & 0xff;
+    *(reg + 1) = val & 0xff;
+}
+
 void CPU::cp(u8 val) {
     debug_print("cp 0x%02X - 0x%02X\n", *regA, val);
     // See http://z80-heaven.wikidot.com/instructions-set:cp
@@ -607,4 +631,11 @@ void CPU::_xor(u8 val) {
     debug_print("xor 0x%02X ^ 0x%02X\n", *regA, val);
     *regA ^= val;
     setFlags(*regA == 0, false, false, false);
+}
+
+inline void CPU::adc(u8 val, bool carry) {
+    bool overflow = *regA == 255; // Maximum value -> will overflow
+    u8 newVal = carry ? (*regA + val + 1) : (*regA + val);
+    setFlags(newVal == 0, false, (*regA & 0xF) < (val & 0xF), overflow);
+    *regA = newVal;
 }
