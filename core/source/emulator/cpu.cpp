@@ -126,7 +126,7 @@ bool CPU::doTick() {
         // nop
         case 0x00:
             debug_print("nop\n");
-            break;
+            return true;
         // ld reg,reg
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // ld b,reg
         case 0x48: case 0x49: case 0x4a: case 0x4b: case 0x4c: case 0x4d: case 0x4f: // ld c,reg
