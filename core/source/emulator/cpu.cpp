@@ -39,6 +39,26 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     regDE = FB_CAST_8_TO_16_BIT(regD);
     regHL = FB_CAST_8_TO_16_BIT(regH);
     regAF = FB_CAST_8_TO_16_BIT(regA);
+
+    // Initialize registers
+
+    // AF -> 0x01b0
+    *regA = 0x11;
+    *regF = 0xb0;
+
+    // TODO: For GBC, set A -> 0x11
+
+    // BC -> 0x0013
+    *regB = 0x00;
+    *regC = 0x13;
+
+    // DE -> 0x00d8
+    *regD = 0x00;
+    *regE = 0xd8;
+
+    // HL -> 0x014d
+    *regH = 0x01;
+    *regL = 0x4d;
 }
 
 inline bool CPU::isCarry() {
