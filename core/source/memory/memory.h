@@ -44,6 +44,8 @@ namespace FunkyBoy {
         u8 *dynamicRamBank;
 
         u8 *getMemoryAddress(memory_address offset);
+
+        bool interceptWrite(memory_address offset, u8 val);
     public:
         explicit Memory(std::shared_ptr<Cartridge> cartridge);
         ~Memory();

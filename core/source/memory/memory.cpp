@@ -85,17 +85,29 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
 }
 
 u8 Memory::read8BitsAt(memory_address offset) {
-    return *getMemoryAddress(offset);
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
+        return 0;
+    }
+    return *ptr;
 }
 
-void Memory::write8BitsTo(memory_address offset, u8 val) {
+bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     if (offset >= 0x0100 && offset <= 0x7FFF) {
         // Writing to ROM, meaning a ROM bank switch was requested
         romBank = val & 7;
         std::cout << "Switch ROM bank to " << (romBank & 0xff) << std::endl;
-        return;
+        return true;
     }
     // TODO: Enable ram, switch ram bank, disable ram
+    return false;
+}
+
+void Memory::write8BitsTo(memory_address offset, u8 val) {
+    if (interceptWrite(offset, val)) {
+        return;
+    }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
         return;
@@ -120,32 +132,23 @@ void Memory::decrementAt(memory_address offset) {
 }
 
 u16 Memory::read16BitsAt(memory_address offset) {
-    return *FB_CAST_8_TO_16_BIT(getMemoryAddress(offset));
+    auto ptrLsb = getMemoryAddress(offset);
+    auto ptrMsb = getMemoryAddress(offset + 1);
+    if (ptrLsb == nullptr || ptrMsb == nullptr) {
+        fprintf(stderr, "Illegal 16-bit read from 0x%04X\n", offset);
+        return 0;
+    }
+    return (*ptrMsb << 8) | *ptrLsb;
 }
 
 void Memory::write16BitsTo(memory_address offset, u16 val) {
-    if (offset >= 0x0100 && offset <= 0x7FFF) {
-        // Writing to ROM, meaning a ROM bank switch was requested
-        romBank = val & 7;
-        std::cout << "Switch ROM bank to " << (romBank & 0xff) << std::endl;
-        return;
-    }
-    // TODO: Enable ram, switch ram bank, disable ram
-    auto ptr = getMemoryAddress(offset);
-    if (ptr == nullptr) {
-        return;
-    }
-    *FB_CAST_8_TO_16_BIT(getMemoryAddress(offset)) = val;
+    write16BitsTo(offset, val & 0xff, (val >> 8) & 0xff);
 }
 
 void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
-    if (offset >= 0x0100 && offset <= 0x7FFF) {
-        // Writing to ROM, meaning a ROM bank switch was requested
-        romBank = lsb & 7;
-        std::cout << "Switch ROM bank to " << (romBank & 0xff) << std::endl;
+    if (interceptWrite(offset, lsb)) {
         return;
     }
-    // TODO: Enable ram, switch ram bank, disable ram
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
         return;
