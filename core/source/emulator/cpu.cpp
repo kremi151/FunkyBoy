@@ -23,7 +23,7 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0), memory(std::move(memory)) {
+CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory)) {
     regB = registers;
     regC = registers + 1;
     regD = registers + 2;
