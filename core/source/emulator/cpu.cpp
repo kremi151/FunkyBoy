@@ -495,10 +495,29 @@ return_:
             _xor(val);
             return true;
         }
+        // rrca
+        case 0x0F: {
+            auto a = *regA;
+            *regA = a >> 1;
+            // Explanation for Z flag: if regA is already 0, it will remain zero. Otherwise, it will be reset.
+            setFlags(a == 0, false, false, a & 1);
+            return true;
+        }
+        // rra
+        case 0x1F: {
+            auto a = *regA;
+            *regA = a >> 1;
+            if (isCarry()) {
+                *regA |= 128; // (bit 7 set to 1)
+            }
+            setFlags(*regA == 0, false, false, a & 1);
+            return true;
+        }
         case 0xD9: {
             // TODO: RETI instruction
             // Returns from an interrupt routine. Note: RETI cannot use return conditions.
             goto unknown_instr;
+            return true;
         }
         case 0xF3: {
             memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 0);
