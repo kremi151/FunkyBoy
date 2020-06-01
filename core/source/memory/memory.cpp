@@ -17,6 +17,7 @@
 #include "memory.h"
 
 #include <util/typedefs.h>
+#include <util/debug.h>
 
 using namespace FunkyBoy;
 
@@ -97,7 +98,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     if (offset >= 0x0100 && offset <= 0x7FFF) {
         // Writing to ROM, meaning a ROM bank switch was requested
         romBank = val & 7;
-        std::cout << "Switch ROM bank to " << (romBank & 0xff) << std::endl;
+        debug_print("Switch ROM bank to %d\n", romBank & 0xff);
         return true;
     }
     // TODO: Enable ram, switch ram bank, disable ram

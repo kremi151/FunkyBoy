@@ -33,8 +33,8 @@
 
 #else
 
-#define debug_print(fmt, ...) ;
-#define debug_print_with_line(fmt, ...) ;
+#define debug_print(fmt, ...)
+#define debug_print_with_line(fmt, ...)
 
 #endif
 
