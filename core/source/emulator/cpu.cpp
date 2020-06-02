@@ -125,10 +125,6 @@ void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
     }
 }
 
-inline void addWithCarry(u8 &a, u8 &s, bool carry) {
-    a = carry ? (a + s + 1) : (a + s);
-}
-
 bool CPU::doTick() {
     auto currOffset = progCounter;
     auto opcode = memory->read8BitsAt(progCounter++);
