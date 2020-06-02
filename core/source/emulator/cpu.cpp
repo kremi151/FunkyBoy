@@ -149,7 +149,7 @@ bool CPU::doTick() {
             u8 &dst = registers[opcode >> 3 & 7];
             u8 src = registers[opcode & 7];
             dst = src;
-            return true;;
+            return true;
         }
         // ld (a16),A
         case 0xEA: {

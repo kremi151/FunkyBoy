@@ -69,7 +69,13 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         // TODO: Make this switchable
         return dynamicRamBank + (offset - 0xD000);
     } else if (offset <= 0xFDFF) {
-        return nullptr;
+        // Echo RAM
+        // TODO: Verify that this offset is correctly calculated (Echo RAM offset + boundary of RAM bank 0)
+        if (offset <= 0xEFFF) {
+            return internalRam + (offset - 0xE000);
+        } else {
+            return dynamicRamBank + (offset - 0xEFFF);
+        }
     } else if (offset <= 0xFE9F) {
         return oam + (offset - 0xFE00);
     } else if (offset <= 0xFEFF) {
