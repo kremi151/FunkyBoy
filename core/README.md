@@ -8,8 +8,6 @@ http://www.devrs.com/gb/files/opcodes.html
 
 https://rednex.github.io/rgbds/gbz80.7.html
 
-https://gekkio.fi/files/gb-docs/gbctr.pdf
-
 https://www.reddit.com/r/EmuDev/comments/7ljc41/how_to_algorithmically_parse_gameboy_opcodes/
 
 https://www.reddit.com/r/EmuDev/comments/4clh23/trouble_with_halfcarrycarry_flag/
@@ -29,6 +27,8 @@ http://gameboy.mongenel.com/dmg/asmmemmap.html
 http://bgb.bircd.org/pandocs.htm#powerupsequence
 
 http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
+
+https://gekkio.fi/files/gb-docs/gbctr.pdf
 
 ## Test ROMS
 
