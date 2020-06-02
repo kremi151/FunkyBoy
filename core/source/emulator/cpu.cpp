@@ -309,11 +309,11 @@ jump_absolute:
             debug_print(" to 0x%04X\n", progCounter);
             return true;
         }
-        // jp AF
+        // jp HL
         case 0xE9:
         {
-            debug_print("jp AF\n");
-            progCounter = readAF();
+            debug_print("jp HL\n");
+            progCounter = readHL();
             return true;
         }
         // jr (N)Z,r8
