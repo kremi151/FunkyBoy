@@ -31,6 +31,26 @@ TEST(test16BitReadWrite) {
     assertEquals(0x1234, val);
 }
 
+TEST(testEchoRAM) {
+    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::Memory memory(cartridge);
+
+    // Write to beginning of internal RAM bank 0
+    memory.write8BitsTo(0xC000, 42);
+    int val = memory.read8BitsAt(0xE000);
+    assertEquals(42, val);
+
+    // Write to end of internal RAM bank 0
+    memory.write8BitsTo(0xCFFF, 124);
+    val = memory.read8BitsAt(0xEFFF);
+    assertEquals(124, val);
+
+    // Write to beginning of internal RAM bank 1
+    memory.write8BitsTo(0xD000, 186);
+    val = memory.read8BitsAt(0xF000);
+    assertEquals(186, val);
+}
+
 int main() {
     return acacia::Registry::instance().runTests();
 }

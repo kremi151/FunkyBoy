@@ -74,7 +74,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         if (offset <= 0xEFFF) {
             return internalRam + (offset - 0xE000);
         } else {
-            return dynamicRamBank + (offset - 0xEFFF);
+            return dynamicRamBank + (offset - 0xF000);
         }
     } else if (offset <= 0xFE9F) {
         return oam + (offset - 0xFE00);
