@@ -107,6 +107,9 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
         debug_print("Switch ROM bank to %d\n", romBank & 0xff);
         return true;
     }
+    if (offset == 0xFF02 && val != 0 /*== 0x81*/) {
+        fprintf(stdout, "Writing byte to stdout 0x%02X 0x%02X %c\n", read8BitsAt(0xFF01), val, read8BitsAt(0xFF01));
+    }
     // TODO: Enable ram, switch ram bank, disable ram
     return false;
 }
@@ -117,6 +120,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
     }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
+        fprintf(stderr, "Illegal 8-bit write to 0x%04X\n", offset);
         return;
     }
     *ptr = val;
@@ -158,6 +162,7 @@ void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
     }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
+        fprintf(stderr, "Illegal 16-bit write to 0x%04X\n", offset);
         return;
     }
     *ptr = lsb;

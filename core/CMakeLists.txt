@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.15)
-project(core)
+project(fb_core)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if (MSVC)
+    message("We're running in Visual Studio!")
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif(MSVC)
+
 set(SOURCES
-        library.cpp
+#        library.cpp
         source/emulator/emulator.cpp
         source/emulator/cpu.cpp
         source/util/romsizes.cpp
@@ -13,7 +18,7 @@ set(SOURCES
         )
 
 set(HEADERS
-        library.h
+#        library.h
         source/emulator/emulator.h
         source/emulator/cpu.h
         source/util/typedefs.h
@@ -26,7 +31,7 @@ set(HEADERS
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
 
-#add_library(core SHARED ${SOURCES} ${HEADERS})
-add_executable(core ${SOURCES} ${HEADERS})
+add_library(fb_core STATIC ${SOURCES} ${HEADERS})
+#add_executable(fb_core ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
