@@ -17,6 +17,7 @@
 #include <acacia.h>
 #include <memory/memory.h>
 #include <memory>
+#include <fstream>
 
 TEST(test16BitReadWrite) {
     std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
@@ -53,5 +54,9 @@ TEST(testEchoRAM) {
 
 int main() {
     auto report = runAcaciaTests();
+
+    std::ofstream reportFile("test-report.xml");
+    acacia::generateJUnitReport(report, reportFile);
+
     return report ? 0 : 1;
 }
