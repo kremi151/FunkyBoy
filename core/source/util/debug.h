@@ -17,7 +17,7 @@
 #ifndef FUNKYBOY_CORE_DEBUG_H
 #define FUNKYBOY_CORE_DEBUG_H
 
-#ifdef FB__DEBUG
+#ifdef FB_DEBUG
 
 // Uncomment to enable step-by-step breakpoints
 // #define FB_DEBUG_STEPS
