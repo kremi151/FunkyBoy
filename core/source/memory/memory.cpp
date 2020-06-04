@@ -153,7 +153,7 @@ u16 Memory::read16BitsAt(memory_address offset) {
 }
 
 void Memory::write16BitsTo(memory_address offset, u16 val) {
-    write16BitsTo(offset, val & 0xff, (val >> 8) & 0xff);
+    write16BitsTo(offset, (val >> 8) & 0xff, val & 0xff);
 }
 
 void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
