@@ -19,6 +19,7 @@
 
 #include <util/typedefs.h>
 #include <cartridge/cartridge.h>
+#include <memory>
 
 #define FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER 0xFFFF
 
