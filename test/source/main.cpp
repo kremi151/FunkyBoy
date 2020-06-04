@@ -52,5 +52,6 @@ TEST(testEchoRAM) {
 }
 
 int main() {
-    return acacia::Registry::instance().runTests();
+    auto report = runAcaciaTests();
+    return report ? 0 : 1;
 }
