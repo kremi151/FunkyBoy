@@ -58,6 +58,7 @@ namespace FunkyBoy {
         void setFlags(bool zero, bool subtraction, bool halfCarry, bool carry);
 
         void push16Bits(u16 val);
+        void push16Bits(u8 msb, u8 lsb);
         u16 pop16Bits();
 
         void cp(u8 val);
@@ -68,6 +69,7 @@ namespace FunkyBoy {
         void writeHL(u16 val);
 
         u16 readAF();
+        void writeAF(u16 val);
 
         u16 read16BitRegister(u8 position);
         void write16BitRegister(u8 position, u16 val);
