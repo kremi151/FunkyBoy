@@ -31,10 +31,13 @@
         do { fprintf(stdout, "%s:%d:%s(): " fmt, __FILE__, \
                                 __LINE__, __func__, __VA_ARGS__); } while (0)
 
+#define debug_break() while (getchar() == '\0')
+
 #else
 
 #define debug_print(fmt, ...)
 #define debug_print_with_line(fmt, ...)
+#define debug_break()
 
 #endif
 

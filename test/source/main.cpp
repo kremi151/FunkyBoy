@@ -64,6 +64,22 @@ TEST(testReadROMTitle) {
     assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(cartridge.getHeader()->title)));
 }
 
+TEST(testCPUInstructions) {
+    FunkyBoy::Emulator emulator;
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "cpu_instrs.gb";
+    auto status = emulator.loadGame(romPath);
+    assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
+
+    for (size_t i = 0 ; i < 10000 ; i++) {
+        if (!emulator.doTick()) {
+            failure("Emulation tick failed");
+        }
+    }
+
+    // TODO: Check if test delivered correct result
+    failure("TODO: Check if test delivered correct result");
+}
+
 int main() {
     auto report = runAcaciaTests();
 
