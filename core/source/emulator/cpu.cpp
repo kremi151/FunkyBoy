@@ -582,13 +582,13 @@ void CPU::setProgramCounter(u16 offset) {
 }
 
 void CPU::push16Bits(FunkyBoy::u16 val) {
-    memory->write8BitsTo(stackPointer - 2, (u8) (val));
-    memory->write8BitsTo(stackPointer - 1, (u8) (val >> 8u));
     stackPointer -= 2;
+    memory->write8BitsTo(stackPointer - 1, (u8) (val));
+    memory->write8BitsTo(stackPointer, (u8) (val >> 8u));
 }
 
 u16 CPU::pop16Bits() {
-    u16 val = memory->read8BitsAt(stackPointer - 2) | (memory->read8BitsAt(stackPointer - 1) << 8u);
+    u16 val = memory->read8BitsAt(stackPointer - 1) | (memory->read8BitsAt(stackPointer) << 8u);
     stackPointer += 2;
     return val;
 }
