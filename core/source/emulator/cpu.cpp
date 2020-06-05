@@ -429,7 +429,7 @@ return_:
         }
         // inc SP
         case 0x33: {
-            stackPointer--; // TODO: Is this correct?
+            stackPointer++;
             return true;
         }
         // inc (HL)
