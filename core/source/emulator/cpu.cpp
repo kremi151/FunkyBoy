@@ -547,6 +547,43 @@ return_:
             setFlags(*regA == 0, false, false, (a & 128) != 0);
             return true;
         }
+        case 0xC1: case 0xD1: case 0xE1: // pop ss
+        case 0xC5: case 0xD5: case 0xE5: // push ss
+        {
+            // 0xC1 -> 11 00 00 01
+            // 0xD1 -> 11 01 00 01
+            // 0xE1 -> 11 10 00 01
+
+            // 0xC5 -> 11 00 01 01
+            // 0xD5 -> 11 01 01 01
+            // 0xE5 -> 11 10 01 01
+
+            u8 regOffset = (opcode >> 4) & 3;
+            u8 *reg = registers + (regOffset * 2); // 16-bit -> x 2
+            bool push = opcode & 4;
+            if (push) {
+                push16Bits(*(reg + 1), *reg);
+            } else {
+                u16 val = pop16Bits();
+                *reg = val & 0xff;
+                *(reg + 1) = (val >> 8) & 0xff;
+            }
+            return true;
+        }
+        case 0xF1: // pop AF
+        case 0xF5: // push AF
+        {
+            // 0xF1 -> 11110001
+            // 0xF5 -> 11110101
+            bool push = opcode & 4;
+            if (push) {
+                push16Bits(readAF());
+            } else {
+                u16 val = pop16Bits();
+                writeAF(val);
+            }
+            return true;
+        }
         case 0xD9: {
             // TODO: RETI instruction
             // Returns from an interrupt routine. Note: RETI cannot use return conditions.
