@@ -64,13 +64,13 @@ TEST(testReadROMTitle) {
     assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(cartridge.getHeader()->title)));
 }
 
-TEST(testCPUInstructions) {
+TEST(testCPUInstructionsJrJpCallRetRst) {
     FunkyBoy::Emulator emulator;
-    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "cpu_instrs.gb";
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "07-jr,jp,call,ret,rst.gb";
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 
-    for (size_t i = 0 ; i < 10000 ; i++) {
+    for (size_t i = 0 ; i < 1000000000 ; i++) {
         if (!emulator.doTick()) {
             failure("Emulation tick failed");
         }
