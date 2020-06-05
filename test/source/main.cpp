@@ -17,6 +17,7 @@
 #include <acacia.h>
 #include <memory/memory.h>
 #include <memory>
+#include <emulator/emulator.h>
 #include <fstream>
 
 TEST(test16BitReadWrite) {
@@ -50,6 +51,17 @@ TEST(testEchoRAM) {
     memory.write8BitsTo(0xD000, 186);
     val = memory.read8BitsAt(0xF000);
     assertEquals(186, val);
+}
+
+TEST(testReadROMTitle) {
+    FunkyBoy::Emulator emulator;
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "cpu_instrs.gb";
+    auto status = emulator.loadGame(romPath);
+    assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
+
+    auto &cartridge = emulator.getCartridge();
+    assertEquals(FunkyBoy::CartridgeStatus::Loaded, cartridge.getStatus());
+    assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(cartridge.getHeader()->title)));
 }
 
 int main() {

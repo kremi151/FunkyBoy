@@ -28,14 +28,14 @@ using namespace FunkyBoy;
 Emulator::Emulator(): cartridge(new Cartridge), memory(new Memory(cartridge)), cpu(memory) {
 }
 
-void Emulator::loadGame(const std::filesystem::path &romPath) {
+CartridgeStatus Emulator::loadGame(const std::filesystem::path &romPath) {
     std::ifstream romFile(romPath.c_str(), std::ios::binary);
 
     cartridge->loadROM(romFile);
 
     if (cartridge->getStatus() != CartridgeStatus::Loaded) {
         std::cerr << "ROM could not be loaded" << std::endl;
-        return; // TODO: Give more descriptive errors
+        return cartridge->getStatus();
     }
 
     auto header = cartridge->getHeader();
@@ -52,8 +52,14 @@ void Emulator::loadGame(const std::filesystem::path &romPath) {
         ss << " ";
     }
     std::cout << ss.str() << std::endl;
+
+    return cartridge->getStatus();
 }
 
 bool Emulator::doTick() {
     return cpu.doTick();
+}
+
+Cartridge & Emulator::getCartridge() {
+    return *cartridge;
 }

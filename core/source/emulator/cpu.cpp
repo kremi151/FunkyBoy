@@ -35,7 +35,7 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
 
     // Initialize registers
 
-    // AF -> 0x01b0
+    // AF -> 0x11b0
     *regA = 0x11;
     *regF = 0xb0;
 

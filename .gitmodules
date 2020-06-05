@@ -1,3 +1,6 @@
 [submodule "test/acacia"]
 	path = test/acacia
 	url = https://github.com/kremi151/acacia
+[submodule "test/gb-test-roms"]
+	path = test/gb-test-roms
+	url = https://github.com/retrio/gb-test-roms

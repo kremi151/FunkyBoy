@@ -36,7 +36,8 @@ namespace FunkyBoy {
     public:
         Emulator();
 
-        void loadGame(const std::filesystem::path &romPath);
+        CartridgeStatus loadGame(const std::filesystem::path &romPath);
+        Cartridge &getCartridge();
 
         bool doTick();
     };

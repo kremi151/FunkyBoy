@@ -30,6 +30,8 @@ http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 
 https://gekkio.fi/files/gb-docs/gbctr.pdf
 
+https://realboyemulator.wordpress.com/2013/01/03/a-look-at-the-game-boy-bootstrap-let-the-fun-begin/
+
 ## Test ROMS
 
 https://gbdev.gg8.se/wiki/articles/Test_ROMs
