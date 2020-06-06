@@ -18,6 +18,7 @@
 
 #include <fstream>
 #include <memory>
+#include <cstring>
 
 #include <util/romsizes.h>
 
