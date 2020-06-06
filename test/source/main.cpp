@@ -20,6 +20,8 @@
 #include <emulator/emulator.h>
 #include <fstream>
 
+//#define RUN_ROM_TESTS
+
 TEST(test16BitReadWrite) {
     std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::Memory memory(cartridge);
@@ -134,7 +136,9 @@ TEST(testReadWrite16BitRegisters) {
     assertEquals(0x2809, val);
 }
 
-/*TEST(testCPUInstructionsJrJpCallRetRst) {
+#ifdef RUN_ROM_TESTS
+
+TEST(testCPUInstructionsJrJpCallRetRst) {
     FunkyBoy::Emulator emulator;
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "07-jr,jp,call,ret,rst.gb";
     auto status = emulator.loadGame(romPath);
@@ -148,7 +152,9 @@ TEST(testReadWrite16BitRegisters) {
 
     // TODO: Check if test delivered correct result
     failure("TODO: Check if test delivered correct result");
-}*/
+}
+
+#endif
 
 int main() {
     auto report = runAcaciaTests();

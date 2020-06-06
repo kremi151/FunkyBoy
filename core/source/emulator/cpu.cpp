@@ -584,16 +584,18 @@ return_:
             }
             return true;
         }
+        // reti
         case 0xD9: {
-            // TODO: RETI instruction
-            // Returns from an interrupt routine. Note: RETI cannot use return conditions.
-            goto unknown_instr;
+            progCounter = pop16Bits();
+            memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
             return true;
         }
+        // di
         case 0xF3: {
             memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 0);
             return true;
         }
+        // ei
         case 0xFB: {
             memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
             return true;
