@@ -85,6 +85,26 @@ TEST(testPopPushStackPointer) {
     assertEquals(0x2809, val);
 }
 
+TEST(testReadWriteHLAndAF) {
+    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
+    FunkyBoy::CPU cpu(memory);
+
+    // In this test, we check for enforcing little-endianness
+
+    cpu.writeAF(0x1234);
+    assertEquals(0x34, *cpu.regA);
+    assertEquals(0x12, *cpu.regF);
+    auto val = cpu.readAF();
+    assertEquals(0x1234, val);
+
+    cpu.writeHL(0x1806);
+    assertEquals(0x06, *cpu.regH);
+    assertEquals(0x18, *cpu.regL);
+    val = cpu.readHL();
+    assertEquals(0x1806, val);
+}
+
 TEST(testCPUInstructionsJrJpCallRetRst) {
     FunkyBoy::Emulator emulator;
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "07-jr,jp,call,ret,rst.gb";

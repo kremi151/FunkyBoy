@@ -637,21 +637,21 @@ u16 CPU::pop16Bits() {
 }
 
 u16 CPU::readHL() {
-    return (*regH << 8) | (*regL & 0xff);
+    return (*regH & 0xff) | (*regL << 8);
 }
 
 void CPU::writeHL(FunkyBoy::u16 val) {
-    *regH = (val >> 8) & 0xff;
-    *regL = val & 0xff;
+    *regH = val & 0xff;
+    *regL = (val >> 8) & 0xff;
 }
 
 u16 CPU::readAF() {
-    return (*regA << 8) | (*regF & 0xff);
+    return (*regA & 0xff) | (*regF << 8);
 }
 
 void CPU::writeAF(FunkyBoy::u16 val) {
-    *regA = (val >> 8) & 0xff;
-    *regF = val & 0xff;
+    *regA = val & 0xff;
+    *regF = (val >> 8) & 0xff;
 }
 
 u16 CPU::read16BitRegister(FunkyBoy::u8 position) {

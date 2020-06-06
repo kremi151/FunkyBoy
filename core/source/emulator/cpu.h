@@ -33,17 +33,6 @@ namespace FunkyBoy {
         u16 progCounter;
         u16 stackPointer;
 
-        // Do not free these pointers, they are proxies to specific locations in the registers array
-
-        u8 *regB;
-        u8 *regC;
-        u8 *regD;
-        u8 *regE;
-        u8 *regH;
-        u8 *regL;
-        u8 *regF;
-        u8 *regA;
-
         inline bool isCarry();
         void setCarry(bool carry);
 
@@ -62,12 +51,6 @@ namespace FunkyBoy {
         void _xor(u8 val);
         void adc(u8 val, bool carry);
 
-        u16 readHL();
-        void writeHL(u16 val);
-
-        u16 readAF();
-        void writeAF(u16 val);
-
         u16 read16BitRegister(u8 position);
         void write16BitRegister(u8 position, u16 val);
 
@@ -77,6 +60,23 @@ namespace FunkyBoy {
         void push16Bits(u16 val);
         void push16Bits(u8 msb, u8 lsb);
         u16 pop16Bits();
+
+        u16 readHL();
+        void writeHL(u16 val);
+
+        u16 readAF();
+        void writeAF(u16 val);
+
+        // Do not free these pointers, they are proxies to specific locations in the registers array
+
+        u8 *regB;
+        u8 *regC;
+        u8 *regD;
+        u8 *regE;
+        u8 *regH;
+        u8 *regL;
+        u8 *regF;
+        u8 *regA;
 
     public:
         explicit CPU(std::shared_ptr<Memory> memory);
