@@ -656,13 +656,13 @@ void CPU::writeAF(FunkyBoy::u16 val) {
 
 u16 CPU::read16BitRegister(FunkyBoy::u8 position) {
     u8 *reg = registers + (position * 2);
-    return (*reg << 8) | (*(reg + 1) & 0xff);
+    return (*(reg + 1) << 8) | (*reg & 0xff);
 }
 
 void CPU::write16BitRegister(FunkyBoy::u8 position, FunkyBoy::u16 val) {
     u8 *reg = registers + (position * 2);
-    *reg = (val >> 8) & 0xff;
-    *(reg + 1) = val & 0xff;
+    *(reg + 1) = (val >> 8) & 0xff;
+    *reg = val & 0xff;
 }
 
 void CPU::cp(u8 val) {

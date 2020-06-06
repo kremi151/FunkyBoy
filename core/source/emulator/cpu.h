@@ -51,9 +51,6 @@ namespace FunkyBoy {
         void _xor(u8 val);
         void adc(u8 val, bool carry);
 
-        u16 read16BitRegister(u8 position);
-        void write16BitRegister(u8 position, u16 val);
-
         bool doPrefix(u8 prefix);
 
     test_public:
@@ -66,6 +63,9 @@ namespace FunkyBoy {
 
         u16 readAF();
         void writeAF(u16 val);
+
+        u16 read16BitRegister(u8 position);
+        void write16BitRegister(u8 position, u16 val);
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
 

@@ -105,6 +105,35 @@ TEST(testReadWriteHLAndAF) {
     assertEquals(0x1806, val);
 }
 
+TEST(testReadWrite16BitRegisters) {
+    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
+    FunkyBoy::CPU cpu(memory);
+
+    // In this test, we check for enforcing little-endianness
+
+    // BC
+    cpu.write16BitRegister(0, 0x1234);
+    assertEquals(0x34, *cpu.regB);
+    assertEquals(0x12, *cpu.regC);
+    auto val = cpu.read16BitRegister(0);
+    assertEquals(0x1234, val);
+
+    // DE
+    cpu.write16BitRegister(1, 0x1806);
+    assertEquals(0x06, *cpu.regD);
+    assertEquals(0x18, *cpu.regE);
+    val = cpu.read16BitRegister(1);
+    assertEquals(0x1806, val);
+
+    // HL
+    cpu.write16BitRegister(2, 0x2809);
+    assertEquals(0x09, *cpu.regH);
+    assertEquals(0x28, *cpu.regL);
+    val = cpu.read16BitRegister(2);
+    assertEquals(0x2809, val);
+}
+
 TEST(testCPUInstructionsJrJpCallRetRst) {
     FunkyBoy::Emulator emulator;
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "07-jr,jp,call,ret,rst.gb";
