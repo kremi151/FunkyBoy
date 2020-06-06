@@ -33,7 +33,7 @@ pipeline {
 		stage('Test') {
 			steps {
 				dir("test") {
-					sh 'mkdir -p cmake-build-release'
+					sh 'mkdir -p cmake-build-test'
 					sh 'cd cmake-build-test && cmake -DCMAKE_BUILD_TYPE=Release .. && make fb_tests && ./fb_tests'
 				}
 			}
