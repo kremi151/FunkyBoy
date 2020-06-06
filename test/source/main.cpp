@@ -64,6 +64,27 @@ TEST(testReadROMTitle) {
     assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(cartridge.getHeader()->title)));
 }
 
+TEST(testPopPushStackPointer) {
+    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
+    FunkyBoy::CPU cpu(memory);
+
+    cpu.push16Bits(0x1806);
+    auto val = cpu.pop16Bits();
+    assertEquals(0x1806, val);
+
+    cpu.push16Bits(0x28, 0x09);
+    cpu.push16Bits(0x1223);
+    cpu.push16Bits(0x42, 0x69);
+
+    val = cpu.pop16Bits();
+    assertEquals(0x4269, val);
+    val = cpu.pop16Bits();
+    assertEquals(0x1223, val);
+    val = cpu.pop16Bits();
+    assertEquals(0x2809, val);
+}
+
 TEST(testCPUInstructionsJrJpCallRetRst) {
     FunkyBoy::Emulator emulator;
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "07-jr,jp,call,ret,rst.gb";

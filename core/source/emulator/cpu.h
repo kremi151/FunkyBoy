@@ -21,6 +21,7 @@
 
 #include <memory/memory.h>
 #include <memory>
+#include <util/testing.h>
 
 namespace FunkyBoy {
 
@@ -57,10 +58,6 @@ namespace FunkyBoy {
 
         void setFlags(bool zero, bool subtraction, bool halfCarry, bool carry);
 
-        void push16Bits(u16 val);
-        void push16Bits(u8 msb, u8 lsb);
-        u16 pop16Bits();
-
         void cp(u8 val);
         void _xor(u8 val);
         void adc(u8 val, bool carry);
@@ -75,6 +72,12 @@ namespace FunkyBoy {
         void write16BitRegister(u8 position, u16 val);
 
         bool doPrefix(u8 prefix);
+
+    test_public:
+        void push16Bits(u16 val);
+        void push16Bits(u8 msb, u8 lsb);
+        u16 pop16Bits();
+
     public:
         explicit CPU(std::shared_ptr<Memory> memory);
 

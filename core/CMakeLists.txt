@@ -27,6 +27,7 @@ set(HEADERS
         source/cartridge/cartridge.h
         source/memory/memory.h
         source/util/debug.h
+        source/util/testing.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
