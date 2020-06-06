@@ -42,7 +42,7 @@ pipeline {
 	post {
 		always {
 			//archiveArtifacts artifacts: 'cmake-build-release/*.dll,cmake-build-release/*.so', onlyIfSuccessful: true
-			junit 'test/cmake-build-release/*.xml'
+			junit 'test/cmake-build-test/*.xml'
 		}
 		success {
 			setBuildStatus('Build succeeded', 'SUCCESS')
