@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
-project(fb_core)
+project(fb_core CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (MSVC)
     message("We're running in Visual Studio!")
