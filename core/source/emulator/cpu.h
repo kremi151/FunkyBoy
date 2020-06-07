@@ -30,8 +30,6 @@ namespace FunkyBoy {
         std::shared_ptr<Memory> memory;
 
         u8 registers[8]{};
-        u16 progCounter;
-        u16 stackPointer;
 
         inline bool isCarry();
         void setCarry(bool carry);
@@ -66,6 +64,9 @@ namespace FunkyBoy {
 
         u16 read16BitRegister(u8 position);
         void write16BitRegister(u8 position, u16 val);
+
+        u16 progCounter;
+        u16 stackPointer;
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
 

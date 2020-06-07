@@ -136,6 +136,54 @@ TEST(testReadWrite16BitRegisters) {
     assertEquals(0x2809, val);
 }
 
+TEST(test16BitLoads) {
+    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
+    FunkyBoy::CPU cpu(memory);
+
+    auto initialProgCounter = cpu.progCounter;
+    memory->write8BitsTo(cpu.progCounter + 1, 0x06);
+    memory->write8BitsTo(cpu.progCounter + 2, 0x18);
+
+    // Set opcode 0x01 (LD BC,d16)
+    memory->write8BitsTo(cpu.progCounter, 0x01);
+    if (!cpu.doTick()) {
+        failure("Emulation tick failed");
+    }
+    assertEquals(initialProgCounter + 3, cpu.progCounter);
+    assertEquals(0x06, *cpu.regB);
+    assertEquals(0x18, *cpu.regC);
+
+    // Set opcode 0x11 (LD DE,d16)
+    cpu.progCounter = initialProgCounter;
+    memory->write8BitsTo(cpu.progCounter, 0x11);
+    if (!cpu.doTick()) {
+        failure("Emulation tick failed");
+    }
+    assertEquals(initialProgCounter + 3, cpu.progCounter);
+    assertEquals(0x06, *cpu.regD);
+    assertEquals(0x18, *cpu.regE);
+
+    // Set opcode 0x21 (LD HL,d16)
+    cpu.progCounter = initialProgCounter;
+    memory->write8BitsTo(cpu.progCounter, 0x21);
+    if (!cpu.doTick()) {
+        failure("Emulation tick failed");
+    }
+    assertEquals(initialProgCounter + 3, cpu.progCounter);
+    assertEquals(0x06, *cpu.regH);
+    assertEquals(0x18, *cpu.regL);
+
+    // Set opcode 0x31 (LD SP,d16)
+    cpu.progCounter = initialProgCounter;
+    memory->write8BitsTo(cpu.progCounter, 0x31);
+    if (!cpu.doTick()) {
+        failure("Emulation tick failed");
+    }
+    assertEquals(initialProgCounter + 3, cpu.progCounter);
+    assertEquals(0x1806, cpu.stackPointer);
+}
+
 #ifdef RUN_ROM_TESTS
 
 TEST(testCPUInstructionsJrJpCallRetRst) {
