@@ -198,8 +198,8 @@ TEST(testCPUInstructionsJrJpCallRetRst) {
         }
     }
 
-    // TODO: Check if test delivered correct result
-    failure("TODO: Check if test delivered correct result");
+    // Blargg's test ROMs will print "passed" if the tests have passed
+    assertStandardOutputHas("passed");
 }
 
 #endif
