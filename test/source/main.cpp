@@ -20,7 +20,7 @@
 #include <emulator/emulator.h>
 #include <fstream>
 
-//#define RUN_ROM_TESTS
+#define RUN_ROM_TESTS
 
 TEST(test16BitReadWrite) {
     std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
@@ -192,7 +192,7 @@ TEST(testCPUInstructionsJrJpCallRetRst) {
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 
-    for (unsigned long long i = 0 ; i < 10000000000 ; i++) {
+    for (unsigned int i = 0 ; i < 342773 ; i++) {
         if (!emulator.doTick()) {
             failure("Emulation tick failed");
         }
