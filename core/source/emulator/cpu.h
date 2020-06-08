@@ -78,7 +78,7 @@ namespace FunkyBoy {
         u8 *regE;
         u8 *regH;
         u8 *regL;
-        u8 *regF;
+        u8 *regF_do_not_use_directly;
         u8 *regA;
 
     public:

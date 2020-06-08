@@ -30,7 +30,7 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     regE = registers + 3;
     regH = registers + 4;
     regL = registers + 5;
-    regF = registers + 6;
+    regF_do_not_use_directly = registers + 6;
     regA = registers + 7;
 
     // Initialize registers
@@ -41,7 +41,7 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     } else {
         *regA = 0x01;
     }
-    *regF = 0xb0;
+    *regF_do_not_use_directly = 0xb0;
 
     // BC -> 0x0013
     *regB = 0x00;
@@ -57,50 +57,50 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
 }
 
 inline bool CPU::isCarry() {
-    return *regF & 0b00010000;
+    return *regF_do_not_use_directly & 0b00010000;
 }
 
 void CPU::setCarry(bool carry) {
     if (carry) {
-        *regF |= 0b00010000;
+        *regF_do_not_use_directly |= 0b00010000;
     } else {
-        *regF &= 0b11101111;
+        *regF_do_not_use_directly &= 0b11100000;
     }
 }
 
 inline bool CPU::isHalfCarry() {
-    return *regF & 0b00100000;
+    return *regF_do_not_use_directly & 0b00100000;
 }
 
 void CPU::setHalfCarry(bool halfCarry) {
     if (halfCarry) {
-        *regF |= 0b00100000;
+        *regF_do_not_use_directly |= 0b00100000;
     } else {
-        *regF &= 0b11011111;
+        *regF_do_not_use_directly &= 0b11010000;
     }
 }
 
 inline bool CPU::isSubstraction() {
-    return *regF & 0b01000000;
+    return *regF_do_not_use_directly & 0b01000000;
 }
 
 void CPU::setSubstraction(bool substration) {
     if (substration) {
-        *regF |= 0b01000000;
+        *regF_do_not_use_directly |= 0b01000000;
     } else {
-        *regF &= 0b10111111;
+        *regF_do_not_use_directly &= 0b10110000;
     }
 }
 
 inline bool CPU::isZero() {
-    return *regF & 0b10000000;
+    return *regF_do_not_use_directly & 0b10000000;
 }
 
 void CPU::setZero(bool zero) {
     if (zero) {
-        *regF |= 0b10000000;
+        *regF_do_not_use_directly |= 0b10000000;
     } else {
-        *regF &= 0b01111111;
+        *regF_do_not_use_directly &= 0b01110000;
     }
 }
 
@@ -111,24 +111,24 @@ bool CPU::isGbc() {
 
 void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
     if (zero) {
-        *regF |= 0b10000000;
+        *regF_do_not_use_directly |= 0b10000000;
     } else {
-        *regF &= 0b01111111;
+        *regF_do_not_use_directly &= 0b01110000;
     }
     if (subtraction) {
-        *regF |= 0b01000000;
+        *regF_do_not_use_directly |= 0b01000000;
     } else {
-        *regF &= 0b10111111;
+        *regF_do_not_use_directly &= 0b10110000;
     }
     if (halfCarry) {
-        *regF |= 0b00100000;
+        *regF_do_not_use_directly |= 0b00100000;
     } else {
-        *regF &= 0b11011111;
+        *regF_do_not_use_directly &= 0b11010000;
     }
     if (carry) {
-        *regF |= 0b00010000;
+        *regF_do_not_use_directly |= 0b00010000;
     } else {
-        *regF &= 0b11101111;
+        *regF_do_not_use_directly &= 0b11100000;
     }
 }
 
@@ -659,11 +659,11 @@ void CPU::writeHL(FunkyBoy::u16 val) {
 }
 
 u16 CPU::readAF() {
-    return (*regF & 0xff) | (*regA << 8);
+    return (*regF_do_not_use_directly & 0b11110000) | (*regA << 8);
 }
 
 void CPU::writeAF(FunkyBoy::u16 val) {
-    *regF = val & 0xff;
+    *regF_do_not_use_directly = val & 0b11110000; // Only the 4 most significant bits are written to register F
     *regA = (val >> 8) & 0xff;
 }
 

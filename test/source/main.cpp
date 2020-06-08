@@ -95,10 +95,12 @@ TEST(testReadWriteHLAndAF) {
     // In this test, we check for enforcing little-endianness
 
     cpu.writeAF(0x1234);
-    assertEquals(0x34, *cpu.regF);
+    // 0x34 -> 0b110100
+    // 0x34 -> F -> 0b110000 -> 0x30 (register F only stores the 4 most significant bits)
+    assertEquals(0x30, *cpu.regF_do_not_use_directly);
     assertEquals(0x12, *cpu.regA);
     auto val = cpu.readAF();
-    assertEquals(0x1234, val);
+    assertEquals(0x1230, val);
 
     cpu.writeHL(0x1806);
     assertEquals(0x06, *cpu.regL);
