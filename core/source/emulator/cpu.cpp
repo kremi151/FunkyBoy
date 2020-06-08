@@ -442,9 +442,11 @@ return_:
         // inc (HL)
         case 0x34: {
             u16 hl = readHL();
-            setHalfCarry(((memory->read8BitsAt(hl) & 0xf) + (1 & 0xf)) & 0x10);
-            memory->incrementAt(hl);
-            setZero(memory->read8BitsAt(hl) == 0);
+            u8 oldVal = memory->read8BitsAt(hl);
+            u8 newVal = oldVal + 1;
+            setHalfCarry(((oldVal & 0xf) + (1 & 0xf)) & 0x10);
+            memory->write8BitsTo(hl, newVal);
+            setZero(newVal == 0);
             setSubstraction(false);
             // Leave carry as-is
             return true;
@@ -471,9 +473,11 @@ return_:
         // dec (HL)
         case 0x35: {
             u16 hl = readHL();
-            setHalfCarry(((memory->read8BitsAt(hl) & 0xf) - (1 & 0xf)) & 0x10);
-            memory->decrementAt(hl);
-            setZero(memory->read8BitsAt(hl) == 0);
+            u8 oldVal = memory->read8BitsAt(hl);
+            u8 newVal = oldVal - 1;
+            setHalfCarry(((oldVal & 0xf) - (1 & 0xf)) < 0);
+            memory->write8BitsTo(hl, newVal);
+            setZero(newVal == 0);
             setSubstraction(true);
             // Leave carry as-is
             return true;
@@ -481,7 +485,7 @@ return_:
         // dec s
         case 0x05: case 0x0D: case 0x15: case 0x1D: case 0x25: case 0x2D: {
             auto reg = registers + (opcode >> 3 & 7);
-            setHalfCarry(((*reg & 0xf) - (1 & 0xf)) & 0x10);
+            setHalfCarry(((*reg & 0xf) - (1 & 0xf)) < 0);
             (*reg)--;
             setZero(*reg == 0);
             setSubstraction(true);
@@ -490,7 +494,7 @@ return_:
         }
         // dec A
         case 0x3D: {
-            setHalfCarry(((*regA & 0xf) - (1 & 0xf)) & 0x10);
+            setHalfCarry(((*regA & 0xf) - (1 & 0xf)) < 0);
             (*regA)--;
             setZero(*regA == 0);
             setSubstraction(true);
@@ -677,7 +681,7 @@ void CPU::write16BitRegister(FunkyBoy::u8 position, FunkyBoy::u16 val) {
 void CPU::cp(u8 val) {
     debug_print("cp 0x%02X - 0x%02X\n", *regA, val);
     // See http://z80-heaven.wikidot.com/instructions-set:cp
-    setFlags(*regA == val, true, (*regA & 0xF) < (val & 0xF), *regA < val);
+    setFlags(*regA == val, true, (*regA & 0xF) - (val & 0xF) < 0, *regA < val);
 }
 
 void CPU::_xor(u8 val) {
@@ -689,6 +693,6 @@ void CPU::_xor(u8 val) {
 inline void CPU::adc(u8 val, bool carry) {
     bool overflow = *regA == 255; // Maximum value -> will overflow
     u8 newVal = carry ? (*regA + val + 1) : (*regA + val);
-    setFlags(newVal == 0, false, (*regA & 0xF) < (val & 0xF), overflow);
+    setFlags(newVal == 0, false, ((*regA & 0xf) + (val & 0xf)) & 0x10, overflow);
     *regA = newVal;
 }
