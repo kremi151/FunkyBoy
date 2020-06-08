@@ -1,4 +1,4 @@
-# Unit tests for FunkyBox
+# Unit tests for FunkyBoy
 
 ## Initialize dependencies
 
