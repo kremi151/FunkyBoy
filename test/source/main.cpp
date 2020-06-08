@@ -95,14 +95,14 @@ TEST(testReadWriteHLAndAF) {
     // In this test, we check for enforcing little-endianness
 
     cpu.writeAF(0x1234);
-    assertEquals(0x34, *cpu.regA);
-    assertEquals(0x12, *cpu.regF);
+    assertEquals(0x34, *cpu.regF);
+    assertEquals(0x12, *cpu.regA);
     auto val = cpu.readAF();
     assertEquals(0x1234, val);
 
     cpu.writeHL(0x1806);
-    assertEquals(0x06, *cpu.regH);
-    assertEquals(0x18, *cpu.regL);
+    assertEquals(0x06, *cpu.regL);
+    assertEquals(0x18, *cpu.regH);
     val = cpu.readHL();
     assertEquals(0x1806, val);
 }
@@ -116,22 +116,22 @@ TEST(testReadWrite16BitRegisters) {
 
     // BC
     cpu.write16BitRegister(0, 0x1234);
-    assertEquals(0x34, *cpu.regB);
-    assertEquals(0x12, *cpu.regC);
+    assertEquals(0x34, *cpu.regC);
+    assertEquals(0x12, *cpu.regB);
     auto val = cpu.read16BitRegister(0);
     assertEquals(0x1234, val);
 
     // DE
     cpu.write16BitRegister(1, 0x1806);
-    assertEquals(0x06, *cpu.regD);
-    assertEquals(0x18, *cpu.regE);
+    assertEquals(0x06, *cpu.regE);
+    assertEquals(0x18, *cpu.regD);
     val = cpu.read16BitRegister(1);
     assertEquals(0x1806, val);
 
     // HL
     cpu.write16BitRegister(2, 0x2809);
-    assertEquals(0x09, *cpu.regH);
-    assertEquals(0x28, *cpu.regL);
+    assertEquals(0x09, *cpu.regL);
+    assertEquals(0x28, *cpu.regH);
     val = cpu.read16BitRegister(2);
     assertEquals(0x2809, val);
 }
@@ -151,8 +151,8 @@ TEST(test16BitLoads) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.progCounter);
-    assertEquals(0x06, *cpu.regB);
-    assertEquals(0x18, *cpu.regC);
+    assertEquals(0x06, *cpu.regC);
+    assertEquals(0x18, *cpu.regB);
 
     // Set opcode 0x11 (LD DE,d16)
     cpu.progCounter = initialProgCounter;
@@ -161,8 +161,8 @@ TEST(test16BitLoads) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.progCounter);
-    assertEquals(0x06, *cpu.regD);
-    assertEquals(0x18, *cpu.regE);
+    assertEquals(0x06, *cpu.regE);
+    assertEquals(0x18, *cpu.regD);
 
     // Set opcode 0x21 (LD HL,d16)
     cpu.progCounter = initialProgCounter;
@@ -171,8 +171,8 @@ TEST(test16BitLoads) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.progCounter);
-    assertEquals(0x06, *cpu.regH);
-    assertEquals(0x18, *cpu.regL);
+    assertEquals(0x06, *cpu.regL);
+    assertEquals(0x18, *cpu.regH);
 
     // Set opcode 0x31 (LD SP,d16)
     cpu.progCounter = initialProgCounter;
