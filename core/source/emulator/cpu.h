@@ -43,6 +43,8 @@ namespace FunkyBoy {
         inline bool isZero();
         void setZero(bool zero);
 
+        inline bool isGbc();
+
         void setFlags(bool zero, bool subtraction, bool halfCarry, bool carry);
 
         void cp(u8 val);

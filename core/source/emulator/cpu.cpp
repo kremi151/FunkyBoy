@@ -35,11 +35,13 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
 
     // Initialize registers
 
-    // AF -> 0x11b0
-    *regA = 0x11;
+    // AF -> 0x01b0
+    if (isGbc()) {
+        *regA = 0x11;
+    } else {
+        *regA = 0x01;
+    }
     *regF = 0xb0;
-
-    // TODO: For GBC, set A -> 0x11
 
     // BC -> 0x0013
     *regB = 0x00;
@@ -100,6 +102,11 @@ void CPU::setZero(bool zero) {
     } else {
         *regF &= 0b01111111;
     }
+}
+
+bool CPU::isGbc() {
+    // TODO: Implement
+    return false;
 }
 
 void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
