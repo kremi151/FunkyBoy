@@ -311,6 +311,7 @@ bool CPU::doTick() {
         case 0xF0: {
             auto addr = memory->read8BitsAt(progCounter++);
             *regA = memory->read8BitsAt(0xFF00 + addr);
+            debug_print("ldh A,(a8) A <- 0x%02X (0x%04X)\n", *regA & 0xff, 0xFF00 + addr);
             return true;
         }
         // add reg,reg TODO: Correct notation?
