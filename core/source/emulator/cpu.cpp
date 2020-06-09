@@ -310,24 +310,29 @@ bool CPU::doTick() {
         // jp (N)Z,a16
         case 0xC2: case 0xCA: {
             bool set = opcode & 0b00001000;
+            u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isZero()) || (set && isZero())) {
-                goto jump_absolute;
+                debug_print("jp (N)Z a16 from 0x%04X", progCounter - 1);
+                progCounter = address;
+                debug_print(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         // jp (N)C,a16
         case 0xD2: case 0xDA: {
             bool set = opcode & 0b00001000;
+            u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isCarry()) || (set && isCarry())) {
-                goto jump_absolute;
+                debug_print("jp (C)Z a16 from 0x%04X", progCounter - 1);
+                progCounter = address;
+                debug_print(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         // unconditional jp
         case 0xC3:
         {
-jump_absolute:
-            debug_print("jp a16 from 0x%04X", progCounter);
+            debug_print("jp (unconditional) a16 from 0x%04X", progCounter);
             progCounter = memory->read16BitsAt(progCounter);
             debug_print(" to 0x%04X\n", progCounter);
             return true;
@@ -345,7 +350,7 @@ jump_absolute:
             auto signedByte = memory->readSigned8BitsAt(progCounter++);
             debug_print("jr (N)Z,r8 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
-                debug_print("JR (N)Z from 0x%04X + %d", progCounter, signedByte);
+                debug_print("JR (N)Z from 0x%04X + %d", progCounter - 1, signedByte);
                 progCounter += signedByte;
                 debug_print(" to 0x%04X\n", progCounter);
             }
@@ -357,7 +362,7 @@ jump_absolute:
             auto signedByte = memory->readSigned8BitsAt(progCounter++);
             debug_print("jr (N)C,r8 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
-                debug_print("JR (N)C from 0x%04X + %d", progCounter, signedByte);
+                debug_print("JR (N)C from 0x%04X + %d", progCounter - 1, signedByte);
                 progCounter += signedByte;
                 debug_print(" to 0x%04X\n", progCounter);
             }
@@ -375,8 +380,12 @@ jump_absolute:
         case 0xC4: case 0xCC: {
             bool set = opcode & 0b00001000;
             debug_print("call (N)Z,a16 set ? %d %d\n", set, isZero());
+            u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isZero()) || (set && isZero())) {
-                goto call;
+                debug_print("call from 0x%04X", progCounter - 1);
+                push16Bits(progCounter + 2);
+                progCounter = address;
+                debug_print(" to 0x%04X\n", progCounter);
             }
             return true;
         }
@@ -384,17 +393,20 @@ jump_absolute:
         case 0xD4: case 0xDC: {
             bool set = opcode & 0b00001000;
             debug_print("call (N)C,a16 set ? %d %d\n", set, isCarry());
+            u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isCarry()) || (set && isCarry())) {
-                goto call;
+                debug_print("call from 0x%04X", progCounter - 1);
+                push16Bits(progCounter + 2);
+                progCounter = address;
+                debug_print(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         case 0xCD: {
-call:
             debug_print("call from 0x%04X", progCounter);
-            u16 val = memory->read16BitsAt(progCounter);
+            u16 address = memory->read16BitsAt(progCounter);
             push16Bits(progCounter + 2);
-            progCounter = val;
+            progCounter = address;
             debug_print(" to 0x%04X\n", progCounter);
             return true;
         }
