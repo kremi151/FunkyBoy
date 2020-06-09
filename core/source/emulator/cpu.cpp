@@ -560,6 +560,29 @@ return_:
             _or(memory->read8BitsAt(progCounter++));
             return true;
         }
+        // and s
+        case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: {
+            // 0xA0 -> 10100 000 -> B
+            // 0xA1 -> 10100 001 -> C
+            // 0xA2 -> 10100 010 -> D
+            // 0xA3 -> 10100 011 -> E
+            // 0xA4 -> 10100 100 -> H
+            // 0xA5 -> 10100 101 -> L
+            // -- F is skipped --
+            // 0xA7 -> 10100 111 -> A
+            _and(registers[opcode & 0b111]);
+            return true;
+        }
+        // and (HL)
+        case 0xA6: {
+            _and(memory->read8BitsAt(readHL()));
+            return true;
+        }
+        // and d8
+        case 0xE6: {
+            _and(memory->read8BitsAt(progCounter++));
+            return true;
+        }
         // xor s
         case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
             _xor(registers[opcode & 0b111]);
@@ -748,6 +771,12 @@ void CPU::_or(FunkyBoy::u8 val) {
     debug_print("or 0x%02X | 0x%02X\n", *regA, val);
     *regA |= val;
     setFlags(*regA == 0, false, false, false);
+}
+
+void CPU::_and(FunkyBoy::u8 val) {
+    debug_print("and 0x%02X & 0x%02X\n", *regA, val);
+    *regA &= val;
+    setFlags(*regA == 0, false, true, false);
 }
 
 inline void CPU::adc(u8 val, bool carry) {
