@@ -569,15 +569,15 @@ return_:
             // 0xD5 -> 11 01 01 01
             // 0xE5 -> 11 10 01 01
 
-            u8 regOffset = (opcode >> 4) & 3;
-            u8 *reg = registers + (regOffset * 2); // 16-bit -> x 2
+            u8 *reg = registers + (((opcode >> 4) & 3) * 2); // 16-bit -> x 2
             bool push = opcode & 4;
+            // TODO: Verify -> reg = MSB ; reg+1 = LSB ?
             if (push) {
-                push16Bits(*(reg + 1), *reg);
+                push16Bits(*reg, *(reg + 1));
             } else {
                 u16 val = pop16Bits();
-                *reg = val & 0xff;
-                *(reg + 1) = (val >> 8) & 0xff;
+                *reg = (val >> 8) & 0xff;
+                *(reg + 1) = val & 0xff;
             }
             return true;
         }
