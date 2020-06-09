@@ -285,6 +285,21 @@ bool CPU::doTick() {
             writeHL(hl - 1);
             return true;
         }
+        // ld (HL),s
+        case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77: {
+            // 0x70 -> 1110 000 -> B
+            // 0x70 -> 1110 001 -> C
+            // 0x70 -> 1110 010 -> D
+            // 0x70 -> 1110 011 -> E
+            // 0x70 -> 1110 100 -> H
+            // 0x70 -> 1110 101 -> L
+            // --- Skip F ---
+            // 0x70 -> 1110 110 -> A
+
+            debug_print("ld (HL),s\n");
+            memory->write8BitsTo(readHL(), registers[opcode & 0b111]);
+            return true;
+        }
         // ldh (a8),A
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);

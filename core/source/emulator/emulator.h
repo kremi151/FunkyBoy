@@ -21,6 +21,7 @@
 #include <memory>
 #include <emulator/cpu.h>
 #include <util/typedefs.h>
+#include <util/debug.h>
 #include <cartridge/cartridge.h>
 #include <memory/memory.h>
 #include <memory>
@@ -28,7 +29,7 @@
 namespace FunkyBoy {
 
     class Emulator {
-    private:
+    test_public:
         std::shared_ptr<Cartridge> cartridge;
         std::shared_ptr<Memory> memory;
 
