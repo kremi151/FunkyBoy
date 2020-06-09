@@ -22,12 +22,21 @@
 #include <memory/memory.h>
 #include <memory>
 #include <util/testing.h>
+#include <util/debug.h>
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+#include <fstream>
+#endif
 
 namespace FunkyBoy {
 
     class CPU {
     private:
         std::shared_ptr<Memory> memory;
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+        std::ofstream file;
+#endif
 
         u8 registers[8]{};
 

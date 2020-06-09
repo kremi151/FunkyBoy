@@ -22,6 +22,9 @@
 // Uncomment to enable step-by-step breakpoints
 // #define FB_DEBUG_STEPS
 
+// Uncomment to enable printing current opcode and register values to a file
+// #define FB_DEBUG_WRITE_EXECUTION_LOG
+
 #include <cstdio>
 
 #define debug_print(fmt, ...) \

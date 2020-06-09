@@ -19,11 +19,18 @@
 #include <iostream>
 #include <utility>
 #include <util/typedefs.h>
-#include <util/debug.h>
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+#include <iomanip>
+#endif
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory)) {
+CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory))
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+    , file("exec_opcodes_fb_v2.txt")
+#endif
+{
     regB = registers;
     regC = registers + 1;
     regD = registers + 2;
@@ -137,6 +144,19 @@ bool CPU::doTick() {
     auto opcode = memory->read8BitsAt(progCounter++);
 
     debug_print("> instr 0x%02X at 0x%04X\n", opcode, currOffset);
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+    file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xff);
+    file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regB & 0xff);
+    file << " C=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regC & 0xff);
+    file << " D=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regD & 0xff);
+    file << " E=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regE & 0xff);
+    file << " H=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regH & 0xff);
+    file << " L=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regL & 0xff);
+    file << " A=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regA & *regA);
+    file << " F=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regF_do_not_use_directly & 0xff);
+    file << std::endl;
+#endif
 
     switch (opcode) {
         // nop
