@@ -555,6 +555,11 @@ return_:
             _or(memory->read8BitsAt(readHL()));
             return true;
         }
+        // or d8
+        case 0xF6: {
+            _or(memory->read8BitsAt(progCounter++));
+            return true;
+        }
         // xor s
         case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
             _xor(registers[opcode & 0b111]);
