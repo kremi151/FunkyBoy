@@ -186,6 +186,39 @@ TEST(test16BitLoads) {
     assertEquals(0x1806, cpu.stackPointer);
 }
 
+TEST(testLDHA) {
+    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
+    FunkyBoy::CPU cpu(memory);
+
+    auto initialProgCounter = cpu.progCounter;
+    memory->write8BitsTo(cpu.progCounter + 1, 0xCE);
+
+    // Set opcode 0xF0 (LDH A,(a8))
+    memory->write8BitsTo(cpu.progCounter, 0xF0);
+    memory->write8BitsTo(0xFFCE, 0x42);
+    assertNotEquals(0x42, *cpu.regA);
+    if (!cpu.doTick()) {
+        failure("Emulation tick failed");
+    }
+    assertEquals(initialProgCounter + 2, cpu.progCounter);
+    assertEquals(0x42, *cpu.regA);
+
+    // Reset prog counter and register
+    cpu.progCounter = initialProgCounter;
+    memory->write8BitsTo(0xFFCE, 0x0);
+
+    // Set opcode 0xE0 (LDH (a8),A)
+    memory->write8BitsTo(cpu.progCounter, 0xE0);
+    *cpu.regA = 0x42;
+    assertNotEquals(0x42, memory->read8BitsAt(0xFFCE));
+    if (!cpu.doTick()) {
+        failure("Emulation tick failed");
+    }
+    assertEquals(initialProgCounter + 2, cpu.progCounter);
+    assertEquals(0x42, memory->read8BitsAt(0xFFCE));
+}
+
 #ifdef RUN_ROM_TESTS
 
 TEST(testCPUInstructionsJrJpCallRetRst) {
