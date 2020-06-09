@@ -100,6 +100,15 @@ u8 Memory::read8BitsAt(memory_address offset) {
     return *ptr;
 }
 
+i8 Memory::readSigned8BitsAt(memory_address offset) {
+    auto vptr = static_cast<void*>(getMemoryAddress(offset));
+    if (vptr == nullptr) {
+        fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
+        return 0;
+    }
+    return *static_cast<i8*>(vptr);
+}
+
 bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     if (offset >= 0x0100 && offset <= 0x7FFF) {
         // Writing to ROM, meaning a ROM bank switch was requested

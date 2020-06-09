@@ -341,8 +341,8 @@ jump_absolute:
         case 0x18: {
             debug_print("jr\n");
 jump_relative:
-            debug_print("JR from 0x%04X", progCounter);
-            auto signedByte = static_cast<i8>(memory->read8BitsAt(progCounter++)); // TODO: Verify that we should increment here, but it seems logical
+            auto signedByte = memory->readSigned8BitsAt(progCounter++); // TODO: Verify that we should increment here, but it seems logical
+            debug_print("JR from 0x%04X + %d\n", progCounter, signedByte);
             progCounter += signedByte;
             debug_print(" to 0x%04X\n", progCounter);
             return true;
