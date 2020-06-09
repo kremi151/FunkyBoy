@@ -342,27 +342,31 @@ jump_absolute:
         // jr (N)Z,r8
         case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
             bool set = opcode & 0b00001000;
+            auto signedByte = memory->readSigned8BitsAt(progCounter++);
             debug_print("jr (N)Z,r8 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
-                goto jump_relative;
+                debug_print("JR (N)Z from 0x%04X + %d", progCounter, signedByte);
+                progCounter += signedByte;
+                debug_print(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         // jr (N)C,r8
         case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
             bool set = opcode & 0b00001000;
+            auto signedByte = memory->readSigned8BitsAt(progCounter++);
             debug_print("jr (N)C,r8 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
-                goto jump_relative;
+                debug_print("JR (N)C from 0x%04X + %d", progCounter, signedByte);
+                progCounter += signedByte;
+                debug_print(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         // unconditional jr
         case 0x18: {
-            debug_print("jr\n");
-jump_relative:
-            auto signedByte = memory->readSigned8BitsAt(progCounter++); // TODO: Verify that we should increment here, but it seems logical
-            debug_print("JR from 0x%04X + %d\n", progCounter, signedByte);
+            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            debug_print("JR (unconditional) from 0x%04X + %d", progCounter, signedByte);
             progCounter += signedByte;
             debug_print(" to 0x%04X\n", progCounter);
             return true;
