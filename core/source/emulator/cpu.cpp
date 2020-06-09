@@ -537,19 +537,32 @@ return_:
             // Leave carry as-is
             return true;
         }
+        // or s
+        case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: {
+            // 0xB0 -> 10110 000 -> B
+            // 0xB1 -> 10110 001 -> C
+            // 0xB2 -> 10110 010 -> D
+            // 0xB3 -> 10110 011 -> E
+            // 0xB4 -> 10110 100 -> H
+            // 0xB5 -> 10110 101 -> L
+            // -- F is skipped --
+            // 0xB7 -> 10110 111 -> A
+            _or(registers[opcode & 0b111]);
+            return true;
+        }
+        // or (HL)
+        case 0xB6: {
+            _or(memory->read8BitsAt(readHL()));
+            return true;
+        }
         // xor s
-        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: {
-            _xor(*(registers + (opcode & 7)));
+        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
+            _xor(registers[opcode & 0b111]);
             return true;
         }
         // xor (HL)
         case 0xAE: {
             _xor(memory->read8BitsAt(readHL()));
-            return true;
-        }
-        // xor A
-        case 0xAF: {
-            _xor(*regA);
             return true;
         }
         // xor d8
@@ -723,6 +736,12 @@ void CPU::cp(u8 val) {
 void CPU::_xor(u8 val) {
     debug_print("xor 0x%02X ^ 0x%02X\n", *regA, val);
     *regA ^= val;
+    setFlags(*regA == 0, false, false, false);
+}
+
+void CPU::_or(FunkyBoy::u8 val) {
+    debug_print("or 0x%02X | 0x%02X\n", *regA, val);
+    *regA |= val;
     setFlags(*regA == 0, false, false, false);
 }
 
