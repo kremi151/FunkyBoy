@@ -496,9 +496,9 @@ return_:
             u16 hl = readHL();
             u8 oldVal = memory->read8BitsAt(hl);
             u8 newVal = oldVal + 1;
-            setHalfCarry(((oldVal & 0xf) + (1 & 0xf)) & 0x10);
             memory->write8BitsTo(hl, newVal);
             setZero(newVal == 0);
+            setHalfCarry((newVal & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
             setSubstraction(false);
             // Leave carry as-is
             return true;
@@ -506,18 +506,18 @@ return_:
         // inc s
         case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: {
             auto reg = registers + (opcode >> 3 & 7);
-            setHalfCarry(((*reg & 0xf) + (1 & 0xf)) & 0x10);
             (*reg)++;
             setZero(*reg == 0);
+            setHalfCarry((*reg & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
             setSubstraction(false);
             // Leave carry as-is
             return true;
         }
         // inc A
         case 0x3C: {
-            setHalfCarry(((*regA & 0xf) + (1 & 0xf)) & 0x10);
             (*regA)++;
             setZero(*regA == 0);
+            setHalfCarry((*regA & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
             setSubstraction(false);
             // Leave carry as-is
             return true;
@@ -527,9 +527,9 @@ return_:
             u16 hl = readHL();
             u8 oldVal = memory->read8BitsAt(hl);
             u8 newVal = oldVal - 1;
-            setHalfCarry(((oldVal & 0xf) - (1 & 0xf)) < 0);
             memory->write8BitsTo(hl, newVal);
             setZero(newVal == 0);
+            setHalfCarry((newVal & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
             setSubstraction(true);
             // Leave carry as-is
             return true;
@@ -537,18 +537,18 @@ return_:
         // dec s
         case 0x05: case 0x0D: case 0x15: case 0x1D: case 0x25: case 0x2D: {
             auto reg = registers + (opcode >> 3 & 7);
-            setHalfCarry(((*reg & 0xf) - (1 & 0xf)) < 0);
             (*reg)--;
             setZero(*reg == 0);
+            setHalfCarry((*reg & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
             setSubstraction(true);
             // Leave carry as-is
             return true;
         }
         // dec A
         case 0x3D: {
-            setHalfCarry(((*regA & 0xf) - (1 & 0xf)) < 0);
             (*regA)--;
             setZero(*regA == 0);
+            setHalfCarry((*regA & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
             setSubstraction(true);
             // Leave carry as-is
             return true;
@@ -792,12 +792,13 @@ void CPU::_or(FunkyBoy::u8 val) {
 void CPU::_and(FunkyBoy::u8 val) {
     debug_print("and 0x%02X & 0x%02X\n", *regA, val);
     *regA &= val;
+    //TODO: To be verified:
     setFlags(*regA == 0, false, true, false);
 }
 
 inline void CPU::adc(u8 val, bool carry) {
-    bool overflow = *regA == 255; // Maximum value -> will overflow
-    u8 newVal = carry ? (*regA + val + 1) : (*regA + val);
-    setFlags(newVal == 0, false, ((*regA & 0xf) + (val & 0xf)) & 0x10, overflow);
+    if (carry) val++;
+    u8 newVal = *regA + val;
+    setFlags(newVal == 0, false, ((*regA & 0xf) + (val & 0xf)) > 0xf, (*regA & 0xff) + (val & 0xff) > 0xff);
     *regA = newVal;
 }
