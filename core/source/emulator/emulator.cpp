@@ -42,6 +42,8 @@ CartridgeStatus Emulator::loadGame(const std::filesystem::path &romPath) {
 
     cpu.setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
 
+    fprintf(stdout, "Cartridge type: 0x%02X\n", header->cartridgeType);
+
     std::cout << "Nintendo logo:" << std::endl;
     std::stringstream ss;
     for (u8 i = 0 ; i < 48 ; i++) {

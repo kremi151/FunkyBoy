@@ -54,7 +54,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     } else if (offset <= 0x3FFF) {
         return cartridge->rom + offset;
     } else if (offset <= 0x7FFF) {
-        return cartridge->rom + (romBank * FB_ROM_BANK_SIZE) + (offset - 0x4000);
+        return cartridge->rom + (romBank * FB_ROM_BANK_SIZE) + (offset - 0x4000); // TODO: MBC switchable
     } else if (offset <= 0x97FF) {
         return vram + (offset - 0x8000);
     } else if (offset <= 0x9BFF) {
@@ -62,7 +62,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     } else if (offset <= 0x9FFF) {
         return bgMapData2 + (offset - 0x9C00);
     } else if (offset <= 0xBFFF) {
-        return cartridge->ram + (offset - 0xA000);
+        return cartridge->ram + (offset - 0xA000); // TODO: MBC switchable
     } else if (offset <= 0xCFFF) {
         return internalRam + (offset - 0xC000);
     } else if (offset <= 0xDFFF) {
