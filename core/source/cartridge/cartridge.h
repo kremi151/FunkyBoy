@@ -18,6 +18,7 @@
 #define FUNKYBOY_CORE_CARTRIDGE_H
 
 #include <util/typedefs.h>
+#include <util/testing.h>
 #include <cartridge/header.h>
 #include <memory/mbc.h>
 
@@ -50,7 +51,6 @@ namespace FunkyBoy {
 
     class Cartridge {
     private:
-        u8 *rom;
         u8 *ram;
         size_t romSize;
         CartridgeStatus status;
@@ -58,6 +58,9 @@ namespace FunkyBoy {
         std::shared_ptr<MBC> mbc;
 
         friend class Memory;
+
+    test_public:
+        u8 *rom;
 
     public:
         Cartridge();

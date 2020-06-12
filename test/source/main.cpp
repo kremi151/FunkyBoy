@@ -143,42 +143,46 @@ TEST(test16BitLoads) {
     auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
     FunkyBoy::CPU cpu(memory);
 
-    auto initialProgCounter = cpu.progCounter;
+    // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
+    cartridge->rom = new FunkyBoy::u8[0x105];
+
+    auto initialProgCounter = 0x100;
+    cpu.progCounter = initialProgCounter;
     memory->write8BitsTo(cpu.progCounter + 1, 0x06);
     memory->write8BitsTo(cpu.progCounter + 2, 0x18);
 
     // Set opcode 0x01 (LD BC,d16)
-    memory->write8BitsTo(cpu.progCounter, 0x01);
+    *(cartridge->rom + initialProgCounter) = 0x01;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.progCounter);
-    assertEquals(0x06, *cpu.regC);
-    assertEquals(0x18, *cpu.regB);
+    assertEquals(0x06, (*cpu.regC) & 0xff);
+    assertEquals(0x18, (*cpu.regB) & 0xff);
 
     // Set opcode 0x11 (LD DE,d16)
     cpu.progCounter = initialProgCounter;
-    memory->write8BitsTo(cpu.progCounter, 0x11);
+    *(cartridge->rom + initialProgCounter) = 0x11;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.progCounter);
-    assertEquals(0x06, *cpu.regE);
-    assertEquals(0x18, *cpu.regD);
+    assertEquals(0x06, (*cpu.regE) & 0xff);
+    assertEquals(0x18, (*cpu.regD) & 0xff);
 
     // Set opcode 0x21 (LD HL,d16)
     cpu.progCounter = initialProgCounter;
-    memory->write8BitsTo(cpu.progCounter, 0x21);
+    *(cartridge->rom + initialProgCounter) = 0x21;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.progCounter);
-    assertEquals(0x06, *cpu.regL);
-    assertEquals(0x18, *cpu.regH);
+    assertEquals(0x06, (*cpu.regL) & 0xff);
+    assertEquals(0x18, (*cpu.regH) & 0xff);
 
     // Set opcode 0x31 (LD SP,d16)
     cpu.progCounter = initialProgCounter;
-    memory->write8BitsTo(cpu.progCounter, 0x31);
+    *(cartridge->rom + initialProgCounter) = 0x31;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
@@ -191,11 +195,15 @@ TEST(testLDHA) {
     auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
     FunkyBoy::CPU cpu(memory);
 
-    auto initialProgCounter = cpu.progCounter;
-    memory->write8BitsTo(cpu.progCounter + 1, 0xCE);
+    // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
+    cartridge->rom = new FunkyBoy::u8[0x105];
+
+    auto initialProgCounter = 0x100;
+    cpu.progCounter = initialProgCounter;
+    *(cartridge->rom + initialProgCounter + 1) = 0xCE;
 
     // Set opcode 0xF0 (LDH A,(a8))
-    memory->write8BitsTo(cpu.progCounter, 0xF0);
+    *(cartridge->rom + initialProgCounter) = 0xF0;
     memory->write8BitsTo(0xFFCE, 0x42);
     assertNotEquals(0x42, *cpu.regA);
     if (!cpu.doTick()) {
@@ -209,7 +217,7 @@ TEST(testLDHA) {
     memory->write8BitsTo(0xFFCE, 0x0);
 
     // Set opcode 0xE0 (LDH (a8),A)
-    memory->write8BitsTo(cpu.progCounter, 0xE0);
+    *(cartridge->rom + initialProgCounter) = 0xE0;
     *cpu.regA = 0x42;
     assertNotEquals(0x42, memory->read8BitsAt(0xFFCE));
     if (!cpu.doTick()) {
