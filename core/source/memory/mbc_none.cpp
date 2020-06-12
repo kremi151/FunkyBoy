@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef FUNKYBOY_CORE_TYPEDEFS_H
-#define FUNKYBOY_CORE_TYPEDEFS_H
+#include "mbc_none.h"
 
-#include <cstdint>
+using namespace FunkyBoy;
 
-#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
-
-namespace FunkyBoy {
-
-    typedef uint8_t u8;
-    typedef uint16_t u16;
-    typedef uint32_t u32;
-    typedef uint64_t u64;
-
-    typedef u32 memory_address;
-
-    typedef int8_t i8;
-    typedef int16_t i16;
-    typedef int32_t i32;
-    typedef int64_t i64;
-
+u8 * MBCNone::getROMMemoryAddress(memory_address offset, u8 *rom) {
+    return rom + offset;
 }
 
-#endif //FUNKYBOY_CORE_TYPEDEFS_H
+u8 * MBCNone::getRAMMemoryAddress(FunkyBoy::memory_address offset, FunkyBoy::u8 *ram) {
+    return ram + (offset - 0xA000);
+}
+
+bool MBCNone::interceptWrite(memory_address offset, FunkyBoy::u8 val) {
+    return true;
+}

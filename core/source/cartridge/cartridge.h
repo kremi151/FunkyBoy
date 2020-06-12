@@ -19,8 +19,10 @@
 
 #include <util/typedefs.h>
 #include <cartridge/header.h>
+#include <memory/mbc.h>
 
 #include <iostream>
+#include <memory>
 
 namespace FunkyBoy {
 
@@ -32,7 +34,18 @@ namespace FunkyBoy {
         ROMParseError,
         ROMTooBig,
         ROMSizeMismatch,
+        ROMUnsupportedMBC,
+        RAMSizeUnsupported,
         Loaded
+    };
+
+    enum CartridgeRAMSize {
+        CRAM_None = 0x0,
+        CRAM_2KB = 0x1,
+        CRAM_8KB = 0x2,
+        CRAM_32KB = 0x3,
+        CRAM_128KB = 0x4,
+        CRAM_64KB = 0x5
     };
 
     class Cartridge {
@@ -41,6 +54,8 @@ namespace FunkyBoy {
         u8 *ram;
         size_t romSize;
         CartridgeStatus status;
+
+        std::shared_ptr<MBC> mbc;
 
         friend class Memory;
 

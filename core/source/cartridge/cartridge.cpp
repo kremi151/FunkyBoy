@@ -21,10 +21,12 @@
 #include <cstring>
 
 #include <util/romsizes.h>
+#include <memory/mbc_none.h>
+#include <memory/mbc1.h>
 
 using namespace FunkyBoy;
 
-Cartridge::Cartridge(): rom(nullptr), romSize(0), status(CartridgeStatus::NoROMLoaded) {
+Cartridge::Cartridge(): rom(nullptr), romSize(0), status(CartridgeStatus::NoROMLoaded), mbc(new MBCNone()) {
     ram = new u8[8 * 1924];
 }
 
@@ -74,6 +76,49 @@ void Cartridge::loadROM(std::ifstream &file) {
         std::cerr << "ROM size mismatch, loaded " << length << " bytes, but expected " << romFlagInBytes << std::endl;
         status = CartridgeStatus::ROMSizeMismatch;
         return;
+    }
+
+    CartridgeRAMSize ramSizeType;
+    if (header->ramSize > 0x5) {
+        status = CartridgeStatus::RAMSizeUnsupported;
+        return;
+    }
+    ramSizeType = static_cast<CartridgeRAMSize>(header->ramSize);
+
+    switch (header->cartridgeType) {
+        case 0x00:
+            mbc = std::make_shared<MBCNone>();
+            break;
+        case 0x01:
+            mbc = std::make_shared<MBC1>(MBC1RAMSize::MBC1_NoRam);
+            break;
+        case 0x02:
+        case 0x03: {
+            // TODO: Battery
+            MBC1RAMSize mbc1RamSize;
+            switch (ramSizeType) {
+                case CRAM_None:
+                    mbc1RamSize = MBC1RAMSize::MBC1_NoRam;
+                    break;
+                case CRAM_2KB:
+                    mbc1RamSize = MBC1RAMSize::MBC1_2KByte;
+                    break;
+                case CRAM_8KB:
+                    mbc1RamSize = MBC1RAMSize::MBC1_8KByte;
+                    break;
+                case CRAM_32KB:
+                    mbc1RamSize = MBC1RAMSize::MBC1_32KByte;
+                    break;
+                default:
+                    status = CartridgeStatus::ROMUnsupportedMBC;
+                    return;
+            }
+            mbc = std::make_shared<MBC1>(mbc1RamSize);
+            break;
+        }
+        default:
+            status = CartridgeStatus::ROMUnsupportedMBC;
+            return;
     }
 
     rom = romBytes.release();

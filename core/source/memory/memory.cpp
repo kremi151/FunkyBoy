@@ -24,7 +24,7 @@ using namespace FunkyBoy;
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 #define FB_ROM_BANK_SIZE (16 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0), romBank(1) {
+Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0) {
     restartInterruptVectorTable = new u8[256]{};
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
@@ -51,10 +51,8 @@ Memory::~Memory() {
 u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     if (offset <= 0x00FF) {
         return restartInterruptVectorTable + offset;
-    } else if (offset <= 0x3FFF) {
-        return cartridge->rom + offset;
     } else if (offset <= 0x7FFF) {
-        return cartridge->rom + (romBank * FB_ROM_BANK_SIZE) + (offset - 0x4000); // TODO: MBC switchable
+        return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
     } else if (offset <= 0x97FF) {
         return vram + (offset - 0x8000);
     } else if (offset <= 0x9BFF) {
@@ -62,7 +60,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     } else if (offset <= 0x9FFF) {
         return bgMapData2 + (offset - 0x9C00);
     } else if (offset <= 0xBFFF) {
-        return cartridge->ram + (offset - 0xA000); // TODO: MBC switchable
+        return cartridge->mbc->getRAMMemoryAddress(offset, cartridge->ram);
     } else if (offset <= 0xCFFF) {
         return internalRam + (offset - 0xC000);
     } else if (offset <= 0xDFFF) {
@@ -110,13 +108,11 @@ i8 Memory::readSigned8BitsAt(memory_address offset) {
 }
 
 bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
-    if (offset >= 0x0100 && offset <= 0x7FFF) {
-        // Writing to ROM, meaning a ROM bank switch was requested
-        romBank = val & 7;
-        debug_print("Switch ROM bank to %d\n", romBank & 0xff);
+    if (offset <= 0x7FFF && cartridge->mbc->interceptWrite(offset, val)) {
+        // Writing to read-only area, so we let it intercept by the MBC
         return true;
     }
-    if (offset == 0xFF02 && val != 0 /*== 0x81*/) {
+    if (offset == 0xFF02 && val == 0x81) {
         fprintf(stdout, "Writing byte to stdout 0x%02X 0x%02X %c\n", read8BitsAt(0xFF01), val, read8BitsAt(0xFF01));
     }
     // TODO: Enable ram, switch ram bank, disable ram

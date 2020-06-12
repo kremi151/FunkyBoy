@@ -17,6 +17,8 @@ set(SOURCES
         source/util/romsizes.cpp
         source/cartridge/cartridge.cpp
         source/memory/memory.cpp
+        source/memory/mbc1.cpp
+        source/memory/mbc_none.cpp
         )
 
 set(HEADERS
@@ -30,6 +32,9 @@ set(HEADERS
         source/memory/memory.h
         source/util/debug.h
         source/util/testing.h
+        source/memory/mbc.h
+        source/memory/mbc1.h
+        source/memory/mbc_none.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
