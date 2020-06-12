@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
+#include <cstdio>
 #include "mbc1.h"
 
 #define FB_MBC1_ROM_BANK_SIZE (16 * 1024)
 
 using namespace FunkyBoy;
 
-MBC1::MBC1(MBC1RAMSize ramSize): romBank(1), ramBank(0), ramSize(ramSize), ramEnabled(false) {
+MBC1::MBC1(MBC1RAMSize ramSize): bank(1), romBankingMode(true), ramSize(ramSize), ramEnabled(false) {
+}
+
+inline u8 MBC1::getROMBank() {
+    return romBankingMode ? (bank & 0b1111111) : (bank & 0b11111);
+}
+
+inline u8 MBC1::getRAMBank() {
+    return romBankingMode ? 0 : ((bank >> 5) & 0b11);
 }
 
 u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
     if (offset <= 0x3FFF) {
         return rom + offset;
     } else if (offset <= 0x7FFF) {
-        return rom + (romBank * FB_MBC1_ROM_BANK_SIZE) + (offset - 0x4000);
+        return rom + (getROMBank() * FB_MBC1_ROM_BANK_SIZE) + (offset - 0x4000);
     } else {
         return nullptr;
     }
@@ -61,14 +70,30 @@ u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
     } else {
         return nullptr;
     }
-    return ram + (ramBank * getMBC1RAMBankSize(ramSize)) + (offset - 0xA000);
+    return ram + (getRAMBank() * getMBC1RAMBankSize(ramSize)) + (offset - 0xA000);
 }
 
 bool MBC1::interceptWrite(memory_address offset, u8 val) {
     if (offset <= 0x1FFF) {
         ramEnabled = (val == 0x0A);
         return true;
+    } else if (offset <= 0x3FFF) {
+        // Set ROM Bank number (lower 5 bits)
+        if (val == 0) val = 1;
+        fprintf(stdout, "bank mode %d switch ROM bank from 0x%02X to", !romBankingMode, bank);
+        bank = (bank & 0b1100000) | (val & 0b0011111);
+        fprintf(stdout, " 0x%02X\n", bank);
+        return true;
+    } else if (offset <= 0x5FFF) {
+        // Set RAM Bank number or ROM Bank number (upper 2 bits)
+        fprintf(stdout, "bank mode %d switch ROM/RAM bank from 0x%02X to", !romBankingMode, bank);
+        bank = ((val & 0b11) << 5) | (bank & 0x0011111);
+        fprintf(stdout, " 0x%02X\n", bank);
+        return true;
+    } else if (offset <= 0x7FFFF) {
+        romBankingMode = (val & 0b1) == 0;
+        fprintf(stdout, "Set banking mode to %d\n", !romBankingMode);
+        return true;
     }
-    // TODO: Intercept ROM bank switch
     return false;
 }

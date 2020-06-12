@@ -31,9 +31,12 @@ namespace FunkyBoy {
     class MBC1: public MBC {
     private:
         const MBC1RAMSize ramSize;
-        u8 romBank;
-        u8 ramBank;
+        u8 bank;
+        bool romBankingMode;
         bool ramEnabled;
+
+        u8 getROMBank();
+        u8 getRAMBank();
     public:
         MBC1(MBC1RAMSize ramSize);
 
