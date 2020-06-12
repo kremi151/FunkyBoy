@@ -300,6 +300,19 @@ bool CPU::doTick() {
             memory->write8BitsTo(readHL(), registers[opcode & 0b111]);
             return true;
         }
+        // ld s,(HL)
+        case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x7E: {
+            // 0x46 -> 1 000 110 -> B
+            // 0x4E -> 1 001 110 -> C
+            // 0x56 -> 1 010 110 -> D
+            // 0x5E -> 1 011 110 -> E
+            // 0x66 -> 1 100 110 -> H
+            // 0x6E -> 1 101 110 -> L
+            // --- Skip F ---
+            // 0x7E -> 1 111 110 -> A
+            registers[(opcode >> 3) & 0b111] = memory->read8BitsAt(readHL());
+            return true;
+        }
         // ldh (a8),A
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);
