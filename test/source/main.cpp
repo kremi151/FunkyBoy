@@ -148,11 +148,11 @@ TEST(test16BitLoads) {
 
     auto initialProgCounter = 0x100;
     cpu.progCounter = initialProgCounter;
-    memory->write8BitsTo(cpu.progCounter + 1, 0x06);
-    memory->write8BitsTo(cpu.progCounter + 2, 0x18);
+    cartridge->rom[initialProgCounter + 1] = 0x06;
+    cartridge->rom[initialProgCounter + 2] = 0x18;
 
     // Set opcode 0x01 (LD BC,d16)
-    *(cartridge->rom + initialProgCounter) = 0x01;
+    cartridge->rom[initialProgCounter] = 0x01;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
@@ -162,7 +162,7 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x11 (LD DE,d16)
     cpu.progCounter = initialProgCounter;
-    *(cartridge->rom + initialProgCounter) = 0x11;
+    cartridge->rom[initialProgCounter] = 0x11;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
@@ -172,7 +172,7 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x21 (LD HL,d16)
     cpu.progCounter = initialProgCounter;
-    *(cartridge->rom + initialProgCounter) = 0x21;
+    cartridge->rom[initialProgCounter] = 0x21;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
@@ -182,7 +182,7 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x31 (LD SP,d16)
     cpu.progCounter = initialProgCounter;
-    *(cartridge->rom + initialProgCounter) = 0x31;
+    cartridge->rom[initialProgCounter] = 0x31;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
@@ -200,10 +200,10 @@ TEST(testLDHA) {
 
     auto initialProgCounter = 0x100;
     cpu.progCounter = initialProgCounter;
-    *(cartridge->rom + initialProgCounter + 1) = 0xCE;
+    cartridge->rom[initialProgCounter + 1] = 0xCE;
 
     // Set opcode 0xF0 (LDH A,(a8))
-    *(cartridge->rom + initialProgCounter) = 0xF0;
+    cartridge->rom[initialProgCounter] = 0xF0;
     memory->write8BitsTo(0xFFCE, 0x42);
     assertNotEquals(0x42, *cpu.regA);
     if (!cpu.doTick()) {
@@ -217,7 +217,7 @@ TEST(testLDHA) {
     memory->write8BitsTo(0xFFCE, 0x0);
 
     // Set opcode 0xE0 (LDH (a8),A)
-    *(cartridge->rom + initialProgCounter) = 0xE0;
+    cartridge->rom[initialProgCounter] = 0xE0;
     *cpu.regA = 0x42;
     assertNotEquals(0x42, memory->read8BitsAt(0xFFCE));
     if (!cpu.doTick()) {
