@@ -87,10 +87,10 @@ void Cartridge::loadROM(std::ifstream &file) {
 
     switch (header->cartridgeType) {
         case 0x00:
-            mbc = std::make_shared<MBCNone>();
+            mbc = std::make_unique<MBCNone>();
             break;
         case 0x01:
-            mbc = std::make_shared<MBC1>(MBC1RAMSize::MBC1_NoRam);
+            mbc = std::make_unique<MBC1>(MBC1RAMSize::MBC1_NoRam);
             break;
         case 0x02:
         case 0x03: {
@@ -113,7 +113,7 @@ void Cartridge::loadROM(std::ifstream &file) {
                     status = CartridgeStatus::ROMUnsupportedMBC;
                     return;
             }
-            mbc = std::make_shared<MBC1>(mbc1RamSize);
+            mbc = std::make_unique<MBC1>(mbc1RamSize);
             break;
         }
         default:

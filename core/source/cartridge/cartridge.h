@@ -55,7 +55,7 @@ namespace FunkyBoy {
         size_t romSize;
         CartridgeStatus status;
 
-        std::shared_ptr<MBC> mbc;
+        std::unique_ptr<MBC> mbc;
 
         friend class Memory;
 
