@@ -17,7 +17,9 @@
 #ifndef FUNKYBOY_CORE_DEBUG_H
 #define FUNKYBOY_CORE_DEBUG_H
 
-#ifdef FB_DEBUG
+#ifndef FB_DEBUG_LOG_LEVEL
+#define FB_DEBUG_LOG_LEVEL 2
+#endif
 
 // Uncomment to enable step-by-step breakpoints
 // #define FB_DEBUG_STEPS
@@ -27,8 +29,21 @@
 
 #include <cstdio>
 
-#define debug_print(fmt, ...) \
+#if defined(FB_DEBUG) && FB_DEBUG_LOG_LEVEL >= 4
+#define debug_print_4(fmt, ...) \
         do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
+#else
+#define debug_print_4(fmt, ...)
+#endif
+
+#if defined(FB_DEBUG) && FB_DEBUG_LOG_LEVEL >= 2
+#define debug_print_2(fmt, ...) \
+        do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
+#else
+#define debug_print_2(fmt, ...)
+#endif
+
+#ifdef FB_DEBUG
 
 #define debug_print_with_line(fmt, ...) \
         do { fprintf(stdout, "%s:%d:%s(): " fmt, __FILE__, \
@@ -38,7 +53,6 @@
 
 #else
 
-#define debug_print(fmt, ...)
 #define debug_print_with_line(fmt, ...)
 #define debug_break()
 

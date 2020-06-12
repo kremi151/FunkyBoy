@@ -143,7 +143,7 @@ bool CPU::doTick() {
     auto currOffset = progCounter;
     auto opcode = memory->read8BitsAt(progCounter++);
 
-    debug_print("> instr 0x%02X at 0x%04X\n", opcode, currOffset);
+    debug_print_4("> instr 0x%02X at 0x%04X\n", opcode, currOffset);
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xff);
@@ -161,7 +161,7 @@ bool CPU::doTick() {
     switch (opcode) {
         // nop
         case 0x00:
-            debug_print("nop\n");
+            debug_print_4("nop\n");
             return true;
         // ld reg,reg
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // ld b,reg
@@ -172,7 +172,7 @@ bool CPU::doTick() {
         case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: case 0x6f: // ld l,reg
         case 0x78: case 0x79: case 0x7a: case 0x7b: case 0x7c: case 0x7d: case 0x7f: // ld a,reg
         {
-            debug_print("ld reg,reg\n");
+            debug_print_4("ld reg,reg\n");
             u8 &dst = registers[opcode >> 3 & 7];
             u8 src = registers[opcode & 7];
             dst = src;
@@ -205,57 +205,57 @@ bool CPU::doTick() {
         // ld A,d8
         case 0x3E: {
             *regA = memory->read8BitsAt(progCounter++);
-            debug_print("ldh A,d8 A <- 0x%02X\n", *regA);
+            debug_print_4("ldh A,d8 A <- 0x%02X\n", *regA);
             return true;
         }
         // ld (ss),d16
         case 0x01: case 0x11: case 0x21: {
-            debug_print("ld (ss),d16\n");
+            debug_print_4("ld (ss),d16\n");
             write16BitRegister(opcode >> 4 & 3, memory->read16BitsAt(progCounter));
             progCounter += 2;
             return true;
         }
         // ld SP,d16
         case 0x31: {
-            debug_print("ld SP,d16\n");
+            debug_print_4("ld SP,d16\n");
             stackPointer = memory->read16BitsAt(progCounter); // TODO: Correct?
             progCounter += 2;
             return true;
         }
         // ld (a16),SP
         case 0x08: {
-            debug_print("ld (a16),SP\n");
+            debug_print_4("ld (a16),SP\n");
             memory->write16BitsTo(memory->read16BitsAt(progCounter), stackPointer);
             progCounter += 2;
             return true;
         }
         // ld s,d8
         case 0x06: case 0x0E: case 0x16: case 0x1E: case 0x26: case 0x2E: {
-            debug_print("ld s,d8\n");
+            debug_print_4("ld s,d8\n");
             *(registers + (opcode >> 3 & 5)) = memory->read8BitsAt(progCounter++);
             return true;
         }
         // ld (HL),d8
         case 0x36: {
-            debug_print("ld (HL),d8\n");
+            debug_print_4("ld (HL),d8\n");
             memory->write8BitsTo(readHL(), memory->read8BitsAt(progCounter++)); // TODO: Correct?
             return true;
         }
         // ld (ss),A
         case 0x02: case 0x12: {
-            debug_print("ld (ss),A\n");
+            debug_print_4("ld (ss),A\n");
             memory->write8BitsTo(read16BitRegister(opcode >> 4 & 1), *regA);
             return true;
         }
         // ld A,(ss)
         case 0x0A: case 0x1A: {
-            debug_print("ld A,(ss)\n");
+            debug_print_4("ld A,(ss)\n");
             *regA = memory->read8BitsAt(read16BitRegister(opcode >> 4 & 1));
             return true;
         }
         // ld (HLI),A
         case 0x22: {
-            debug_print("ld (HLI),A\n");
+            debug_print_4("ld (HLI),A\n");
             u16 hl = readHL();
             memory->write8BitsTo(hl, *regA);
             writeHL(hl + 1);
@@ -263,7 +263,7 @@ bool CPU::doTick() {
         }
         // ld (HLD),A
         case 0x32: {
-            debug_print("ld (HLD),A\n");
+            debug_print_4("ld (HLD),A\n");
             u16 hl = readHL();
             memory->write8BitsTo(hl, *regA);
             writeHL(hl - 1);
@@ -271,7 +271,7 @@ bool CPU::doTick() {
         }
         // ld A,(HLI)
         case 0x2A: {
-            debug_print("ld A,(HLI)\n");
+            debug_print_4("ld A,(HLI)\n");
             u16 hl = readHL();
             *regA = memory->read8BitsAt(hl);
             writeHL(hl + 1);
@@ -279,7 +279,7 @@ bool CPU::doTick() {
         }
         // ld A,(HLD)
         case 0x3A: {
-            debug_print("ld A,(HLD)\n");
+            debug_print_4("ld A,(HLD)\n");
             u16 hl = readHL();
             *regA = memory->read8BitsAt(hl);
             writeHL(hl - 1);
@@ -296,14 +296,14 @@ bool CPU::doTick() {
             // --- Skip F ---
             // 0x70 -> 1110 110 -> A
 
-            debug_print("ld (HL),s\n");
+            debug_print_4("ld (HL),s\n");
             memory->write8BitsTo(readHL(), registers[opcode & 0b111]);
             return true;
         }
         // ldh (a8),A
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);
-            debug_print("ldh (a8),A 0x%04X <- 0x%02X\n", 0xFF00 + addr, *regA);
+            debug_print_4("ldh (a8),A 0x%04X <- 0x%02X\n", 0xFF00 + addr, *regA);
             memory->write8BitsTo(0xFF00 + addr, *regA);
             return true;
         }
@@ -311,14 +311,14 @@ bool CPU::doTick() {
         case 0xF0: {
             auto addr = memory->read8BitsAt(progCounter++);
             *regA = memory->read8BitsAt(0xFF00 + addr);
-            debug_print("ldh A,(a8) A <- 0x%02X (0x%04X)\n", *regA & 0xff, 0xFF00 + addr);
+            debug_print_4("ldh A,(a8) A <- 0x%02X (0x%04X)\n", *regA & 0xff, 0xFF00 + addr);
             return true;
         }
         // add reg,reg TODO: Correct notation?
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // add a,reg
         case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: // adc a,reg
         {
-            debug_print("add reg,reg\n");
+            debug_print_4("add reg,reg\n");
             bool carry = (opcode & 8) && isCarry();
             adc(registers[opcode & 7], carry);
             return true;
@@ -328,9 +328,9 @@ bool CPU::doTick() {
             bool set = opcode & 0b00001000;
             u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isZero()) || (set && isZero())) {
-                debug_print("jp (N)Z a16 from 0x%04X", progCounter - 1);
+                debug_print_4("jp (N)Z a16 from 0x%04X", progCounter - 1);
                 progCounter = address;
-                debug_print(" to 0x%04X\n", progCounter);
+                debug_print_4(" to 0x%04X\n", progCounter);
             }
             return true;
         }
@@ -339,24 +339,24 @@ bool CPU::doTick() {
             bool set = opcode & 0b00001000;
             u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isCarry()) || (set && isCarry())) {
-                debug_print("jp (C)Z a16 from 0x%04X", progCounter - 1);
+                debug_print_4("jp (C)Z a16 from 0x%04X", progCounter - 1);
                 progCounter = address;
-                debug_print(" to 0x%04X\n", progCounter);
+                debug_print_4(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         // unconditional jp
         case 0xC3:
         {
-            debug_print("jp (unconditional) a16 from 0x%04X", progCounter);
+            debug_print_4("jp (unconditional) a16 from 0x%04X", progCounter);
             progCounter = memory->read16BitsAt(progCounter);
-            debug_print(" to 0x%04X\n", progCounter);
+            debug_print_4(" to 0x%04X\n", progCounter);
             return true;
         }
         // jp HL
         case 0xE9:
         {
-            debug_print("jp HL\n");
+            debug_print_4("jp HL\n");
             progCounter = readHL();
             return true;
         }
@@ -364,11 +364,11 @@ bool CPU::doTick() {
         case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
             bool set = opcode & 0b00001000;
             auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            debug_print("jr (N)Z,r8 set ? %d %d\n", set, isZero());
+            debug_print_4("jr (N)Z,r8 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
-                debug_print("JR (N)Z from 0x%04X + %d", progCounter - 1, signedByte);
+                debug_print_4("JR (N)Z from 0x%04X + %d", progCounter - 1, signedByte);
                 progCounter += signedByte;
-                debug_print(" to 0x%04X\n", progCounter);
+                debug_print_4(" to 0x%04X\n", progCounter);
             }
             return true;
         }
@@ -376,60 +376,60 @@ bool CPU::doTick() {
         case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
             bool set = opcode & 0b00001000;
             auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            debug_print("jr (N)C,r8 set ? %d %d\n", set, isCarry());
+            debug_print_4("jr (N)C,r8 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
-                debug_print("JR (N)C from 0x%04X + %d", progCounter - 1, signedByte);
+                debug_print_4("JR (N)C from 0x%04X + %d", progCounter - 1, signedByte);
                 progCounter += signedByte;
-                debug_print(" to 0x%04X\n", progCounter);
+                debug_print_4(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         // unconditional jr
         case 0x18: {
             auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            debug_print("JR (unconditional) from 0x%04X + %d", progCounter, signedByte);
+            debug_print_4("JR (unconditional) from 0x%04X + %d", progCounter, signedByte);
             progCounter += signedByte;
-            debug_print(" to 0x%04X\n", progCounter);
+            debug_print_4(" to 0x%04X\n", progCounter);
             return true;
         }
         // call (N)Z,a16
         case 0xC4: case 0xCC: {
             bool set = opcode & 0b00001000;
-            debug_print("call (N)Z,a16 set ? %d %d\n", set, isZero());
+            debug_print_4("call (N)Z,a16 set ? %d %d\n", set, isZero());
             u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isZero()) || (set && isZero())) {
-                debug_print("call from 0x%04X", progCounter - 1);
+                debug_print_4("call from 0x%04X", progCounter - 1);
                 push16Bits(progCounter + 2);
                 progCounter = address;
-                debug_print(" to 0x%04X\n", progCounter);
+                debug_print_4(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         // call (N)C,a16
         case 0xD4: case 0xDC: {
             bool set = opcode & 0b00001000;
-            debug_print("call (N)C,a16 set ? %d %d\n", set, isCarry());
+            debug_print_4("call (N)C,a16 set ? %d %d\n", set, isCarry());
             u16 address = memory->read16BitsAt(progCounter++);
             if ((!set && !isCarry()) || (set && isCarry())) {
-                debug_print("call from 0x%04X", progCounter - 1);
+                debug_print_4("call from 0x%04X", progCounter - 1);
                 push16Bits(progCounter + 2);
                 progCounter = address;
-                debug_print(" to 0x%04X\n", progCounter);
+                debug_print_4(" to 0x%04X\n", progCounter);
             }
             return true;
         }
         case 0xCD: {
-            debug_print("call from 0x%04X", progCounter);
+            debug_print_4("call from 0x%04X", progCounter);
             u16 address = memory->read16BitsAt(progCounter);
             push16Bits(progCounter + 2);
             progCounter = address;
-            debug_print(" to 0x%04X\n", progCounter);
+            debug_print_4(" to 0x%04X\n", progCounter);
             return true;
         }
         // ret (N)Z,a16
         case 0xC0: case 0xC8: {
             bool set = opcode & 0b00001000;
-            debug_print("ret (N)Z,a16 set ? %d %d\n", set, isZero());
+            debug_print_4("ret (N)Z,a16 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
                 goto return_;
             }
@@ -438,7 +438,7 @@ bool CPU::doTick() {
         // ret (N)C,a16
         case 0xD0: case 0xD8: {
             bool set = opcode & 0b00001000;
-            debug_print("ret (N)C,a16 set ? %d %d\n", set, isCarry());
+            debug_print_4("ret (N)C,a16 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
                 goto return_;
             }
@@ -446,7 +446,7 @@ bool CPU::doTick() {
         }
         // ret a16
         case 0xC9: {
-            debug_print("ret a16\n");
+            debug_print_4("ret a16\n");
 return_:
             progCounter = pop16Bits();
             return true;
@@ -454,7 +454,7 @@ return_:
         // rst vec
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
             u8 rstAddr = (opcode >> 3 & 7) * 8;
-            debug_print("rst %02XH\n", rstAddr);
+            debug_print_4("rst %02XH\n", rstAddr);
             push16Bits(progCounter);
             progCounter = rstAddr;
             return true;
@@ -772,25 +772,25 @@ void CPU::write16BitRegister(FunkyBoy::u8 position, FunkyBoy::u16 val) {
 }
 
 void CPU::cp(u8 val) {
-    debug_print("cp 0x%02X - 0x%02X\n", *regA, val);
+    debug_print_4("cp 0x%02X - 0x%02X\n", *regA, val);
     // See http://z80-heaven.wikidot.com/instructions-set:cp
     setFlags(*regA == val, true, (*regA & 0xF) - (val & 0xF) < 0, *regA < val);
 }
 
 void CPU::_xor(u8 val) {
-    debug_print("xor 0x%02X ^ 0x%02X\n", *regA, val);
+    debug_print_4("xor 0x%02X ^ 0x%02X\n", *regA, val);
     *regA ^= val;
     setFlags(*regA == 0, false, false, false);
 }
 
 void CPU::_or(FunkyBoy::u8 val) {
-    debug_print("or 0x%02X | 0x%02X\n", *regA, val);
+    debug_print_4("or 0x%02X | 0x%02X\n", *regA, val);
     *regA |= val;
     setFlags(*regA == 0, false, false, false);
 }
 
 void CPU::_and(FunkyBoy::u8 val) {
-    debug_print("and 0x%02X & 0x%02X\n", *regA, val);
+    debug_print_4("and 0x%02X & 0x%02X\n", *regA, val);
     *regA &= val;
     //TODO: To be verified:
     setFlags(*regA == 0, false, true, false);

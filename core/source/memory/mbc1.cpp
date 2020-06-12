@@ -15,6 +15,7 @@
  */
 
 #include <cstdio>
+#include <util/debug.h>
 #include "mbc1.h"
 
 #define FB_MBC1_ROM_BANK_SIZE (16 * 1024)
@@ -76,23 +77,24 @@ u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
 bool MBC1::interceptWrite(memory_address offset, u8 val) {
     if (offset <= 0x1FFF) {
         ramEnabled = (val == 0x0A);
+        debug_print_2("[MBC1] Enable RAM? %d\n", ramEnabled);
         return true;
     } else if (offset <= 0x3FFF) {
         // Set ROM Bank number (lower 5 bits)
         if (val == 0) val = 1;
-        fprintf(stdout, "bank mode %d switch ROM bank from 0x%02X to", !romBankingMode, bank);
+        debug_print_2("[MBC1] bank mode %d switch ROM bank from 0x%02X to", !romBankingMode, bank);
         bank = (bank & 0b1100000) | (val & 0b0011111);
-        fprintf(stdout, " 0x%02X\n", bank);
+        debug_print_2(" 0x%02X\n", bank);
         return true;
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
-        fprintf(stdout, "bank mode %d switch ROM/RAM bank from 0x%02X to", !romBankingMode, bank);
+        debug_print_2("[MBC1] bank mode %d switch ROM/RAM bank from 0x%02X to", !romBankingMode, bank);
         bank = ((val & 0b11) << 5) | (bank & 0x0011111);
-        fprintf(stdout, " 0x%02X\n", bank);
+        debug_print_2(" 0x%02X\n", bank);
         return true;
     } else if (offset <= 0x7FFFF) {
         romBankingMode = (val & 0b1) == 0;
-        fprintf(stdout, "Set banking mode to %d\n", !romBankingMode);
+        debug_print_2("[MBC1] Set banking mode to %d\n", !romBankingMode);
         return true;
     }
     return false;
