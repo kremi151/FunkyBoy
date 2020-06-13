@@ -199,6 +199,8 @@ bool CPU::doTick() {
     file << " L=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regL & 0xff);
     file << " A=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regA & *regA);
     file << " F=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regF_do_not_use_directly & 0xff);
+    file << " PC=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << (progCounter - 1);
+    file << " SP=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << stackPointer;
     file << std::endl;
 #endif
 
