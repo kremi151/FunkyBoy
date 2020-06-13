@@ -30,6 +30,12 @@
 
 namespace FunkyBoy {
 
+    enum GameBoyType {
+        GameBoyDMG,
+        GameBoySGB,
+        GameBoyCGB
+    };
+
     class CPU {
     private:
         std::shared_ptr<Memory> memory;
@@ -39,6 +45,8 @@ namespace FunkyBoy {
 #endif
 
         u8 registers[8]{};
+
+        void powerUpInit();
 
         inline bool isCarry();
         void setCarry(bool carry);
@@ -52,7 +60,7 @@ namespace FunkyBoy {
         inline bool isZero();
         void setZero(bool zero);
 
-        inline bool isGbc();
+        inline GameBoyType getType();
 
         void setFlags(bool zero, bool subtraction, bool halfCarry, bool carry);
 

@@ -22,7 +22,6 @@
 using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
-#define FB_ROM_BANK_SIZE (16 * 1024)
 
 Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0) {
     restartInterruptVectorTable = new u8[256]{};

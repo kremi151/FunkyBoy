@@ -41,9 +41,14 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     regA = registers + 7;
 
     // Initialize registers
+    powerUpInit();
+}
+
+void CPU::powerUpInit() {
+    // Ref: https://gbdev.io/pandocs/#power-up-sequence
 
     // AF -> 0x01b0
-    if (isGbc()) {
+    if (getType() == GameBoyType::GameBoyCGB) {
         *regA = 0x11;
     } else {
         *regA = 0x01;
@@ -61,6 +66,45 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     // HL -> 0x014d
     *regH = 0x01;
     *regL = 0x4d;
+
+    stackPointer = 0xFFFE;
+
+    memory->write8BitsTo(0xff05, 0x00);
+    memory->write8BitsTo(0xff06, 0x00);
+    memory->write8BitsTo(0xff07, 0x00);
+    memory->write8BitsTo(0xff10, 0x80);
+    memory->write8BitsTo(0xff11, 0xbf);
+    memory->write8BitsTo(0xff12, 0xf3);
+    memory->write8BitsTo(0xff14, 0xbf);
+    memory->write8BitsTo(0xff16, 0x3f);
+    memory->write8BitsTo(0xff17, 0x00);
+    memory->write8BitsTo(0xff19, 0xbf);
+    memory->write8BitsTo(0xff1a, 0x7f);
+    memory->write8BitsTo(0xff1b, 0xff);
+    memory->write8BitsTo(0xff1c, 0x9f);
+    memory->write8BitsTo(0xff1e, 0xbf);
+    memory->write8BitsTo(0xff20, 0xff);
+    memory->write8BitsTo(0xff21, 0x00);
+    memory->write8BitsTo(0xff22, 0x00);
+    memory->write8BitsTo(0xff23, 0xbf);
+    memory->write8BitsTo(0xff24, 0x77);
+    memory->write8BitsTo(0xff25, 0xf3);
+    if (getType() == GameBoyDMG) {
+        memory->write8BitsTo(0xff26, 0xf1);
+    } else {
+        // TODO: This is for SGB, does this also apply for CGB?
+        memory->write8BitsTo(0xff26, 0xf0);
+    }
+    memory->write8BitsTo(0xff40, 0x91);
+    memory->write8BitsTo(0xff42, 0x00);
+    memory->write8BitsTo(0xff43, 0x00);
+    memory->write8BitsTo(0xff45, 0x00);
+    memory->write8BitsTo(0xff47, 0xfc);
+    memory->write8BitsTo(0xff48, 0xff);
+    memory->write8BitsTo(0xff49, 0xff);
+    memory->write8BitsTo(0xff4a, 0x00);
+    memory->write8BitsTo(0xff4b, 0x00);
+    memory->write8BitsTo(0xffff, 0x00);
 }
 
 inline bool CPU::isCarry() {
@@ -111,9 +155,9 @@ void CPU::setZero(bool zero) {
     }
 }
 
-bool CPU::isGbc() {
+GameBoyType CPU::getType() {
     // TODO: Implement
-    return false;
+    return GameBoyType::GameBoyDMG;
 }
 
 void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
