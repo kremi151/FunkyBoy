@@ -865,6 +865,30 @@ bool CPU::doPrefix(u8 prefix) {
             memory->write8BitsTo(readHL(), newVal);
             return true;
         }
+        // sla reg
+        case 0x20: case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x27: {
+            // 0x20 -> 100 000 -> B
+            // 0x21 -> 100 001 -> C
+            // 0x22 -> 100 010 -> D
+            // 0x23 -> 100 011 -> E
+            // 0x24 -> 100 100 -> H
+            // 0x25 -> 100 101 -> L
+            // --- Skip F ---
+            // 0x27 -> 100 111 -> A
+            u8 *reg = registers + (prefix & 0b111);
+            u8 newVal = *reg << 1;
+            setFlags(newVal == 0, false, false, (*reg & 0b10000000) > 0);
+            *reg = newVal;
+            return true;
+        }
+        // sla (HL)
+        case 0x26: {
+            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 newVal = oldVal << 1;
+            setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
+            memory->write8BitsTo(readHL(), newVal);
+            return true;
+        }
         // srl reg
         case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
             // 0x38 -> 111 000 -> B
