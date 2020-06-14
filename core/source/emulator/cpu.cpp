@@ -28,7 +28,7 @@ using namespace FunkyBoy;
 
 CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory))
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    , file("exec_opcodes_fb_v2.txt")
+    , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
 {
     regB = registers;
@@ -202,6 +202,7 @@ bool CPU::doTick() {
     file << " PC=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << (progCounter - 1);
     file << " SP=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << stackPointer;
     file << std::endl;
+    instr++;
 #endif
 
     switch (opcode) {

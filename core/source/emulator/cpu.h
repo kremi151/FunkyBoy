@@ -41,6 +41,7 @@ namespace FunkyBoy {
         std::shared_ptr<Memory> memory;
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+        unsigned long long instr;
         std::ofstream file;
 #endif
 
