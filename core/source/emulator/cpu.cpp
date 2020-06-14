@@ -383,6 +383,13 @@ bool CPU::doTick() {
             adc(registers[opcode & 7], carry);
             return true;
         }
+        // add A,d8
+        case 0xC6: {
+            debug_print_4("add A,d8\n");
+            u8 val = memory->read8BitsAt(progCounter++);
+            adc(val, false);
+            return true;
+        }
         // jp (N)Z,a16
         case 0xC2: case 0xCA: {
             bool set = opcode & 0b00001000;
