@@ -27,7 +27,6 @@ namespace FunkyBoy {
 
     class Memory {
     private:
-        u8 *restartInterruptVectorTable;
         std::shared_ptr<Cartridge> cartridge;
         u8 *vram; // Character RAM
         u8 *bgMapData1;

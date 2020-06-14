@@ -24,7 +24,6 @@ using namespace FunkyBoy;
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
 Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0) {
-    restartInterruptVectorTable = new u8[256]{};
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
     bgMapData2 = new u8[1024]{};
@@ -37,7 +36,6 @@ Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartri
 }
 
 Memory::~Memory() {
-    delete[] restartInterruptVectorTable;
     delete[] vram;
     delete[] bgMapData1;
     delete[] bgMapData2;
@@ -48,9 +46,7 @@ Memory::~Memory() {
 }
 
 u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
-    if (offset <= 0x00FF) {
-        return restartInterruptVectorTable + offset;
-    } else if (offset <= 0x7FFF) {
+    if (offset <= 0x7FFF) {
         return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
     } else if (offset <= 0x97FF) {
         return vram + (offset - 0x8000);
