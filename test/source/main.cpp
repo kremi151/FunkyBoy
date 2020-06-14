@@ -241,8 +241,8 @@ TEST(testCPUInstructionsJrJpCallRetRst) {
         }
     }
 
-    // Blargg's test ROMs will print "passed" if the tests have passed
-    assertStandardOutputHas("passed");
+    // Blargg's test ROMs will print "Passed" if the tests have passed
+    assertStandardOutputHas("Passed");
 }
 
 #endif

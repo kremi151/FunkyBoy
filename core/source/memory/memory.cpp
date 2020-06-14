@@ -108,7 +108,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
         return true;
     }
     if (offset == 0xFF02 && val == 0x81) {
-        putchar(read8BitsAt(0xFF01));
+        std::cout << read8BitsAt(0xFF01);
     }
     return false;
 }
