@@ -245,6 +245,22 @@ TEST(testCPUInstructionsJrJpCallRetRst) {
     assertStandardOutputHas("Passed");
 }
 
+TEST(testCPUInstructionsMisc) {
+    FunkyBoy::Emulator emulator;
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "08-misc instrs.gb";
+    auto status = emulator.loadGame(romPath);
+    assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
+
+    for (unsigned int i = 0 ; i < 342773 ; i++) {
+        if (!emulator.doTick()) {
+            failure("Emulation tick failed");
+        }
+    }
+
+    // Blargg's test ROMs will print "Passed" if the tests have passed
+    assertStandardOutputHas("Passed");
+}
+
 #endif
 
 int main() {
