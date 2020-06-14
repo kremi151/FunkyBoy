@@ -789,7 +789,7 @@ return_:
             return true;
         }
         case 0xCB: {
-            return doPrefix(opcode);
+            return doPrefix(memory->read8BitsAt(progCounter++));
         }
         default: {
             unknown_instr:
@@ -800,8 +800,36 @@ return_:
 }
 
 bool CPU::doPrefix(u8 prefix) {
-    fprintf(stderr, "Encountered not yet implemented prefix 0x%02X followed by instruction 0x%02X\n", prefix, memory->read8BitsAt(progCounter++));
-    return false;
+    switch(prefix) {
+        // srl reg
+        case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
+            // 0x38 -> 111 000 -> B
+            // 0x39 -> 111 001 -> C
+            // 0x3A -> 111 010 -> D
+            // 0x3B -> 111 011 -> E
+            // 0x3C -> 111 100 -> H
+            // 0x3D -> 111 101 -> L
+            // --- Skip F ---
+            // 0x3F -> 111 111 -> A
+            u8 *reg = registers + (prefix & 0b111);
+            u8 newVal = *reg >> 1;
+            setFlags(newVal == 0, false, false, *reg & 0b1);
+            *reg = newVal;
+            return true;
+        }
+        // srl (HL)
+        case 0x3E: {
+            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 newVal = oldVal >> 1;
+            setFlags(newVal == 0, false, false, oldVal & 0b1);
+            memory->write8BitsTo(readHL(), newVal);
+            return true;
+        }
+        default: {
+            fprintf(stderr, "Encountered not yet implemented prefix 0x%02X at 0x%04X\n", prefix, progCounter - 1);
+            return false;
+        }
+    }
 }
 
 void CPU::setProgramCounter(u16 offset) {
