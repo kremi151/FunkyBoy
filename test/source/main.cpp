@@ -269,6 +269,11 @@ TEST(testCPUInstructionsMisc) {
     testUsingROM(romPath, 285074);
 }
 
+TEST(testCPUInstructionsOpRR) {
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "09-op r,r.gb";
+    testUsingROM(romPath, 4550740);
+}
+
 #endif
 
 int main() {

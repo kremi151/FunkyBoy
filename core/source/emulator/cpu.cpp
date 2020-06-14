@@ -838,6 +838,23 @@ return_:
             memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
             return true;
         }
+        // cpl
+        case 0x2F: {
+            *regA = ~*regA;
+            setSubstraction(true);
+            setHalfCarry(true);
+            return true;
+        }
+        // scf
+        case 0x37: {
+            setFlags(isZero(), false, false, true);
+            return true;
+        }
+        // ccf
+        case 0x3F: {
+            setFlags(isZero(), false, false, !isCarry());
+            return true;
+        }
         // di
         case 0xF3: {
             memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 0);
@@ -861,6 +878,60 @@ return_:
 
 bool CPU::doPrefix(u8 prefix) {
     switch(prefix) {
+        // rlc reg
+        case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {
+            u8 *reg = registers + (prefix & 0b111);
+            u8 newVal = (*reg << 1) | ((*reg >> 7) & 0b1);
+            setFlags(newVal == 0, false, false, (*reg & 0b10000000) > 0);
+            *reg = newVal;
+            return true;
+        }
+        // rlc (HL)
+        case 0x06: {
+            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 newVal = (oldVal << 1) | ((oldVal >> 7) & 0b1);
+            setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
+            memory->write8BitsTo(readHL(), newVal);
+            return true;
+        }
+        // rrc reg
+        case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0F: {
+            u8 *reg = registers + (prefix & 0b111);
+            u8 newVal = (*reg >> 1) | ((*reg & 0b1) << 7);
+            setFlags(newVal == 0, false, false, (*reg & 0b1) > 0);
+            *reg = newVal;
+            return true;
+        }
+        // rrc (HL)
+        case 0x0E: {
+            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 newVal = (oldVal >> 1) | ((oldVal & 0b1) << 7);
+            setFlags(newVal == 0, false, false, (oldVal & 0b1) > 0);
+            memory->write8BitsTo(readHL(), newVal);
+            return true;
+        }
+        // rl reg
+        case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x17: {
+            u8 *reg = registers + (prefix & 0b111);
+            u8 newVal = (*reg << 1);
+            if (isCarry()) {
+                newVal |= 0b1;
+            }
+            setFlags(newVal == 0, false, false, (*reg & 0b10000000) > 0);
+            *reg = newVal;
+            return true;
+        }
+        // rl (HL)
+        case 0x16: {
+            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 newVal = (oldVal << 1);
+            if (isCarry()) {
+                newVal |= 0b1;
+            }
+            setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
+            memory->write8BitsTo(readHL(), newVal);
+            return true;
+        }
         // rr reg
         case 0x18: case 0x19: case 0x1A: case 0x1B: case 0x1C: case 0x1D: case 0x1F: {
             // 0x18 -> 11 000 -> B
@@ -912,6 +983,22 @@ bool CPU::doPrefix(u8 prefix) {
             u8 oldVal = memory->read16BitsAt(readHL());
             u8 newVal = oldVal << 1;
             setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
+            memory->write8BitsTo(readHL(), newVal);
+            return true;
+        }
+        // sra reg
+        case 0x28: case 0x29: case 0x2A: case 0x2B: case 0x2C: case 0x2D: case 0x2F: {
+            u8 *reg = registers + (prefix & 0b111);
+            u8 newVal = (*reg >> 1) | (*reg & 0b10000000);
+            setFlags(newVal == 0, false, false, *reg & 0b1);
+            *reg = newVal;
+            return true;
+        }
+        // sra (HL)
+        case 0x2E: {
+            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 newVal = (oldVal >> 1) | (oldVal & 0b10000000);
+            setFlags(newVal == 0, false, false, oldVal & 0b1);
             memory->write8BitsTo(readHL(), newVal);
             return true;
         }
