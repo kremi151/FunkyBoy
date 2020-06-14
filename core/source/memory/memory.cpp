@@ -112,7 +112,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
         return true;
     }
     if (offset == 0xFF02 && val == 0x81) {
-        fprintf(stdout, "Writing byte to stdout 0x%02X 0x%02X %c\n", read8BitsAt(0xFF01), val, read8BitsAt(0xFF01));
+        putchar(read8BitsAt(0xFF01));
     }
     return false;
 }
