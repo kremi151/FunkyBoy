@@ -763,16 +763,14 @@ return_:
         case 0x0F: {
             u8 a = *regA;
             *regA = (a >> 1) | ((a & 1) << 7);
-            // Explanation for Z flag: if regA is already 0, it will remain zero. Otherwise, it will be reset.
-            setFlags(a == 0, false, false, a & 1);
+            setFlags(false, false, false, a & 1);
             return true;
         }
         // rlca
         case 0x07: {
             u8 a = *regA;
             *regA = (a << 1) | ((a & 128) >> 7);
-            // Explanation for Z flag: if regA is already 0, it will remain zero. Otherwise, it will be reset.
-            setFlags(a == 0, false, false, (a & 128) != 0);
+            setFlags(false, false, false, (a & 128) != 0);
             return true;
         }
         // rra
@@ -782,7 +780,7 @@ return_:
             if (isCarry()) {
                 *regA |= 128; // (bit 7 set to 1)
             }
-            setFlags(*regA == 0, false, false, a & 1);
+            setFlags(false, false, false, a & 1);
             return true;
         }
         // rla
@@ -792,7 +790,7 @@ return_:
             if (isCarry()) {
                 *regA |= 1; // (bit 0 set to 1)
             }
-            setFlags(*regA == 0, false, false, (a & 128) != 0);
+            setFlags(false, false, false, (a & 128) != 0);
             return true;
         }
         case 0xC1: case 0xD1: case 0xE1: // pop ss
