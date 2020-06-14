@@ -441,7 +441,8 @@ bool CPU::doTick() {
         // jp (N)Z,a16
         case 0xC2: case 0xCA: {
             bool set = opcode & 0b00001000;
-            u16 address = memory->read16BitsAt(progCounter++);
+            u16 address = memory->read16BitsAt(progCounter);
+            progCounter += 2;
             if ((!set && !isZero()) || (set && isZero())) {
                 debug_print_4("jp (N)Z a16 from 0x%04X", progCounter - 1);
                 progCounter = address;
@@ -452,7 +453,8 @@ bool CPU::doTick() {
         // jp (N)C,a16
         case 0xD2: case 0xDA: {
             bool set = opcode & 0b00001000;
-            u16 address = memory->read16BitsAt(progCounter++);
+            u16 address = memory->read16BitsAt(progCounter);
+            progCounter += 2;
             if ((!set && !isCarry()) || (set && isCarry())) {
                 debug_print_4("jp (C)Z a16 from 0x%04X", progCounter - 1);
                 progCounter = address;
