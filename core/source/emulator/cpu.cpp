@@ -431,6 +431,13 @@ bool CPU::doTick() {
             sbc(val, false);
             return true;
         }
+        // sbc A,d8
+        case 0xDE: {
+            debug_print_4("sbc A,d8\n");
+            u8 val = memory->read8BitsAt(progCounter++);
+            sbc(val, isCarry());
+            return true;
+        }
         // jp (N)Z,a16
         case 0xC2: case 0xCA: {
             bool set = opcode & 0b00001000;
