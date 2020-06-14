@@ -428,6 +428,16 @@ bool CPU::doTick() {
             stackPointer = addToSP(signedByte);
             return true;
         }
+        // add A,(HL)
+        case 0x86: {
+            adc(memory->read8BitsAt(readHL()), false);
+            return true;
+        }
+        // adc A,(HL)
+        case 0x8E: {
+            adc(memory->read8BitsAt(readHL()), isCarry());
+            return true;
+        }
         case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
         case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: // sbc a,reg
         {
@@ -448,6 +458,16 @@ bool CPU::doTick() {
             debug_print_4("sbc A,d8\n");
             u8 val = memory->read8BitsAt(progCounter++);
             sbc(val, isCarry());
+            return true;
+        }
+        // sub (HL)
+        case 0x96: {
+            sbc(memory->read8BitsAt(readHL()), false);
+            return true;
+        }
+        // sbc (HL)
+        case 0x9E: {
+            sbc(memory->read8BitsAt(readHL()), isCarry());
             return true;
         }
         // jp (N)Z,a16
