@@ -389,6 +389,13 @@ bool CPU::doTick() {
             adc(val, false);
             return true;
         }
+        // adc A,d8
+        case 0xCE: {
+            debug_print_4("adc A,d8\n");
+            u8 val = memory->read8BitsAt(progCounter++);
+            adc(val, isCarry());
+            return true;
+        }
         case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
         case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: // sbc a,reg
         {
