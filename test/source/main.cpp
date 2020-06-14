@@ -229,13 +229,12 @@ TEST(testLDHA) {
 
 #ifdef RUN_ROM_TESTS
 
-TEST(testCPUInstructionsLoads) {
+void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks) {
     FunkyBoy::Emulator emulator;
-    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "06-ld r,r.gb";
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 
-    for (unsigned int i = 0 ; i < 342773 ; i++) {
+    for (unsigned int i = 0 ; i < expectedTicks ; i++) {
         if (!emulator.doTick()) {
             failure("Emulation tick failed");
         }
@@ -243,38 +242,21 @@ TEST(testCPUInstructionsLoads) {
 
     // Blargg's test ROMs will print "Passed" if the tests have passed
     assertStandardOutputHas("Passed");
+}
+
+TEST(testCPUInstructionsLoads) {
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "06-ld r,r.gb";
+    testUsingROM(romPath, 304455);
 }
 
 TEST(testCPUInstructionsJrJpCallRetRst) {
-    FunkyBoy::Emulator emulator;
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "07-jr,jp,call,ret,rst.gb";
-    auto status = emulator.loadGame(romPath);
-    assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
-
-    for (unsigned int i = 0 ; i < 342773 ; i++) {
-        if (!emulator.doTick()) {
-            failure("Emulation tick failed");
-        }
-    }
-
-    // Blargg's test ROMs will print "Passed" if the tests have passed
-    assertStandardOutputHas("Passed");
+    testUsingROM(romPath, 342773);
 }
 
 TEST(testCPUInstructionsMisc) {
-    FunkyBoy::Emulator emulator;
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "08-misc instrs.gb";
-    auto status = emulator.loadGame(romPath);
-    assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
-
-    for (unsigned int i = 0 ; i < 342773 ; i++) {
-        if (!emulator.doTick()) {
-            failure("Emulation tick failed");
-        }
-    }
-
-    // Blargg's test ROMs will print "Passed" if the tests have passed
-    assertStandardOutputHas("Passed");
+    testUsingROM(romPath, 285074);
 }
 
 #endif
