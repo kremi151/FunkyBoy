@@ -1184,16 +1184,16 @@ void CPU::_and(FunkyBoy::u8 val) {
 }
 
 inline void CPU::adc(u8 val, bool carry) {
-    if (carry) val++;
-    u8 newVal = *regA + val;
-    setFlags(newVal == 0, false, ((*regA & 0xf) + (val & 0xf)) > 0xf, (*regA & 0xff) + (val & 0xff) > 0xff);
+    u8 carryVal = carry ? 1 : 0;
+    u8 newVal = *regA + val + carryVal;
+    setFlags(newVal == 0, false, ((*regA & 0xf) + (val & 0xf) + carryVal) > 0xf, (*regA & 0xff) + (val & 0xff) + carryVal > 0xff);
     *regA = newVal;
 }
 
 inline void CPU::sbc(u8 val, bool carry) {
-    if (carry) val++;
-    u8 newVal = *regA - val;
-    setFlags(newVal == 0, true, (*regA & 0xF) - (val & 0xF) < 0, *regA < val);
+    u8 carryVal = carry ? 1 : 0;
+    u8 newVal = *regA - val - carryVal;
+    setFlags(newVal == 0, true, (*regA & 0xF) - (val & 0xF) - carryVal < 0, *regA < (val + carryVal));
     *regA = newVal;
 }
 
