@@ -801,6 +801,36 @@ return_:
 
 bool CPU::doPrefix(u8 prefix) {
     switch(prefix) {
+        // rr reg
+        case 0x18: case 0x19: case 0x1A: case 0x1B: case 0x1C: case 0x1D: case 0x1F: {
+            // 0x18 -> 11 000 -> B
+            // 0x19 -> 11 001 -> C
+            // 0x1A -> 11 010 -> D
+            // 0x1B -> 11 011 -> E
+            // 0x1C -> 11 100 -> H
+            // 0x1D -> 11 101 -> L
+            // --- Skip F ---
+            // 0x1F -> 11 111 -> A
+            u8 *reg = registers + (prefix & 0b111);
+            u8 newVal = *reg >> 1;
+            if (isCarry()) {
+                newVal |= 0b10000000;
+            }
+            setFlags(newVal == 0, false, false, *reg & 0b1);
+            *reg = newVal;
+            return true;
+        }
+        // rr (HL)
+        case 0x1E: {
+            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 newVal = oldVal >> 1;
+            if (isCarry()) {
+                newVal |= 0b10000000;
+            }
+            setFlags(newVal == 0, false, false, oldVal & 0b1);
+            memory->write8BitsTo(readHL(), newVal);
+            return true;
+        }
         // srl reg
         case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
             // 0x38 -> 111 000 -> B
