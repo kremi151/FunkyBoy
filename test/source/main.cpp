@@ -244,6 +244,11 @@ void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTic
     assertStandardOutputHas("Passed");
 }
 
+TEST(testCPUInstructionsOpSPHL) {
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "03-op sp,hl.gb";
+    testUsingROM(romPath, 1120000);
+}
+
 TEST(testCPUInstructionsLoads) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "06-ld r,r.gb";
     testUsingROM(romPath, 304455);

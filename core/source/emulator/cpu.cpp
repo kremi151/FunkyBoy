@@ -365,6 +365,12 @@ bool CPU::doTick() {
             stackPointer = readHL();
             return true;
         }
+        // ld HL,SP+e8
+        case 0xF8: {
+            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            writeHL(addToSP(signedByte));
+            return true;
+        }
         // ldh (a8),A
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);
@@ -414,6 +420,12 @@ bool CPU::doTick() {
         case 0x39: {
             debug_print_4("add HL,SP\n");
             addToHL(stackPointer);
+            return true;
+        }
+        // add SP,r8
+        case 0xE8: {
+            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            stackPointer = addToSP(signedByte);
             return true;
         }
         case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
@@ -673,6 +685,18 @@ return_:
             // Leave carry as-is
             return true;
         }
+        // dec ss
+        case 0x0B: case 0x1B: case 0x2B: {
+            u8 position = opcode >> 4 & 3;
+            u16 val = read16BitRegister(position);
+            write16BitRegister(position, val - 1);
+            return true;
+        }
+        // dec SP
+        case 0x3B: {
+            stackPointer--;
+            return true;
+        }
         // or s
         case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: {
             // 0xB0 -> 10110 000 -> B
@@ -891,6 +915,21 @@ bool CPU::doPrefix(u8 prefix) {
             memory->write8BitsTo(readHL(), newVal);
             return true;
         }
+        // swap reg
+        case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x37: {
+            u8 *reg = registers + (prefix & 0b111);
+            *reg = ((*reg >> 4) & 0b1111) | ((*reg & 0b1111) << 4);
+            setFlags(*reg == 0, false, false, false);
+            return true;
+        }
+        // swap (HL)
+        case 0x36: {
+            u8 val = memory->read8BitsAt(readHL());
+            val = ((val >> 4) & 0b1111) | ((val & 0b1111) << 4);
+            memory->write8BitsTo(readHL(), val);
+            setFlags(val == 0, false, false, false);
+            return true;
+        }
         // srl reg
         case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
             // 0x38 -> 111 000 -> B
@@ -1075,11 +1114,17 @@ inline void CPU::addToHL(u16 val) {
     u16 oldVal = readHL();
     u16 newVal = oldVal + val;
 
-    // TODO: Improve this by using the correct masks directly to calculate half-carry:
-    u8 oldValMsb = (oldVal >> 8) & 0xff;
-    u8 valMsb = (val >> 8) & 0xff;
-
-    setFlags(isZero(), false, ((oldValMsb & 0xf) + (valMsb & 0xf)) > 0xf, (oldVal & 0xffff) + (val & 0xffff) > 0xffff);
+    setFlags(isZero(), false, ((oldVal & 0xfff) + (val & 0xfff)) > 0xfff, (oldVal & 0xffff) + (val & 0xffff) > 0xffff);
 
     writeHL(newVal);
+}
+
+inline u16 CPU::addToSP(i8 val) {
+    u16 oldVal = stackPointer;
+    u16 newVal = oldVal + val;
+
+    // Note: Z flag is explicitly reset
+    setFlags(false, false, ((oldVal & 0xf) + (val & 0xf)) > 0xf, (oldVal & 0xff) + (val & 0xff) > 0xff);
+
+    return newVal;
 }
