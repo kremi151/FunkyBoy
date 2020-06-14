@@ -70,6 +70,7 @@ namespace FunkyBoy {
         void _or(u8 val);
         void _and(u8 val);
         void adc(u8 val, bool carry);
+        void sbc(u8 val, bool carry);
 
         bool doPrefix(u8 prefix);
 

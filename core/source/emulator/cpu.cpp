@@ -374,7 +374,6 @@ bool CPU::doTick() {
             debug_print_4("ldh A,(a8) A <- 0x%02X (0x%04X)\n", *regA & 0xff, 0xFF00 + addr);
             return true;
         }
-        // add reg,reg TODO: Correct notation?
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // add a,reg
         case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: // adc a,reg
         {
@@ -388,6 +387,21 @@ bool CPU::doTick() {
             debug_print_4("add A,d8\n");
             u8 val = memory->read8BitsAt(progCounter++);
             adc(val, false);
+            return true;
+        }
+        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
+        case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: // sbc a,reg
+        {
+            debug_print_4("sub reg,reg\n");
+            bool carry = (opcode & 8) && isCarry();
+            sbc(registers[opcode & 7], carry);
+            return true;
+        }
+        // sub A,d8
+        case 0xD6: {
+            debug_print_4("sub A,d8\n");
+            u8 val = memory->read8BitsAt(progCounter++);
+            sbc(val, false);
             return true;
         }
         // jp (N)Z,a16
@@ -870,5 +884,12 @@ inline void CPU::adc(u8 val, bool carry) {
     if (carry) val++;
     u8 newVal = *regA + val;
     setFlags(newVal == 0, false, ((*regA & 0xf) + (val & 0xf)) > 0xf, (*regA & 0xff) + (val & 0xff) > 0xff);
+    *regA = newVal;
+}
+
+inline void CPU::sbc(u8 val, bool carry) {
+    if (carry) val++;
+    u8 newVal = *regA - val;
+    setFlags(newVal == 0, true, (*regA & 0xF) - (val & 0xF) < 0, *regA < val);
     *regA = newVal;
 }
