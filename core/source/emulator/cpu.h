@@ -71,6 +71,7 @@ namespace FunkyBoy {
         void _and(u8 val);
         void adc(u8 val, bool carry);
         void sbc(u8 val, bool carry);
+        void addToHL(u16 val);
 
         bool doPrefix(u8 prefix);
 

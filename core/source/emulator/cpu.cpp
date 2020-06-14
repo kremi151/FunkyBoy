@@ -396,6 +396,21 @@ bool CPU::doTick() {
             adc(val, isCarry());
             return true;
         }
+        // add HL,ss
+        case 0x09: case 0x19: case 0x29: {
+            debug_print_4("add HL,ss\n");
+            // 0x09 -> 00 1001 -> BC
+            // 0x19 -> 01 1001 -> DE
+            // 0x29 -> 10 1001 -> HL
+            addToHL(read16BitRegister((opcode >> 4) & 0b11));
+            return true;
+        }
+        // add HL,SP
+        case 0x39: {
+            debug_print_4("add HL,SP\n");
+            addToHL(stackPointer);
+            return true;
+        }
         case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
         case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: // sbc a,reg
         {
@@ -957,4 +972,17 @@ inline void CPU::sbc(u8 val, bool carry) {
     u8 newVal = *regA - val;
     setFlags(newVal == 0, true, (*regA & 0xF) - (val & 0xF) < 0, *regA < val);
     *regA = newVal;
+}
+
+inline void CPU::addToHL(u16 val) {
+    u16 oldVal = readHL();
+    u16 newVal = oldVal + val;
+
+    // TODO: Improve this by using the correct masks directly to calculate half-carry:
+    u8 oldValMsb = (oldVal >> 8) & 0xff;
+    u8 valMsb = (val >> 8) & 0xff;
+
+    setFlags(isZero(), false, ((oldValMsb & 0xf) + (valMsb & 0xf)) > 0xf, (oldVal & 0xffff) + (val & 0xffff) > 0xffff);
+
+    writeHL(newVal);
 }
