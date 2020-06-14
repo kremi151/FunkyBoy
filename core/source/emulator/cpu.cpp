@@ -360,6 +360,11 @@ bool CPU::doTick() {
             registers[(opcode >> 3) & 0b111] = memory->read8BitsAt(readHL());
             return true;
         }
+        // ld SP,HL
+        case 0xF9: {
+            stackPointer = readHL();
+            return true;
+        }
         // ldh (a8),A
         case 0xE0: {
             auto addr = memory->read8BitsAt(progCounter++);
