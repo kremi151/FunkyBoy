@@ -1097,7 +1097,8 @@ bool CPU::doPrefix(u8 prefix) {
 
             // etc...
 
-            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 bitShift = (prefix >> 3) & 0b111;
+            u8 bitMask = 1 << bitShift;
             u8 regPos = prefix & 0b111;
             u8 *reg = registers + regPos;
             // Note: We write the opposite of the Nth bit into the Z flag
@@ -1114,7 +1115,8 @@ bool CPU::doPrefix(u8 prefix) {
             // 0x6E -> 1 101 110 -> 5
             // 0x76 -> 1 110 110 -> 6
             // 0x7E -> 1 111 110 -> 6
-            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 bitShift = (prefix >> 3) & 0b111;
+            u8 bitMask = 1 << bitShift;
             // Note: We write the opposite of the Nth bit into the Z flag
             setFlags(!(memory->read8BitsAt(readHL()) & bitMask), false, true, isCarry());
             return true;
@@ -1128,17 +1130,17 @@ bool CPU::doPrefix(u8 prefix) {
         case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: // res 6,reg
         case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF: // res 7,reg
         {
-            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 bitShift = (prefix >> 3) & 0b111;
             u8 regPos = prefix & 0b111;
             u8 *reg = registers + regPos;
-            *reg &= ~(1 << bitMask);
+            *reg &= ~(1 << bitShift);
             return true;
         }
         // res n,(HL)
         case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
-            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 bitShift = (prefix >> 3) & 0b111;
             u8 val = memory->read8BitsAt(readHL());
-            val &= ~(1 << bitMask);
+            val &= ~(1 << bitShift);
             memory->write8BitsTo(readHL(), val);
             return true;
         }
