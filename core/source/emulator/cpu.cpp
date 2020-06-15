@@ -1118,6 +1118,52 @@ bool CPU::doPrefix(u8 prefix) {
             setFlags(!(memory->read8BitsAt(readHL()) & bitMask), false, true, isCarry());
             return true;
         }
+        case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // res 0,reg
+        case 0x88: case 0x89: case 0x8A: case 0x8B: case 0x8C: case 0x8D: case 0x8F: // res 1,reg
+        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // res 2,reg
+        case 0x98: case 0x99: case 0x9A: case 0x9B: case 0x9C: case 0x9D: case 0x9F: // res 3,reg
+        case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: // res 4,reg
+        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: // res 5,reg
+        case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: // res 6,reg
+        case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF: // res 7,reg
+        {
+            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 regPos = prefix & 0b111;
+            u8 *reg = registers + regPos;
+            *reg &= ~(1 << bitMask);
+            return true;
+        }
+        // res n,(HL)
+        case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
+            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 val = memory->read8BitsAt(readHL());
+            val &= ~(1 << bitMask);
+            memory->write8BitsTo(readHL(), val);
+            return true;
+        }
+        case 0xC0: case 0xC1: case 0xC2: case 0xC3: case 0xC4: case 0xC5: case 0xC7: // set 0,reg
+        case 0xC8: case 0xC9: case 0xCA: case 0xCB: case 0xCC: case 0xCD: case 0xCF: // set 1,reg
+        case 0xD0: case 0xD1: case 0xD2: case 0xD3: case 0xD4: case 0xD5: case 0xD7: // set 2,reg
+        case 0xD8: case 0xD9: case 0xDA: case 0xDB: case 0xDC: case 0xDD: case 0xDF: // set 3,reg
+        case 0xE0: case 0xE1: case 0xE2: case 0xE3: case 0xE4: case 0xE5: case 0xE7: // set 4,reg
+        case 0xE8: case 0xE9: case 0xEA: case 0xEB: case 0xEC: case 0xED: case 0xEF: // set 5,reg
+        case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5: case 0xF7: // set 6,reg
+        case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD: case 0xFF: // set 7,reg
+        {
+            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 regPos = prefix & 0b111;
+            u8 *reg = registers + regPos;
+            *reg |= (1 << bitMask);
+            return true;
+        }
+        // set n,(HL)
+        case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE: {
+            u8 bitMask = (prefix >> 3) & 0b111;
+            u8 val = memory->read8BitsAt(readHL());
+            val |= (1 << bitMask);
+            memory->write8BitsTo(readHL(), val);
+            return true;
+        }
         default: {
             fprintf(stderr, "Encountered not yet implemented prefix 0x%02X at 0x%04X\n", prefix, progCounter - 1);
             return false;
