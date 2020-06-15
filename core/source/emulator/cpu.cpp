@@ -1099,8 +1099,9 @@ bool CPU::doPrefix(u8 prefix) {
 
             u8 bitMask = (prefix >> 3) & 0b111;
             u8 regPos = prefix & 0b111;
+            u8 *reg = registers + regPos;
             // Note: We write the opposite of the Nth bit into the Z flag
-            setFlags(!(read16BitRegister(regPos) & bitMask), false, true, isCarry());
+            setFlags(!(*reg & bitMask), false, true, isCarry());
             return true;
         }
         // bit n,(HL)
