@@ -244,10 +244,16 @@ void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTic
     assertStandardOutputHas("Passed");
 }
 
+// TODO: 01-special.gb
+
+// TODO: 02-interrupts.gb
+
 TEST(testCPUInstructionsOpSPHL) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "03-op sp,hl.gb";
     testUsingROM(romPath, 1120000);
 }
+
+// TODO: 04-op r,imm.gb
 
 TEST(testCPUInstructionsOpRP) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "05-op rp.gb";
@@ -272,6 +278,13 @@ TEST(testCPUInstructionsMisc) {
 TEST(testCPUInstructionsOpRR) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "09-op r,r.gb";
     testUsingROM(romPath, 4550740);
+}
+
+// TODO: 10-bit ops.gb
+
+TEST(testCPUInstructionsOpAHL) {
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "11-op a,(hl).gb";
+    testUsingROM(romPath, 8550740);
 }
 
 #endif

@@ -856,6 +856,30 @@ return_:
             memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
             return true;
         }
+        // daa
+        case 0x27: {
+            u8 val = *regA;
+            if (isSubstraction()) {
+                if (isCarry()) {
+                    val -= 0x60;
+                }
+                if (isHalfCarry()) {
+                    val -= 0x06;
+                }
+            } else {
+                if (isCarry() || (val >> 4) > 0x9) {
+                    val += 0x60;
+                    setCarry(true);
+                }
+                if (isHalfCarry() || (val & 0xf) > 0x09) {
+                    val += 0x06;
+                }
+            }
+            *regA = val;
+            setZero(val == 0);
+            setHalfCarry(false);
+            return true;
+        }
         // cpl
         case 0x2F: {
             *regA = ~*regA;
