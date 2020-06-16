@@ -280,7 +280,10 @@ TEST(testCPUInstructionsOpRR) {
     testUsingROM(romPath, 4550740);
 }
 
-// TODO: 10-bit ops.gb
+TEST(testCPUInstructionsBitOps) {
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "10-bit ops.gb";
+    testUsingROM(romPath, 8550740);
+}
 
 TEST(testCPUInstructionsOpAHL) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "11-op a,(hl).gb";
