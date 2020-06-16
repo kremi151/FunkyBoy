@@ -253,7 +253,10 @@ TEST(testCPUInstructionsOpSPHL) {
     testUsingROM(romPath, 1120000);
 }
 
-// TODO: 04-op r,imm.gb
+TEST(testCPUInstructionsOpRImm) {
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "04-op r,imm.gb";
+    testUsingROM(romPath, 5120000);
+}
 
 TEST(testCPUInstructionsOpRP) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "05-op rp.gb";

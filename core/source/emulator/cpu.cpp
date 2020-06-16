@@ -279,7 +279,7 @@ bool CPU::doTick() {
         // ld s,d8
         case 0x06: case 0x0E: case 0x16: case 0x1E: case 0x26: case 0x2E: {
             debug_print_4("ld s,d8\n");
-            *(registers + (opcode >> 3 & 5)) = memory->read8BitsAt(progCounter++);
+            registers[opcode >> 3 & 0b111] = memory->read8BitsAt(progCounter++);
             return true;
         }
         // ld (HL),d8
