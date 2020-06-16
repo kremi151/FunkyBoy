@@ -23,7 +23,7 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableFlag(0) {
+Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableRegister(0) {
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
     bgMapData2 = new u8[1024]{};
@@ -77,8 +77,8 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         return hwIO + (offset - 0xFF00);
     } else if (offset <= 0xFFFE) {
         return hram + (offset - 0xFF80);
-    } else if (offset == FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER) {
-        return &interruptEnableFlag;
+    } else if (offset == 0xFFFF) {
+        return &interruptEnableRegister;
     } else {
         return nullptr;
     }

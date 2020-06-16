@@ -21,8 +21,6 @@
 #include <cartridge/cartridge.h>
 #include <memory>
 
-#define FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER 0xFFFF
-
 namespace FunkyBoy {
 
     class Memory {
@@ -35,7 +33,7 @@ namespace FunkyBoy {
         u8 *oam;
         u8 *hwIO;
         u8 *hram;
-        u8 interruptEnableFlag;
+        u8 interruptEnableRegister;
 
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;

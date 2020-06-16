@@ -26,7 +26,7 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory))
+CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory)), interruptMasterEnable(false)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -853,7 +853,7 @@ return_:
         // reti
         case 0xD9: {
             progCounter = pop16Bits();
-            memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
+            interruptMasterEnable = true;
             return true;
         }
         // daa
@@ -899,12 +899,12 @@ return_:
         }
         // di
         case 0xF3: {
-            memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 0);
+            interruptMasterEnable = false;
             return true;
         }
         // ei
         case 0xFB: {
-            memory->write8BitsTo(FB_MEMORY_ADDR_INTERRUPT_ENABLE_REGISTER, 1);
+            interruptMasterEnable = true;
             return true;
         }
         case 0xCB: {

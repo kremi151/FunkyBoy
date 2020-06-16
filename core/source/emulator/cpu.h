@@ -47,6 +47,8 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
+        bool interruptMasterEnable;
+
         void powerUpInit();
 
         inline bool isCarry();
