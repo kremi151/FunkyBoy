@@ -240,11 +240,15 @@ void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTic
         }
     }
 
-    // Blargg's test ROMs will print "Passed" if the tests have passed
+    // Blargg's test ROMs will print "Passed" if the tests have passed and "Failed" otherwise
+    assertStandardOutputHasNot("Failed");
     assertStandardOutputHas("Passed");
 }
 
-// TODO: 01-special.gb
+TEST(testCPUInstructionsSpecial) {
+    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "01-special.gb";
+    testUsingROM(romPath, 5120000);
+}
 
 // TODO: 02-interrupts.gb
 

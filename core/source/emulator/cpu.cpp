@@ -867,7 +867,7 @@ return_:
                     val -= 0x06;
                 }
             } else {
-                if (isCarry() || (val >> 4) > 0x9) {
+                if (isCarry() || val > 0x99) {
                     val += 0x60;
                     setCarry(true);
                 }
