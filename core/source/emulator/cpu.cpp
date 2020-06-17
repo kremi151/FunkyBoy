@@ -941,7 +941,12 @@ return_:
         }
         // halt
         case 0x76: {
-            cpuState = CPUState::HALTED;
+            if (interruptMasterEnable == IMEState::ENABLED) {
+                cpuState = CPUState::HALTED;
+            } else if (getType() == GameBoyType::GameBoyCGB) {
+                // On non-GBC devices, the next instruction is skipped if HALT was requested with IME being disabled
+                progCounter++;
+            }
             return true;
         }
         case 0xCB: {
