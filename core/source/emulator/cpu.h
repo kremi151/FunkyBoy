@@ -37,10 +37,16 @@ namespace FunkyBoy {
     };
 
     enum IMEState {
-        DISABLED = (u8) 0,
-        REQUEST_ENABLE = (u8) 1,
-        ENABLING = (u8) 2,
-        ENABLED = (u8) 3,
+        DISABLED = 0,
+        REQUEST_ENABLE = 1,
+        ENABLING = 2,
+        ENABLED = 3,
+    };
+
+    enum CPUState {
+        RUNNING = 0,
+        HALTED = 1,
+        STOPPED = 2
     };
 
     class CPU {
@@ -55,6 +61,7 @@ namespace FunkyBoy {
         u8 registers[8]{};
 
         IMEState interruptMasterEnable;
+        CPUState cpuState;
 
         void powerUpInit();
 

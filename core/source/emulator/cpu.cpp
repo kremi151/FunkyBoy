@@ -26,7 +26,8 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory)), interruptMasterEnable(IMEState::DISABLED)
+CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory))
+    , interruptMasterEnable(IMEState::DISABLED), cpuState(CPUState::RUNNING)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -184,14 +185,18 @@ void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
 }
 
 bool CPU::doTick() {
-    auto opcode = memory->read8BitsAt(progCounter++);
-    debug_print_4("> instr 0x%02X at 0x%04X\n", opcode, progCounter - 1);
-
     bool result;
-    if (opcode == 0xCB) {
-        result = doPrefix(memory->read8BitsAt(progCounter++));
+    if (cpuState == CPUState::RUNNING) {
+        auto opcode = memory->read8BitsAt(progCounter++);
+        debug_print_4("> instr 0x%02X at 0x%04X\n", opcode, progCounter - 1);
+
+        if (opcode == 0xCB) {
+            result = doPrefix(memory->read8BitsAt(progCounter++));
+        } else {
+            result = doInstruction(opcode);
+        }
     } else {
-        result = doInstruction(opcode);
+        result = true;
     }
 
     // Due to a hardware quirk, enabling interrupts becomes active after the instruction following an EI,
@@ -927,6 +932,16 @@ return_:
         // ei
         case 0xFB: {
             interruptMasterEnable = IMEState::REQUEST_ENABLE;
+            return true;
+        }
+        // stop
+        case 0x10: {
+            cpuState = CPUState::STOPPED;
+            return true;
+        }
+        // halt
+        case 0x76: {
+            cpuState = CPUState::HALTED;
             return true;
         }
         case 0xCB: {
