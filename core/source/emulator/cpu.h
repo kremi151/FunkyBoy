@@ -36,6 +36,13 @@ namespace FunkyBoy {
         GameBoyCGB
     };
 
+    enum IMEState {
+        DISABLED = (u8) 0,
+        REQUEST_ENABLE = (u8) 1,
+        ENABLING = (u8) 2,
+        ENABLED = (u8) 3,
+    };
+
     class CPU {
     private:
         std::shared_ptr<Memory> memory;
@@ -47,7 +54,7 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        bool interruptMasterEnable;
+        IMEState interruptMasterEnable;
 
         void powerUpInit();
 
@@ -76,6 +83,7 @@ namespace FunkyBoy {
         void addToHL(u16 val);
         u16 addToSP(i8 val);
 
+        bool doInstruction(u8 opcode);
         bool doPrefix(u8 prefix);
 
     test_public:

@@ -26,7 +26,7 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory)), interruptMasterEnable(false)
+CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory)), interruptMasterEnable(IMEState::DISABLED)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -184,11 +184,33 @@ void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
 }
 
 bool CPU::doTick() {
-    auto currOffset = progCounter;
     auto opcode = memory->read8BitsAt(progCounter++);
+    debug_print_4("> instr 0x%02X at 0x%04X\n", opcode, progCounter - 1);
 
-    debug_print_4("> instr 0x%02X at 0x%04X\n", opcode, currOffset);
+    bool result;
+    if (opcode == 0xCB) {
+        result = doPrefix(memory->read8BitsAt(progCounter++));
+    } else {
+        result = doInstruction(opcode);
+    }
 
+    // Due to a hardware quirk, enabling interrupts becomes active after the instruction following an EI,
+    // so we simulate this behaviour here
+    switch(interruptMasterEnable) {
+        case REQUEST_ENABLE:
+            interruptMasterEnable = IMEState::ENABLING;
+            break;
+        case ENABLING:
+            interruptMasterEnable = IMEState::ENABLED;
+            break;
+        default:
+            break;
+    }
+
+    return result;
+}
+
+bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xff);
     file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regB & 0xff);
@@ -853,7 +875,7 @@ return_:
         // reti
         case 0xD9: {
             progCounter = pop16Bits();
-            interruptMasterEnable = true;
+            interruptMasterEnable = IMEState::REQUEST_ENABLE;
             return true;
         }
         // daa
@@ -899,15 +921,16 @@ return_:
         }
         // di
         case 0xF3: {
-            interruptMasterEnable = false;
+            interruptMasterEnable = IMEState::DISABLED;
             return true;
         }
         // ei
         case 0xFB: {
-            interruptMasterEnable = true;
+            interruptMasterEnable = IMEState::REQUEST_ENABLE;
             return true;
         }
         case 0xCB: {
+            // This should already be handled in onTick, so we should never reach this case here
             return doPrefix(memory->read8BitsAt(progCounter++));
         }
         default: {
