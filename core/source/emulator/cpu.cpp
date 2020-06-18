@@ -186,6 +186,16 @@ void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
 
 bool CPU::doTick() {
     bool result;
+
+    if (cpuState == CPUState::RUNNING || cpuState == CPUState::HALTED) {
+        if (doInterrupts()) {
+            // An interrupt has started, so we set the state to RUNNING again
+            cpuState = CPUState::RUNNING;
+        }
+    }
+
+    // TODO: If STOPPED, react to joypad input
+
     if (cpuState == CPUState::RUNNING) {
         auto opcode = memory->read8BitsAt(progCounter++);
         debug_print_4("> instr 0x%02X at 0x%04X\n", opcode, progCounter - 1);
@@ -1239,6 +1249,54 @@ bool CPU::doPrefix(u8 prefix) {
             return false;
         }
     }
+}
+
+inline memory_address getInterruptStartAddress(InterruptType type) {
+    switch (type) {
+        case InterruptType::VBLANK:
+            return 0x0040;
+        case InterruptType::LCD_STAT:
+            return 0x0048;
+        case InterruptType::TIMER:
+            return 0x0050;
+        case InterruptType::SERIAL:
+            return 0x0058;
+        case InterruptType::JOYPAD:
+            return 0x0060;
+        default:
+            return 0xffff;// TODO: Throw exception here
+    }
+}
+
+bool CPU::doInterrupts() {
+    if (interruptMasterEnable != IMEState::ENABLED) {
+        return false;
+    }
+    u8 _if = memory->read8BitsAt(0xFF0F) & 0b11111u;
+    u8 _ie = memory->read8BitsAt(0xFFFF);
+    u8 _intr = _if & _ie;
+    if (!_intr) {
+        return false;
+    }
+    for (u8 shift = 4 ; shift >= 0 ; shift--) {
+        u8 bitMask = 1u << shift;
+        if (!(_intr & bitMask)) {
+            continue;
+        }
+        auto interruptType = static_cast<InterruptType>(bitMask);
+        memory_address addr = getInterruptStartAddress(interruptType);
+        interruptMasterEnable = IMEState::DISABLED;
+        push16Bits(progCounter);
+        progCounter = addr;
+        debug_print_2("Do interrupt at 0x%04X\n", addr);
+        return true;
+    }
+    return false;
+}
+
+void CPU::requestInterrupt(InterruptType type) {
+    u8 _if = memory->read8BitsAt(0xFF0F);
+    memory->write8BitsTo(0xFF0F, _if | static_cast<u8>(type));
 }
 
 void CPU::setProgramCounter(u16 offset) {

@@ -40,13 +40,21 @@ namespace FunkyBoy {
         DISABLED = 0,
         REQUEST_ENABLE = 1,
         ENABLING = 2,
-        ENABLED = 3,
+        ENABLED = 3
     };
 
     enum CPUState {
         RUNNING = 0,
         HALTED = 1,
         STOPPED = 2
+    };
+
+    enum InterruptType {
+        VBLANK      = 0b00001,
+        LCD_STAT    = 0b00010,
+        TIMER       = 0b00100,
+        SERIAL      = 0b01000,
+        JOYPAD      = 0b10000
     };
 
     class CPU {
@@ -92,6 +100,9 @@ namespace FunkyBoy {
 
         bool doInstruction(u8 opcode);
         bool doPrefix(u8 prefix);
+
+        bool doInterrupts();
+        void requestInterrupt(InterruptType type);
 
     test_public:
         void push16Bits(u16 val);
