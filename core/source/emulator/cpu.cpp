@@ -19,15 +19,21 @@
 #include <iostream>
 #include <utility>
 #include <util/typedefs.h>
+#include <cmath>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 #include <iomanip>
 #endif
 
+#define FB_REG_DIV 0xFF04
+#define FB_REG_TIMA 0xFF05
+#define FB_REG_TMA 0xFF06
+#define FB_REG_TAC 0xFF07
+
 using namespace FunkyBoy;
 
 CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory))
-    , interruptMasterEnable(IMEState::DISABLED), cpuState(CPUState::RUNNING)
+    , interruptMasterEnable(IMEState::DISABLED), cpuState(CPUState::RUNNING), timerCounter(0), divCounter(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -195,6 +201,10 @@ bool CPU::doTick() {
     }
 
     // TODO: If STOPPED, react to joypad input
+
+    // TODO: Handle timer here or earlier?
+    doDivider();
+    doTimer();
 
     if (cpuState == CPUState::RUNNING) {
         auto opcode = memory->read8BitsAt(progCounter++);
@@ -889,7 +899,7 @@ return_:
         }
         // reti
         case 0xD9: {
-            interruptMasterEnable = IMEState::REQUEST_ENABLE;
+            interruptMasterEnable = IMEState::ENABLED; // Immediate enable without delay
             progCounter = pop16Bits();
             return true;
         }
@@ -1252,20 +1262,16 @@ bool CPU::doPrefix(u8 prefix) {
 }
 
 inline memory_address getInterruptStartAddress(InterruptType type) {
-    switch (type) {
-        case InterruptType::VBLANK:
-            return 0x0040;
-        case InterruptType::LCD_STAT:
-            return 0x0048;
-        case InterruptType::TIMER:
-            return 0x0050;
-        case InterruptType::SERIAL:
-            return 0x0058;
-        case InterruptType::JOYPAD:
-            return 0x0060;
-        default:
-            return 0xffff;// TODO: Throw exception here
-    }
+    // VBLANK   -> 0x0040
+    // LCD_STAT -> 0x0048
+    // TIMER    -> 0x0050
+    // SERIAL   -> 0x0058
+    // JOYPAD   -> 0x0060
+    return 0x0040 + (static_cast<u8>(type) * 0x8);
+}
+
+inline u8 getInterruptBitMask(InterruptType type) {
+    return 1u << static_cast<u8>(type);
 }
 
 bool CPU::doInterrupts() {
@@ -1283,7 +1289,7 @@ bool CPU::doInterrupts() {
         if (!(_intr & bitMask)) {
             continue;
         }
-        auto interruptType = static_cast<InterruptType>(bitMask);
+        auto interruptType = static_cast<InterruptType>(shift);
         memory_address addr = getInterruptStartAddress(interruptType);
         interruptMasterEnable = IMEState::DISABLED;
         // TODO: do 2 NOP cycles (when implementing cycle accuracy)
@@ -1298,9 +1304,50 @@ bool CPU::doInterrupts() {
     return false;
 }
 
+void CPU::doDivider() {
+    if (divCounter++ % 256 != 0) {
+        // Frequency: 16384Hz => every 256th cycle
+        return;
+    }
+    divCounter = 0;
+    memory->incrementAt(FB_REG_DIV);
+}
+
+void CPU::doTimer() {
+    u8 tac = memory->read8BitsAt(FB_REG_TAC);
+    if (!(tac & 0b100u)) {
+        return;
+    }
+    tac &= 0b11u;
+    u16 inputClock;
+    if (tac == 0) {
+        inputClock = 1024;
+    } else {
+        inputClock = 16 * pow(4, tac - 1);
+    }
+    timerCounter = (timerCounter + 1) % inputClock;
+    if (timerCounter != 0) {
+        return;
+    }
+    u8 tima = memory->read8BitsAt(FB_REG_TIMA);
+    bool triggerInterrupt = false;
+    if (tima == 0xff) {
+        triggerInterrupt = true;
+        tima = memory->read8BitsAt(FB_REG_TMA);
+    } else {
+        tima++;
+    }
+    memory->write8BitsTo(FB_REG_TIMA, tima);
+    if (triggerInterrupt) {
+        //fprintf(stdout, "# req timer int\n");
+        requestInterrupt(InterruptType::TIMER);
+    }
+}
+
 void CPU::requestInterrupt(InterruptType type) {
+    //fprintf(stdout, "#req int %d\n", type);
     u8 _if = memory->read8BitsAt(0xFF0F);
-    memory->write8BitsTo(0xFF0F, _if | static_cast<u8>(type));
+    memory->write8BitsTo(0xFF0F, _if | getInterruptBitMask(type));
 }
 
 void CPU::setProgramCounter(u16 offset) {

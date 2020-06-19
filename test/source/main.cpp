@@ -227,6 +227,20 @@ TEST(testLDHA) {
     assertEquals(0x42, memory->read8BitsAt(0xFFCE));
 }
 
+TEST(testDIVIncrement) {
+    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
+
+    memory->write8BitsTo(0xFF04, 0x18);
+    assertEquals(0x00, memory->read8BitsAt(0xFF04));
+    memory->incrementAt(0xFF04);
+    assertEquals(0x01, memory->read8BitsAt(0xFF04));
+    memory->incrementAt(0xFF04);
+    assertEquals(0x02, memory->read8BitsAt(0xFF04));
+    memory->write8BitsTo(0xFF04, 0x33);
+    assertEquals(0x00, memory->read8BitsAt(0xFF04));
+}
+
 #ifdef RUN_ROM_TESTS
 
 void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks) {

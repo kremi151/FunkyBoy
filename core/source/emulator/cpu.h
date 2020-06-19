@@ -50,11 +50,11 @@ namespace FunkyBoy {
     };
 
     enum InterruptType {
-        VBLANK      = 0b00001,
-        LCD_STAT    = 0b00010,
-        TIMER       = 0b00100,
-        SERIAL      = 0b01000,
-        JOYPAD      = 0b10000
+        VBLANK      = 0,
+        LCD_STAT    = 1,
+        TIMER       = 2,
+        SERIAL      = 3,
+        JOYPAD      = 4
     };
 
     class CPU {
@@ -70,6 +70,9 @@ namespace FunkyBoy {
 
         IMEState interruptMasterEnable;
         CPUState cpuState;
+
+        u16 timerCounter;
+        u16 divCounter;
 
         void powerUpInit();
 
@@ -102,6 +105,8 @@ namespace FunkyBoy {
         bool doPrefix(u8 prefix);
 
         bool doInterrupts();
+        void doTimer();
+        void doDivider();
         void requestInterrupt(InterruptType type);
 
     test_public:

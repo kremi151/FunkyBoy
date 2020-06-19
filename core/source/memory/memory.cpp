@@ -110,6 +110,11 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     if (offset == 0xFF02 && val == 0x81) {
         std::cout << read8BitsAt(0xFF01);
     }
+    if (offset == 0xFF04) {
+        // Direct write to DIV ; reset to 0
+        *getMemoryAddress(0xFF04) = 0;
+        return true;
+    }
     return false;
 }
 
