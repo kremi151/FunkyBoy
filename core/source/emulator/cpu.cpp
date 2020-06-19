@@ -889,8 +889,8 @@ return_:
         }
         // reti
         case 0xD9: {
-            progCounter = pop16Bits();
             interruptMasterEnable = IMEState::REQUEST_ENABLE;
+            progCounter = pop16Bits();
             return true;
         }
         // daa
@@ -1278,7 +1278,7 @@ bool CPU::doInterrupts() {
     if (!_intr) {
         return false;
     }
-    for (u8 shift = 4 ; shift >= 0 ; shift--) {
+    for (u8 shift = 0 ; shift <= 4 ; shift++) {
         u8 bitMask = 1u << shift;
         if (!(_intr & bitMask)) {
             continue;
@@ -1286,9 +1286,13 @@ bool CPU::doInterrupts() {
         auto interruptType = static_cast<InterruptType>(bitMask);
         memory_address addr = getInterruptStartAddress(interruptType);
         interruptMasterEnable = IMEState::DISABLED;
+        // TODO: do 2 NOP cycles (when implementing cycle accuracy)
         push16Bits(progCounter);
         progCounter = addr;
         debug_print_2("Do interrupt at 0x%04X\n", addr);
+        _if &= ~bitMask;
+        memory->write8BitsTo(0xFF0F, _if); // TODO: Investigate "Timer doesn't work" error from ROM output
+        // TODO: Interrupt Service Routine should take 5 cycles
         return true;
     }
     return false;
