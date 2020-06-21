@@ -27,11 +27,11 @@ void Instructions::loadRS(InstrContext &context) {
     dst = src;
 }
 
-void Instructions::load_dd_A(InstrContext &context) {
+void Instructions::load_mem_dd_A(InstrContext &context) {
     context.memory->write8BitsTo(Util::compose16Bits(context.lsb, context.msb), *context.regA);
 }
 
-void Instructions::load_A_dd(InstrContext &context) {
+void Instructions::load_A_mem_dd(InstrContext &context) {
     *context.regA = context.memory->read8BitsAt(Util::compose16Bits(context.lsb, context.msb));
 }
 
@@ -57,4 +57,70 @@ void Instructions::load_r_n(InstrContext &context) {
 
 void Instructions::load_HL_n(InstrContext &context) {
     context.memory->write8BitsTo(Util::composeHL(*context.regH, *context.regL), context.lsb);
+}
+
+void Instructions::load_reg_dd_A(InstrContext &context) {
+    context.memory->write8BitsTo(Util::read16BitRegister(context.registers, context.instr >> 4 & 1), *context.regA);
+}
+
+void Instructions::load_A_reg_dd(InstrContext &context) {
+    *context.regA = context.memory->read8BitsAt(Util::read16BitRegister(context.registers, context.instr >> 4 & 1));
+}
+
+void Instructions::load_HLI_A(InstrContext &context) {
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    context.memory->write8BitsTo(hl, *context.regA);
+    Util::writeHL(*context.regH, *context.regL, hl + 1);
+}
+
+void Instructions::load_HLD_A(InstrContext &context) {
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    context.memory->write8BitsTo(hl, *context.regA);
+    Util::writeHL(*context.regH, *context.regL, hl - 1);
+}
+
+void Instructions::load_A_HLI(InstrContext &context) {
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    *context.regA = context.memory->read8BitsAt(hl);
+    Util::writeHL(*context.regH, *context.regL, hl + 1);
+}
+
+void Instructions::load_A_HLD(InstrContext &context) {
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    *context.regA = context.memory->read8BitsAt(hl);
+    Util::writeHL(*context.regH, *context.regL, hl - 1);
+}
+
+void Instructions::load_HL_r(InstrContext &context) {
+    // 0x70 -> 1110 000 -> B
+    // 0x70 -> 1110 001 -> C
+    // 0x70 -> 1110 010 -> D
+    // 0x70 -> 1110 011 -> E
+    // 0x70 -> 1110 100 -> H
+    // 0x70 -> 1110 101 -> L
+    // --- Skip F ---
+    // 0x70 -> 1110 110 -> A
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    context.memory->write8BitsTo(hl, context.registers[context.instr & 0b111u]);
+}
+
+void Instructions::load_r_HL(InstrContext &context) {
+    // 0x46 -> 1 000 110 -> B
+    // 0x4E -> 1 001 110 -> C
+    // 0x56 -> 1 010 110 -> D
+    // 0x5E -> 1 011 110 -> E
+    // 0x66 -> 1 100 110 -> H
+    // 0x6E -> 1 101 110 -> L
+    // --- Skip F ---
+    // 0x7E -> 1 111 110 -> A
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    context.registers[(context.instr >> 3u) & 0b111u] = context.memory->read8BitsAt(hl);
+}
+
+void Instructions::load_SP_HL(InstrContext &context) {
+    context.stackPointer = Util::composeHL(*context.regH, *context.regL);
+}
+
+void Instructions::load_HL_SPe(InstrContext &context) {
+    Util::writeHL(*context.regH, *context.regL, Util::addToSP(context.regF, context.stackPointer, context.signedByte));
 }

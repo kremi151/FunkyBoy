@@ -182,26 +182,7 @@ GameBoyType CPU::getType() {
 }
 
 void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
-    if (zero) {
-        *regF_do_not_use_directly |= 0b10000000;
-    } else {
-        *regF_do_not_use_directly &= 0b01110000;
-    }
-    if (subtraction) {
-        *regF_do_not_use_directly |= 0b01000000;
-    } else {
-        *regF_do_not_use_directly &= 0b10110000;
-    }
-    if (halfCarry) {
-        *regF_do_not_use_directly |= 0b00100000;
-    } else {
-        *regF_do_not_use_directly &= 0b11010000;
-    }
-    if (carry) {
-        *regF_do_not_use_directly |= 0b00010000;
-    } else {
-        *regF_do_not_use_directly &= 0b11100000;
-    }
+    Util::setFlags(regF_do_not_use_directly, zero, subtraction, halfCarry, carry);
 }
 
 bool CPU::doTick() {
@@ -278,7 +259,7 @@ bool CPU::doDecode() {
             debug_print_4("ld (a16),A\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::load_dd_A;
+            operands[2] = Instructions::load_mem_dd_A;
             operands[3] = nullptr;
             return true;
         }
@@ -287,7 +268,7 @@ bool CPU::doDecode() {
             debug_print_4("ld A,(a16)\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::load_A_dd;
+            operands[2] = Instructions::load_A_mem_dd;
             operands[3] = nullptr;
             return true;
         }
@@ -303,7 +284,7 @@ bool CPU::doDecode() {
         case 0xF2: {
             debug_print_4("ld A,(C)\n");
             operands[0] = Instructions::readRegCAsLSB;
-            operands[1] = Instructions::load_A_dd;
+            operands[1] = Instructions::load_A_mem_dd;
             operands[2] = nullptr;
             return true;
         }
@@ -358,6 +339,93 @@ bool CPU::doDecode() {
             operands[2] = nullptr;
             return true;
         }
+        // ld (ss),A
+        case 0x02: case 0x12: {
+            debug_print_4("ld (ss),A\n");
+            operands[0] = Instructions::load_reg_dd_A;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld A,(ss)
+        case 0x0A: case 0x1A: {
+            debug_print_4("ld A,(ss)\n");
+            operands[0] = Instructions::load_A_reg_dd;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld (HLI),A
+        case 0x22: {
+            debug_print_4("ld (HLI),A\n");
+            operands[0] = Instructions::load_HLI_A;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld (HLD),A
+        case 0x32: {
+            debug_print_4("ld (HLD),A\n");
+            operands[0] = Instructions::load_HLD_A;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld A,(HLI)
+        case 0x2A: {
+            debug_print_4("ld A,(HLI)\n");
+            operands[0] = Instructions::load_A_HLI;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld A,(HLD)
+        case 0x3A: {
+            debug_print_4("ld A,(HLD)\n");
+            operands[0] = Instructions::load_A_HLD;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld (HL),r
+        case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77: {
+            debug_print_4("ld (HL),r\n");
+            operands[0] = Instructions::load_HL_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld r,(HL)
+        case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x7E: {
+            debug_print_4("ld r,(HL)\n");
+            operands[0] = Instructions::load_r_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld SP,HL
+        case 0xF9: {
+            debug_print_4("ld SP,HL\n");
+            operands[0] = Instructions::load_SP_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld HL,SP+e8
+        case 0xF8: {
+            debug_print_4("ld HL,SP+e8\n");
+            operands[0] = Instructions::readSigned;
+            operands[1] = Instructions::load_HL_SPe;
+            operands[2] = nullptr;
+            return true;
+        }
+        // ldh (a8),A
+        case 0xE0: {
+            debug_print_4("ldh (a8),A\n");
+            operands[0] = Instructions::readMemAsLSB;
+            operands[1] = Instructions::load_mem_dd_A;
+            operands[2] = nullptr;
+            return true;
+        }
+        // ldh A,(a8)
+        case 0xF0: {
+            debug_print_4("ldh A,(a8)\n");
+            operands[0] = Instructions::readMemAsLSB;
+            operands[1] = Instructions::load_A_mem_dd;
+            operands[2] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -381,103 +449,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // ld (ss),A
-        case 0x02: case 0x12: {
-            debug_print_4("ld (ss),A\n");
-            memory->write8BitsTo(read16BitRegister(opcode >> 4 & 1), *regA);
-            return true;
-        }
-        // ld A,(ss)
-        case 0x0A: case 0x1A: {
-            debug_print_4("ld A,(ss)\n");
-            *regA = memory->read8BitsAt(read16BitRegister(opcode >> 4 & 1));
-            return true;
-        }
-        // ld (HLI),A
-        case 0x22: {
-            debug_print_4("ld (HLI),A\n");
-            u16 hl = readHL();
-            memory->write8BitsTo(hl, *regA);
-            writeHL(hl + 1);
-            return true;
-        }
-        // ld (HLD),A
-        case 0x32: {
-            debug_print_4("ld (HLD),A\n");
-            u16 hl = readHL();
-            memory->write8BitsTo(hl, *regA);
-            writeHL(hl - 1);
-            return true;
-        }
-        // ld A,(HLI)
-        case 0x2A: {
-            debug_print_4("ld A,(HLI)\n");
-            u16 hl = readHL();
-            *regA = memory->read8BitsAt(hl);
-            writeHL(hl + 1);
-            return true;
-        }
-        // ld A,(HLD)
-        case 0x3A: {
-            debug_print_4("ld A,(HLD)\n");
-            u16 hl = readHL();
-            *regA = memory->read8BitsAt(hl);
-            writeHL(hl - 1);
-            return true;
-        }
-        // ld (HL),s
-        case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77: {
-            // 0x70 -> 1110 000 -> B
-            // 0x70 -> 1110 001 -> C
-            // 0x70 -> 1110 010 -> D
-            // 0x70 -> 1110 011 -> E
-            // 0x70 -> 1110 100 -> H
-            // 0x70 -> 1110 101 -> L
-            // --- Skip F ---
-            // 0x70 -> 1110 110 -> A
-
-            debug_print_4("ld (HL),s\n");
-            memory->write8BitsTo(readHL(), registers[opcode & 0b111]);
-            return true;
-        }
-        // ld s,(HL)
-        case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x7E: {
-            // 0x46 -> 1 000 110 -> B
-            // 0x4E -> 1 001 110 -> C
-            // 0x56 -> 1 010 110 -> D
-            // 0x5E -> 1 011 110 -> E
-            // 0x66 -> 1 100 110 -> H
-            // 0x6E -> 1 101 110 -> L
-            // --- Skip F ---
-            // 0x7E -> 1 111 110 -> A
-            registers[(opcode >> 3) & 0b111] = memory->read8BitsAt(readHL());
-            return true;
-        }
-        // ld SP,HL
-        case 0xF9: {
-            stackPointer = readHL();
-            return true;
-        }
-        // ld HL,SP+e8
-        case 0xF8: {
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            writeHL(addToSP(signedByte));
-            return true;
-        }
-        // ldh (a8),A
-        case 0xE0: {
-            auto addr = memory->read8BitsAt(progCounter++);
-            debug_print_4("ldh (a8),A 0x%04X <- 0x%02X\n", 0xFF00 + addr, *regA);
-            memory->write8BitsTo(0xFF00 + addr, *regA);
-            return true;
-        }
-        // ldh A,(a8)
-        case 0xF0: {
-            auto addr = memory->read8BitsAt(progCounter++);
-            *regA = memory->read8BitsAt(0xFF00 + addr);
-            debug_print_4("ldh A,(a8) A <- 0x%02X (0x%04X)\n", *regA & 0xff, 0xFF00 + addr);
-            return true;
-        }
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // add a,reg
         case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: // adc a,reg
         {
@@ -1423,8 +1394,7 @@ u16 CPU::readHL() {
 }
 
 void CPU::writeHL(FunkyBoy::u16 val) {
-    *regL = val & 0xff;
-    *regH = (val >> 8) & 0xff;
+    Util::writeHL(*regH, *regL, val);
 }
 
 u16 CPU::readAF() {
@@ -1482,14 +1452,4 @@ inline void CPU::addToHL(u16 val) {
     setFlags(isZero(), false, ((oldVal & 0xfff) + (val & 0xfff)) > 0xfff, (oldVal & 0xffff) + (val & 0xffff) > 0xffff);
 
     writeHL(newVal);
-}
-
-inline u16 CPU::addToSP(i8 val) {
-    u16 oldVal = stackPointer;
-    u16 newVal = oldVal + val;
-
-    // Note: Z flag is explicitly reset
-    setFlags(false, false, ((oldVal & 0xf) + (val & 0xf)) > 0xf, (oldVal & 0xff) + (val & 0xff) > 0xff);
-
-    return newVal;
 }

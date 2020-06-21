@@ -34,10 +34,22 @@ namespace FunkyBoy::Instructions {
     void readMSB(InstrContext &context);
 
     /**
+     * Reads a signed byte into {@code signedByte}
+     * @param context
+     */
+    void readSigned(InstrContext &context);
+
+    /**
      * Reads C into {@code lsb}, 0xFF into {@code msb}
      * @param context
      */
     void readRegCAsLSB(InstrContext &context);
+
+    /**
+     * Reads next unsigned byte into {@code lsb}, 0xFF into {@code msb}
+     * @param context
+     */
+    void readMemAsLSB(InstrContext &context);
 
 }
 

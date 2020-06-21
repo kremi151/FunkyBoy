@@ -38,6 +38,7 @@ namespace FunkyBoy {
 
         u8 lsb;
         u8 msb;
+        i8 signedByte;
 
         u16 progCounter;
         u16 stackPointer;

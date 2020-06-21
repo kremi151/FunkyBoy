@@ -32,3 +32,40 @@ inline u16 Util::read16BitRegister(u8 *registers, u8 position) {
 inline u16 Util::composeHL(u8 &h, u8 &l) {
     return (l & 0xffu) | (h << 8u);
 }
+
+void Util::writeHL(u8 &h, u8 &l, u16 val) {
+    l = val & 0xffu;
+    h = (val >> 8u) & 0xffu;
+}
+
+void Util::setFlags(u8 *flags, bool zero, bool subtraction, bool halfCarry, bool carry) {
+    if (zero) {
+        *flags |= 0b10000000u;
+    } else {
+        *flags &= 0b01110000u;
+    }
+    if (subtraction) {
+        *flags |= 0b01000000u;
+    } else {
+        *flags &= 0b10110000u;
+    }
+    if (halfCarry) {
+        *flags |= 0b00100000u;
+    } else {
+        *flags &= 0b11010000u;
+    }
+    if (carry) {
+        *flags |= 0b00010000u;
+    } else {
+        *flags &= 0b11100000u;
+    }
+}
+
+u16 Util::addToSP(u8 *flags, u16 stackPointer, i8 val) {
+    u16 newVal = stackPointer + val;
+
+    // Note: Z flag is explicitly reset
+    setFlags(flags, false, false, ((stackPointer & 0xfu) + (val & 0xfu)) > 0xfu, (stackPointer & 0xffu) + (val & 0xffu) > 0xffu);
+
+    return newVal;
+}

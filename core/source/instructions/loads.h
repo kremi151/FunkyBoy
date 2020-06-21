@@ -31,13 +31,13 @@ namespace FunkyBoy::Instructions {
      * LD (dd),A
      * @param context
      */
-    void load_dd_A(InstrContext &context);
+    void load_mem_dd_A(InstrContext &context);
 
     /**
      * LD A,(dd)
      * @param context
      */
-    void load_A_dd(InstrContext &context);
+    void load_A_mem_dd(InstrContext &context);
 
     /**
      * LD A,d
@@ -73,6 +73,66 @@ namespace FunkyBoy::Instructions {
      * @param context
      */
     void load_HL_n(InstrContext &context);
+
+    /**
+     * LD (dd),A
+     * @param context
+     */
+    void load_reg_dd_A(InstrContext &context);
+
+    /**
+     * LD A,(dd)
+     * @param context
+     */
+    void load_A_reg_dd(InstrContext &context);
+
+    /**
+     * LD (HL+),A
+     * @param context
+     */
+    void load_HLI_A(InstrContext &context);
+
+    /**
+     * LD (HL-),A
+     * @param context
+     */
+    void load_HLD_A(InstrContext &context);
+
+    /**
+     * LD A,(HL+)
+     * @param context
+     */
+    void load_A_HLI(InstrContext &context);
+
+    /**
+     * LD A,(HL-)
+     * @param context
+     */
+    void load_A_HLD(InstrContext &context);
+
+    /**
+     * LD (HL),r
+     * @param context
+     */
+    void load_HL_r(InstrContext &context);
+
+    /**
+     * LD r,(HL)
+     * @param context
+     */
+    void load_r_HL(InstrContext &context);
+
+    /**
+     * LD SP,HL
+     * @param context
+     */
+    void load_SP_HL(InstrContext &context);
+
+    /**
+     * LD HL,SP+e
+     * @param context
+     */
+    void load_HL_SPe(InstrContext &context);
 
 }
 

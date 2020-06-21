@@ -26,7 +26,16 @@ void Instructions::readMSB(InstrContext &context) {
     context.msb = context.memory->read8BitsAt(context.progCounter++);
 }
 
+void Instructions::readSigned(InstrContext &context) {
+    context.signedByte = context.memory->readSigned8BitsAt(context.progCounter++);
+}
+
 void Instructions::readRegCAsLSB(InstrContext &context) {
     context.lsb = *context.regC;
+    context.msb = 0xFF;
+}
+
+void Instructions::readMemAsLSB(InstrContext &context) {
+    context.lsb = context.memory->read8BitsAt(context.progCounter++);
     context.msb = 0xFF;
 }

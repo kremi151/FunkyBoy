@@ -94,6 +94,7 @@ namespace FunkyBoy {
 
         inline GameBoyType getType();
 
+        [[deprecated]]
         void setFlags(bool zero, bool subtraction, bool halfCarry, bool carry);
 
         void cp(u8 val);
@@ -103,7 +104,6 @@ namespace FunkyBoy {
         void adc(u8 val, bool carry);
         void sbc(u8 val, bool carry);
         void addToHL(u16 val);
-        u16 addToSP(i8 val);
 
         void doFetch();
         bool doDecode();
@@ -119,7 +119,9 @@ namespace FunkyBoy {
         void push16Bits(u8 msb, u8 lsb);
         u16 pop16Bits();
 
+        [[deprecated]]
         u16 readHL();
+        [[deprecated]]
         void writeHL(u16 val);
 
         u16 readAF();
