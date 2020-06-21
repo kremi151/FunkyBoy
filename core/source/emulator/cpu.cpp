@@ -19,6 +19,7 @@
 #include <iostream>
 #include <utility>
 #include <util/typedefs.h>
+#include <util/registers.h>
 #include <cmath>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
@@ -32,8 +33,8 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), memory(std::move(memory))
-    , interruptMasterEnable(IMEState::DISABLED), cpuState(CPUState::RUNNING), timerCounter(0), divCounter(0)
+CPU::CPU(std::shared_ptr<Memory> memory): memory(std::move(memory)) , interruptMasterEnable(IMEState::DISABLED)
+    , cpuState(CPUState::RUNNING), timerCounter(0), divCounter(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -46,6 +47,19 @@ CPU::CPU(std::shared_ptr<Memory> memory): progCounter(0), stackPointer(0xFFFE), 
     regL = registers + 5;
     regF_do_not_use_directly = registers + 6;
     regA = registers + 7;
+
+    instrContext.registers = registers;
+    instrContext.regB = regB;
+    instrContext.regC = regC;
+    instrContext.regD = regD;
+    instrContext.regE = regE;
+    instrContext.regH = regH;
+    instrContext.regL = regL;
+    instrContext.regF = regF_do_not_use_directly;
+    instrContext.regA = regA;
+    instrContext.progCounter = 0;
+    instrContext.stackPointer = 0xFFFE;
+    instrContext.memory = this->memory;
 
     // Initialize registers
     powerUpInit();
@@ -74,7 +88,7 @@ void CPU::powerUpInit() {
     *regH = 0x01;
     *regL = 0x4d;
 
-    stackPointer = 0xFFFE;
+    instrContext.stackPointer = 0xFFFE;
 
     memory->write8BitsTo(0xff05, 0x00);
     memory->write8BitsTo(0xff06, 0x00);
@@ -235,7 +249,121 @@ bool CPU::doTick() {
     return result;
 }
 
+void CPU::doFetch() {
+    instrContext.instr = memory->read8BitsAt(instrContext.progCounter++);
+}
+
+bool CPU::doDecode() {
+    switch (instrContext.instr) {
+        // nop
+        case 0x00:
+            operands[0] = Instructions::nop;
+            operands[1] = nullptr;
+            return true;
+        case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // ld b,reg
+        case 0x48: case 0x49: case 0x4a: case 0x4b: case 0x4c: case 0x4d: case 0x4f: // ld c,reg
+        case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x57: // ld d,reg
+        case 0x58: case 0x59: case 0x5a: case 0x5b: case 0x5c: case 0x5d: case 0x5f: // ld e,reg
+        case 0x60: case 0x61: case 0x62: case 0x63: case 0x64: case 0x65: case 0x67: // ld h,reg
+        case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: case 0x6f: // ld l,reg
+        case 0x78: case 0x79: case 0x7a: case 0x7b: case 0x7c: case 0x7d: case 0x7f: // ld a,reg
+        {
+            debug_print_4("ld reg,reg\n");
+            operands[0] = Instructions::loadRS;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ld (a16),A
+        case 0xEA: {
+            debug_print_4("ld (a16),A\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::load_dd_A;
+            operands[3] = nullptr;
+            return true;
+        }
+        // ld A,(a16)
+        case 0xFA: {
+            debug_print_4("ld A,(a16)\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::load_A_dd;
+            operands[3] = nullptr;
+            return true;
+        }
+        // ld (C),A
+        case 0xE2: {
+            debug_print_4("ld (C),A\n");
+            operands[0] = Instructions::readRegCAsLSB;
+            operands[1] = Instructions::load_dd_A;
+            operands[2] = nullptr;
+            return true;
+        }
+        // ld A,(C)
+        case 0xF2: {
+            debug_print_4("ld A,(C)\n");
+            operands[0] = Instructions::readRegCAsLSB;
+            operands[1] = Instructions::load_A_dd;
+            operands[2] = nullptr;
+            return true;
+        }
+        // ld A,d8
+        case 0x3E: {
+            debug_print_4("ld A,d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::load_A_d;
+            operands[2] = nullptr;
+            return true;
+        }
+        // ld (ss),d16
+        case 0x01: case 0x11: case 0x21: {
+            debug_print_4("ld (ss),d16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::load_dd_nn;
+            operands[3] = nullptr;
+            return true;
+        }
+        // ld SP,d16
+        case 0x31: {
+            debug_print_4("ld SP,d16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::load_SP_nn;
+            operands[3] = nullptr;
+            return true;
+        }
+        // ld (a16),SP
+        case 0x08: {
+            debug_print_4("ld (a16),SP\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::load_nn_SP;
+            operands[3] = nullptr;
+            return true;
+        }
+        // ld r,d8
+        case 0x06: case 0x0E: case 0x16: case 0x1E: case 0x26: case 0x2E: {
+            debug_print_4("ld r,d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::load_r_n;
+            operands[2] = nullptr;
+            return true;
+        }
+        // ld (HL),d8
+        case 0x36: {
+            debug_print_4("ld (HL),d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::load_HL_n;
+            operands[2] = nullptr;
+            return true;
+        }
+    }
+}
+
 bool CPU::doInstruction(FunkyBoy::u8 opcode) {
+    instrContext.instr = opcode;
+
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xff);
     file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regB & 0xff);
@@ -253,88 +381,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // nop
-        case 0x00:
-            debug_print_4("nop\n");
-            return true;
-        // ld reg,reg
-        case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // ld b,reg
-        case 0x48: case 0x49: case 0x4a: case 0x4b: case 0x4c: case 0x4d: case 0x4f: // ld c,reg
-        case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x57: // ld d,reg
-        case 0x58: case 0x59: case 0x5a: case 0x5b: case 0x5c: case 0x5d: case 0x5f: // ld e,reg
-        case 0x60: case 0x61: case 0x62: case 0x63: case 0x64: case 0x65: case 0x67: // ld h,reg
-        case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: case 0x6f: // ld l,reg
-        case 0x78: case 0x79: case 0x7a: case 0x7b: case 0x7c: case 0x7d: case 0x7f: // ld a,reg
-        {
-            debug_print_4("ld reg,reg\n");
-            u8 &dst = registers[opcode >> 3 & 7];
-            u8 src = registers[opcode & 7];
-            dst = src;
-            return true;
-        }
-        // ld (a16),A
-        case 0xEA: {
-            auto destAddr = memory->read16BitsAt(progCounter);
-            progCounter += 2;
-            memory->write8BitsTo(destAddr, *regA);
-            return true;
-        }
-        // ld A,(a16)
-        case 0xFA: {
-            auto srcAddr = memory->read16BitsAt(progCounter);
-            progCounter += 2;
-            *regA = memory->read8BitsAt(srcAddr);
-            return true;
-        }
-        // ld (C),A
-        case 0xE2: {
-            memory->write8BitsTo(0xFF00 + *regC, *regA);
-            return true;
-        }
-        // ld A,(C)
-        case 0xF2: {
-            *regA = memory->read8BitsAt(0xFF00 + *regC);
-            return true;
-        }
-        // ld A,d8
-        case 0x3E: {
-            *regA = memory->read8BitsAt(progCounter++);
-            debug_print_4("ldh A,d8 A <- 0x%02X\n", *regA);
-            return true;
-        }
-        // ld (ss),d16
-        case 0x01: case 0x11: case 0x21: {
-            debug_print_4("ld (ss),d16\n");
-            write16BitRegister(opcode >> 4 & 3, memory->read16BitsAt(progCounter));
-            progCounter += 2;
-            return true;
-        }
-        // ld SP,d16
-        case 0x31: {
-            debug_print_4("ld SP,d16\n");
-            stackPointer = memory->read16BitsAt(progCounter); // TODO: Correct?
-            progCounter += 2;
-            return true;
-        }
-        // ld (a16),SP
-        case 0x08: {
-            debug_print_4("ld (a16),SP\n");
-            memory->write16BitsTo(memory->read16BitsAt(progCounter), stackPointer);
-            progCounter += 2;
-            return true;
-        }
-        // ld s,d8
-        case 0x06: case 0x0E: case 0x16: case 0x1E: case 0x26: case 0x2E: {
-            debug_print_4("ld s,d8\n");
-            registers[opcode >> 3 & 0b111] = memory->read8BitsAt(progCounter++);
-            return true;
-        }
-        // ld (HL),d8
-        case 0x36: {
-            debug_print_4("ld (HL),d8\n");
-            memory->write8BitsTo(readHL(), memory->read8BitsAt(progCounter++)); // TODO: Correct?
-            return true;
-        }
         // ld (ss),A
         case 0x02: case 0x12: {
             debug_print_4("ld (ss),A\n");
@@ -1373,7 +1419,7 @@ u16 CPU::pop16Bits() {
 }
 
 u16 CPU::readHL() {
-    return (*regL & 0xff) | (*regH << 8);
+    return Util::composeHL(*regH, *regL);
 }
 
 void CPU::writeHL(FunkyBoy::u16 val) {
@@ -1388,17 +1434,6 @@ u16 CPU::readAF() {
 void CPU::writeAF(FunkyBoy::u16 val) {
     *regF_do_not_use_directly = val & 0b11110000; // Only the 4 most significant bits are written to register F
     *regA = (val >> 8) & 0xff;
-}
-
-u16 CPU::read16BitRegister(FunkyBoy::u8 position) {
-    u8 *reg = registers + (position * 2);
-    return (*reg << 8) | (*(reg + 1) & 0xff);
-}
-
-void CPU::write16BitRegister(FunkyBoy::u8 position, FunkyBoy::u16 val) {
-    u8 *reg = registers + (position * 2);
-    *reg = (val >> 8) & 0xff;
-    *(reg + 1) = val & 0xff;
 }
 
 void CPU::cp(u8 val) {

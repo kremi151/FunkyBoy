@@ -19,6 +19,11 @@ set(SOURCES
         source/memory/memory.cpp
         source/memory/mbc1.cpp
         source/memory/mbc_none.cpp
+        source/instructions/loads.cpp
+        source/instructions/misc.cpp
+        source/instructions/reads.cpp
+        source/util/endianness.cpp
+        source/util/registers.cpp
         )
 
 set(HEADERS
@@ -35,6 +40,13 @@ set(HEADERS
         source/memory/mbc.h
         source/memory/mbc1.h
         source/memory/mbc_none.h
+        source/instructions/instruction_context.h
+        source/instructions/loads.h
+        source/instructions/instructions.h
+        source/instructions/misc.h
+        source/instructions/reads.h
+        source/util/endianness.h
+        source/util/registers.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

@@ -23,6 +23,7 @@
 #include <memory>
 #include <util/testing.h>
 #include <util/debug.h>
+#include <instructions/instructions.h>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 #include <fstream>
@@ -70,6 +71,9 @@ namespace FunkyBoy {
 
         IMEState interruptMasterEnable;
         CPUState cpuState;
+        InstrContext instrContext{};
+
+        Operand operands[4]{};
 
         u16 timerCounter;
         u16 divCounter;
@@ -101,8 +105,9 @@ namespace FunkyBoy {
         void addToHL(u16 val);
         u16 addToSP(i8 val);
 
-        bool doInstruction(u8 opcode);
-        bool doPrefix(u8 prefix);
+        void doFetch();
+        bool doDecode();
+        bool __TODO_REWRITE__doPrefix(u8 prefix);
 
         bool doInterrupts();
         void doTimer();
@@ -119,12 +124,6 @@ namespace FunkyBoy {
 
         u16 readAF();
         void writeAF(u16 val);
-
-        u16 read16BitRegister(u8 position);
-        void write16BitRegister(u8 position, u16 val);
-
-        u16 progCounter;
-        u16 stackPointer;
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
 

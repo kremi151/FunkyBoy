@@ -58,6 +58,8 @@ namespace FunkyBoy {
         void write16BitsTo(memory_address offset, u8 msb, u8 lsb);
     };
 
+    typedef std::shared_ptr<Memory> MemoryPtr;
+
 }
 
 #endif //FUNKYBOY_CORE_MEMORY_H
