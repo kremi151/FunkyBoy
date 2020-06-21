@@ -30,6 +30,10 @@ namespace FunkyBoy::Instructions {
     void jr_conditional_carry(InstrContext &context);
     void jr(InstrContext &context);
 
+    void call_conditional_zero(InstrContext &context);
+    void call_conditional_carry(InstrContext &context);
+    void call(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_JUMPS_H

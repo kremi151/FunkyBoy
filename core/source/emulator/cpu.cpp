@@ -542,6 +542,33 @@ bool CPU::doDecode() {
             operands[2] = nullptr;
             return true;
         }
+        // call (N)Z,a16
+        case 0xC4: case 0xCC: {
+            debug_print_4("call (N)Z,a16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::call_conditional_zero;
+            operands[3] = nullptr;
+            return true;
+        }
+        // call (N)C,a16
+        case 0xD4: case 0xDC: {
+            debug_print_4("call (N)C,a16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::call_conditional_carry;
+            operands[3] = nullptr;
+            return true;
+        }
+        // call a16
+        case 0xCD: {
+            debug_print_4("call a16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::call;
+            operands[3] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -565,43 +592,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // call (N)Z,a16
-        case 0xC4: case 0xCC: {
-            bool set = opcode & 0b00001000;
-            debug_print_4("call (N)Z,a16 set ? %d %d\n", set, isZero());
-            u16 address = memory->read16BitsAt(progCounter);
-            progCounter += 2;
-            if ((!set && !isZero()) || (set && isZero())) {
-                debug_print_4("call from 0x%04X", progCounter - 2);
-                push16Bits(progCounter);
-                progCounter = address;
-                debug_print_4(" to 0x%04X\n", progCounter);
-            }
-            return true;
-        }
-        // call (N)C,a16
-        case 0xD4: case 0xDC: {
-            bool set = opcode & 0b00001000;
-            debug_print_4("call (N)C,a16 set ? %d %d\n", set, isCarry());
-            u16 address = memory->read16BitsAt(progCounter);
-            progCounter += 2;
-            if ((!set && !isCarry()) || (set && isCarry())) {
-                debug_print_4("call from 0x%04X", progCounter - 2);
-                push16Bits(progCounter);
-                progCounter = address;
-                debug_print_4(" to 0x%04X\n", progCounter);
-            }
-            return true;
-        }
-        case 0xCD: {
-            u16 address = memory->read16BitsAt(progCounter);
-            progCounter += 2;
-            debug_print_4("call from 0x%04X\n", progCounter);
-            push16Bits(progCounter);
-            progCounter = address;
-            debug_print_4(" to 0x%04X\n", progCounter);
-            return true;
-        }
         // ret (N)Z,a16
         case 0xC0: case 0xC8: {
             bool set = opcode & 0b00001000;

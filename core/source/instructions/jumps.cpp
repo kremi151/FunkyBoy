@@ -81,13 +81,32 @@ void Instructions::jr(InstrContext &context) {
 
 void Instructions::call_conditional_zero(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
-    debug_print_4("call (N)Z,a16 set ? %d %d\n", set, isZero());
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     bool zero = Flags::isZero(context.regF);
     if ((!set && !zero) || (set && zero)) {
-        debug_print_4("call from 0x%04X", progCounter - 2);
-        push16Bits(context.progCounter);
+        debug_print_4("call from 0x%04X", context.progCounter - 2);
+        context.push16Bits(context.progCounter);
         context.progCounter = address;
-        debug_print_4(" to 0x%04X\n", progCounter);
+        debug_print_4(" to 0x%04X\n", context.progCounter);
     }
+}
+
+void Instructions::call_conditional_carry(InstrContext &context) {
+    bool set = context.instr & 0b00001000u;
+    memory_address address = Util::compose16Bits(context.lsb, context.msb);
+    bool carry = Flags::isCarry(context.regF);
+    if ((!set && !carry) || (set && carry)) {
+        debug_print_4("call from 0x%04X", context.progCounter - 2);
+        context.push16Bits(context.progCounter);
+        context.progCounter = address;
+        debug_print_4(" to 0x%04X\n", context.progCounter);
+    }
+}
+
+void Instructions::call(InstrContext &context) {
+    memory_address address = Util::compose16Bits(context.lsb, context.msb);
+    debug_print_4("call from 0x%04X\n", context.progCounter);
+    context.push16Bits(context.progCounter);
+    context.progCounter = address;
+    debug_print_4(" to 0x%04X\n", context.progCounter);
 }
