@@ -569,6 +569,25 @@ bool CPU::doDecode() {
             operands[3] = nullptr;
             return true;
         }
+        // ret (N)Z,a16
+        case 0xC0: case 0xC8: {
+            debug_print_4("ret (N)Z,a16\n");
+            operands[0] = Instructions::ret_conditional_zero;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ret (N)C,a16
+        case 0xD0: case 0xD8: {
+            debug_print_4("ret (N)C,a16\n");
+            operands[0] = Instructions::ret_conditional_carry;
+            operands[1] = nullptr;
+        }
+        // ret a16
+        case 0xC9: {
+            debug_print_4("ret a16\n");
+            operands[0] = Instructions::ret;
+            operands[1] = nullptr;
+        }
     }
 }
 
@@ -592,31 +611,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // ret (N)Z,a16
-        case 0xC0: case 0xC8: {
-            bool set = opcode & 0b00001000;
-            debug_print_4("ret (N)Z,a16 set ? %d %d\n", set, isZero());
-            if ((!set && !isZero()) || (set && isZero())) {
-                goto return_;
-            }
-            return true;
-        }
-        // ret (N)C,a16
-        case 0xD0: case 0xD8: {
-            bool set = opcode & 0b00001000;
-            debug_print_4("ret (N)C,a16 set ? %d %d\n", set, isCarry());
-            if ((!set && !isCarry()) || (set && isCarry())) {
-                goto return_;
-            }
-            return true;
-        }
-        // ret a16
-        case 0xC9: {
-            debug_print_4("ret a16\n");
-return_:
-            progCounter = pop16Bits();
-            return true;
-        }
         // rst vec
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
             u8 rstAddr = (opcode >> 3 & 7) * 8;

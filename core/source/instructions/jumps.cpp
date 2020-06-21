@@ -110,3 +110,23 @@ void Instructions::call(InstrContext &context) {
     context.progCounter = address;
     debug_print_4(" to 0x%04X\n", context.progCounter);
 }
+
+void Instructions::ret_conditional_zero(InstrContext &context) {
+    bool set = context.instr & 0b00001000u;
+    bool zero = Flags::isZero(context.regF);
+    if ((!set && !zero) || (set && zero)) {
+        context.progCounter = context.pop16Bits();
+    }
+}
+
+void Instructions::ret_conditional_carry(InstrContext &context) {
+    bool set = context.instr & 0b00001000u;
+    bool carry = Flags::isCarry(context.regF);
+    if ((!set && !carry) || (set && carry)) {
+        context.progCounter = context.pop16Bits();
+    }
+}
+
+void Instructions::ret(InstrContext &context) {
+    context.progCounter = context.pop16Bits();
+}
