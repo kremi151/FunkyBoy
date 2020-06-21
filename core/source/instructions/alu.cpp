@@ -125,3 +125,33 @@ void Instructions::cp_HL(InstrContext &context) {
     u8 val = context.memory->read8BitsAt(context.readHL());
     __alu_cp(context.regF, context.regA, val);
 }
+
+void Instructions::inc_ss(InstrContext &context) {
+    u8 position = context.instr >> 4u & 3u;
+    u16 val = Util::read16BitRegister(context.registers, position);
+    Util::write16BitRegister(context.registers, position, val + 1);
+}
+
+void Instructions::inc_SP(InstrContext &context) {
+    context.stackPointer++;
+}
+
+void Instructions::inc_HL(InstrContext &context) {
+    u16 hl = context.readHL();
+    u8 oldVal = context.memory->read8BitsAt(hl);
+    u8 newVal = oldVal + 1;
+    context.memory->write8BitsTo(hl, newVal);
+    Flags::setZero(context.regF, newVal == 0);
+    Flags::setHalfCarry(context.regF, (newVal & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
+    Flags::setSubstraction(context.regF, false);
+    // Leave carry as-is
+}
+
+void Instructions::inc_r(InstrContext &context) {
+    auto reg = context.registers + (context.instr >> 3u & 7u);
+    (*reg)++;
+    Flags::setZero(context.regF, *reg == 0);
+    Flags::setHalfCarry(context.regF, (*reg & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
+    Flags::setSubstraction(context.regF, false);
+    // Leave carry as-is
+}

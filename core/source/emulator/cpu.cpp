@@ -617,6 +617,34 @@ bool CPU::doDecode() {
             operands[2] = nullptr;
             return true;
         }
+        // inc ss
+        case 0x03: case 0x13: case 0x23: {
+            debug_print_4("inc ss\n");
+            operands[0] = Instructions::inc_ss;
+            operands[1] = nullptr;
+            return true;
+        }
+        // inc SP
+        case 0x33: {
+            debug_print_4("inc SP\n");
+            operands[0] = Instructions::inc_SP;
+            operands[1] = nullptr;
+            return true;
+        }
+        // inc (HL)
+        case 0x34: {
+            debug_print_4("inc (HL)\n");
+            operands[0] = Instructions::inc_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // inc r
+        case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: case 0x3C: {
+            debug_print_4("inc r\n");
+            operands[0] = Instructions::inc_r;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -640,49 +668,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // inc ss
-        case 0x03: case 0x13: case 0x23: {
-            u8 position = opcode >> 4 & 3;
-            u16 val = read16BitRegister(position);
-            write16BitRegister(position, val + 1);
-            return true;
-        }
-        // inc SP
-        case 0x33: {
-            stackPointer++;
-            return true;
-        }
-        // inc (HL)
-        case 0x34: {
-            u16 hl = readHL();
-            u8 oldVal = memory->read8BitsAt(hl);
-            u8 newVal = oldVal + 1;
-            memory->write8BitsTo(hl, newVal);
-            setZero(newVal == 0);
-            setHalfCarry((newVal & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
-            setSubstraction(false);
-            // Leave carry as-is
-            return true;
-        }
-        // inc s
-        case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: {
-            auto reg = registers + (opcode >> 3 & 7);
-            (*reg)++;
-            setZero(*reg == 0);
-            setHalfCarry((*reg & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
-            setSubstraction(false);
-            // Leave carry as-is
-            return true;
-        }
-        // inc A
-        case 0x3C: {
-            (*regA)++;
-            setZero(*regA == 0);
-            setHalfCarry((*regA & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
-            setSubstraction(false);
-            // Leave carry as-is
-            return true;
-        }
         // dec (HL)
         case 0x35: {
             u16 hl = readHL();

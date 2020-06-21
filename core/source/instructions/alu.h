@@ -129,6 +129,30 @@ namespace FunkyBoy::Instructions {
      */
     void cp_HL(InstrContext &context);
 
+    /**
+     * INC ss
+     * @param context
+     */
+    void inc_ss(InstrContext &context);
+
+    /**
+     * INC SP
+     * @param context
+     */
+    void inc_SP(InstrContext &context);
+
+    /**
+     * INC (HL)
+     * @param context
+     */
+    void inc_HL(InstrContext &context);
+
+    /**
+     * INC r
+     * @param context
+     */
+    void inc_r(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H
