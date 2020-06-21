@@ -25,6 +25,7 @@ set(SOURCES
         source/instructions/misc.cpp
         source/instructions/reads.cpp
         source/instructions/jumps.cpp
+        source/instructions/rot_shifts.cpp
         source/util/endianness.cpp
         source/util/registers.cpp
         source/util/flags.cpp
@@ -51,6 +52,7 @@ set(HEADERS
         source/instructions/misc.h
         source/instructions/reads.h
         source/instructions/jumps.h
+        source/instructions/rot_shifts.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h

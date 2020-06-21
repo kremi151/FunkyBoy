@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_H
-#define FB_CORE_INSTRUCTIONS_H
+#include "rot_shifts.h"
 
-#include <instructions/instruction_context.h>
-#include <instructions/misc.h>
-#include <instructions/alu.h>
-#include <instructions/loads.h>
-#include <instructions/reads.h>
-#include <instructions/jumps.h>
-#include <instructions/rot_shifts.h>
+#include <util/flags.h>
 
-#endif //FB_CORE_INSTRUCTIONS_H
+using namespace FunkyBoy;
+
+void Instructions::rrca(InstrContext &context) {
+    u8 a = *context.regA;
+    *context.regA = (a >> 1) | ((a & 1) << 7);
+    Flags::setFlags(context.regF, false, false, false, a & 1u);
+}

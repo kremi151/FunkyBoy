@@ -727,7 +727,7 @@ bool CPU::doDecode() {
         // xor (HL)
         case 0xAE: {
             debug_print_4("xor (HL)\n");
-            operands[0] = Instructions::xor_HL();
+            operands[0] = Instructions::xor_HL;
             operands[1] = nullptr;
             return true;
         }
@@ -737,6 +737,13 @@ bool CPU::doDecode() {
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::xor_d;
             operands[2] = nullptr;
+            return true;
+        }
+        // rrca
+        case 0x0F: {
+            debug_print_4("rrca\n");
+            operands[0] = Instructions::rrca;
+            operands[1] = nullptr;
             return true;
         }
     }
@@ -762,13 +769,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // rrca
-        case 0x0F: {
-            u8 a = *regA;
-            *regA = (a >> 1) | ((a & 1) << 7);
-            setFlags(false, false, false, a & 1);
-            return true;
-        }
         // rlca
         case 0x07: {
             u8 a = *regA;
