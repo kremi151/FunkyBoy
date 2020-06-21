@@ -45,6 +45,11 @@ inline void __alu_addToHL(InstrContext &context, u16 val) {
     context.writeHL(newVal);
 }
 
+inline void __alu_cp(u8 *flags, const u8 *regA, u8 val) {
+    // See http://z80-heaven.wikidot.com/instructions-set:cp
+    Flags::setFlags(flags, *regA == val, true, (*regA & 0xfu) - (val & 0xfu) < 0, *regA < val);
+}
+
 void Instructions::add_A_r(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], false);
 }
@@ -106,4 +111,17 @@ void Instructions::sub_HL(InstrContext &context) {
 
 void Instructions::sbc_A_HL(InstrContext &context) {
     __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), Flags::isCarry(context.regF));
+}
+
+void Instructions::cp_r(InstrContext &context) {
+    __alu_cp(context.regF, context.regA, context.registers[context.instr & 0b00000111u]);
+}
+
+void Instructions::cp_d(InstrContext &context) {
+    __alu_cp(context.regF, context.regA, context.lsb);
+}
+
+void Instructions::cp_HL(InstrContext &context) {
+    u8 val = context.memory->read8BitsAt(context.readHL());
+    __alu_cp(context.regF, context.regA, val);
 }

@@ -595,6 +595,28 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // cp r
+        case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF: {
+            debug_print_4("cp r\n");
+            operands[0] = Instructions::cp_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // cp (HL)
+        case 0xBE: {
+            debug_print_4("cp (HL)\n");
+            operands[0] = Instructions::cp_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // cp d8
+        case 0xFE: {
+            debug_print_4("cp d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::cp_d;
+            operands[2] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -618,26 +640,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // cp s
-        case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: {
-            cp(registers[opcode & 0b00000111]);
-            return true;
-        }
-        // cp A
-        case 0xBF: {
-            cp(*regA);
-            return true;
-        }
-        // cp HL
-        case 0xBE: {
-            cp(memory->read8BitsAt(readHL()));
-            return true;
-        }
-        // cp d8
-        case 0xFE: {
-            cp(memory->read8BitsAt(progCounter++));
-            return true;
-        }
         // inc ss
         case 0x03: case 0x13: case 0x23: {
             u8 position = opcode >> 4 & 3;
@@ -1321,12 +1323,6 @@ u16 CPU::readAF() {
 void CPU::writeAF(FunkyBoy::u16 val) {
     *regF_do_not_use_directly = val & 0b11110000; // Only the 4 most significant bits are written to register F
     *regA = (val >> 8) & 0xff;
-}
-
-void CPU::cp(u8 val) {
-    debug_print_4("cp 0x%02X - 0x%02X\n", *regA, val);
-    // See http://z80-heaven.wikidot.com/instructions-set:cp
-    setFlags(*regA == val, true, (*regA & 0xF) - (val & 0xF) < 0, *regA < val);
 }
 
 void CPU::_xor(u8 val) {

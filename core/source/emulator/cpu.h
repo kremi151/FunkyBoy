@@ -82,7 +82,6 @@ namespace FunkyBoy {
 
         inline GameBoyType getType();
 
-        void cp(u8 val);
         void _xor(u8 val);
         void _or(u8 val);
         void _and(u8 val);
