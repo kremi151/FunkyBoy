@@ -695,7 +695,7 @@ bool CPU::doDecode() {
             operands[2] = nullptr;
             return true;
         }
-        // and s
+        // and r
         case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: {
             debug_print_4("and r\n");
             operands[0] = Instructions::and_r;
@@ -714,6 +714,28 @@ bool CPU::doDecode() {
             debug_print_4("and d\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::and_d;
+            operands[2] = nullptr;
+            return true;
+        }
+        // xor r
+        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
+            debug_print_4("xor r\n");
+            operands[0] = Instructions::xor_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // xor (HL)
+        case 0xAE: {
+            debug_print_4("xor (HL)\n");
+            operands[0] = Instructions::xor_HL();
+            operands[1] = nullptr;
+            return true;
+        }
+        // xor d8
+        case 0xEE: {
+            debug_print_4("xor d\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::xor_d;
             operands[2] = nullptr;
             return true;
         }
@@ -740,22 +762,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // xor s
-        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
-            _xor(registers[opcode & 0b111]);
-            return true;
-        }
-        // xor (HL)
-        case 0xAE: {
-            _xor(memory->read8BitsAt(readHL()));
-            return true;
-        }
-        // xor d8
-        case 0xEE: {
-            auto val = memory->read8BitsAt(progCounter++);
-            _xor(val);
-            return true;
-        }
         // rrca
         case 0x0F: {
             u8 a = *regA;
@@ -1291,10 +1297,4 @@ u16 CPU::readAF() {
 void CPU::writeAF(FunkyBoy::u16 val) {
     *regF_do_not_use_directly = val & 0b11110000; // Only the 4 most significant bits are written to register F
     *regA = (val >> 8) & 0xff;
-}
-
-void CPU::_xor(u8 val) {
-    debug_print_4("xor 0x%02X ^ 0x%02X\n", *regA, val);
-    *regA ^= val;
-    setFlags(*regA == 0, false, false, false);
 }

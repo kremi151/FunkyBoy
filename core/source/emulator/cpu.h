@@ -82,8 +82,6 @@ namespace FunkyBoy {
 
         inline GameBoyType getType();
 
-        void _xor(u8 val);
-
         void doFetch();
         bool doDecode();
         bool __TODO_REWRITE__doPrefix(u8 prefix);

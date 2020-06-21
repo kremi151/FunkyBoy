@@ -61,6 +61,11 @@ inline void __alu_and(u8 *flags, u8 *regA, u8 val) {
     Flags::setFlags(flags, *regA == 0, false, true, false);
 }
 
+inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
+    *regA ^= val;
+    Flags::setFlags(flags, *regA == 0, false, false, false);
+}
+
 void Instructions::add_A_r(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], false);
 }
@@ -235,4 +240,16 @@ void Instructions::and_d(InstrContext &context) {
 
 void Instructions::and_HL(InstrContext &context) {
     __alu_and(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
+}
+
+void Instructions::xor_r(InstrContext &context) {
+    __alu_xor(context.regF, context.regA, context.registers[context.instr & 0b111u]);
+}
+
+void Instructions::xor_d(InstrContext &context) {
+    __alu_xor(context.regF, context.regA, context.lsb);
+}
+
+void Instructions::xor_HL(InstrContext &context) {
+    __alu_xor(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
 }

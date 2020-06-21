@@ -213,6 +213,24 @@ namespace FunkyBoy::Instructions {
      */
     void and_HL(InstrContext &context);
 
+    /**
+     * XOR r
+     * @param context
+     */
+    void xor_r(InstrContext &context);
+
+    /**
+     * XOR d
+     * @param context
+     */
+    void xor_d(InstrContext &context);
+
+    /**
+     * XOR (HL)
+     * @param context
+     */
+    void xor_HL(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H
