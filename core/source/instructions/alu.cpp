@@ -155,3 +155,33 @@ void Instructions::inc_r(InstrContext &context) {
     Flags::setSubstraction(context.regF, false);
     // Leave carry as-is
 }
+
+void Instructions::dec_ss(InstrContext &context) {
+    u8 position = context.instr >> 4u & 3u;
+    u16 val = Util::read16BitRegister(context.registers, position);
+    Util::write16BitRegister(context.registers, position, val - 1);
+}
+
+void Instructions::dec_SP(InstrContext &context) {
+    context.stackPointer--;
+}
+
+void Instructions::dec_HL(InstrContext &context) {
+    u16 hl = context.readHL();
+    u8 oldVal = context.memory->read8BitsAt(hl);
+    u8 newVal = oldVal - 1;
+    context.memory->write8BitsTo(hl, newVal);
+    Flags::setZero(context.regF, newVal == 0);
+    Flags::setHalfCarry(context.regF, (newVal & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
+    Flags::setSubstraction(context.regF, true);
+    // Leave carry as-is
+}
+
+void Instructions::dec_r(InstrContext &context) {
+    auto reg = context.registers + (context.instr >> 3 & 7);
+    (*reg)--;
+    Flags::setZero(context.regF, *reg == 0);
+    Flags::setHalfCarry(context.regF, (*reg & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
+    Flags::setSubstraction(context.regF, true);
+    // Leave carry as-is
+}

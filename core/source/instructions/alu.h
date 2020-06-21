@@ -153,6 +153,30 @@ namespace FunkyBoy::Instructions {
      */
     void inc_r(InstrContext &context);
 
+    /**
+     * DEC ss
+     * @param context
+     */
+    void dec_ss(InstrContext &context);
+
+    /**
+     * DEC SP
+     * @param context
+     */
+    void dec_SP(InstrContext &context);
+
+    /**
+     * DEC HL
+     * @param context
+     */
+    void dec_HL(InstrContext &context);
+
+    /**
+     * DEC r
+     * @param context
+     */
+    void dec_r(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H

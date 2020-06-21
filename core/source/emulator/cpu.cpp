@@ -645,6 +645,34 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // dec ss
+        case 0x0B: case 0x1B: case 0x2B: {
+            debug_print_4("dec ss\n");
+            operands[0] = Instructions::dec_ss;
+            operands[1] = nullptr;
+            return true;
+        }
+        // dec SP
+        case 0x3B: {
+            debug_print_4("dec SP\n");
+            operands[0] = Instructions::dec_SP;
+            operands[1] = nullptr;
+            return true;
+        }
+        // dec (HL)
+        case 0x35: {
+            debug_print_4("dec (HL)\n");
+            operands[0] = Instructions::dec_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // dec s
+        case 0x05: case 0x0D: case 0x15: case 0x1D: case 0x25: case 0x2D: case 0x3D: {
+            debug_print_4("dec r\n");
+            operands[0] = Instructions::dec_r;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -668,49 +696,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // dec (HL)
-        case 0x35: {
-            u16 hl = readHL();
-            u8 oldVal = memory->read8BitsAt(hl);
-            u8 newVal = oldVal - 1;
-            memory->write8BitsTo(hl, newVal);
-            setZero(newVal == 0);
-            setHalfCarry((newVal & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
-            setSubstraction(true);
-            // Leave carry as-is
-            return true;
-        }
-        // dec s
-        case 0x05: case 0x0D: case 0x15: case 0x1D: case 0x25: case 0x2D: {
-            auto reg = registers + (opcode >> 3 & 7);
-            (*reg)--;
-            setZero(*reg == 0);
-            setHalfCarry((*reg & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
-            setSubstraction(true);
-            // Leave carry as-is
-            return true;
-        }
-        // dec A
-        case 0x3D: {
-            (*regA)--;
-            setZero(*regA == 0);
-            setHalfCarry((*regA & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
-            setSubstraction(true);
-            // Leave carry as-is
-            return true;
-        }
-        // dec ss
-        case 0x0B: case 0x1B: case 0x2B: {
-            u8 position = opcode >> 4 & 3;
-            u16 val = read16BitRegister(position);
-            write16BitRegister(position, val - 1);
-            return true;
-        }
-        // dec SP
-        case 0x3B: {
-            stackPointer--;
-            return true;
-        }
         // or s
         case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: {
             // 0xB0 -> 10110 000 -> B
