@@ -128,61 +128,9 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xffff, 0x00);
 }
 
-inline bool CPU::isCarry() {
-    return *regF_do_not_use_directly & 0b00010000;
-}
-
-void CPU::setCarry(bool carry) {
-    if (carry) {
-        *regF_do_not_use_directly |= 0b00010000;
-    } else {
-        *regF_do_not_use_directly &= 0b11100000;
-    }
-}
-
-inline bool CPU::isHalfCarry() {
-    return *regF_do_not_use_directly & 0b00100000;
-}
-
-void CPU::setHalfCarry(bool halfCarry) {
-    if (halfCarry) {
-        *regF_do_not_use_directly |= 0b00100000;
-    } else {
-        *regF_do_not_use_directly &= 0b11010000;
-    }
-}
-
-inline bool CPU::isSubstraction() {
-    return *regF_do_not_use_directly & 0b01000000;
-}
-
-void CPU::setSubstraction(bool substration) {
-    if (substration) {
-        *regF_do_not_use_directly |= 0b01000000;
-    } else {
-        *regF_do_not_use_directly &= 0b10110000;
-    }
-}
-
-inline bool CPU::isZero() {
-    return *regF_do_not_use_directly & 0b10000000;
-}
-
-void CPU::setZero(bool zero) {
-    if (zero) {
-        *regF_do_not_use_directly |= 0b10000000;
-    } else {
-        *regF_do_not_use_directly &= 0b01110000;
-    }
-}
-
 GameBoyType CPU::getType() {
     // TODO: Implement
     return GameBoyType::GameBoyDMG;
-}
-
-void CPU::setFlags(bool zero, bool subtraction, bool halfCarry, bool carry) {
-    Util::setFlags(regF_do_not_use_directly, zero, subtraction, halfCarry, carry);
 }
 
 bool CPU::doTick() {
@@ -426,6 +374,72 @@ bool CPU::doDecode() {
             operands[2] = nullptr;
             return true;
         }
+        // add a,reg
+        case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: {
+            debug_print_4("add A,r\n");
+            operands[0] = Instructions::add_A_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // adc a,reg
+        case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: {
+            debug_print_4("adc A,r\n");
+            operands[0] = Instructions::adc_A_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // add A,d8
+        case 0xC6: {
+            debug_print_4("add A,d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::add_A_d;
+            operands[2] = nullptr;
+            return true;
+        }
+        // adc A,d8
+        case 0xCE: {
+            debug_print_4("add A,d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::adc_A_d;
+            operands[2] = nullptr;
+            return true;
+        }
+        // add HL,ss
+        case 0x09: case 0x19: case 0x29: {
+            debug_print_4("add HL,ss\n");
+            operands[0] = Instructions::add_HL_ss;
+            operands[1] = nullptr;
+            return true;
+        }
+        // add HL,SP
+        case 0x39: {
+            debug_print_4("add HL,SP\n");
+            operands[0] = Instructions::add_HL_SP;
+            operands[1] = nullptr;
+            return true;
+        }
+        // add SP,r8
+        case 0xE8: {
+            debug_print_4("add SP,e8\n");
+            operands[0] = Instructions::readSigned;
+            operands[1] = Instructions::add_SP_e;
+            operands[2] = nullptr;
+            return true;
+        }
+        // add A,(HL)
+        case 0x86: {
+            debug_print_4("add A,(HL)\n");
+            operands[0] = Instructions::add_A_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // adc A,(HL)
+        case 0x8E: {
+            debug_print_4("adc A,(HL)\n");
+            operands[0] = Instructions::adc_A_HL;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -449,59 +463,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // add a,reg
-        case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: // adc a,reg
-        {
-            debug_print_4("add reg,reg\n");
-            bool carry = (opcode & 8) && isCarry();
-            adc(registers[opcode & 7], carry);
-            return true;
-        }
-        // add A,d8
-        case 0xC6: {
-            debug_print_4("add A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
-            adc(val, false);
-            return true;
-        }
-        // adc A,d8
-        case 0xCE: {
-            debug_print_4("adc A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
-            adc(val, isCarry());
-            return true;
-        }
-        // add HL,ss
-        case 0x09: case 0x19: case 0x29: {
-            debug_print_4("add HL,ss\n");
-            // 0x09 -> 00 1001 -> BC
-            // 0x19 -> 01 1001 -> DE
-            // 0x29 -> 10 1001 -> HL
-            addToHL(read16BitRegister((opcode >> 4) & 0b11));
-            return true;
-        }
-        // add HL,SP
-        case 0x39: {
-            debug_print_4("add HL,SP\n");
-            addToHL(stackPointer);
-            return true;
-        }
-        // add SP,r8
-        case 0xE8: {
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            stackPointer = addToSP(signedByte);
-            return true;
-        }
-        // add A,(HL)
-        case 0x86: {
-            adc(memory->read8BitsAt(readHL()), false);
-            return true;
-        }
-        // adc A,(HL)
-        case 0x8E: {
-            adc(memory->read8BitsAt(readHL()), isCarry());
-            return true;
-        }
         case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
         case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: // sbc a,reg
         {
@@ -1431,25 +1392,9 @@ void CPU::_and(FunkyBoy::u8 val) {
     setFlags(*regA == 0, false, true, false);
 }
 
-inline void CPU::adc(u8 val, bool carry) {
-    u8 carryVal = carry ? 1 : 0;
-    u8 newVal = *regA + val + carryVal;
-    setFlags(newVal == 0, false, ((*regA & 0xf) + (val & 0xf) + carryVal) > 0xf, (*regA & 0xff) + (val & 0xff) + carryVal > 0xff);
-    *regA = newVal;
-}
-
 inline void CPU::sbc(u8 val, bool carry) {
     u8 carryVal = carry ? 1 : 0;
     u8 newVal = *regA - val - carryVal;
     setFlags(newVal == 0, true, (*regA & 0xF) - (val & 0xF) - carryVal < 0, *regA < (val + carryVal));
     *regA = newVal;
-}
-
-inline void CPU::addToHL(u16 val) {
-    u16 oldVal = readHL();
-    u16 newVal = oldVal + val;
-
-    setFlags(isZero(), false, ((oldVal & 0xfff) + (val & 0xfff)) > 0xfff, (oldVal & 0xffff) + (val & 0xffff) > 0xffff);
-
-    writeHL(newVal);
 }

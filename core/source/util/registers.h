@@ -28,8 +28,6 @@ namespace FunkyBoy::Util {
     u16 composeHL(u8 &h, u8 &l);
     void writeHL(u8 &h, u8 &l, u16 val);
 
-    void setFlags(u8 *flags, bool zero, bool subtraction, bool halfCarry, bool carry);
-
     u16 addToSP(u8 *flags, u16 stackPointer, i8 val);
 
 }

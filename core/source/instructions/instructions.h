@@ -19,6 +19,7 @@
 
 #include <instructions/instruction_context.h>
 #include <instructions/misc.h>
+#include <instructions/alu.h>
 #include <instructions/loads.h>
 #include <instructions/reads.h>
 

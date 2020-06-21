@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_MISC_H
-#define FB_CORE_INSTRUCTIONS_MISC_H
+#ifndef FB_CORE_UTIL_FLAGS_H
+#define FB_CORE_UTIL_FLAGS_H
 
-#include "instruction_context.h"
+#include <util/typedefs.h>
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Flags {
 
-    void nop(InstrContext &context);
+    void setFlags(u8 *flags, bool zero, bool subtraction, bool halfCarry, bool carry);
+
+    bool isCarry(const u8 *flags);
+    void setCarry(u8 *flags, bool carry);
+
+    bool isHalfCarry(const u8 *flags);
+    void setHalfCarry(u8 *flags, bool halfCarry);
+
+    bool isSubstraction(const u8 *flags);
+    void setSubstraction(u8 *flags, bool substration);
+
+    bool isZero(const u8 *flags);
+    void setZero(u8 *flags, bool zero);
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_MISC_H
+#endif //FB_CORE_UTIL_FLAGS_H

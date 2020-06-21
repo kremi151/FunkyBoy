@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_READS_H
-#define FB_CORE_READS_H
+#ifndef FB_CORE_INSTRUCTIONS__READS_H
+#define FB_CORE_INSTRUCTIONS__READS_H
 
 #include "instruction_context.h"
 
@@ -53,4 +53,4 @@ namespace FunkyBoy::Instructions {
 
 }
 
-#endif //FB_CORE_READS_H
+#endif //FB_CORE_INSTRUCTIONS__READS_H

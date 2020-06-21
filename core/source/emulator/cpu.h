@@ -80,30 +80,13 @@ namespace FunkyBoy {
 
         void powerUpInit();
 
-        inline bool isCarry();
-        void setCarry(bool carry);
-
-        inline bool isHalfCarry();
-        void setHalfCarry(bool halfCarry);
-
-        inline bool isSubstraction();
-        void setSubstraction(bool substration);
-
-        inline bool isZero();
-        void setZero(bool zero);
-
         inline GameBoyType getType();
-
-        [[deprecated]]
-        void setFlags(bool zero, bool subtraction, bool halfCarry, bool carry);
 
         void cp(u8 val);
         void _xor(u8 val);
         void _or(u8 val);
         void _and(u8 val);
-        void adc(u8 val, bool carry);
         void sbc(u8 val, bool carry);
-        void addToHL(u16 val);
 
         void doFetch();
         bool doDecode();
