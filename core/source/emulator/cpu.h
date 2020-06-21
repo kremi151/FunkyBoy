@@ -86,7 +86,6 @@ namespace FunkyBoy {
         void _xor(u8 val);
         void _or(u8 val);
         void _and(u8 val);
-        void sbc(u8 val, bool carry);
 
         void doFetch();
         bool doDecode();

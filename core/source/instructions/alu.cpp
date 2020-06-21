@@ -29,6 +29,13 @@ inline void __alu_adc(u8 *flags, u8 *regA, u8 val, bool carry) {
     *regA = newVal;
 }
 
+inline void __alu_sbc(u8 *flags, u8 *regA, u8 val, bool carry) {
+    u8 carryVal = carry ? 1 : 0;
+    u8 newVal = *regA - val - carryVal;
+    Flags::setFlags(flags, newVal == 0, true, (*regA & 0xfu) - (val & 0xfu) - carryVal < 0, *regA < (val + carryVal));
+    *regA = newVal;
+}
+
 inline void __alu_addToHL(u8 *flags, u8 *regH, u8 *regL, u16 val) {
     u16 oldVal = Util::composeHL(*regH, *regL);
     u16 newVal = oldVal + val;
@@ -47,13 +54,11 @@ void Instructions::add_A_d(InstrContext &context) {
 }
 
 void Instructions::adc_A_r(InstrContext &context) {
-    bool carry = Flags::isCarry(context.regF);
-    __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], carry);
+    __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], Flags::isCarry(context.regF));
 }
 
 void Instructions::adc_A_d(InstrContext &context) {
-    bool carry = Flags::isCarry(context.regF);
-    __alu_adc(context.regF, context.regA, context.lsb, carry);
+    __alu_adc(context.regF, context.regA, context.lsb, Flags::isCarry(context.regF));
 }
 
 void Instructions::add_HL_ss(InstrContext &context) {
@@ -79,4 +84,30 @@ void Instructions::add_A_HL(InstrContext &context) {
 void Instructions::adc_A_HL(InstrContext &context) {
     u16 hl = Util::composeHL(*context.regH, *context.regL);
     __alu_adc(context.regF, context.regA, context.memory->read8BitsAt(hl), Flags::isCarry(context.regF));
+}
+
+void Instructions::sub_A_r(InstrContext &context) {
+    __alu_sbc(context.regF, context.regA, context.registers[context.instr & 7u], false);
+}
+
+void Instructions::sub_A_d(InstrContext &context) {
+    __alu_sbc(context.regF, context.regA, context.lsb, false);
+}
+
+void Instructions::sbc_A_r(InstrContext &context) {
+    __alu_sbc(context.regF, context.regA, context.registers[context.instr & 7u], Flags::isCarry(context.regF));
+}
+
+void Instructions::sbc_A_d(InstrContext &context) {
+    __alu_sbc(context.regF, context.regA, context.lsb, Flags::isCarry(context.regF));
+}
+
+void Instructions::sub_HL(InstrContext &context) {
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(hl), false);
+}
+
+void Instructions::sbc_A_HL(InstrContext &context) {
+    u16 hl = Util::composeHL(*context.regH, *context.regL);
+    __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(hl), Flags::isCarry(context.regF));
 }

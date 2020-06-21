@@ -55,25 +55,61 @@ namespace FunkyBoy::Instructions {
      * ADD HL,SP
      * @param context
      */
-     void add_HL_SP(InstrContext &context);
+    void add_HL_SP(InstrContext &context);
 
-     /**
-      * ADD SP,e
-      * @param context
-      */
-     void add_SP_e(InstrContext &context);
+    /**
+     * ADD SP,e
+     * @param context
+     */
+    void add_SP_e(InstrContext &context);
 
-     /**
-      * ADD A,(HL)
-      * @param context
-      */
-     void add_A_HL(InstrContext &context);
+    /**
+     * ADD A,(HL)
+     * @param context
+     */
+    void add_A_HL(InstrContext &context);
 
-     /**
-      * ADC A,(HL)
-      * @param context
-      */
-     void adc_A_HL(InstrContext &context);
+    /**
+     * ADC A,(HL)
+     * @param context
+     */
+    void adc_A_HL(InstrContext &context);
+
+    /**
+     * SUB A,r
+     * @param context
+     */
+    void sub_A_r(InstrContext &context);
+
+    /**
+     * SUB A,d
+     * @param context
+     */
+    void sub_A_d(InstrContext &context);
+
+    /**
+     * SBC A,r
+     * @param context
+     */
+    void sbc_A_r(InstrContext &context);
+
+    /**
+     * SBC A,d
+     * @param context
+     */
+    void sbc_A_d(InstrContext &context);
+
+    /**
+     * SUB (HL)
+     * @param context
+     */
+    void sub_HL(InstrContext &context);
+
+    /**
+     * SBC A,(HL)
+     * @param context
+     */
+    void sbc_A_HL(InstrContext &context);
 
 }
 

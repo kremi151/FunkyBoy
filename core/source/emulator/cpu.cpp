@@ -224,7 +224,7 @@ bool CPU::doDecode() {
         case 0xE2: {
             debug_print_4("ld (C),A\n");
             operands[0] = Instructions::readRegCAsLSB;
-            operands[1] = Instructions::load_dd_A;
+            operands[1] = Instructions::load_mem_dd_A;
             operands[2] = nullptr;
             return true;
         }
@@ -440,6 +440,48 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // sub a,reg
+        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: {
+            debug_print_4("sub A,r\n");
+            operands[0] = Instructions::sub_A_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // sbc a,reg
+        case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: {
+            debug_print_4("sbc A,r\n");
+            operands[0] = Instructions::sbc_A_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // sub A,d8
+        case 0xD6: {
+            debug_print_4("sub A,d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::sub_A_d;
+            operands[2] = nullptr;
+            return true;
+        }
+        // sbc A,d8
+        case 0xDE: {
+            debug_print_4("sbc A,d8\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::sbc_A_d;
+            operands[2] = nullptr;
+            return true;
+        }
+        // sub (HL)
+        case 0x96: {
+            operands[0] = Instructions::sub_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // sbc (HL)
+        case 0x9E: {
+            operands[0] = Instructions::sbc_A_HL;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -463,38 +505,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
-        case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: // sbc a,reg
-        {
-            debug_print_4("sub reg,reg\n");
-            bool carry = (opcode & 8) && isCarry();
-            sbc(registers[opcode & 7], carry);
-            return true;
-        }
-        // sub A,d8
-        case 0xD6: {
-            debug_print_4("sub A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
-            sbc(val, false);
-            return true;
-        }
-        // sbc A,d8
-        case 0xDE: {
-            debug_print_4("sbc A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
-            sbc(val, isCarry());
-            return true;
-        }
-        // sub (HL)
-        case 0x96: {
-            sbc(memory->read8BitsAt(readHL()), false);
-            return true;
-        }
-        // sbc (HL)
-        case 0x9E: {
-            sbc(memory->read8BitsAt(readHL()), isCarry());
-            return true;
-        }
         // jp (N)Z,a16
         case 0xC2: case 0xCA: {
             bool set = opcode & 0b00001000;
@@ -1390,11 +1400,4 @@ void CPU::_and(FunkyBoy::u8 val) {
     *regA &= val;
     //TODO: To be verified:
     setFlags(*regA == 0, false, true, false);
-}
-
-inline void CPU::sbc(u8 val, bool carry) {
-    u8 carryVal = carry ? 1 : 0;
-    u8 newVal = *regA - val - carryVal;
-    setFlags(newVal == 0, true, (*regA & 0xF) - (val & 0xF) - carryVal < 0, *regA < (val + carryVal));
-    *regA = newVal;
 }
