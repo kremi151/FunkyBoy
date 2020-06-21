@@ -130,3 +130,10 @@ void Instructions::ret_conditional_carry(InstrContext &context) {
 void Instructions::ret(InstrContext &context) {
     context.progCounter = context.pop16Bits();
 }
+
+void Instructions::rst(InstrContext &context) {
+    u8 rstAddr = (context.instr >> 3u & 7u) * 8u;
+    debug_print_4("rst %02XH\n", rstAddr);
+    context.push16Bits(context.progCounter);
+    context.progCounter = rstAddr;
+}

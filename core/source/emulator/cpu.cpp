@@ -588,6 +588,13 @@ bool CPU::doDecode() {
             operands[0] = Instructions::ret;
             operands[1] = nullptr;
         }
+        // rst vec
+        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
+            debug_print_4("rst vec\n");
+            operands[0] = Instructions::rst;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -611,14 +618,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // rst vec
-        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
-            u8 rstAddr = (opcode >> 3 & 7) * 8;
-            debug_print_4("rst %02XH\n", rstAddr);
-            push16Bits(progCounter);
-            progCounter = rstAddr;
-            return true;
-        }
         // cp s
         case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: {
             cp(registers[opcode & 0b00000111]);

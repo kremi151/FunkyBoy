@@ -38,6 +38,8 @@ namespace FunkyBoy::Instructions {
     void ret_conditional_carry(InstrContext &context);
     void ret(InstrContext &context);
 
+    void rst(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_JUMPS_H
