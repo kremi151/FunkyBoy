@@ -695,6 +695,28 @@ bool CPU::doDecode() {
             operands[2] = nullptr;
             return true;
         }
+        // and s
+        case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: {
+            debug_print_4("and r\n");
+            operands[0] = Instructions::and_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // and (HL)
+        case 0xA6: {
+            debug_print_4("and (HL)\n");
+            operands[0] = Instructions::and_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // and d8
+        case 0xE6: {
+            debug_print_4("and d\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::and_d;
+            operands[2] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -718,29 +740,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // and s
-        case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: {
-            // 0xA0 -> 10100 000 -> B
-            // 0xA1 -> 10100 001 -> C
-            // 0xA2 -> 10100 010 -> D
-            // 0xA3 -> 10100 011 -> E
-            // 0xA4 -> 10100 100 -> H
-            // 0xA5 -> 10100 101 -> L
-            // -- F is skipped --
-            // 0xA7 -> 10100 111 -> A
-            _and(registers[opcode & 0b111]);
-            return true;
-        }
-        // and (HL)
-        case 0xA6: {
-            _and(memory->read8BitsAt(readHL()));
-            return true;
-        }
-        // and d8
-        case 0xE6: {
-            _and(memory->read8BitsAt(progCounter++));
-            return true;
-        }
         // xor s
         case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
             _xor(registers[opcode & 0b111]);
@@ -1298,11 +1297,4 @@ void CPU::_xor(u8 val) {
     debug_print_4("xor 0x%02X ^ 0x%02X\n", *regA, val);
     *regA ^= val;
     setFlags(*regA == 0, false, false, false);
-}
-
-void CPU::_and(FunkyBoy::u8 val) {
-    debug_print_4("and 0x%02X & 0x%02X\n", *regA, val);
-    *regA &= val;
-    //TODO: To be verified:
-    setFlags(*regA == 0, false, true, false);
 }

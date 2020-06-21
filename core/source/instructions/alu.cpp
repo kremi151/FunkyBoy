@@ -55,6 +55,12 @@ inline void __alu_or(u8 *flags, u8 *regA, u8 val) {
     Flags::setFlags(flags, *regA == 0, false, false, false);
 }
 
+inline void __alu_and(u8 *flags, u8 *regA, u8 val) {
+    *regA &= val;
+    //TODO: To be verified:
+    Flags::setFlags(flags, *regA == 0, false, true, false);
+}
+
 void Instructions::add_A_r(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], false);
 }
@@ -209,4 +215,24 @@ void Instructions::or_d(InstrContext &context) {
 
 void Instructions::or_HL(InstrContext &context) {
     __alu_or(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
+}
+
+void Instructions::and_r(InstrContext &context) {
+    // 0xA0 -> 10100 000 -> B
+    // 0xA1 -> 10100 001 -> C
+    // 0xA2 -> 10100 010 -> D
+    // 0xA3 -> 10100 011 -> E
+    // 0xA4 -> 10100 100 -> H
+    // 0xA5 -> 10100 101 -> L
+    // -- F is skipped --
+    // 0xA7 -> 10100 111 -> A
+    __alu_and(context.regF, context.regA, context.registers[context.instr & 0b111u]);
+}
+
+void Instructions::and_d(InstrContext &context) {
+    __alu_and(context.regF, context.regA, context.lsb);
+}
+
+void Instructions::and_HL(InstrContext &context) {
+    __alu_and(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
 }

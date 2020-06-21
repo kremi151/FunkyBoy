@@ -195,6 +195,24 @@ namespace FunkyBoy::Instructions {
      */
     void or_HL(InstrContext &context);
 
+    /**
+     * AND r
+     * @param context
+     */
+    void and_r(InstrContext &context);
+
+    /**
+     * AND d
+     * @param context
+     */
+    void and_d(InstrContext &context);
+
+    /**
+     * AND (HL)
+     * @param context
+     */
+    void and_HL(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H
