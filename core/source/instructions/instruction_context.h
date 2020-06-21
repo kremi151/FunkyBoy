@@ -22,7 +22,8 @@
 
 namespace FunkyBoy {
 
-    typedef struct {
+    class InstrContext {
+    public:
         u8 instr;
         u8 *registers;
         u8 *regB;
@@ -42,7 +43,14 @@ namespace FunkyBoy {
 
         u16 progCounter;
         u16 stackPointer;
-    } InstrContext;
+
+        u16 readHL();
+        void writeHL(u16 val);
+
+        void push16Bits(u16 val);
+        void push16Bits(u8 msb, u8 lsb);
+        u16 pop16Bits();
+    };
 
     typedef void (*Operand)(InstrContext &context);
 

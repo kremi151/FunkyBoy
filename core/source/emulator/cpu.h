@@ -97,14 +97,6 @@ namespace FunkyBoy {
         void requestInterrupt(InterruptType type);
 
     test_public:
-        void push16Bits(u16 val);
-        void push16Bits(u8 msb, u8 lsb);
-        u16 pop16Bits();
-
-        [[deprecated]]
-        u16 readHL();
-        [[deprecated]]
-        void writeHL(u16 val);
 
         u16 readAF();
         void writeAF(u16 val);

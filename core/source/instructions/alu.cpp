@@ -36,13 +36,13 @@ inline void __alu_sbc(u8 *flags, u8 *regA, u8 val, bool carry) {
     *regA = newVal;
 }
 
-inline void __alu_addToHL(u8 *flags, u8 *regH, u8 *regL, u16 val) {
-    u16 oldVal = Util::composeHL(*regH, *regL);
+inline void __alu_addToHL(InstrContext &context, u16 val) {
+    u16 oldVal = context.readHL();
     u16 newVal = oldVal + val;
 
-    Flags::setFlags(flags, Flags::isZero(flags), false, ((oldVal & 0xfffu) + (val & 0xfffu)) > 0xfff, (oldVal & 0xffffu) + (val & 0xffffu) > 0xffff);
+    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, ((oldVal & 0xfffu) + (val & 0xfffu)) > 0xfff, (oldVal & 0xffffu) + (val & 0xffffu) > 0xffff);
 
-    Util::writeHL(*regH, *regL, newVal);
+    context.writeHL(newVal);
 }
 
 void Instructions::add_A_r(InstrContext &context) {
@@ -65,11 +65,11 @@ void Instructions::add_HL_ss(InstrContext &context) {
     // 0x09 -> 00 1001 -> BC
     // 0x19 -> 01 1001 -> DE
     // 0x29 -> 10 1001 -> HL
-    __alu_addToHL(context.regF, context.regH, context.regL, Util::read16BitRegister(context.registers, (context.instr >> 4) & 0b11u));
+    __alu_addToHL(context, Util::read16BitRegister(context.registers, (context.instr >> 4) & 0b11u));
 }
 
 void Instructions::add_HL_SP(InstrContext &context) {
-    __alu_addToHL(context.regF, context.regH, context.regL, context.stackPointer);
+    __alu_addToHL(context, context.stackPointer);
 }
 
 void Instructions::add_SP_e(InstrContext &context) {
@@ -77,13 +77,11 @@ void Instructions::add_SP_e(InstrContext &context) {
 }
 
 void Instructions::add_A_HL(InstrContext &context) {
-    u16 hl = Util::composeHL(*context.regH, *context.regL);
-    __alu_adc(context.regF, context.regA, context.memory->read8BitsAt(hl), false);
+    __alu_adc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), false);
 }
 
 void Instructions::adc_A_HL(InstrContext &context) {
-    u16 hl = Util::composeHL(*context.regH, *context.regL);
-    __alu_adc(context.regF, context.regA, context.memory->read8BitsAt(hl), Flags::isCarry(context.regF));
+    __alu_adc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), Flags::isCarry(context.regF));
 }
 
 void Instructions::sub_A_r(InstrContext &context) {
@@ -103,11 +101,9 @@ void Instructions::sbc_A_d(InstrContext &context) {
 }
 
 void Instructions::sub_HL(InstrContext &context) {
-    u16 hl = Util::composeHL(*context.regH, *context.regL);
-    __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(hl), false);
+    __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), false);
 }
 
 void Instructions::sbc_A_HL(InstrContext &context) {
-    u16 hl = Util::composeHL(*context.regH, *context.regL);
-    __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(hl), Flags::isCarry(context.regF));
+    __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), Flags::isCarry(context.regF));
 }

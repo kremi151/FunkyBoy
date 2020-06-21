@@ -25,9 +25,6 @@ namespace FunkyBoy::Util {
     void write16BitRegister(u8 *registers, u8 position, u16 val);
     u16 read16BitRegister(u8 *registers, u8 position);
 
-    u16 composeHL(u8 &h, u8 &l);
-    void writeHL(u8 &h, u8 &l, u16 val);
-
     u16 addToSP(u8 *flags, u16 stackPointer, i8 val);
 
 }

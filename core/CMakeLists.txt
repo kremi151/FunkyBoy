@@ -19,6 +19,7 @@ set(SOURCES
         source/memory/memory.cpp
         source/memory/mbc1.cpp
         source/memory/mbc_none.cpp
+        source/instructions/instruction_context.cpp
         source/instructions/alu.cpp
         source/instructions/loads.cpp
         source/instructions/misc.cpp

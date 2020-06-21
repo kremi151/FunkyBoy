@@ -31,15 +31,6 @@ inline u16 Util::read16BitRegister(u8 *registers, u8 position) {
     return (*reg << 8u) | (*(reg + 1u) & 0xffu);
 }
 
-inline u16 Util::composeHL(u8 &h, u8 &l) {
-    return (l & 0xffu) | (h << 8u);
-}
-
-void Util::writeHL(u8 &h, u8 &l, u16 val) {
-    l = val & 0xffu;
-    h = (val >> 8u) & 0xffu;
-}
-
 u16 Util::addToSP(u8 *flags, u16 stackPointer, i8 val) {
     u16 newVal = stackPointer + val;
 
