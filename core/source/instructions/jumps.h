@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_H
-#define FB_CORE_INSTRUCTIONS_H
+#ifndef FB_CORE_INSTRUCTIONS_JUMPS_H
+#define FB_CORE_INSTRUCTIONS_JUMPS_H
 
 #include <instructions/instruction_context.h>
-#include <instructions/misc.h>
-#include <instructions/alu.h>
-#include <instructions/loads.h>
-#include <instructions/reads.h>
-#include <instructions/jumps.h>
 
-#endif //FB_CORE_INSTRUCTIONS_H
+namespace FunkyBoy::Instructions {
+
+    void jp_conditional_zero(InstrContext &context);
+    void jp_conditional_carry(InstrContext &context);
+    void jp(InstrContext &context);
+    void jp_HL(InstrContext &context);
+
+}
+
+#endif //FB_CORE_INSTRUCTIONS_JUMPS_H

@@ -482,6 +482,42 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // jp (N)Z,a16
+        case 0xC2: case 0xCA: {
+            debug_print_4("jp (N)Z,a16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::jp_conditional_zero;
+            operands[3] = nullptr;
+            return true;
+        }
+        // jp (N)C,a16
+        case 0xD2: case 0xDA: {
+            debug_print_4("jp (N)C,a16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::jp_conditional_carry;
+            operands[3] = nullptr;
+            return true;
+        }
+        // unconditional jp
+        case 0xC3:
+        {
+            debug_print_4("jp a16\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::readMSB;
+            operands[2] = Instructions::jp;
+            operands[3] = nullptr;
+            return true;
+        }
+        // jp HL
+        case 0xE9:
+        {
+            debug_print_4("jp HL\n");
+            operands[0] = Instructions::jp_HL;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -505,45 +541,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // jp (N)Z,a16
-        case 0xC2: case 0xCA: {
-            bool set = opcode & 0b00001000;
-            u16 address = memory->read16BitsAt(progCounter);
-            progCounter += 2;
-            if ((!set && !isZero()) || (set && isZero())) {
-                debug_print_4("jp (N)Z a16 from 0x%04X", progCounter - 1);
-                progCounter = address;
-                debug_print_4(" to 0x%04X\n", progCounter);
-            }
-            return true;
-        }
-        // jp (N)C,a16
-        case 0xD2: case 0xDA: {
-            bool set = opcode & 0b00001000;
-            u16 address = memory->read16BitsAt(progCounter);
-            progCounter += 2;
-            if ((!set && !isCarry()) || (set && isCarry())) {
-                debug_print_4("jp (C)Z a16 from 0x%04X", progCounter - 1);
-                progCounter = address;
-                debug_print_4(" to 0x%04X\n", progCounter);
-            }
-            return true;
-        }
-        // unconditional jp
-        case 0xC3:
-        {
-            debug_print_4("jp (unconditional) a16 from 0x%04X", progCounter);
-            progCounter = memory->read16BitsAt(progCounter);
-            debug_print_4(" to 0x%04X\n", progCounter);
-            return true;
-        }
-        // jp HL
-        case 0xE9:
-        {
-            debug_print_4("jp HL\n");
-            progCounter = readHL();
-            return true;
-        }
         // jr (N)Z,r8
         case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
             bool set = opcode & 0b00001000;

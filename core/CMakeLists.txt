@@ -23,6 +23,7 @@ set(SOURCES
         source/instructions/loads.cpp
         source/instructions/misc.cpp
         source/instructions/reads.cpp
+        source/instructions/jumps.cpp
         source/util/endianness.cpp
         source/util/registers.cpp
         source/util/flags.cpp
@@ -48,6 +49,7 @@ set(HEADERS
         source/instructions/instructions.h
         source/instructions/misc.h
         source/instructions/reads.h
+        source/instructions/jumps.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h
