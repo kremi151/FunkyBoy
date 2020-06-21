@@ -50,6 +50,11 @@ inline void __alu_cp(u8 *flags, const u8 *regA, u8 val) {
     Flags::setFlags(flags, *regA == val, true, (*regA & 0xfu) - (val & 0xfu) < 0, *regA < val);
 }
 
+inline void __alu_or(u8 *flags, u8 *regA, u8 val) {
+    *regA |= val;
+    Flags::setFlags(flags, *regA == 0, false, false, false);
+}
+
 void Instructions::add_A_r(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], false);
 }
@@ -184,4 +189,24 @@ void Instructions::dec_r(InstrContext &context) {
     Flags::setHalfCarry(context.regF, (*reg & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
     Flags::setSubstraction(context.regF, true);
     // Leave carry as-is
+}
+
+void Instructions::or_r(InstrContext &context) {
+    // 0xB0 -> 10110 000 -> B
+    // 0xB1 -> 10110 001 -> C
+    // 0xB2 -> 10110 010 -> D
+    // 0xB3 -> 10110 011 -> E
+    // 0xB4 -> 10110 100 -> H
+    // 0xB5 -> 10110 101 -> L
+    // -- F is skipped --
+    // 0xB7 -> 10110 111 -> A
+    __alu_or(context.regF, context.regA, context.registers[context.instr & 0b111u]);
+}
+
+void Instructions::or_d(InstrContext &context) {
+    __alu_or(context.regF, context.regA, context.lsb);
+}
+
+void Instructions::or_HL(InstrContext &context) {
+    __alu_or(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
 }

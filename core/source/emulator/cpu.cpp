@@ -673,6 +673,28 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // or r
+        case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: {
+            debug_print_4("or r\n");
+            operands[0] = Instructions::or_r;
+            operands[1] = nullptr;
+            return true;
+        }
+        // or (HL)
+        case 0xB6: {
+            debug_print_4("or (HL)\n");
+            operands[0] = Instructions::or_HL;
+            operands[1] = nullptr;
+            return true;
+        }
+        // or d8
+        case 0xF6: {
+            debug_print_4("or d\n");
+            operands[0] = Instructions::readLSB;
+            operands[1] = Instructions::or_d;
+            operands[2] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -696,29 +718,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // or s
-        case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: {
-            // 0xB0 -> 10110 000 -> B
-            // 0xB1 -> 10110 001 -> C
-            // 0xB2 -> 10110 010 -> D
-            // 0xB3 -> 10110 011 -> E
-            // 0xB4 -> 10110 100 -> H
-            // 0xB5 -> 10110 101 -> L
-            // -- F is skipped --
-            // 0xB7 -> 10110 111 -> A
-            _or(registers[opcode & 0b111]);
-            return true;
-        }
-        // or (HL)
-        case 0xB6: {
-            _or(memory->read8BitsAt(readHL()));
-            return true;
-        }
-        // or d8
-        case 0xF6: {
-            _or(memory->read8BitsAt(progCounter++));
-            return true;
-        }
         // and s
         case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: {
             // 0xA0 -> 10100 000 -> B
@@ -1298,12 +1297,6 @@ void CPU::writeAF(FunkyBoy::u16 val) {
 void CPU::_xor(u8 val) {
     debug_print_4("xor 0x%02X ^ 0x%02X\n", *regA, val);
     *regA ^= val;
-    setFlags(*regA == 0, false, false, false);
-}
-
-void CPU::_or(FunkyBoy::u8 val) {
-    debug_print_4("or 0x%02X | 0x%02X\n", *regA, val);
-    *regA |= val;
     setFlags(*regA == 0, false, false, false);
 }
 
