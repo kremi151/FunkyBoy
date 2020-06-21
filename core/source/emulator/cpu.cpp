@@ -518,6 +518,30 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // jr (N)Z,r8
+        case 0x20: case 0x28: {
+            debug_print_4("jr (N)Z,r8\n");
+            operands[0] = Instructions::readSigned;
+            operands[1] = Instructions::jr_conditional_zero;
+            operands[2] = nullptr;
+            return true;
+        }
+        // jr (N)C,r8
+        case 0x30: case 0x38: {
+            debug_print_4("jr (N)C,r8\n");
+            operands[0] = Instructions::readSigned;
+            operands[1] = Instructions::jr_conditional_carry;
+            operands[2] = nullptr;
+            return true;
+        }
+        // unconditional jr
+        case 0x18: {
+            debug_print_4("jr r8\n");
+            operands[0] = Instructions::readSigned;
+            operands[1] = Instructions::jr;
+            operands[2] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -541,38 +565,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // jr (N)Z,r8
-        case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
-            bool set = opcode & 0b00001000;
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            debug_print_4("jr (N)Z,r8 set ? %d %d\n", set, isZero());
-            if ((!set && !isZero()) || (set && isZero())) {
-                debug_print_4("JR (N)Z from 0x%04X + %d", progCounter - 1, signedByte);
-                progCounter += signedByte;
-                debug_print_4(" to 0x%04X\n", progCounter);
-            }
-            return true;
-        }
-        // jr (N)C,r8
-        case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
-            bool set = opcode & 0b00001000;
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            debug_print_4("jr (N)C,r8 set ? %d %d\n", set, isCarry());
-            if ((!set && !isCarry()) || (set && isCarry())) {
-                debug_print_4("JR (N)C from 0x%04X + %d", progCounter - 1, signedByte);
-                progCounter += signedByte;
-                debug_print_4(" to 0x%04X\n", progCounter);
-            }
-            return true;
-        }
-        // unconditional jr
-        case 0x18: {
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
-            debug_print_4("JR (unconditional) from 0x%04X + %d", progCounter, signedByte);
-            progCounter += signedByte;
-            debug_print_4(" to 0x%04X\n", progCounter);
-            return true;
-        }
         // call (N)Z,a16
         case 0xC4: case 0xCC: {
             bool set = opcode & 0b00001000;

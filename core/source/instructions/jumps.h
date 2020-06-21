@@ -26,6 +26,10 @@ namespace FunkyBoy::Instructions {
     void jp(InstrContext &context);
     void jp_HL(InstrContext &context);
 
+    void jr_conditional_zero(InstrContext &context);
+    void jr_conditional_carry(InstrContext &context);
+    void jr(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_JUMPS_H
