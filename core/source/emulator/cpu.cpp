@@ -428,37 +428,45 @@ bool CPU::doDecode() {
         // add HL,ss
         case 0x09: case 0x19: case 0x29: {
             debug_print_4("add HL,ss\n");
-            operands[0] = Instructions::add_HL_ss;
-            operands[1] = nullptr;
+            operands[0] = Instructions::nop; // Pad artificially to 2 machine cycles TODO: do something useful here
+            operands[1] = Instructions::add_HL_ss;
+            operands[2] = nullptr;
             return true;
         }
         // add HL,SP
         case 0x39: {
             debug_print_4("add HL,SP\n");
-            operands[0] = Instructions::add_HL_SP;
-            operands[1] = nullptr;
+            operands[0] = Instructions::nop; // Pad artificially to 2 machine cycles TODO: do something useful here
+            operands[1] = Instructions::add_HL_SP;
+            operands[2] = nullptr;
             return true;
         }
         // add SP,r8
         case 0xE8: {
             debug_print_4("add SP,e8\n");
             operands[0] = Instructions::readSigned;
-            operands[1] = Instructions::add_SP_e;
-            operands[2] = nullptr;
+            // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[1] = Instructions::nop;
+            operands[2] = Instructions::nop;
+            //
+            operands[3] = Instructions::add_SP_e;
+            operands[4] = nullptr;
             return true;
         }
         // add A,(HL)
         case 0x86: {
             debug_print_4("add A,(HL)\n");
-            operands[0] = Instructions::add_A_HL;
-            operands[1] = nullptr;
+            operands[0] = Instructions::nop; // Pad artificially to 2 machine cycles TODO: do something useful here
+            operands[1] = Instructions::add_A_HL;
+            operands[2] = nullptr;
             return true;
         }
         // adc A,(HL)
         case 0x8E: {
             debug_print_4("adc A,(HL)\n");
-            operands[0] = Instructions::adc_A_HL;
-            operands[1] = nullptr;
+            operands[0] = Instructions::nop; // Pad artificially to 2 machine cycles TODO: do something useful here
+            operands[1] = Instructions::adc_A_HL;
+            operands[2] = nullptr;
             return true;
         }
         // sub a,reg
@@ -493,14 +501,16 @@ bool CPU::doDecode() {
         }
         // sub (HL)
         case 0x96: {
-            operands[0] = Instructions::sub_HL;
-            operands[1] = nullptr;
+            operands[0] = Instructions::nop; // Pad artificially to 2 machine cycles TODO: do something useful here
+            operands[1] = Instructions::sub_HL;
+            operands[2] = nullptr;
             return true;
         }
         // sbc (HL)
         case 0x9E: {
-            operands[0] = Instructions::sbc_A_HL;
-            operands[1] = nullptr;
+            operands[0] = Instructions::nop; // Pad artificially to 2 machine cycles TODO: do something useful here
+            operands[1] = Instructions::sbc_A_HL;
+            operands[2] = nullptr;
             return true;
         }
         // jp (N)Z,a16

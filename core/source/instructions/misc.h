@@ -21,7 +21,7 @@
 
 namespace FunkyBoy::Instructions {
 
-    void nop(InstrContext &context);
+    bool nop(InstrContext &context);
 
 }
 

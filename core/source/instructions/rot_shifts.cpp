@@ -20,8 +20,9 @@
 
 using namespace FunkyBoy;
 
-void Instructions::rrca(InstrContext &context) {
+bool Instructions::rrca(InstrContext &context) {
     u8 a = *context.regA;
     *context.regA = (a >> 1) | ((a & 1) << 7);
     Flags::setFlags(context.regF, false, false, false, a & 1u);
+    return true;
 }

@@ -20,6 +20,7 @@
 
 using namespace FunkyBoy;
 
-void Instructions::nop(InstrContext &context) {
+bool Instructions::nop(InstrContext &context) {
     // do nothing
+    return true;
 }

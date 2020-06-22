@@ -21,7 +21,7 @@
 
 namespace FunkyBoy::Instructions {
 
-    void rrca(InstrContext &context);
+    bool rrca(InstrContext &context);
 
 }
 

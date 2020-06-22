@@ -21,24 +21,24 @@
 
 namespace FunkyBoy::Instructions {
 
-    void jp_conditional_zero(InstrContext &context);
-    void jp_conditional_carry(InstrContext &context);
-    void jp(InstrContext &context);
-    void jp_HL(InstrContext &context);
+    bool jp_conditional_zero(InstrContext &context);
+    bool jp_conditional_carry(InstrContext &context);
+    bool jp(InstrContext &context);
+    bool jp_HL(InstrContext &context);
 
-    void jr_conditional_zero(InstrContext &context);
-    void jr_conditional_carry(InstrContext &context);
-    void jr(InstrContext &context);
+    bool jr_conditional_zero(InstrContext &context);
+    bool jr_conditional_carry(InstrContext &context);
+    bool jr(InstrContext &context);
 
-    void call_conditional_zero(InstrContext &context);
-    void call_conditional_carry(InstrContext &context);
-    void call(InstrContext &context);
+    bool call_conditional_zero(InstrContext &context);
+    bool call_conditional_carry(InstrContext &context);
+    bool call(InstrContext &context);
 
-    void ret_conditional_zero(InstrContext &context);
-    void ret_conditional_carry(InstrContext &context);
-    void ret(InstrContext &context);
+    bool ret_conditional_zero(InstrContext &context);
+    bool ret_conditional_carry(InstrContext &context);
+    bool ret(InstrContext &context);
 
-    void rst(InstrContext &context);
+    bool rst(InstrContext &context);
 
 }
 

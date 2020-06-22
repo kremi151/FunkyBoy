@@ -52,7 +52,7 @@ namespace FunkyBoy {
         u16 pop16Bits();
     };
 
-    typedef void (*Operand)(InstrContext &context);
+    typedef bool (*Operand)(InstrContext &context);
 
 }
 

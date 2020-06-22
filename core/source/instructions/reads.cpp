@@ -18,24 +18,29 @@
 
 using namespace FunkyBoy;
 
-void Instructions::readLSB(InstrContext &context) {
+bool Instructions::readLSB(InstrContext &context) {
     context.lsb = context.memory->read8BitsAt(context.progCounter++);
+    return true;
 }
 
-void Instructions::readMSB(InstrContext &context) {
+bool Instructions::readMSB(InstrContext &context) {
     context.msb = context.memory->read8BitsAt(context.progCounter++);
+    return true;
 }
 
-void Instructions::readSigned(InstrContext &context) {
+bool Instructions::readSigned(InstrContext &context) {
     context.signedByte = context.memory->readSigned8BitsAt(context.progCounter++);
+    return true;
 }
 
-void Instructions::readRegCAsLSB(InstrContext &context) {
+bool Instructions::readRegCAsLSB(InstrContext &context) {
     context.lsb = *context.regC;
     context.msb = 0xFF;
+    return true;
 }
 
-void Instructions::readMemAsLSB(InstrContext &context) {
+bool Instructions::readMemAsLSB(InstrContext &context) {
     context.lsb = context.memory->read8BitsAt(context.progCounter++);
     context.msb = 0xFF;
+    return true;
 }

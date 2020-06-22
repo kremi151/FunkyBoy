@@ -18,12 +18,11 @@
 
 #include <util/endianness.h>
 #include <util/flags.h>
-#include <util/registers.h>
 #include <util/debug.h>
 
 using namespace FunkyBoy;
 
-void Instructions::jp_conditional_zero(InstrContext &context) {
+bool Instructions::jp_conditional_zero(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     bool zero = Flags::isZero(context.regF);
@@ -31,10 +30,12 @@ void Instructions::jp_conditional_zero(InstrContext &context) {
         debug_print_4("jp (N)Z a16 from 0x%04X", context.progCounter - 1);
         context.progCounter = address;
         debug_print_4(" to 0x%04X\n", context.progCounter);
+        return true;
     }
+    return false; // No jump, so force finish current cycle
 }
 
-void Instructions::jp_conditional_carry(InstrContext &context) {
+bool Instructions::jp_conditional_carry(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     bool carry = Flags::isCarry(context.regF);
@@ -42,44 +43,50 @@ void Instructions::jp_conditional_carry(InstrContext &context) {
         debug_print_4("jp (C)Z a16 from 0x%04X", context.progCounter - 1);
         context.progCounter = address;
         debug_print_4(" to 0x%04X\n", context.progCounter);
+        return true;
     }
+    return false; // No jump, so force finish current cycle
 }
 
-void Instructions::jp(InstrContext &context) {
+bool Instructions::jp(InstrContext &context) {
     context.progCounter = Util::compose16Bits(context.lsb, context.msb);
 }
 
-void Instructions::jp_HL(InstrContext &context) {
+bool Instructions::jp_HL(InstrContext &context) {
     context.progCounter = context.readHL();
 }
 
-void Instructions::jr_conditional_zero(InstrContext &context) {
+bool Instructions::jr_conditional_zero(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     bool zero = Flags::isZero(context.regF);
     if ((!set && !zero) || (set && zero)) {
         debug_print_4("JR (N)Z from 0x%04X + %d", context.progCounter - 1, context.signedByte);
         context.progCounter += context.signedByte;
         debug_print_4(" to 0x%04X\n", context.progCounter);
+        return true;
     }
+    return false; // No jump, so force finish current cycle
 }
 
-void Instructions::jr_conditional_carry(InstrContext &context) {
+bool Instructions::jr_conditional_carry(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     bool carry = Flags::isCarry(context.regF);
     if ((!set && !carry) || (set && carry)) {
         debug_print_4("JR (N)C from 0x%04X + %d", context.progCounter - 1, context.signedByte);
         context.progCounter += context.signedByte;
         debug_print_4(" to 0x%04X\n", context.progCounter);
+        return true;
     }
+    return false; // No jump, so force finish current cycle
 }
 
-void Instructions::jr(InstrContext &context) {
+bool Instructions::jr(InstrContext &context) {
     debug_print_4("JR (unconditional) from 0x%04X + %d", context.progCounter, context.signedByte);
     context.progCounter += context.signedByte;
     debug_print_4(" to 0x%04X\n", context.progCounter);
 }
 
-void Instructions::call_conditional_zero(InstrContext &context) {
+bool Instructions::call_conditional_zero(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     bool zero = Flags::isZero(context.regF);
@@ -88,10 +95,12 @@ void Instructions::call_conditional_zero(InstrContext &context) {
         context.push16Bits(context.progCounter);
         context.progCounter = address;
         debug_print_4(" to 0x%04X\n", context.progCounter);
+        return true;
     }
+    return false; // No call, so force finish current cycle
 }
 
-void Instructions::call_conditional_carry(InstrContext &context) {
+bool Instructions::call_conditional_carry(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     bool carry = Flags::isCarry(context.regF);
@@ -100,40 +109,49 @@ void Instructions::call_conditional_carry(InstrContext &context) {
         context.push16Bits(context.progCounter);
         context.progCounter = address;
         debug_print_4(" to 0x%04X\n", context.progCounter);
+        return true;
     }
+    return false; // No call, so force finish current cycle
 }
 
-void Instructions::call(InstrContext &context) {
+bool Instructions::call(InstrContext &context) {
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     debug_print_4("call from 0x%04X\n", context.progCounter);
     context.push16Bits(context.progCounter);
     context.progCounter = address;
     debug_print_4(" to 0x%04X\n", context.progCounter);
+    return true;
 }
 
-void Instructions::ret_conditional_zero(InstrContext &context) {
+bool Instructions::ret_conditional_zero(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     bool zero = Flags::isZero(context.regF);
     if ((!set && !zero) || (set && zero)) {
         context.progCounter = context.pop16Bits();
+        return true;
     }
+    return false; // No return, so force finish current cycle
 }
 
-void Instructions::ret_conditional_carry(InstrContext &context) {
+bool Instructions::ret_conditional_carry(InstrContext &context) {
     bool set = context.instr & 0b00001000u;
     bool carry = Flags::isCarry(context.regF);
     if ((!set && !carry) || (set && carry)) {
         context.progCounter = context.pop16Bits();
+        return true;
     }
+    return false; // No return, so force finish current cycle
 }
 
-void Instructions::ret(InstrContext &context) {
+bool Instructions::ret(InstrContext &context) {
     context.progCounter = context.pop16Bits();
+    return true;
 }
 
-void Instructions::rst(InstrContext &context) {
+bool Instructions::rst(InstrContext &context) {
     u8 rstAddr = (context.instr >> 3u & 7u) * 8u;
     debug_print_4("rst %02XH\n", rstAddr);
     context.push16Bits(context.progCounter);
     context.progCounter = rstAddr;
+    return true;
 }
