@@ -21,6 +21,5 @@
 using namespace FunkyBoy;
 
 void Instructions::nop(InstrContext &context) {
-    debug_print_4("nop\n");
     // do nothing
 }

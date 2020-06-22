@@ -22,10 +22,10 @@
 namespace FunkyBoy::Instructions {
 
     /**
-     * LD r,s
+     * LD r,r
      * @param context
      */
-    void loadRS(InstrContext &context);
+    void load_r_r(InstrContext &context);
 
     /**
      * LD (dd),A

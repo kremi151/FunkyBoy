@@ -73,7 +73,7 @@ namespace FunkyBoy {
         CPUState cpuState;
         InstrContext instrContext{};
 
-        Operand operands[4]{};
+        Operand operands[25]{};
 
         u16 timerCounter;
         u16 divCounter;

@@ -21,7 +21,7 @@
 
 using namespace FunkyBoy;
 
-void Instructions::loadRS(InstrContext &context) {
+void Instructions::load_r_r(InstrContext &context) {
     u8 &dst = context.registers[context.instr >> 3u & 7u];
     u8 src = context.registers[context.instr & 7u];
     dst = src;
