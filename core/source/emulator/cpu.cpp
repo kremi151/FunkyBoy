@@ -519,7 +519,8 @@ bool CPU::doDecode() {
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
             operands[2] = Instructions::jp_conditional_zero;
-            operands[3] = nullptr;
+            operands[3] = Instructions::nop; // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[4] = nullptr;
             return true;
         }
         // jp (N)C,a16
@@ -528,7 +529,8 @@ bool CPU::doDecode() {
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
             operands[2] = Instructions::jp_conditional_carry;
-            operands[3] = nullptr;
+            operands[3] = Instructions::nop; // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[4] = nullptr;
             return true;
         }
         // unconditional jp
@@ -538,7 +540,8 @@ bool CPU::doDecode() {
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
             operands[2] = Instructions::jp;
-            operands[3] = nullptr;
+            operands[3] = Instructions::nop; // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[4] = nullptr;
             return true;
         }
         // jp HL
@@ -554,7 +557,8 @@ bool CPU::doDecode() {
             debug_print_4("jr (N)Z,r8\n");
             operands[0] = Instructions::readSigned;
             operands[1] = Instructions::jr_conditional_zero;
-            operands[2] = nullptr;
+            operands[2] = Instructions::nop; // Pad artificially to 3 machine cycles TODO: do something useful here
+            operands[3] = nullptr;
             return true;
         }
         // jr (N)C,r8
@@ -562,7 +566,8 @@ bool CPU::doDecode() {
             debug_print_4("jr (N)C,r8\n");
             operands[0] = Instructions::readSigned;
             operands[1] = Instructions::jr_conditional_carry;
-            operands[2] = nullptr;
+            operands[2] = Instructions::nop; // Pad artificially to 3 machine cycles TODO: do something useful here
+            operands[3] = nullptr;
             return true;
         }
         // unconditional jr
@@ -570,7 +575,8 @@ bool CPU::doDecode() {
             debug_print_4("jr r8\n");
             operands[0] = Instructions::readSigned;
             operands[1] = Instructions::jr;
-            operands[2] = nullptr;
+            operands[2] = Instructions::nop; // Pad artificially to 3 machine cycles TODO: do something useful here
+            operands[3] = nullptr;
             return true;
         }
         // call (N)Z,a16
@@ -579,7 +585,12 @@ bool CPU::doDecode() {
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
             operands[2] = Instructions::call_conditional_zero;
-            operands[3] = nullptr;
+            // Pad artificially to 6 machine cycles TODO: do something useful here
+            operands[3] = Instructions::nop;
+            operands[4] = Instructions::nop;
+            operands[5] = Instructions::nop;
+            //
+            operands[6] = nullptr;
             return true;
         }
         // call (N)C,a16
@@ -588,7 +599,12 @@ bool CPU::doDecode() {
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
             operands[2] = Instructions::call_conditional_carry;
-            operands[3] = nullptr;
+            // Pad artificially to 6 machine cycles TODO: do something useful here
+            operands[3] = Instructions::nop;
+            operands[4] = Instructions::nop;
+            operands[5] = Instructions::nop;
+            //
+            operands[6] = nullptr;
             return true;
         }
         // call a16
@@ -597,33 +613,58 @@ bool CPU::doDecode() {
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
             operands[2] = Instructions::call;
-            operands[3] = nullptr;
+            // Pad artificially to 6 machine cycles TODO: do something useful here
+            operands[3] = Instructions::nop;
+            operands[4] = Instructions::nop;
+            operands[5] = Instructions::nop;
+            //
+            operands[6] = nullptr;
             return true;
         }
         // ret (N)Z,a16
         case 0xC0: case 0xC8: {
             debug_print_4("ret (N)Z,a16\n");
-            operands[0] = Instructions::ret_conditional_zero;
-            operands[1] = nullptr;
+            // Pad artificially to 5 machine cycles TODO: do something useful here
+            operands[0] = Instructions::nop; // This has to happen before the ret condition (unmet condition -> 2 M cycles)
+            operands[1] = Instructions::ret_conditional_zero;
+            operands[2] = Instructions::nop;
+            operands[3] = Instructions::nop;
+            operands[4] = Instructions::nop;
+            operands[5] = nullptr;
             return true;
         }
         // ret (N)C,a16
         case 0xD0: case 0xD8: {
             debug_print_4("ret (N)C,a16\n");
-            operands[0] = Instructions::ret_conditional_carry;
-            operands[1] = nullptr;
+            // Pad artificially to 5 machine cycles TODO: do something useful here
+            operands[0] = Instructions::nop; // This has to happen before the ret condition (unmet condition -> 2 M cycles)
+            operands[1] = Instructions::ret_conditional_carry;
+            operands[2] = Instructions::nop;
+            operands[3] = Instructions::nop;
+            operands[4] = Instructions::nop;
+            operands[5] = nullptr;
         }
         // ret a16
         case 0xC9: {
             debug_print_4("ret a16\n");
-            operands[0] = Instructions::ret;
-            operands[1] = nullptr;
+            // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[0] = Instructions::nop;
+            operands[1] = Instructions::nop;
+            operands[2] = Instructions::nop;
+            //
+            operands[3] = Instructions::ret;
+            operands[4] = nullptr;
         }
         // rst vec
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
             debug_print_4("rst vec\n");
-            operands[0] = Instructions::rst;
-            operands[1] = nullptr;
+            // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[0] = Instructions::nop;
+            operands[1] = Instructions::nop;
+            operands[2] = Instructions::nop;
+            //
+            operands[3] = Instructions::rst;
+            operands[4] = nullptr;
             return true;
         }
         // cp r
