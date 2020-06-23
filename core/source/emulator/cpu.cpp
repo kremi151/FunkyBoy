@@ -21,6 +21,7 @@
 #include <util/typedefs.h>
 #include <util/registers.h>
 #include <cmath>
+#include <util/flags.h>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 #include <iomanip>
@@ -34,7 +35,7 @@
 using namespace FunkyBoy;
 
 CPU::CPU(GameBoyType gbType, std::shared_ptr<Memory> memory): memory(std::move(memory)), gbType(gbType), timerCounter(0)
-    , instrContext(gbType), divCounter(0)
+    , instrContext(gbType), divCounter(0), cycleState(CycleState::FETCH), operandIndex(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -136,10 +137,10 @@ void CPU::powerUpInit() {
 bool CPU::doTick() {
     bool result;
 
-    if (cpuState == CPUState::RUNNING || cpuState == CPUState::HALTED) {
+    if ((instrContext.cpuState == CPUState::RUNNING && cycleState == CycleState::FETCH) || instrContext.cpuState == CPUState::HALTED) {
         if (doInterrupts()) {
             // An interrupt has started, so we set the state to RUNNING again
-            cpuState = CPUState::RUNNING;
+            instrContext.cpuState = CPUState::RUNNING;
         }
     }
 
@@ -149,15 +150,8 @@ bool CPU::doTick() {
     doDivider();
     doTimer();
 
-    if (cpuState == CPUState::RUNNING) {
-        auto opcode = memory->read8BitsAt(progCounter++);
-        debug_print_4("> instr 0x%02X at 0x%04X\n", opcode, progCounter - 1);
-
-        if (opcode == 0xCB) {
-            result = doPrefix(memory->read8BitsAt(progCounter++));
-        } else {
-            result = doInstruction(opcode);
-        }
+    if (instrContext.cpuState == CPUState::RUNNING) {
+        result = doCycle();
     } else {
         result = true;
     }
@@ -176,6 +170,32 @@ bool CPU::doTick() {
     }
 
     return result;
+}
+
+bool CPU::doCycle() {
+    switch (cycleState) {
+        case FETCH:
+            doFetch();
+            cycleState = CycleState::DECODE;
+            return true;
+        case DECODE: {
+            bool result = doDecode();
+            cycleState = CycleState::EXECUTE;
+            operandIndex = 0;
+            return result;
+        }
+        case EXECUTE: {
+            auto op = operands[operandIndex++];
+            op(instrContext);
+            if (operands[operandIndex] == nullptr) {
+                cycleState = CycleState::FETCH;
+            }
+            return true;
+        }
+        default:
+            fprintf(stderr, "Illegal cycle state: %d\n", static_cast<int>(cycleState));
+            return false;
+    }
 }
 
 void CPU::doFetch() {
@@ -977,6 +997,11 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // prefix
+        case 0xCB: {
+            fprintf(stderr, "TODO: decode prefix instructions\n");
+            return false;
+        }
         default: {
             fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
             return false;
@@ -984,60 +1009,60 @@ bool CPU::doDecode() {
     }
 }
 
-bool CPU::doPrefix(u8 prefix) {
+bool CPU::__TODO_REWRITE__doPrefix(u8 prefix) { // TODO: Migrate
     switch(prefix) {
         // rlc reg
         case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {
             u8 *reg = registers + (prefix & 0b111);
             u8 newVal = (*reg << 1) | ((*reg >> 7) & 0b1);
-            setFlags(newVal == 0, false, false, (*reg & 0b10000000) > 0);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (*reg & 0b10000000) > 0);
             *reg = newVal;
             return true;
         }
         // rlc (HL)
         case 0x06: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory->read8BitsAt(instrContext.readHL());
             u8 newVal = (oldVal << 1) | ((oldVal >> 7) & 0b1);
-            setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
+            memory->write8BitsTo(instrContext.readHL(), newVal);
             return true;
         }
         // rrc reg
         case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0F: {
             u8 *reg = registers + (prefix & 0b111);
             u8 newVal = (*reg >> 1) | ((*reg & 0b1) << 7);
-            setFlags(newVal == 0, false, false, (*reg & 0b1) > 0);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (*reg & 0b1) > 0);
             *reg = newVal;
             return true;
         }
         // rrc (HL)
         case 0x0E: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory->read8BitsAt(instrContext.readHL());
             u8 newVal = (oldVal >> 1) | ((oldVal & 0b1) << 7);
-            setFlags(newVal == 0, false, false, (oldVal & 0b1) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (oldVal & 0b1) > 0);
+            memory->write8BitsTo(instrContext.readHL(), newVal);
             return true;
         }
         // rl reg
         case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x17: {
             u8 *reg = registers + (prefix & 0b111);
             u8 newVal = (*reg << 1);
-            if (isCarry()) {
+            if (Flags::isCarry(regF_do_not_use_directly)) {
                 newVal |= 0b1;
             }
-            setFlags(newVal == 0, false, false, (*reg & 0b10000000) > 0);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (*reg & 0b10000000) > 0);
             *reg = newVal;
             return true;
         }
         // rl (HL)
         case 0x16: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory->read8BitsAt(instrContext.readHL());
             u8 newVal = (oldVal << 1);
-            if (isCarry()) {
+            if (Flags::isCarry(regF_do_not_use_directly)) {
                 newVal |= 0b1;
             }
-            setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
+            memory->write8BitsTo(instrContext.readHL(), newVal);
             return true;
         }
         // rr reg
@@ -1052,22 +1077,22 @@ bool CPU::doPrefix(u8 prefix) {
             // 0x1F -> 11 111 -> A
             u8 *reg = registers + (prefix & 0b111);
             u8 newVal = *reg >> 1;
-            if (isCarry()) {
+            if (Flags::isCarry(regF_do_not_use_directly)) {
                 newVal |= 0b10000000;
             }
-            setFlags(newVal == 0, false, false, *reg & 0b1);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, *reg & 0b1);
             *reg = newVal;
             return true;
         }
         // rr (HL)
         case 0x1E: {
-            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 oldVal = memory->read16BitsAt(instrContext.readHL());
             u8 newVal = oldVal >> 1;
-            if (isCarry()) {
+            if (Flags::isCarry(regF_do_not_use_directly)) {
                 newVal |= 0b10000000;
             }
-            setFlags(newVal == 0, false, false, oldVal & 0b1);
-            memory->write8BitsTo(readHL(), newVal);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, oldVal & 0b1);
+            memory->write8BitsTo(instrContext.readHL(), newVal);
             return true;
         }
         // sla reg
@@ -1082,47 +1107,47 @@ bool CPU::doPrefix(u8 prefix) {
             // 0x27 -> 100 111 -> A
             u8 *reg = registers + (prefix & 0b111);
             u8 newVal = *reg << 1;
-            setFlags(newVal == 0, false, false, (*reg & 0b10000000) > 0);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (*reg & 0b10000000) > 0);
             *reg = newVal;
             return true;
         }
         // sla (HL)
         case 0x26: {
-            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 oldVal = memory->read16BitsAt(instrContext.readHL());
             u8 newVal = oldVal << 1;
-            setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
+            memory->write8BitsTo(instrContext.readHL(), newVal);
             return true;
         }
         // sra reg
         case 0x28: case 0x29: case 0x2A: case 0x2B: case 0x2C: case 0x2D: case 0x2F: {
             u8 *reg = registers + (prefix & 0b111);
             u8 newVal = (*reg >> 1) | (*reg & 0b10000000);
-            setFlags(newVal == 0, false, false, *reg & 0b1);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, *reg & 0b1);
             *reg = newVal;
             return true;
         }
         // sra (HL)
         case 0x2E: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory->read8BitsAt(instrContext.readHL());
             u8 newVal = (oldVal >> 1) | (oldVal & 0b10000000);
-            setFlags(newVal == 0, false, false, oldVal & 0b1);
-            memory->write8BitsTo(readHL(), newVal);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, oldVal & 0b1);
+            memory->write8BitsTo(instrContext.readHL(), newVal);
             return true;
         }
         // swap reg
         case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x37: {
             u8 *reg = registers + (prefix & 0b111);
             *reg = ((*reg >> 4) & 0b1111) | ((*reg & 0b1111) << 4);
-            setFlags(*reg == 0, false, false, false);
+            Flags::setFlags(regF_do_not_use_directly, *reg == 0, false, false, false);
             return true;
         }
         // swap (HL)
         case 0x36: {
-            u8 val = memory->read8BitsAt(readHL());
+            u8 val = memory->read8BitsAt(instrContext.readHL());
             val = ((val >> 4) & 0b1111) | ((val & 0b1111) << 4);
-            memory->write8BitsTo(readHL(), val);
-            setFlags(val == 0, false, false, false);
+            memory->write8BitsTo(instrContext.readHL(), val);
+            Flags::setFlags(regF_do_not_use_directly, val == 0, false, false, false);
             return true;
         }
         // srl reg
@@ -1137,16 +1162,16 @@ bool CPU::doPrefix(u8 prefix) {
             // 0x3F -> 111 111 -> A
             u8 *reg = registers + (prefix & 0b111);
             u8 newVal = *reg >> 1;
-            setFlags(newVal == 0, false, false, *reg & 0b1);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, *reg & 0b1);
             *reg = newVal;
             return true;
         }
         // srl (HL)
         case 0x3E: {
-            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 oldVal = memory->read16BitsAt(instrContext.readHL());
             u8 newVal = oldVal >> 1;
-            setFlags(newVal == 0, false, false, oldVal & 0b1);
-            memory->write8BitsTo(readHL(), newVal);
+            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, oldVal & 0b1);
+            memory->write8BitsTo(instrContext.readHL(), newVal);
             return true;
         }
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // bit 0,reg
@@ -1192,7 +1217,7 @@ bool CPU::doPrefix(u8 prefix) {
             u8 regPos = prefix & 0b111;
             u8 *reg = registers + regPos;
             // Note: We write the opposite of the Nth bit into the Z flag
-            setFlags(!(*reg & bitMask), false, true, isCarry());
+            Flags::setFlags(regF_do_not_use_directly, !(*reg & bitMask), false, true, Flags::isCarry(regF_do_not_use_directly));
             return true;
         }
         // bit n,(HL)
@@ -1208,7 +1233,7 @@ bool CPU::doPrefix(u8 prefix) {
             u8 bitShift = (prefix >> 3) & 0b111;
             u8 bitMask = 1 << bitShift;
             // Note: We write the opposite of the Nth bit into the Z flag
-            setFlags(!(memory->read8BitsAt(readHL()) & bitMask), false, true, isCarry());
+            Flags::setFlags(regF_do_not_use_directly, !(memory->read8BitsAt(instrContext.readHL()) & bitMask), false, true, Flags::isCarry(regF_do_not_use_directly));
             return true;
         }
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // res 0,reg
@@ -1229,9 +1254,9 @@ bool CPU::doPrefix(u8 prefix) {
         // res n,(HL)
         case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
             u8 bitShift = (prefix >> 3) & 0b111;
-            u8 val = memory->read8BitsAt(readHL());
+            u8 val = memory->read8BitsAt(instrContext.readHL());
             val &= ~(1 << bitShift);
-            memory->write8BitsTo(readHL(), val);
+            memory->write8BitsTo(instrContext.readHL(), val);
             return true;
         }
         case 0xC0: case 0xC1: case 0xC2: case 0xC3: case 0xC4: case 0xC5: case 0xC7: // set 0,reg
@@ -1252,13 +1277,13 @@ bool CPU::doPrefix(u8 prefix) {
         // set n,(HL)
         case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE: {
             u8 bitMask = (prefix >> 3) & 0b111;
-            u8 val = memory->read8BitsAt(readHL());
+            u8 val = memory->read8BitsAt(instrContext.readHL());
             val |= (1 << bitMask);
-            memory->write8BitsTo(readHL(), val);
+            memory->write8BitsTo(instrContext.readHL(), val);
             return true;
         }
         default: {
-            fprintf(stderr, "Encountered not yet implemented prefix 0x%02X at 0x%04X\n", prefix, progCounter - 1);
+            fprintf(stderr, "Encountered not yet implemented prefix 0x%02X at 0x%04X\n", prefix, instrContext.progCounter - 1);
             return false;
         }
     }
@@ -1278,7 +1303,7 @@ inline u8 getInterruptBitMask(InterruptType type) {
 }
 
 bool CPU::doInterrupts() {
-    if (interruptMasterEnable != IMEState::ENABLED) {
+    if (instrContext.interruptMasterEnable != IMEState::ENABLED) {
         return false;
     }
     u8 _if = memory->read8BitsAt(0xFF0F) & 0b11111u;
@@ -1294,10 +1319,10 @@ bool CPU::doInterrupts() {
         }
         auto interruptType = static_cast<InterruptType>(shift);
         memory_address addr = getInterruptStartAddress(interruptType);
-        interruptMasterEnable = IMEState::DISABLED;
+        instrContext.interruptMasterEnable = IMEState::DISABLED;
         // TODO: do 2 NOP cycles (when implementing cycle accuracy)
-        push16Bits(progCounter);
-        progCounter = addr;
+        instrContext.push16Bits(instrContext.progCounter);
+        instrContext.progCounter = addr;
         debug_print_2("Do interrupt at 0x%04X\n", addr);
         _if &= ~bitMask;
         memory->write8BitsTo(0xFF0F, _if); // TODO: Investigate "Timer doesn't work" error from ROM output
@@ -1354,7 +1379,7 @@ void CPU::requestInterrupt(InterruptType type) {
 }
 
 void CPU::setProgramCounter(u16 offset) {
-    progCounter = offset;
+    instrContext.progCounter = offset;
 }
 
 u16 CPU::readAF() {

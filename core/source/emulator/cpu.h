@@ -40,6 +40,12 @@ namespace FunkyBoy {
         JOYPAD      = 4
     };
 
+    enum CycleState {
+        FETCH = 0,
+        DECODE = 1,
+        EXECUTE = 2
+    };
+
     class CPU {
     private:
         std::shared_ptr<Memory> memory;
@@ -54,6 +60,8 @@ namespace FunkyBoy {
 
         InstrContext instrContext;
 
+        CycleState cycleState;
+        u8 operandIndex;
         Operand operands[25]{};
 
         u16 timerCounter;
@@ -61,6 +69,7 @@ namespace FunkyBoy {
 
         void powerUpInit();
 
+        bool doCycle();
         void doFetch();
         bool doDecode();
         bool __TODO_REWRITE__doPrefix(u8 prefix);
