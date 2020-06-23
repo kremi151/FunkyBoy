@@ -20,17 +20,6 @@
 
 using namespace FunkyBoy;
 
-inline void Util::write16BitRegister(u8 *registers, u8 position, u16 val) {
-    u8 *reg = registers + (position * 2);
-    *reg = (val >> 8u) & 0xffu;
-    *(reg + 1) = val & 0xffu;
-}
-
-inline u16 Util::read16BitRegister(u8 *registers, u8 position) {
-    u8 *reg = registers + (position * 2);
-    return (*reg << 8u) | (*(reg + 1u) & 0xffu);
-}
-
 u16 Util::addToSP(u8 *flags, u16 stackPointer, i8 val) {
     u16 newVal = stackPointer + val;
 
@@ -40,7 +29,7 @@ u16 Util::addToSP(u8 *flags, u16 stackPointer, i8 val) {
     return newVal;
 }
 
-inline u8* Util::decodeRRAddressFromOpcode(u8 *registers, u8 opcode) {
+fb_inline u8* Util::decodeRRAddressFromOpcode(u8 *registers, u8 opcode) {
     // Rightshift 4 seems to be universal when referencing 16bit registers in opcodes
     return registers + (((opcode >> 4) & 3) * 2); // 16-bit -> x 2
 }

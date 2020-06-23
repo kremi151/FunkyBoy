@@ -44,7 +44,7 @@ bool Instructions::load_A_d(InstrContext &context) {
 }
 
 bool Instructions::load_dd_nn(InstrContext &context) {
-    Util::write16BitRegister(context.registers, context.instr >> 4u & 3u, Util::compose16Bits(context.lsb, context.msb));
+    context.write16BitRegister(context.instr >> 4u & 3u, Util::compose16Bits(context.lsb, context.msb));
     return true;
 }
 
@@ -69,12 +69,12 @@ bool Instructions::load_HL_n(InstrContext &context) {
 }
 
 bool Instructions::load_reg_dd_A(InstrContext &context) {
-    context.memory->write8BitsTo(Util::read16BitRegister(context.registers, context.instr >> 4 & 1), *context.regA);
+    context.memory->write8BitsTo(context.read16BitRegister(context.instr >> 4 & 1), *context.regA);
     return true;
 }
 
 bool Instructions::load_A_reg_dd(InstrContext &context) {
-    *context.regA = context.memory->read8BitsAt(Util::read16BitRegister(context.registers, context.instr >> 4 & 1));
+    *context.regA = context.memory->read8BitsAt(context.read16BitRegister(context.instr >> 4 & 1));
     return true;
 }
 

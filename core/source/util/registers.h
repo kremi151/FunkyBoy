@@ -22,9 +22,6 @@
 
 namespace FunkyBoy::Util {
 
-    void write16BitRegister(u8 *registers, u8 position, u16 val);
-    u16 read16BitRegister(u8 *registers, u8 position);
-
     u16 addToSP(u8 *flags, u16 stackPointer, i8 val);
 
     u8 *decodeRRAddressFromOpcode(u8 *registers, u8 opcode);

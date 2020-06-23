@@ -71,19 +71,19 @@ TEST(testPopPushStackPointer) {
     auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
     FunkyBoy::CPU cpu(memory);
 
-    cpu.push16Bits(0x1806);
-    auto val = cpu.pop16Bits();
+    cpu.instrContext.push16Bits(0x1806);
+    auto val = cpu.instrContext.pop16Bits();
     assertEquals(0x1806, val);
 
-    cpu.push16Bits(0x28, 0x09);
-    cpu.push16Bits(0x1223);
-    cpu.push16Bits(0x42, 0x69);
+    cpu.instrContext.push16Bits(0x28, 0x09);
+    cpu.instrContext.push16Bits(0x1223);
+    cpu.instrContext.push16Bits(0x42, 0x69);
 
-    val = cpu.pop16Bits();
+    val = cpu.instrContext.pop16Bits();
     assertEquals(0x4269, val);
-    val = cpu.pop16Bits();
+    val = cpu.instrContext.pop16Bits();
     assertEquals(0x1223, val);
-    val = cpu.pop16Bits();
+    val = cpu.instrContext.pop16Bits();
     assertEquals(0x2809, val);
 }
 
@@ -102,10 +102,10 @@ TEST(testReadWriteHLAndAF) {
     auto val = cpu.readAF();
     assertEquals(0x1230, val);
 
-    cpu.writeHL(0x1806);
+    cpu.instrContext.writeHL(0x1806);
     assertEquals(0x06, *cpu.regL);
     assertEquals(0x18, *cpu.regH);
-    val = cpu.readHL();
+    val = cpu.instrContext.readHL();
     assertEquals(0x1806, val);
 }
 
@@ -117,24 +117,24 @@ TEST(testReadWrite16BitRegisters) {
     // In this test, we check for enforcing little-endianness
 
     // BC
-    cpu.write16BitRegister(0, 0x1234);
+    cpu.instrContext.write16BitRegister(0, 0x1234);
     assertEquals(0x34, *cpu.regC);
     assertEquals(0x12, *cpu.regB);
-    auto val = cpu.read16BitRegister(0);
+    auto val = cpu.instrContext.read16BitRegister(0);
     assertEquals(0x1234, val);
 
     // DE
-    cpu.write16BitRegister(1, 0x1806);
+    cpu.instrContext.write16BitRegister(1, 0x1806);
     assertEquals(0x06, *cpu.regE);
     assertEquals(0x18, *cpu.regD);
-    val = cpu.read16BitRegister(1);
+    val = cpu.instrContext.read16BitRegister(1);
     assertEquals(0x1806, val);
 
     // HL
-    cpu.write16BitRegister(2, 0x2809);
+    cpu.instrContext.write16BitRegister(2, 0x2809);
     assertEquals(0x09, *cpu.regL);
     assertEquals(0x28, *cpu.regH);
-    val = cpu.read16BitRegister(2);
+    val = cpu.instrContext.read16BitRegister(2);
     assertEquals(0x2809, val);
 }
 
@@ -147,7 +147,7 @@ TEST(test16BitLoads) {
     cartridge->rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
-    cpu.progCounter = initialProgCounter;
+    cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter + 1] = 0x06;
     cartridge->rom[initialProgCounter + 2] = 0x18;
 
@@ -156,38 +156,38 @@ TEST(test16BitLoads) {
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
-    assertEquals(initialProgCounter + 3, cpu.progCounter);
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(0x06, (*cpu.regC) & 0xff);
     assertEquals(0x18, (*cpu.regB) & 0xff);
 
     // Set opcode 0x11 (LD DE,d16)
-    cpu.progCounter = initialProgCounter;
+    cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x11;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
-    assertEquals(initialProgCounter + 3, cpu.progCounter);
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(0x06, (*cpu.regE) & 0xff);
     assertEquals(0x18, (*cpu.regD) & 0xff);
 
     // Set opcode 0x21 (LD HL,d16)
-    cpu.progCounter = initialProgCounter;
+    cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x21;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
-    assertEquals(initialProgCounter + 3, cpu.progCounter);
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(0x06, (*cpu.regL) & 0xff);
     assertEquals(0x18, (*cpu.regH) & 0xff);
 
     // Set opcode 0x31 (LD SP,d16)
-    cpu.progCounter = initialProgCounter;
+    cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x31;
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
-    assertEquals(initialProgCounter + 3, cpu.progCounter);
-    assertEquals(0x1806, cpu.stackPointer);
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
+    assertEquals(0x1806, cpu.instrContext.stackPointer);
 }
 
 TEST(testLDHA) {
@@ -199,7 +199,7 @@ TEST(testLDHA) {
     cartridge->rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
-    cpu.progCounter = initialProgCounter;
+    cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter + 1] = 0xCE;
 
     // Set opcode 0xF0 (LDH A,(a8))
@@ -209,11 +209,11 @@ TEST(testLDHA) {
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
-    assertEquals(initialProgCounter + 2, cpu.progCounter);
+    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(0x42, *cpu.regA);
 
     // Reset prog counter and register
-    cpu.progCounter = initialProgCounter;
+    cpu.instrContext.progCounter = initialProgCounter;
     memory->write8BitsTo(0xFFCE, 0x0);
 
     // Set opcode 0xE0 (LDH (a8),A)
@@ -223,7 +223,7 @@ TEST(testLDHA) {
     if (!cpu.doTick()) {
         failure("Emulation tick failed");
     }
-    assertEquals(initialProgCounter + 2, cpu.progCounter);
+    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(0x42, memory->read8BitsAt(0xFFCE));
 }
 

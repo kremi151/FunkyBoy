@@ -90,7 +90,7 @@ bool Instructions::add_HL_ss(InstrContext &context) {
     // 0x09 -> 00 1001 -> BC
     // 0x19 -> 01 1001 -> DE
     // 0x29 -> 10 1001 -> HL
-    __alu_addToHL(context, Util::read16BitRegister(context.registers, (context.instr >> 4) & 0b11u));
+    __alu_addToHL(context, context.read16BitRegister((context.instr >> 4) & 0b11u));
     return true;
 }
 
@@ -162,8 +162,8 @@ bool Instructions::cp_HL(InstrContext &context) {
 
 bool Instructions::inc_ss(InstrContext &context) {
     u8 position = context.instr >> 4u & 3u;
-    u16 val = Util::read16BitRegister(context.registers, position);
-    Util::write16BitRegister(context.registers, position, val + 1);
+    u16 val = context.read16BitRegister(position);
+    context.write16BitRegister(position, val + 1);
     return true;
 }
 
@@ -196,8 +196,8 @@ bool Instructions::inc_r(InstrContext &context) {
 
 bool Instructions::dec_ss(InstrContext &context) {
     u8 position = context.instr >> 4u & 3u;
-    u16 val = Util::read16BitRegister(context.registers, position);
-    Util::write16BitRegister(context.registers, position, val - 1);
+    u16 val = context.read16BitRegister(position);
+    context.write16BitRegister(position, val - 1);
     return true;
 }
 

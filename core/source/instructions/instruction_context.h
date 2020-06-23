@@ -65,12 +65,18 @@ namespace FunkyBoy {
         CPUState cpuState;
         IMEState interruptMasterEnable;
 
-        u16 readHL();
+        /* inline */ u16 readHL() {
+            return (*regL & 0xffu) | (*regH << 8u);
+        }
+
         void writeHL(u16 val);
 
         void push16Bits(u16 val);
         void push16Bits(u8 msb, u8 lsb);
         u16 pop16Bits();
+
+        void write16BitRegister(u8 position, u16 val);
+        u16 read16BitRegister(u8 position);
     };
 
     typedef bool (*Operand)(InstrContext &context);

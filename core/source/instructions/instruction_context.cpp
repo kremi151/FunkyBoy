@@ -39,11 +39,18 @@ u16 InstrContext::pop16Bits() {
     return val;
 }
 
-inline u16 InstrContext::readHL() {
-    return (*regL & 0xffu) | (*regH << 8u);
-}
-
 void InstrContext::writeHL(u16 val) {
     *regL = val & 0xffu;
     *regH = (val >> 8u) & 0xffu;
+}
+
+void InstrContext::write16BitRegister(u8 position, u16 val) {
+    u8 *reg = registers + (position * 2);
+    *reg = (val >> 8u) & 0xffu;
+    *(reg + 1) = val & 0xffu;
+}
+
+u16 InstrContext::read16BitRegister(u8 position) {
+    u8 *reg = registers + (position * 2);
+    return (*reg << 8u) | (*(reg + 1u) & 0xffu);
 }

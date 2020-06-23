@@ -18,6 +18,6 @@
 
 using namespace FunkyBoy;
 
-inline u16 Util::compose16Bits(u8 lsb, u8 msb) {
+fb_inline u16 Util::compose16Bits(u8 lsb, u8 msb) {
     return (msb << 8u) | lsb;
 }

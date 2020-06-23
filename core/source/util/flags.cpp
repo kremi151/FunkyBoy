@@ -41,7 +41,7 @@ void Flags::setFlags(u8 *flags, bool zero, bool subtraction, bool halfCarry, boo
     }
 }
 
-inline bool Flags::isCarry(const u8 *flags) {
+fb_inline bool Flags::isCarry(const u8 *flags) {
     return *flags & 0b00010000u;
 }
 
@@ -53,7 +53,7 @@ void Flags::setCarry(u8 *flags, bool carry) {
     }
 }
 
-inline bool Flags::isHalfCarry(const u8 *flags) {
+fb_inline bool Flags::isHalfCarry(const u8 *flags) {
     return *flags & 0b00100000u;
 }
 
@@ -65,7 +65,7 @@ void Flags::setHalfCarry(u8 *flags, bool halfCarry) {
     }
 }
 
-inline bool Flags::isSubstraction(const u8 *flags) {
+fb_inline bool Flags::isSubstraction(const u8 *flags) {
     return *flags & 0b01000000u;
 }
 
@@ -77,7 +77,7 @@ void Flags::setSubstraction(u8 *flags, bool substration) {
     }
 }
 
-inline bool Flags::isZero(const u8 *flags) {
+fb_inline bool Flags::isZero(const u8 *flags) {
     return *flags & 0b10000000u;
 }
 
