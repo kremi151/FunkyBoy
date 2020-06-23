@@ -43,6 +43,35 @@ namespace FunkyBoy::Instructions {
     bool enableInterruptsImmediately(InstrContext &context);
 
     /**
+     * Enables interrupts with delay.
+     * Interrupts will become enabled after the next opcode.
+     * @param context
+     * @return
+     */
+    bool enableInterruptsDelayed(InstrContext &context);
+
+    /**
+     * Disables interrupts
+     * @param context
+     * @return
+     */
+    bool disableInterrupts(InstrContext &context);
+
+    /**
+     * STOP
+     * @param context
+     * @return
+     */
+    bool stop(InstrContext &context);
+
+    /**
+     * HALT
+     * @param context
+     * @return
+     */
+    bool halt(InstrContext &context);
+
+    /**
      * DAA
      * @param context
      * @return

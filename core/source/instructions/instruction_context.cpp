@@ -18,6 +18,9 @@
 
 using namespace FunkyBoy;
 
+InstrContext::InstrContext(FunkyBoy::GameBoyType gbType): gbType(gbType) {
+}
+
 void InstrContext::push16Bits(FunkyBoy::u16 val) {
     stackPointer -= 2;
     memory->write8BitsTo(stackPointer, (u8) (val));

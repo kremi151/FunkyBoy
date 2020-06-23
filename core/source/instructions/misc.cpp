@@ -35,6 +35,31 @@ bool Instructions::enableInterruptsImmediately(InstrContext &context) {
     return true;
 }
 
+bool Instructions::enableInterruptsDelayed(InstrContext &context) {
+    context.interruptMasterEnable = IMEState::REQUEST_ENABLE;
+    return true;
+}
+
+bool Instructions::disableInterrupts(InstrContext &context) {
+    context.interruptMasterEnable = IMEState::DISABLED;
+    return true;
+}
+
+bool Instructions::stop(InstrContext &context) {
+    context.cpuState = CPUState::STOPPED;
+    return true;
+}
+
+bool Instructions::halt(InstrContext &context) {
+    if (context.interruptMasterEnable == IMEState::ENABLED) {
+        context.cpuState = CPUState::HALTED;
+    } else if (context.gbType == GameBoyType::GameBoyCGB) {
+        // On non-GBC devices, the next instruction is skipped if HALT was requested with IME being disabled
+        context.progCounter++;
+    }
+    return true;
+}
+
 bool Instructions::daa(InstrContext &context) {
     u8 val = *context.regA;
     if (Flags::isSubstraction(context.regF)) {

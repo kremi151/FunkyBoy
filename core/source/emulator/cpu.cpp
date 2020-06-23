@@ -33,8 +33,8 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): memory(std::move(memory)), cpuState(CPUState::RUNNING), timerCounter(0)
-    , divCounter(0)
+CPU::CPU(GameBoyType gbType, std::shared_ptr<Memory> memory): memory(std::move(memory)), gbType(gbType), timerCounter(0)
+    , instrContext(gbType), divCounter(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -61,16 +61,20 @@ CPU::CPU(std::shared_ptr<Memory> memory): memory(std::move(memory)), cpuState(CP
     instrContext.stackPointer = 0xFFFE;
     instrContext.memory = this->memory;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
+    instrContext.cpuState = CPUState::RUNNING;
 
     // Initialize registers
     powerUpInit();
+}
+
+CPU::CPU(std::shared_ptr<Memory> memory): CPU(GameBoyType::GameBoyDMG, std::move(memory)) {
 }
 
 void CPU::powerUpInit() {
     // Ref: https://gbdev.io/pandocs/#power-up-sequence
 
     // AF -> 0x01b0
-    if (getType() == GameBoyType::GameBoyCGB) {
+    if (gbType == GameBoyType::GameBoyCGB) {
         *regA = 0x11;
     } else {
         *regA = 0x01;
@@ -111,7 +115,7 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xff23, 0xbf);
     memory->write8BitsTo(0xff24, 0x77);
     memory->write8BitsTo(0xff25, 0xf3);
-    if (getType() == GameBoyDMG) {
+    if (gbType == GameBoyDMG) {
         memory->write8BitsTo(0xff26, 0xf1);
     } else {
         // TODO: This is for SGB, does this also apply for CGB?
@@ -127,11 +131,6 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xff4a, 0x00);
     memory->write8BitsTo(0xff4b, 0x00);
     memory->write8BitsTo(0xffff, 0x00);
-}
-
-GameBoyType CPU::getType() {
-    // TODO: Implement
-    return GameBoyType::GameBoyDMG;
 }
 
 bool CPU::doTick() {
@@ -934,6 +933,34 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // di
+        case 0xF3: {
+            debug_print_4("di\n");
+            operands[0] = Instructions::disableInterrupts;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ei
+        case 0xFB: {
+            debug_print_4("di\n");
+            operands[0] = Instructions::enableInterruptsDelayed;
+            operands[1] = nullptr;
+            return true;
+        }
+        // stop
+        case 0x10: {
+            debug_print_4("stop\n");
+            operands[0] = Instructions::stop;
+            operands[1] = nullptr;
+            return true;
+        }
+        // halt
+        case 0x76: {
+            debug_print_4("halt\n");
+            operands[0] = Instructions::halt;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -957,31 +984,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // di
-        case 0xF3: {
-            interruptMasterEnable = IMEState::DISABLED;
-            return true;
-        }
-        // ei
-        case 0xFB: {
-            interruptMasterEnable = IMEState::REQUEST_ENABLE;
-            return true;
-        }
-        // stop
-        case 0x10: {
-            cpuState = CPUState::STOPPED;
-            return true;
-        }
-        // halt
-        case 0x76: {
-            if (interruptMasterEnable == IMEState::ENABLED) {
-                cpuState = CPUState::HALTED;
-            } else if (getType() == GameBoyType::GameBoyCGB) {
-                // On non-GBC devices, the next instruction is skipped if HALT was requested with IME being disabled
-                progCounter++;
-            }
-            return true;
-        }
         case 0xCB: {
             // This should already be handled in onTick, so we should never reach this case here
             return doPrefix(memory->read8BitsAt(progCounter++));

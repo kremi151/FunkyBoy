@@ -19,6 +19,7 @@
 
 #include <util/typedefs.h>
 #include <memory/memory.h>
+#include <emulator/gb_type.h>
 
 namespace FunkyBoy {
 
@@ -29,8 +30,18 @@ namespace FunkyBoy {
         ENABLED = 3
     };
 
+    enum CPUState {
+        RUNNING = 0,
+        HALTED = 1,
+        STOPPED = 2
+    };
+
     class InstrContext {
     public:
+        InstrContext(GameBoyType gbType);
+
+        const GameBoyType gbType;
+
         u8 instr;
         u8 *registers;
         u8 *regB;
@@ -51,6 +62,7 @@ namespace FunkyBoy {
         u16 progCounter;
         u16 stackPointer;
 
+        CPUState cpuState;
         IMEState interruptMasterEnable;
 
         u16 readHL();

@@ -24,24 +24,13 @@
 #include <util/testing.h>
 #include <util/debug.h>
 #include <instructions/instructions.h>
+#include <emulator/gb_type.h>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 #include <fstream>
 #endif
 
 namespace FunkyBoy {
-
-    enum GameBoyType {
-        GameBoyDMG,
-        GameBoySGB,
-        GameBoyCGB
-    };
-
-    enum CPUState {
-        RUNNING = 0,
-        HALTED = 1,
-        STOPPED = 2
-    };
 
     enum InterruptType {
         VBLANK      = 0,
@@ -54,6 +43,7 @@ namespace FunkyBoy {
     class CPU {
     private:
         std::shared_ptr<Memory> memory;
+        const GameBoyType gbType;
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         unsigned long long instr;
@@ -62,8 +52,7 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        CPUState cpuState;
-        InstrContext instrContext{};
+        InstrContext instrContext;
 
         Operand operands[25]{};
 
@@ -71,8 +60,6 @@ namespace FunkyBoy {
         u16 divCounter;
 
         void powerUpInit();
-
-        inline GameBoyType getType();
 
         void doFetch();
         bool doDecode();
@@ -100,6 +87,7 @@ namespace FunkyBoy {
         u8 *regA;
 
     public:
+        CPU(GameBoyType gbType, std::shared_ptr<Memory> memory);
         explicit CPU(std::shared_ptr<Memory> memory);
 
         void setProgramCounter(u16 offset);
