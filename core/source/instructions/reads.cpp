@@ -16,6 +16,8 @@
 
 #include "reads.h"
 
+#include <util/registers.h>
+
 using namespace FunkyBoy;
 
 bool Instructions::readLSB(InstrContext &context) {
@@ -42,5 +44,29 @@ bool Instructions::readRegCAsLSB(InstrContext &context) {
 bool Instructions::readMemAsLSB(InstrContext &context) {
     context.lsb = context.memory->read8BitsAt(context.progCounter++);
     context.msb = 0xFF;
+    return true;
+}
+
+bool Instructions::readRRLSBIntoStack(InstrContext &context) {
+    u8 *reg = Util::decodeRRAddressFromOpcode(context.registers, context.instr) + 1;
+    context.stackPointer--;
+    context.memory->write8BitsTo(context.stackPointer, *reg);
+    return true;
+}
+
+bool Instructions::readRRMSBIntoStack(InstrContext &context) {
+    u8 *reg = Util::decodeRRAddressFromOpcode(context.registers, context.instr);
+    context.stackPointer--;
+    context.memory->write8BitsTo(context.stackPointer, *reg);
+    return true;
+}
+
+bool Instructions::readStackIntoLSB(InstrContext &context) {
+    context.lsb = context.memory->read8BitsAt(context.stackPointer++);
+    return true;
+}
+
+bool Instructions::readStackIntoMSB(InstrContext &context) {
+    context.msb = context.memory->read8BitsAt(context.stackPointer++);
     return true;
 }

@@ -22,6 +22,7 @@
 #include <instructions/alu.h>
 #include <instructions/loads.h>
 #include <instructions/reads.h>
+#include <instructions/writes.h>
 #include <instructions/jumps.h>
 #include <instructions/rot_shifts.h>
 

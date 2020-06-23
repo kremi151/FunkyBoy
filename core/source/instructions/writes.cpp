@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_UTIL_REGISTERS_H
-#define FB_CORE_UTIL_REGISTERS_H
+#include "writes.h"
 
-#include <util/debug.h>
-#include <util/typedefs.h>
+#include <util/registers.h>
 
-namespace FunkyBoy::Util {
+using namespace FunkyBoy;
 
-    void write16BitRegister(u8 *registers, u8 position, u16 val);
-    u16 read16BitRegister(u8 *registers, u8 position);
-
-    u16 addToSP(u8 *flags, u16 stackPointer, i8 val);
-
-    u8 *decodeRRAddressFromOpcode(u8 *registers, u8 opcode);
-
+bool Instructions::write16BitsIntoRR(InstrContext &context) {
+    u8 *reg = Util::decodeRRAddressFromOpcode(context.registers, context.instr);
+    *reg = context.msb;
+    *(reg + 1) = context.lsb;
+    return true;
 }
-
-#endif //FB_CORE_UTIL_REGISTERS_H

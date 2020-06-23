@@ -51,6 +51,38 @@ namespace FunkyBoy::Instructions {
      */
     bool readMemAsLSB(InstrContext &context);
 
+    /**
+     * Decrements SP (SP--) first, then reads LSB(rr) into memory pointed by SP
+     * This should be executed after {@code readRRMSBIntoStack}
+     * @param context
+     * @return
+     */
+    bool readRRLSBIntoStack(InstrContext &context);
+
+    /**
+     * Decrements SP (SP--) first, then reads MSB(rr) into memory pointed by SP.
+     * This should be executed before {@code readRRLSBIntoStack}
+     * @param context
+     * @return
+     */
+    bool readRRMSBIntoStack(InstrContext &context);
+
+    /**
+     * Reads memory pointed by SP into {@code lsb}, then increments SP (SP++).
+     * Should be executed before {@code readStackIntoRRMSB}
+     * @param context
+     * @return
+     */
+    bool readStackIntoLSB(InstrContext &context);
+
+    /**
+     * Reads memory pointed by SP into {@code msb}, then increments SP (SP++).
+     * Should be executed after {@code readStackIntoRRLSB}
+     * @param context
+     * @return
+     */
+    bool readStackIntoMSB(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS__READS_H

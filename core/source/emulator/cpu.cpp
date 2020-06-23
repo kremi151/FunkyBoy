@@ -855,6 +855,25 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // pop rr
+        case 0xC1: case 0xD1: case 0xE1: {
+            debug_print_4("pop rr\n");
+            operands[0] = Instructions::readStackIntoLSB;
+            operands[1] = Instructions::readStackIntoMSB;
+            operands[2] = Instructions::write16BitsIntoRR;
+            operands[3] = nullptr;
+            return true;
+        }
+        // push rr
+        case 0xC5: case 0xD5: case 0xE5: {
+            debug_print_4("push rr\n");
+            operands[0] = Instructions::nop;
+            operands[1] = Instructions::readRRMSBIntoStack;
+            operands[2] = Instructions::readRRLSBIntoStack;
+            operands[3] = Instructions::nop;
+            operands[4] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -878,29 +897,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        case 0xC1: case 0xD1: case 0xE1: // pop ss
-        case 0xC5: case 0xD5: case 0xE5: // push ss
-        {
-            // 0xC1 -> 11 00 00 01
-            // 0xD1 -> 11 01 00 01
-            // 0xE1 -> 11 10 00 01
-
-            // 0xC5 -> 11 00 01 01
-            // 0xD5 -> 11 01 01 01
-            // 0xE5 -> 11 10 01 01
-
-            u8 *reg = registers + (((opcode >> 4) & 3) * 2); // 16-bit -> x 2
-            bool push = opcode & 4;
-            // TODO: Verify -> reg = MSB ; reg+1 = LSB ?
-            if (push) {
-                push16Bits(*reg, *(reg + 1));
-            } else {
-                u16 val = pop16Bits();
-                *reg = (val >> 8) & 0xff;
-                *(reg + 1) = val & 0xff;
-            }
-            return true;
-        }
         case 0xF1: // pop AF
         case 0xF5: // push AF
         {

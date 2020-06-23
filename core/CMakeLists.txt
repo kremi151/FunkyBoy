@@ -24,6 +24,7 @@ set(SOURCES
         source/instructions/loads.cpp
         source/instructions/misc.cpp
         source/instructions/reads.cpp
+        source/instructions/writes.cpp
         source/instructions/jumps.cpp
         source/instructions/rot_shifts.cpp
         source/util/endianness.cpp
@@ -51,6 +52,7 @@ set(HEADERS
         source/instructions/instructions.h
         source/instructions/misc.h
         source/instructions/reads.h
+        source/instructions/writes.h
         source/instructions/jumps.h
         source/instructions/rot_shifts.h
         source/util/endianness.h

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_UTIL_REGISTERS_H
-#define FB_CORE_UTIL_REGISTERS_H
+#ifndef FB_CORE_INSTRUCTIONS_WRITES_H
+#define FB_CORE_INSTRUCTIONS_WRITES_H
 
-#include <util/debug.h>
-#include <util/typedefs.h>
+#include <instructions/instruction_context.h>
 
-namespace FunkyBoy::Util {
+namespace FunkyBoy::Instructions {
 
-    void write16BitRegister(u8 *registers, u8 position, u16 val);
-    u16 read16BitRegister(u8 *registers, u8 position);
-
-    u16 addToSP(u8 *flags, u16 stackPointer, i8 val);
-
-    u8 *decodeRRAddressFromOpcode(u8 *registers, u8 opcode);
+    /**
+     * Writes 16 bits composed by {@code lsb} and {@code msb} into 16bit register.
+     * The 16bit register is determined by reading bits 4 and 5 of the current {@code instr}.
+     * @param context
+     * @return
+     */
+    bool write16BitsIntoRR(InstrContext &context);
 
 }
 
-#endif //FB_CORE_UTIL_REGISTERS_H
+#endif //FB_CORE_INSTRUCTIONS_WRITES_H
