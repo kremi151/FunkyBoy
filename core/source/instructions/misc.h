@@ -56,6 +56,20 @@ namespace FunkyBoy::Instructions {
      */
     bool cpl(InstrContext &context);
 
+    /**
+     * SCF
+     * @param context
+     * @return
+     */
+    bool scf(InstrContext &context);
+
+    /**
+     * CCF
+     * @param context
+     * @return
+     */
+    bool ccf(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_MISC_H

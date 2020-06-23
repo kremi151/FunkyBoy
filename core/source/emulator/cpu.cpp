@@ -920,6 +920,20 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // scf
+        case 0x37: {
+            debug_print_4("scf\n");
+            operands[0] = Instructions::scf;
+            operands[1] = nullptr;
+            return true;
+        }
+        // ccf
+        case 0x3F: {
+            debug_print_4("ccf\n");
+            operands[0] = Instructions::ccf;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -943,16 +957,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // scf
-        case 0x37: {
-            setFlags(isZero(), false, false, true);
-            return true;
-        }
-        // ccf
-        case 0x3F: {
-            setFlags(isZero(), false, false, !isCarry());
-            return true;
-        }
         // di
         case 0xF3: {
             interruptMasterEnable = IMEState::DISABLED;

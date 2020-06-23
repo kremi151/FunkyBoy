@@ -65,3 +65,13 @@ bool Instructions::cpl(InstrContext &context) {
     Flags::setHalfCarry(context.regF, true);
     return true;
 }
+
+bool Instructions::scf(InstrContext &context) {
+    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, true);
+    return true;
+}
+
+bool Instructions::ccf(InstrContext &context) {
+    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, !Flags::isCarry(context.regF));
+    return true;
+}
