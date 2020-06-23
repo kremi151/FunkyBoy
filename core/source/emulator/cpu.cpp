@@ -584,12 +584,12 @@ bool CPU::doDecode() {
             debug_print_4("call (N)Z,a16\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::call_conditional_zero;
+            operands[2] = (instrContext.instr == 0xC4) ? Instructions::checkIsNotZero : Instructions::checkIsZero;
             // Pad artificially to 6 machine cycles TODO: do something useful here
             operands[3] = Instructions::_pad_;
             operands[4] = Instructions::_pad_;
-            operands[5] = Instructions::_pad_;
             //
+            operands[5] = Instructions::call;
             operands[6] = nullptr;
             return true;
         }
@@ -598,12 +598,12 @@ bool CPU::doDecode() {
             debug_print_4("call (N)C,a16\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::call_conditional_carry;
+            operands[2] = (instrContext.instr == 0xD4) ? Instructions::checkIsNotCarry : Instructions::checkIsCarry;
             // Pad artificially to 6 machine cycles TODO: do something useful here
             operands[3] = Instructions::_pad_;
             operands[4] = Instructions::_pad_;
-            operands[5] = Instructions::_pad_;
             //
+            operands[5] = Instructions::call;
             operands[6] = nullptr;
             return true;
         }
@@ -612,41 +612,41 @@ bool CPU::doDecode() {
             debug_print_4("call a16\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::call;
             // Pad artificially to 6 machine cycles TODO: do something useful here
+            operands[2] = Instructions::_pad_;
             operands[3] = Instructions::_pad_;
             operands[4] = Instructions::_pad_;
-            operands[5] = Instructions::_pad_;
             //
+            operands[5] = Instructions::call;
             operands[6] = nullptr;
             return true;
         }
-        // ret (N)Z,a16
+        // ret (N)Z
         case 0xC0: case 0xC8: {
-            debug_print_4("ret (N)Z,a16\n");
+            debug_print_4("ret (N)Z\n");
             // Pad artificially to 5 machine cycles TODO: do something useful here
             operands[0] = Instructions::_pad_; // This has to happen before the ret condition (unmet condition -> 2 M cycles)
-            operands[1] = Instructions::ret_conditional_zero;
+            operands[1] = (instrContext.instr == 0xC0) ? Instructions::checkIsNotZero : Instructions::checkIsZero;
             operands[2] = Instructions::_pad_;
             operands[3] = Instructions::_pad_;
-            operands[4] = Instructions::_pad_;
+            operands[4] = Instructions::ret;
             operands[5] = nullptr;
             return true;
         }
-        // ret (N)C,a16
+        // ret (N)C
         case 0xD0: case 0xD8: {
-            debug_print_4("ret (N)C,a16\n");
+            debug_print_4("ret (N)C\n");
             // Pad artificially to 5 machine cycles TODO: do something useful here
             operands[0] = Instructions::_pad_; // This has to happen before the ret condition (unmet condition -> 2 M cycles)
-            operands[1] = Instructions::ret_conditional_carry;
+            operands[1] = (instrContext.instr == 0xD0) ? Instructions::checkIsNotCarry : Instructions::checkIsCarry;
             operands[2] = Instructions::_pad_;
             operands[3] = Instructions::_pad_;
-            operands[4] = Instructions::_pad_;
+            operands[4] = Instructions::ret;
             operands[5] = nullptr;
         }
-        // ret a16
+        // ret
         case 0xC9: {
-            debug_print_4("ret a16\n");
+            debug_print_4("ret\n");
             // Pad artificially to 4 machine cycles TODO: do something useful here
             operands[0] = Instructions::_pad_;
             operands[1] = Instructions::_pad_;

@@ -17,7 +17,6 @@
 #include "jumps.h"
 
 #include <util/endianness.h>
-#include <util/flags.h>
 #include <util/debug.h>
 
 using namespace FunkyBoy;
@@ -43,34 +42,6 @@ bool Instructions::jr(InstrContext &context) {
     return true;
 }
 
-bool Instructions::call_conditional_zero(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    memory_address address = Util::compose16Bits(context.lsb, context.msb);
-    bool zero = Flags::isZero(context.regF);
-    if ((!set && !zero) || (set && zero)) {
-        debug_print_4("call from 0x%04X", context.progCounter - 2);
-        context.push16Bits(context.progCounter);
-        context.progCounter = address;
-        debug_print_4(" to 0x%04X\n", context.progCounter);
-        return true;
-    }
-    return false; // No call, so force finish current cycle
-}
-
-bool Instructions::call_conditional_carry(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    memory_address address = Util::compose16Bits(context.lsb, context.msb);
-    bool carry = Flags::isCarry(context.regF);
-    if ((!set && !carry) || (set && carry)) {
-        debug_print_4("call from 0x%04X", context.progCounter - 2);
-        context.push16Bits(context.progCounter);
-        context.progCounter = address;
-        debug_print_4(" to 0x%04X\n", context.progCounter);
-        return true;
-    }
-    return false; // No call, so force finish current cycle
-}
-
 bool Instructions::call(InstrContext &context) {
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     debug_print_4("call from 0x%04X\n", context.progCounter);
@@ -78,26 +49,6 @@ bool Instructions::call(InstrContext &context) {
     context.progCounter = address;
     debug_print_4(" to 0x%04X\n", context.progCounter);
     return true;
-}
-
-bool Instructions::ret_conditional_zero(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    bool zero = Flags::isZero(context.regF);
-    if ((!set && !zero) || (set && zero)) {
-        context.progCounter = context.pop16Bits();
-        return true;
-    }
-    return false; // No return, so force finish current cycle
-}
-
-bool Instructions::ret_conditional_carry(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    bool carry = Flags::isCarry(context.regF);
-    if ((!set && !carry) || (set && carry)) {
-        context.progCounter = context.pop16Bits();
-        return true;
-    }
-    return false; // No return, so force finish current cycle
 }
 
 bool Instructions::ret(InstrContext &context) {

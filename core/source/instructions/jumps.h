@@ -26,12 +26,8 @@ namespace FunkyBoy::Instructions {
 
     bool jr(InstrContext &context);
 
-    bool call_conditional_zero(InstrContext &context);
-    bool call_conditional_carry(InstrContext &context);
     bool call(InstrContext &context);
 
-    bool ret_conditional_zero(InstrContext &context);
-    bool ret_conditional_carry(InstrContext &context);
     bool ret(InstrContext &context);
 
     bool rst(InstrContext &context);
