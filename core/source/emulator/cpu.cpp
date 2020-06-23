@@ -834,6 +834,27 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
+        // rlca
+        case 0x07: {
+            debug_print_4("rlca\n");
+            operands[0] = Instructions::rlca;
+            operands[1] = nullptr;
+            return true;
+        }
+        // rra
+        case 0x1F: {
+            debug_print_4("rra\n");
+            operands[0] = Instructions::rra;
+            operands[1] = nullptr;
+            return true;
+        }
+        // rla
+        case 0x17: {
+            debug_print_4("rla\n");
+            operands[0] = Instructions::rla;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -857,33 +878,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // rlca
-        case 0x07: {
-            u8 a = *regA;
-            *regA = (a << 1) | ((a & 128) >> 7);
-            setFlags(false, false, false, (a & 128) != 0);
-            return true;
-        }
-        // rra
-        case 0x1F: {
-            u8 a = *regA;
-            *regA = a >> 1;
-            if (isCarry()) {
-                *regA |= 128; // (bit 7 set to 1)
-            }
-            setFlags(false, false, false, a & 1);
-            return true;
-        }
-        // rla
-        case 0x17: {
-            u8 a = *regA;
-            *regA = a << 1;
-            if (isCarry()) {
-                *regA |= 1; // (bit 0 set to 1)
-            }
-            setFlags(false, false, false, (a & 128) != 0);
-            return true;
-        }
         case 0xC1: case 0xD1: case 0xE1: // pop ss
         case 0xC5: case 0xD5: case 0xE5: // push ss
         {

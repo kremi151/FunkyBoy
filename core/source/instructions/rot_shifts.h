@@ -21,7 +21,33 @@
 
 namespace FunkyBoy::Instructions {
 
+    /**
+     * RRCA
+     * @param context
+     * @return
+     */
     bool rrca(InstrContext &context);
+
+    /**
+     * RLCA
+     * @param context
+     * @return
+     */
+    bool rlca(InstrContext &context);
+
+    /**
+     * RRA
+     * @param context
+     * @return
+     */
+    bool rra(InstrContext &context);
+
+    /**
+     * RLA
+     * @param context
+     * @return
+     */
+    bool rla(InstrContext &context);
 
 }
 

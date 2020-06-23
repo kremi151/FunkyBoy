@@ -26,3 +26,30 @@ bool Instructions::rrca(InstrContext &context) {
     Flags::setFlags(context.regF, false, false, false, a & 1u);
     return true;
 }
+
+bool Instructions::rlca(InstrContext &context) {
+    u8 a = *context.regA;
+    *context.regA = (a << 1) | ((a & 128) >> 7);
+    Flags::setFlags(context.regF, false, false, false, (a & 128u) != 0);
+    return true;
+}
+
+bool Instructions::rra(InstrContext &context) {
+    u8 a = *context.regA;
+    *context.regA = a >> 1;
+    if (Flags::isCarry(context.regF)) {
+        *context.regA |= 128u; // (bit 7 set to 1)
+    }
+    Flags::setFlags(context.regF, false, false, false, a & 1u);
+    return true;
+}
+
+bool Instructions::rla(InstrContext &context) {
+    u8 a = *context.regA;
+    *context.regA = a << 1;
+    if (Flags::isCarry(context.regF)) {
+        *context.regA |= 1u; // (bit 0 set to 1)
+    }
+    Flags::setFlags(context.regF, false, false, false, (a & 128u) != 0);
+    return true;
+}
