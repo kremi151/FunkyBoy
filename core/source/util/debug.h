@@ -33,14 +33,14 @@
 #define debug_print_4(fmt, ...) \
         do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
 #else
-#define debug_print_4(fmt, ...)
+#define debug_print_4(fmt, ...) ((void)0)
 #endif
 
 #if defined(FB_DEBUG) && FB_DEBUG_LOG_LEVEL >= 2
 #define debug_print_2(fmt, ...) \
         do { fprintf(stdout, fmt, __VA_ARGS__); } while (0)
 #else
-#define debug_print_2(fmt, ...)
+#define debug_print_2(fmt, ...) ((void)0)
 #endif
 
 #ifdef FB_DEBUG
@@ -53,8 +53,8 @@
 
 #else
 
-#define debug_print_with_line(fmt, ...)
-#define debug_break()
+#define debug_print_with_line(fmt, ...) ((void)0)
+#define debug_break() ((void)0)
 
 #endif
 
