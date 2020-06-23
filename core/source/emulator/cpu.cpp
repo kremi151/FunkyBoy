@@ -186,8 +186,7 @@ bool CPU::doCycle() {
         }
         case EXECUTE: {
             auto op = operands[operandIndex++];
-            op(instrContext);
-            if (operands[operandIndex] == nullptr) {
+            if (!op(instrContext) || operands[operandIndex] == nullptr) {
                 cycleState = CycleState::FETCH;
             }
             return true;
