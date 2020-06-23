@@ -70,3 +70,15 @@ bool Instructions::readStackIntoMSB(InstrContext &context) {
     context.msb = context.memory->read8BitsAt(context.stackPointer++);
     return true;
 }
+
+bool Instructions::readRegAIntoStack(InstrContext &context) {
+    context.stackPointer--;
+    context.memory->write8BitsTo(context.stackPointer, *context.regA);
+    return true;
+}
+
+bool Instructions::readRegFIntoStack(InstrContext &context) {
+    context.stackPointer--;
+    context.memory->write8BitsTo(context.stackPointer, *context.regF);
+    return true;
+}

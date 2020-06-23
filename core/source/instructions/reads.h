@@ -83,6 +83,22 @@ namespace FunkyBoy::Instructions {
      */
     bool readStackIntoMSB(InstrContext &context);
 
+    /**
+     * Decrements SP (SP--) first, then reads register F into memory pointed by SP
+     * This should be executed after {@code readRegAIntoStack}
+     * @param context
+     * @return
+     */
+    bool readRegFIntoStack(InstrContext &context);
+
+    /**
+     * Decrements SP (SP--) first, then reads register A into memory pointed by SP.
+     * This should be executed before {@code readRegFIntoStack}
+     * @param context
+     * @return
+     */
+    bool readRegAIntoStack(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS__READS_H

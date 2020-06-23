@@ -26,3 +26,9 @@ bool Instructions::write16BitsIntoRR(InstrContext &context) {
     *(reg + 1) = context.lsb;
     return true;
 }
+
+bool Instructions::write16BitsIntoAF(InstrContext &context) {
+    *context.regA = context.msb;
+    *context.regF = context.lsb;
+    return true;
+}

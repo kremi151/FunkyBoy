@@ -29,6 +29,13 @@ namespace FunkyBoy::Instructions {
      */
     bool write16BitsIntoRR(InstrContext &context);
 
+    /**
+     * Writes 16 bits composed by {@code lsb} and {@code msb} into AF register
+     * @param context
+     * @return
+     */
+    bool write16BitsIntoAF(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_WRITES_H

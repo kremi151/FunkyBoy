@@ -864,12 +864,31 @@ bool CPU::doDecode() {
             operands[3] = nullptr;
             return true;
         }
+        // pop AF
+        case 0xF1: {
+            debug_print_4("pop AF\n");
+            operands[0] = Instructions::readStackIntoLSB;
+            operands[1] = Instructions::readStackIntoMSB;
+            operands[2] = Instructions::write16BitsIntoAF;
+            operands[3] = nullptr;
+            return true;
+        }
         // push rr
         case 0xC5: case 0xD5: case 0xE5: {
             debug_print_4("push rr\n");
             operands[0] = Instructions::nop;
             operands[1] = Instructions::readRRMSBIntoStack;
             operands[2] = Instructions::readRRLSBIntoStack;
+            operands[3] = Instructions::nop;
+            operands[4] = nullptr;
+            return true;
+        }
+        // push AF
+        case 0xF5: {
+            debug_print_4("push AF\n");
+            operands[0] = Instructions::nop;
+            operands[1] = Instructions::readRegAIntoStack;
+            operands[2] = Instructions::readRegFIntoStack;
             operands[3] = Instructions::nop;
             operands[4] = nullptr;
             return true;
@@ -897,20 +916,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        case 0xF1: // pop AF
-        case 0xF5: // push AF
-        {
-            // 0xF1 -> 11110001
-            // 0xF5 -> 11110101
-            bool push = opcode & 4;
-            if (push) {
-                push16Bits(readAF());
-            } else {
-                u16 val = pop16Bits();
-                writeAF(val);
-            }
-            return true;
-        }
         // reti
         case 0xD9: {
             interruptMasterEnable = IMEState::ENABLED; // Immediate enable without delay
