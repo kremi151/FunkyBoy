@@ -183,6 +183,22 @@ void CPU::doFetch() {
 }
 
 bool CPU::doDecode() {
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+    file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (instrContext.instr & 0xff);
+    file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regB & 0xff);
+    file << " C=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regC & 0xff);
+    file << " D=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regD & 0xff);
+    file << " E=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regE & 0xff);
+    file << " H=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regH & 0xff);
+    file << " L=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regL & 0xff);
+    file << " A=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regA & *regA);
+    file << " F=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regF_do_not_use_directly & 0xff);
+    file << " PC=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << (instrContext.progCounter - 1);
+    file << " SP=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << instrContext.stackPointer;
+    file << std::endl;
+    instr++;
+#endif
+
     switch (instrContext.instr) {
         // nop
         case 0x00: {
@@ -961,36 +977,8 @@ bool CPU::doDecode() {
             operands[1] = nullptr;
             return true;
         }
-    }
-}
-
-bool CPU::doInstruction(FunkyBoy::u8 opcode) {
-    instrContext.instr = opcode;
-
-#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xff);
-    file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regB & 0xff);
-    file << " C=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regC & 0xff);
-    file << " D=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regD & 0xff);
-    file << " E=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regE & 0xff);
-    file << " H=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regH & 0xff);
-    file << " L=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regL & 0xff);
-    file << " A=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regA & *regA);
-    file << " F=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regF_do_not_use_directly & 0xff);
-    file << " PC=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << (progCounter - 1);
-    file << " SP=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << stackPointer;
-    file << std::endl;
-    instr++;
-#endif
-
-    switch (opcode) {
-        case 0xCB: {
-            // This should already be handled in onTick, so we should never reach this case here
-            return doPrefix(memory->read8BitsAt(progCounter++));
-        }
         default: {
-            unknown_instr:
-            fprintf(stderr,"Illegal instruction 0x%02X at 0x%04X\n", opcode, progCounter - 1);
+            fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
             return false;
         }
     }
