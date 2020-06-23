@@ -35,6 +35,13 @@ namespace FunkyBoy::Instructions {
      */
     bool _pad_(InstrContext &context);
 
+    /**
+     * Enables interrupts without delay
+     * @param context
+     * @return
+     */
+    bool enableInterruptsImmediately(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_MISC_H

@@ -33,8 +33,8 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(std::shared_ptr<Memory> memory): memory(std::move(memory)) , interruptMasterEnable(IMEState::DISABLED)
-    , cpuState(CPUState::RUNNING), timerCounter(0), divCounter(0)
+CPU::CPU(std::shared_ptr<Memory> memory): memory(std::move(memory)), cpuState(CPUState::RUNNING), timerCounter(0)
+    , divCounter(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -60,6 +60,7 @@ CPU::CPU(std::shared_ptr<Memory> memory): memory(std::move(memory)) , interruptM
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
     instrContext.memory = this->memory;
+    instrContext.interruptMasterEnable = IMEState::DISABLED;
 
     // Initialize registers
     powerUpInit();
@@ -164,12 +165,12 @@ bool CPU::doTick() {
 
     // Due to a hardware quirk, enabling interrupts becomes active after the instruction following an EI,
     // so we simulate this behaviour here
-    switch(interruptMasterEnable) {
+    switch(instrContext.interruptMasterEnable) {
         case REQUEST_ENABLE:
-            interruptMasterEnable = IMEState::ENABLING;
+            instrContext.interruptMasterEnable = IMEState::ENABLING;
             break;
         case ENABLING:
-            interruptMasterEnable = IMEState::ENABLED;
+            instrContext.interruptMasterEnable = IMEState::ENABLED;
             break;
         default:
             break;
@@ -655,6 +656,18 @@ bool CPU::doDecode() {
             operands[3] = Instructions::ret;
             operands[4] = nullptr;
         }
+        // reti
+        case 0xD9: {
+            debug_print_4("reti\n");
+            operands[0] = Instructions::enableInterruptsImmediately;
+            // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[1] = Instructions::_pad_;
+            operands[2] = Instructions::_pad_;
+            //
+            operands[3] = Instructions::ret;
+            operands[4] = nullptr;
+            return true;
+        }
         // rst vec
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
             debug_print_4("rst vec\n");
@@ -916,12 +929,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // reti
-        case 0xD9: {
-            interruptMasterEnable = IMEState::ENABLED; // Immediate enable without delay
-            progCounter = pop16Bits();
-            return true;
-        }
         // daa
         case 0x27: {
             u8 val = *regA;

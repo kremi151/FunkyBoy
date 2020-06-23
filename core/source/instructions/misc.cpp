@@ -27,3 +27,8 @@ bool Instructions::_pad_(InstrContext &context) {
     // do nothing
     return true;
 }
+
+bool Instructions::enableInterruptsImmediately(InstrContext &context) {
+    context.interruptMasterEnable = IMEState::ENABLED;
+    return true;
+}

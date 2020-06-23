@@ -22,6 +22,13 @@
 
 namespace FunkyBoy {
 
+    enum IMEState {
+        DISABLED = 0,
+        REQUEST_ENABLE = 1,
+        ENABLING = 2,
+        ENABLED = 3
+    };
+
     class InstrContext {
     public:
         u8 instr;
@@ -43,6 +50,8 @@ namespace FunkyBoy {
 
         u16 progCounter;
         u16 stackPointer;
+
+        IMEState interruptMasterEnable;
 
         u16 readHL();
         void writeHL(u16 val);

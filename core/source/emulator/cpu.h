@@ -37,13 +37,6 @@ namespace FunkyBoy {
         GameBoyCGB
     };
 
-    enum IMEState {
-        DISABLED = 0,
-        REQUEST_ENABLE = 1,
-        ENABLING = 2,
-        ENABLED = 3
-    };
-
     enum CPUState {
         RUNNING = 0,
         HALTED = 1,
@@ -69,7 +62,6 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        IMEState interruptMasterEnable;
         CPUState cpuState;
         InstrContext instrContext{};
 
