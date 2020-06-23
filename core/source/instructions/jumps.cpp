@@ -22,68 +22,25 @@
 
 using namespace FunkyBoy;
 
-bool Instructions::jp_conditional_zero(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    memory_address address = Util::compose16Bits(context.lsb, context.msb);
-    bool zero = Flags::isZero(context.regF);
-    if ((!set && !zero) || (set && zero)) {
-        debug_print_4("jp (N)Z a16 from 0x%04X", context.progCounter - 1);
-        context.progCounter = address;
-        debug_print_4(" to 0x%04X\n", context.progCounter);
-        return true;
-    }
-    return false; // No jump, so force finish current cycle
-}
-
-bool Instructions::jp_conditional_carry(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    memory_address address = Util::compose16Bits(context.lsb, context.msb);
-    bool carry = Flags::isCarry(context.regF);
-    if ((!set && !carry) || (set && carry)) {
-        debug_print_4("jp (C)Z a16 from 0x%04X", context.progCounter - 1);
-        context.progCounter = address;
-        debug_print_4(" to 0x%04X\n", context.progCounter);
-        return true;
-    }
-    return false; // No jump, so force finish current cycle
-}
-
 bool Instructions::jp(InstrContext &context) {
+    debug_print_4("JP from 0x%04X", context.progCounter);
     context.progCounter = Util::compose16Bits(context.lsb, context.msb);
+    debug_print_4(" to 0x%04X\n", context.progCounter);
+    return true;
 }
 
 bool Instructions::jp_HL(InstrContext &context) {
+    debug_print_4("JP (HL) from 0x%04X", context.progCounter);
     context.progCounter = context.readHL();
-}
-
-bool Instructions::jr_conditional_zero(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    bool zero = Flags::isZero(context.regF);
-    if ((!set && !zero) || (set && zero)) {
-        debug_print_4("JR (N)Z from 0x%04X + %d", context.progCounter - 1, context.signedByte);
-        context.progCounter += context.signedByte;
-        debug_print_4(" to 0x%04X\n", context.progCounter);
-        return true;
-    }
-    return false; // No jump, so force finish current cycle
-}
-
-bool Instructions::jr_conditional_carry(InstrContext &context) {
-    bool set = context.instr & 0b00001000u;
-    bool carry = Flags::isCarry(context.regF);
-    if ((!set && !carry) || (set && carry)) {
-        debug_print_4("JR (N)C from 0x%04X + %d", context.progCounter - 1, context.signedByte);
-        context.progCounter += context.signedByte;
-        debug_print_4(" to 0x%04X\n", context.progCounter);
-        return true;
-    }
-    return false; // No jump, so force finish current cycle
+    debug_print_4(" to 0x%04X\n", context.progCounter);
+    return true;
 }
 
 bool Instructions::jr(InstrContext &context) {
-    debug_print_4("JR (unconditional) from 0x%04X + %d", context.progCounter, context.signedByte);
+    debug_print_4("JR from 0x%04X + %d", context.progCounter, context.signedByte);
     context.progCounter += context.signedByte;
     debug_print_4(" to 0x%04X\n", context.progCounter);
+    return true;
 }
 
 bool Instructions::call_conditional_zero(InstrContext &context) {

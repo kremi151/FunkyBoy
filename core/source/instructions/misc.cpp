@@ -16,11 +16,14 @@
 
 #include "misc.h"
 
-#include <util/debug.h>
-
 using namespace FunkyBoy;
 
 bool Instructions::nop(InstrContext &context) {
+    // do nothing
+    return true;
+}
+
+bool Instructions::_pad_(InstrContext &context) {
     // do nothing
     return true;
 }

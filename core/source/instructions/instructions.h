@@ -25,5 +25,6 @@
 #include <instructions/writes.h>
 #include <instructions/jumps.h>
 #include <instructions/rot_shifts.h>
+#include <instructions/conditions.h>
 
 #endif //FB_CORE_INSTRUCTIONS_H

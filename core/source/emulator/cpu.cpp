@@ -518,8 +518,8 @@ bool CPU::doDecode() {
             debug_print_4("jp (N)Z,a16\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::jp_conditional_zero;
-            operands[3] = Instructions::nop; // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[2] = (instrContext.instr == 0xC2) ? Instructions::checkIsNotZero : Instructions::checkIsZero;
+            operands[3] = Instructions::jp;
             operands[4] = nullptr;
             return true;
         }
@@ -528,8 +528,8 @@ bool CPU::doDecode() {
             debug_print_4("jp (N)C,a16\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::jp_conditional_carry;
-            operands[3] = Instructions::nop; // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[2] = (instrContext.instr == 0xD2) ? Instructions::checkIsNotCarry : Instructions::checkIsCarry;
+            operands[3] = Instructions::jp;
             operands[4] = nullptr;
             return true;
         }
@@ -539,8 +539,8 @@ bool CPU::doDecode() {
             debug_print_4("jp a16\n");
             operands[0] = Instructions::readLSB;
             operands[1] = Instructions::readMSB;
-            operands[2] = Instructions::jp;
-            operands[3] = Instructions::nop; // Pad artificially to 4 machine cycles TODO: do something useful here
+            operands[2] = Instructions::_pad_;
+            operands[3] = Instructions::jp;
             operands[4] = nullptr;
             return true;
         }
@@ -556,8 +556,8 @@ bool CPU::doDecode() {
         case 0x20: case 0x28: {
             debug_print_4("jr (N)Z,r8\n");
             operands[0] = Instructions::readSigned;
-            operands[1] = Instructions::jr_conditional_zero;
-            operands[2] = Instructions::nop; // Pad artificially to 3 machine cycles TODO: do something useful here
+            operands[1] = (instrContext.instr == 0x20) ? Instructions::checkIsNotZero : Instructions::checkIsZero;
+            operands[2] = Instructions::jr;
             operands[3] = nullptr;
             return true;
         }
@@ -565,8 +565,8 @@ bool CPU::doDecode() {
         case 0x30: case 0x38: {
             debug_print_4("jr (N)C,r8\n");
             operands[0] = Instructions::readSigned;
-            operands[1] = Instructions::jr_conditional_carry;
-            operands[2] = Instructions::nop; // Pad artificially to 3 machine cycles TODO: do something useful here
+            operands[1] = (instrContext.instr == 0x30) ? Instructions::checkIsNotCarry : Instructions::checkIsCarry;
+            operands[2] = Instructions::jr;
             operands[3] = nullptr;
             return true;
         }
@@ -574,8 +574,8 @@ bool CPU::doDecode() {
         case 0x18: {
             debug_print_4("jr r8\n");
             operands[0] = Instructions::readSigned;
-            operands[1] = Instructions::jr;
-            operands[2] = Instructions::nop; // Pad artificially to 3 machine cycles TODO: do something useful here
+            operands[1] = Instructions::_pad_;
+            operands[2] = Instructions::jr;
             operands[3] = nullptr;
             return true;
         }

@@ -21,13 +21,9 @@
 
 namespace FunkyBoy::Instructions {
 
-    bool jp_conditional_zero(InstrContext &context);
-    bool jp_conditional_carry(InstrContext &context);
     bool jp(InstrContext &context);
     bool jp_HL(InstrContext &context);
 
-    bool jr_conditional_zero(InstrContext &context);
-    bool jr_conditional_carry(InstrContext &context);
     bool jr(InstrContext &context);
 
     bool call_conditional_zero(InstrContext &context);

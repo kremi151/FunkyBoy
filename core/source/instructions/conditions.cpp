@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_MISC_H
-#define FB_CORE_INSTRUCTIONS_MISC_H
+#include "conditions.h"
 
-#include "instruction_context.h"
+#include <util/flags.h>
 
-namespace FunkyBoy::Instructions {
+using namespace FunkyBoy;
 
-    /**
-     * Does nothing, causes nothing, changes nothing.
-     * @param context
-     * @return
-     */
-    bool nop(InstrContext &context);
-
-    /**
-     * Like {@code nop}, but used as a marker for padding instructions to reach a certain amount of cycles
-     * @param context
-     * @return
-     */
-    bool _pad_(InstrContext &context);
-
+bool Instructions::checkIsZero(InstrContext &context) {
+    return Flags::isZero(context.regF);
 }
 
-#endif //FB_CORE_INSTRUCTIONS_MISC_H
+bool Instructions::checkIsNotZero(InstrContext &context) {
+    return !Flags::isZero(context.regF);
+}
+
+bool Instructions::checkIsCarry(InstrContext &context) {
+    return Flags::isCarry(context.regF);
+}
+
+bool Instructions::checkIsNotCarry(InstrContext &context) {
+    return !Flags::isCarry(context.regF);
+}
