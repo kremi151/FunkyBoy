@@ -42,6 +42,20 @@ namespace FunkyBoy::Instructions {
      */
     bool enableInterruptsImmediately(InstrContext &context);
 
+    /**
+     * DAA
+     * @param context
+     * @return
+     */
+    bool daa(InstrContext &context);
+
+    /**
+     * CPL
+     * @param context
+     * @return
+     */
+    bool cpl(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_MISC_H

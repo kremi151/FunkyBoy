@@ -906,6 +906,20 @@ bool CPU::doDecode() {
             operands[4] = nullptr;
             return true;
         }
+        // daa
+        case 0x27: {
+            debug_print_4("daa\n");
+            operands[0] = Instructions::daa;
+            operands[1] = nullptr;
+            return true;
+        }
+        // cpl
+        case 0x2F: {
+            debug_print_4("cpl\n");
+            operands[0] = Instructions::cpl;
+            operands[1] = nullptr;
+            return true;
+        }
     }
 }
 
@@ -929,37 +943,6 @@ bool CPU::doInstruction(FunkyBoy::u8 opcode) {
 #endif
 
     switch (opcode) {
-        // daa
-        case 0x27: {
-            u8 val = *regA;
-            if (isSubstraction()) {
-                if (isCarry()) {
-                    val -= 0x60;
-                }
-                if (isHalfCarry()) {
-                    val -= 0x06;
-                }
-            } else {
-                if (isCarry() || val > 0x99) {
-                    val += 0x60;
-                    setCarry(true);
-                }
-                if (isHalfCarry() || (val & 0xf) > 0x09) {
-                    val += 0x06;
-                }
-            }
-            *regA = val;
-            setZero(val == 0);
-            setHalfCarry(false);
-            return true;
-        }
-        // cpl
-        case 0x2F: {
-            *regA = ~*regA;
-            setSubstraction(true);
-            setHalfCarry(true);
-            return true;
-        }
         // scf
         case 0x37: {
             setFlags(isZero(), false, false, true);
