@@ -25,14 +25,14 @@ using namespace FunkyBoy;
 inline void __alu_adc(u8 *flags, u8 *regA, u8 val, bool carry) {
     u8 carryVal = carry ? 1 : 0;
     u8 newVal = *regA + val + carryVal;
-    Flags::setFlags(flags, newVal == 0, false, ((*regA & 0xfu) + (val & 0xfu) + carryVal) > 0xf, (*regA & 0xffu) + (val & 0xffu) + carryVal > 0xff);
+    Flags::setFlags(flags, newVal == 0, false, ((*regA & 0xf) + (val & 0xf) + carryVal) > 0xf, (*regA & 0xff) + (val & 0xff) + carryVal > 0xff);
     *regA = newVal;
 }
 
 inline void __alu_sbc(u8 *flags, u8 *regA, u8 val, bool carry) {
     u8 carryVal = carry ? 1 : 0;
     u8 newVal = *regA - val - carryVal;
-    Flags::setFlags(flags, newVal == 0, true, (*regA & 0xfu) - (val & 0xfu) - carryVal < 0, *regA < (val + carryVal));
+    Flags::setFlags(flags, newVal == 0, true, (*regA & 0xf) - (val & 0xf) - carryVal < 0, *regA < (val + carryVal));
     *regA = newVal;
 }
 
@@ -47,7 +47,7 @@ inline void __alu_addToHL(InstrContext &context, u16 val) {
 
 inline void __alu_cp(u8 *flags, const u8 *regA, u8 val) {
     // See http://z80-heaven.wikidot.com/instructions-set:cp
-    Flags::setFlags(flags, *regA == val, true, (*regA & 0xfu) - (val & 0xfu) < 0, *regA < val);
+    Flags::setFlags(flags, *regA == val, true, (*regA & 0xf) - (val & 0xf) < 0, *regA < val);
 }
 
 inline void __alu_or(u8 *flags, u8 *regA, u8 val) {

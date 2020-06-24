@@ -268,47 +268,47 @@ TEST(testCPUInstructionsSpecial) {
 
 TEST(testCPUInstructionsOpSPHL) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "03-op sp,hl.gb";
-    testUsingROM(romPath, 1120000);
+    testUsingROM(romPath, 5120000);
 }
 
 TEST(testCPUInstructionsOpRImm) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "04-op r,imm.gb";
-    testUsingROM(romPath, 5120000);
+    testUsingROM(romPath, 8120000);
 }
 
 TEST(testCPUInstructionsOpRP) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "05-op rp.gb";
-    testUsingROM(romPath, 1810000);
+    testUsingROM(romPath, 8810000);
 }
 
 TEST(testCPUInstructionsLoads) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "06-ld r,r.gb";
-    testUsingROM(romPath, 304455);
+    testUsingROM(romPath, 2004455);
 }
 
 TEST(testCPUInstructionsJrJpCallRetRst) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "07-jr,jp,call,ret,rst.gb";
-    testUsingROM(romPath, 342773);
+    testUsingROM(romPath, 2000000);
 }
 
 TEST(testCPUInstructionsMisc) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "08-misc instrs.gb";
-    testUsingROM(romPath, 285074);
+    testUsingROM(romPath, 1500000);
 }
 
 TEST(testCPUInstructionsOpRR) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "09-op r,r.gb";
-    testUsingROM(romPath, 4550740);
+    testUsingROM(romPath, 32000000);
 }
 
 TEST(testCPUInstructionsBitOps) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "10-bit ops.gb";
-    testUsingROM(romPath, 8550740);
+    testUsingROM(romPath, 32000000);
 }
 
 TEST(testCPUInstructionsOpAHL) {
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "11-op a,(hl).gb";
-    testUsingROM(romPath, 8550740);
+    testUsingROM(romPath, 40000000);
 }
 
 #endif
