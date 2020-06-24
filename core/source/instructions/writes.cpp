@@ -29,6 +29,6 @@ bool Instructions::write16BitsIntoRR(InstrContext &context) {
 
 bool Instructions::write16BitsIntoAF(InstrContext &context) {
     *context.regA = context.msb;
-    *context.regF = context.lsb;
+    *context.regF = context.lsb & 0b11110000u; // Only store 4 most significant bits into register F
     return true;
 }
