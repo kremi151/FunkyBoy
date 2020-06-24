@@ -22,6 +22,15 @@
 
 #define RUN_ROM_TESTS
 
+bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
+    do {
+        if (!cpu.doTick()) {
+            return false;
+        }
+    } while (cpu.cycleState != FunkyBoy::CycleState::FETCH);
+    return true;
+}
+
 TEST(test16BitReadWrite) {
     std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::Memory memory(cartridge);
@@ -153,7 +162,7 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x01 (LD BC,d16)
     cartridge->rom[initialProgCounter] = 0x01;
-    if (!cpu.doTick()) {
+    if (!doFullMachineCycle(cpu)) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
@@ -163,7 +172,7 @@ TEST(test16BitLoads) {
     // Set opcode 0x11 (LD DE,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x11;
-    if (!cpu.doTick()) {
+    if (!doFullMachineCycle(cpu)) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
@@ -173,7 +182,7 @@ TEST(test16BitLoads) {
     // Set opcode 0x21 (LD HL,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x21;
-    if (!cpu.doTick()) {
+    if (!doFullMachineCycle(cpu)) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
@@ -183,7 +192,7 @@ TEST(test16BitLoads) {
     // Set opcode 0x31 (LD SP,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x31;
-    if (!cpu.doTick()) {
+    if (!doFullMachineCycle(cpu)) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
@@ -206,7 +215,7 @@ TEST(testLDHA) {
     cartridge->rom[initialProgCounter] = 0xF0;
     memory->write8BitsTo(0xFFCE, 0x42);
     assertNotEquals(0x42, *cpu.regA);
-    if (!cpu.doTick()) {
+    if (!doFullMachineCycle(cpu)) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
@@ -220,7 +229,7 @@ TEST(testLDHA) {
     cartridge->rom[initialProgCounter] = 0xE0;
     *cpu.regA = 0x42;
     assertNotEquals(0x42, memory->read8BitsAt(0xFFCE));
-    if (!cpu.doTick()) {
+    if (!doFullMachineCycle(cpu)) {
         failure("Emulation tick failed");
     }
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);

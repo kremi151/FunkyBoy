@@ -58,7 +58,6 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        CycleState cycleState;
         u8 operandIndex;
         Operand operands[25]{};
 
@@ -78,6 +77,8 @@ namespace FunkyBoy {
         void requestInterrupt(InterruptType type);
 
     test_public:
+
+        CycleState cycleState;
 
         InstrContext instrContext;
 
