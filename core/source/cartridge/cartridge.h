@@ -72,6 +72,8 @@ namespace FunkyBoy {
         CartridgeStatus getStatus();
     };
 
+    typedef std::shared_ptr<Cartridge> CartridgePtr;
+
 }
 
 #endif //FUNKYBOY_CORE_CARTRIDGE_H

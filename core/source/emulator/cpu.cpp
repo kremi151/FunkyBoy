@@ -179,6 +179,11 @@ bool CPU::doCycle() {
             cycleState = CycleState::DECODE;
             return true;
         case DECODE: {
+            if (instrContext.instr == 0xCB) {
+                bool result = __TODO_REWRITE__doPrefix(memory->read8BitsAt(instrContext.progCounter++));
+                cycleState = CycleState::FETCH;
+                return result;
+            }
             bool result = doDecode();
             cycleState = CycleState::EXECUTE;
             operandIndex = 0;
