@@ -40,7 +40,7 @@ inline void __alu_addToHL(InstrContext &context, u16 val) {
     u16 oldVal = context.readHL();
     u16 newVal = oldVal + val;
 
-    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, ((oldVal & 0xfffu) + (val & 0xfffu)) > 0xfff, (oldVal & 0xffffu) + (val & 0xffffu) > 0xffff);
+    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, ((oldVal & 0xfff) + (val & 0xfff)) > 0xfff, (oldVal & 0xffff) + (val & 0xffff) > 0xffff);
 
     context.writeHL(newVal);
 }
