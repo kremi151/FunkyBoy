@@ -82,3 +82,8 @@ bool Instructions::readRegFIntoStack(InstrContext &context) {
     context.memory->write8BitsTo(context.stackPointer, *context.regF);
     return true;
 }
+
+bool Instructions::readHLMem(InstrContext &context) {
+    context.lsb = context.memory->read8BitsAt(context.readHL());
+    return true;
+}

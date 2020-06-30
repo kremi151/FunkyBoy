@@ -36,6 +36,10 @@ namespace FunkyBoy {
         STOPPED = 2
     };
 
+    class InstrContext;
+
+    typedef bool (*Operand)(InstrContext &context);
+
     class InstrContext {
     public:
         InstrContext(GameBoyType gbType);
@@ -62,6 +66,8 @@ namespace FunkyBoy {
         u16 progCounter;
         u16 stackPointer;
 
+        Operand *operands;
+
         CPUState cpuState;
         IMEState interruptMasterEnable;
 
@@ -78,8 +84,6 @@ namespace FunkyBoy {
         void write16BitRegister(u8 position, u16 val);
         u16 read16BitRegister(u8 position);
     };
-
-    typedef bool (*Operand)(InstrContext &context);
 
 }
 

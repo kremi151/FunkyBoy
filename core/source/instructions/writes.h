@@ -36,6 +36,13 @@ namespace FunkyBoy::Instructions {
      */
     bool write16BitsIntoAF(InstrContext &context);
 
+    /**
+     * Writes {@code lsb} into (HL)
+     * @param context
+     * @return
+     */
+    bool writeLSBIntoHLMem(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_WRITES_H

@@ -32,3 +32,8 @@ bool Instructions::write16BitsIntoAF(InstrContext &context) {
     *context.regF = context.lsb & 0b11110000u; // Only store 4 most significant bits into register F
     return true;
 }
+
+bool Instructions::writeLSBIntoHLMem(InstrContext &context) {
+    context.memory->write8BitsTo(context.readHL(), context.lsb);
+    return true;
+}

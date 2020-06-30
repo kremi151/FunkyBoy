@@ -69,7 +69,6 @@ namespace FunkyBoy {
         bool doCycle();
         void doFetch();
         bool doDecode();
-        bool __TODO_REWRITE__doPrefix(u8 prefix);
 
         bool doInterrupts();
         void doTimer();

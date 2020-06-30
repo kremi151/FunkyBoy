@@ -99,6 +99,13 @@ namespace FunkyBoy::Instructions {
      */
     bool readRegAIntoStack(InstrContext &context);
 
+    /**
+     * Reads byte at address (HL) into {@code lsb}
+     * @param context
+     * @return
+     */
+    bool readHLMem(InstrContext &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS__READS_H

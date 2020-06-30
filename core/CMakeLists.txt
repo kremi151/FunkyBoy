@@ -23,6 +23,7 @@ set(SOURCES
         source/instructions/alu.cpp
         source/instructions/loads.cpp
         source/instructions/misc.cpp
+        source/instructions/prefix.cpp
         source/instructions/reads.cpp
         source/instructions/writes.cpp
         source/instructions/jumps.cpp
@@ -53,6 +54,7 @@ set(HEADERS
         source/instructions/loads.h
         source/instructions/instructions.h
         source/instructions/misc.h
+        source/instructions/prefix.h
         source/instructions/reads.h
         source/instructions/writes.h
         source/instructions/jumps.h

@@ -61,6 +61,7 @@ CPU::CPU(GameBoyType gbType, std::shared_ptr<Memory> memory): memory(std::move(m
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
     instrContext.memory = this->memory;
+    instrContext.operands = operands;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
     instrContext.cpuState = CPUState::RUNNING;
 
@@ -179,11 +180,6 @@ bool CPU::doCycle() {
             cycleState = CycleState::DECODE;
             return true;
         case DECODE: {
-            if (instrContext.instr == 0xCB) {
-                bool result = __TODO_REWRITE__doPrefix(memory->read8BitsAt(instrContext.progCounter++));
-                cycleState = CycleState::FETCH;
-                return result;
-            }
             bool result = doDecode();
             cycleState = CycleState::EXECUTE;
             operandIndex = 0;
@@ -1004,8 +1000,10 @@ bool CPU::doDecode() {
         }
         // prefix
         case 0xCB: {
-            fprintf(stderr, "TODO: decode prefix instructions\n");
-            return false;
+            debug_print_4("prefix (CB)\n");
+            operands[0] = Instructions::decodePrefix;
+            operands[1] = nullptr;
+            return true;
         }
         default: {
             fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
@@ -1016,60 +1014,6 @@ bool CPU::doDecode() {
 
 bool CPU::__TODO_REWRITE__doPrefix(u8 prefix) { // TODO: Migrate
     switch(prefix) {
-        // rlc reg
-        case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {
-            u8 *reg = registers + (prefix & 0b111);
-            u8 newVal = (*reg << 1) | ((*reg >> 7) & 0b1);
-            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (*reg & 0b10000000) > 0);
-            *reg = newVal;
-            return true;
-        }
-        // rlc (HL)
-        case 0x06: {
-            u8 oldVal = memory->read8BitsAt(instrContext.readHL());
-            u8 newVal = (oldVal << 1) | ((oldVal >> 7) & 0b1);
-            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(instrContext.readHL(), newVal);
-            return true;
-        }
-        // rrc reg
-        case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0F: {
-            u8 *reg = registers + (prefix & 0b111);
-            u8 newVal = (*reg >> 1) | ((*reg & 0b1) << 7);
-            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (*reg & 0b1) > 0);
-            *reg = newVal;
-            return true;
-        }
-        // rrc (HL)
-        case 0x0E: {
-            u8 oldVal = memory->read8BitsAt(instrContext.readHL());
-            u8 newVal = (oldVal >> 1) | ((oldVal & 0b1) << 7);
-            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (oldVal & 0b1) > 0);
-            memory->write8BitsTo(instrContext.readHL(), newVal);
-            return true;
-        }
-        // rl reg
-        case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x17: {
-            u8 *reg = registers + (prefix & 0b111);
-            u8 newVal = (*reg << 1);
-            if (Flags::isCarry(regF_do_not_use_directly)) {
-                newVal |= 0b1;
-            }
-            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (*reg & 0b10000000) > 0);
-            *reg = newVal;
-            return true;
-        }
-        // rl (HL)
-        case 0x16: {
-            u8 oldVal = memory->read8BitsAt(instrContext.readHL());
-            u8 newVal = (oldVal << 1);
-            if (Flags::isCarry(regF_do_not_use_directly)) {
-                newVal |= 0b1;
-            }
-            Flags::setFlags(regF_do_not_use_directly, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(instrContext.readHL(), newVal);
-            return true;
-        }
         // rr reg
         case 0x18: case 0x19: case 0x1A: case 0x1B: case 0x1C: case 0x1D: case 0x1F: {
             // 0x18 -> 11 000 -> B
