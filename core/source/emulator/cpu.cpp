@@ -683,6 +683,7 @@ bool CPU::doDecode() {
             operands[3] = Instructions::_pad_;
             operands[4] = Instructions::ret;
             operands[5] = nullptr;
+            return true;
         }
         // ret
         case 0xC9: {
