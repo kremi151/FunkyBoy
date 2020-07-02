@@ -38,6 +38,12 @@ https://gbdev.io/pandocs/#power-up-sequence
 
 https://gbdev.gg8.se/wiki/articles/Memory_Bank_Controllers
 
+### Cycle accuracy
+
+https://github.com/AntonioND/giibiiadvance/raw/master/docs/TCAGBD.pdf
+
+https://www.reddit.com/r/EmuDev/comments/5qa3x1/timer_doesnt_work_properly_failed_2/dcykiwt
+
 ## Test ROMS
 
 https://gbdev.gg8.se/wiki/articles/Test_ROMs
