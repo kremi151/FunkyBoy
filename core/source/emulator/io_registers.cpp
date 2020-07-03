@@ -18,20 +18,20 @@
 
 using namespace FunkyBoy;
 
-io_registers::io_registers(): div_lsb(0), div_msb(0) {
+io_registers::io_registers(): sys_counter_lsb(0), sys_counter_msb(0) {
 }
 
-void io_registers::incrementDiv(u8 amount) {
-    u16 comp = div_lsb + amount;
+void io_registers::incrementSysCounter(u8 amount) {
+    u16 comp = sys_counter_lsb + amount;
     if (comp < 256) {
-        div_lsb += amount;
+        sys_counter_lsb += amount;
         return;
     }
-    div_lsb = (comp - 256u) & 0xffu;
-    div_msb++;
+    sys_counter_lsb = (comp - 256u) & 0xffu;
+    sys_counter_msb++;
 }
 
-void io_registers::resetDiv() {
-    div_lsb = 0;
-    div_msb = 0;
+void io_registers::resetSysCounter() {
+    sys_counter_lsb = 0;
+    sys_counter_msb = 0;
 }

@@ -1049,7 +1049,7 @@ bool CPU::doInterrupts() {
 }
 
 void CPU::doDivider() {
-    ioRegisters->incrementDiv(4);
+    ioRegisters->incrementSysCounter(4);
 }
 
 void CPU::doTimer() {

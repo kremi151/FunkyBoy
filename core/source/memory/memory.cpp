@@ -77,7 +77,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     } else if (offset <= 0xFEFF) {
         return nullptr;
     } else if (offset == FB_REG_DIV) {
-        return &ioRegisters->div_msb;
+        return &ioRegisters->sys_counter_msb;
     } else if (offset <= 0xFF7F) {
         return hwIO + (offset - 0xFF00);
     } else if (offset <= 0xFFFE) {
@@ -117,7 +117,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     }
     if (offset == FB_REG_DIV) {
         // Direct write to DIV ; reset to 0
-        ioRegisters->resetDiv();
+        ioRegisters->resetSysCounter();
         return true;
     }
     return false;

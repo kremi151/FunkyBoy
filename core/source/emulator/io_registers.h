@@ -30,14 +30,14 @@ namespace FunkyBoy {
 
     class io_registers {
     test_public:
-        u8 div_lsb;
+        u8 sys_counter_lsb;
     public:
-        u8 div_msb;
+        u8 sys_counter_msb;
 
         io_registers();
 
-        void incrementDiv(u8 amount);
-        void resetDiv();
+        void incrementSysCounter(u8 amount);
+        void resetSysCounter();
     };
 
     typedef std::shared_ptr<io_registers> io_registers_ptr;
