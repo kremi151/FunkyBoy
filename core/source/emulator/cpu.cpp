@@ -20,16 +20,12 @@
 #include <utility>
 #include <util/typedefs.h>
 #include <util/registers.h>
+#include <emulator/io_registers.h>
 #include <cmath>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 #include <iomanip>
 #endif
-
-#define FB_REG_DIV 0xFF04
-#define FB_REG_TIMA 0xFF05
-#define FB_REG_TMA 0xFF06
-#define FB_REG_TAC 0xFF07
 
 using namespace FunkyBoy;
 

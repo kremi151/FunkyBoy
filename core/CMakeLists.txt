@@ -38,6 +38,7 @@ set(HEADERS
 #        library.h
         source/emulator/emulator.h
         source/emulator/gb_type.h
+        source/emulator/io_registers.h
         source/emulator/cpu.h
         source/util/typedefs.h
         source/cartridge/header.h

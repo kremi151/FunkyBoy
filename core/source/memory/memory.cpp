@@ -18,6 +18,7 @@
 
 #include <util/typedefs.h>
 #include <util/debug.h>
+#include <emulator/io_registers.h>
 
 using namespace FunkyBoy;
 
@@ -110,9 +111,9 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     if (offset == 0xFF02 && val == 0x81) {
         std::cout << read8BitsAt(0xFF01);
     }
-    if (offset == 0xFF04) {
+    if (offset == FB_REG_DIV) {
         // Direct write to DIV ; reset to 0
-        *getMemoryAddress(0xFF04) = 0;
+        *getMemoryAddress(FB_REG_DIV) = 0;
         return true;
     }
     return false;
