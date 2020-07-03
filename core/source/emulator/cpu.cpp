@@ -1039,7 +1039,7 @@ bool CPU::doInterrupts() {
         // TODO: do 2 NOP cycles (when implementing cycle accuracy)
         instrContext.push16Bits(instrContext.progCounter);
         instrContext.progCounter = addr;
-        debug_print_2("Do interrupt at 0x%04X\n", addr);
+        debug_print_4("Do interrupt at 0x%04X\n", addr);
         _if &= ~bitMask;
         memory->write8BitsTo(0xFF0F, _if); // TODO: Investigate "Timer doesn't work" error from ROM output
         // TODO: Interrupt Service Routine should take 5 cycles
@@ -1049,7 +1049,7 @@ bool CPU::doInterrupts() {
 }
 
 void CPU::doDivider() {
-    ioRegisters->incrementDiv();
+    ioRegisters->incrementDiv(4);
 }
 
 void CPU::doTimer() {

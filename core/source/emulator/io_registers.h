@@ -36,7 +36,7 @@ namespace FunkyBoy {
 
         io_registers();
 
-        void incrementDiv();
+        void incrementDiv(u8 amount);
         void resetDiv();
     };
 

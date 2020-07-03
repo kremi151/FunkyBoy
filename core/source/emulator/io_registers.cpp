@@ -21,13 +21,14 @@ using namespace FunkyBoy;
 io_registers::io_registers(): div_lsb(0), div_msb(0) {
 }
 
-void io_registers::incrementDiv() {
-    if (++div_lsb != 0) {
+void io_registers::incrementDiv(u8 amount) {
+    u16 comp = div_lsb + amount;
+    if (comp < 256) {
+        div_lsb += amount;
         return;
     }
-    if (++div_msb == 0) {
-        div_lsb = 0;
-    }
+    div_lsb = (comp - 256u) & 0xffu;
+    div_msb++;
 }
 
 void io_registers::resetDiv() {
