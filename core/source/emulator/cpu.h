@@ -64,6 +64,7 @@ namespace FunkyBoy {
         Operand operands[25]{};
 
         u16 timerCounter;
+        bool timerOverflowing;
 
         void powerUpInit();
 

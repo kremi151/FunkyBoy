@@ -30,7 +30,7 @@
 using namespace FunkyBoy;
 
 CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): memory(std::move(memory)), gbType(gbType)
-    , ioRegisters(std::move(ioRegisters)), timerCounter(0), instrContext(gbType)
+    , ioRegisters(std::move(ioRegisters)), timerCounter(0), instrContext(gbType), timerOverflowing(false)
     , cycleState(CycleState::FETCH), operandIndex(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
@@ -1053,33 +1053,39 @@ void CPU::doDivider() {
 }
 
 void CPU::doTimer() {
-    u8 tac = memory->read8BitsAt(FB_REG_TAC);
-    if (!(tac & 0b100u)) {
-        return;
-    }
-    tac &= 0b11u;
-    u16 inputClock;
-    if (tac == 0) {
-        inputClock = 1024;
+    if (timerOverflowing) {
+        u8 tima = memory->read8BitsAt(FB_REG_TIMA);
+        bool triggerInterrupt = false;
+        if (tima == 0xff) {
+            triggerInterrupt = true;
+            tima = memory->read8BitsAt(FB_REG_TMA);
+        } else {
+            tima++;
+        }
+        memory->write8BitsTo(FB_REG_TIMA, tima);
+        if (triggerInterrupt) {
+            requestInterrupt(InterruptType::TIMER);
+        }
+        timerOverflowing = false;
     } else {
-        inputClock = 16 * pow(4, tac - 1);
-    }
-    timerCounter = (timerCounter + 1) % inputClock;
-    if (timerCounter != 0) {
-        return;
-    }
-    u8 tima = memory->read8BitsAt(FB_REG_TIMA);
-    bool triggerInterrupt = false;
-    if (tima == 0xff) {
-        triggerInterrupt = true;
-        tima = memory->read8BitsAt(FB_REG_TMA);
-    } else {
-        tima++;
-    }
-    memory->write8BitsTo(FB_REG_TIMA, tima);
-    if (triggerInterrupt) {
-        //fprintf(stdout, "# req timer int\n");
-        requestInterrupt(InterruptType::TIMER);
+        u8 tac = memory->read8BitsAt(FB_REG_TAC);
+        if (!(tac & 0b100u)) {
+            return;
+        }
+        tac &= 0b11u;
+        u16 inputClock;
+        if (tac == 0) {
+            inputClock = 1024;
+        } else {
+            inputClock = 16 * pow(4, tac - 1);
+        }
+        timerCounter = (timerCounter + 1) % inputClock;
+        if (timerCounter == 0) {
+            // Delay TIMA load by 1 m-cycle
+            timerOverflowing = true;
+            // In the meantime, set TIMA to 0
+            memory->write8BitsTo(FB_REG_TIMA, 0x00);
+        }
     }
 }
 
