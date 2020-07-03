@@ -24,7 +24,9 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge): cartridge(std::move(cartridge)), interruptEnableRegister(0) {
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, io_registers_ptr ioRegisters): cartridge(std::move(cartridge))
+    , ioRegisters(std::move(ioRegisters)), interruptEnableRegister(0)
+{
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
     bgMapData2 = new u8[1024]{};
@@ -74,6 +76,8 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         return oam + (offset - 0xFE00);
     } else if (offset <= 0xFEFF) {
         return nullptr;
+    } else if (offset == FB_REG_DIV) {
+        return &ioRegisters->div_msb;
     } else if (offset <= 0xFF7F) {
         return hwIO + (offset - 0xFF00);
     } else if (offset <= 0xFFFE) {
@@ -113,7 +117,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     }
     if (offset == FB_REG_DIV) {
         // Direct write to DIV ; reset to 0
-        *getMemoryAddress(FB_REG_DIV) = 0;
+        ioRegisters->resetDiv();
         return true;
     }
     return false;
@@ -129,22 +133,6 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
         return;
     }
     *ptr = val;
-}
-
-void Memory::incrementAt(memory_address offset) {
-    auto ptr = getMemoryAddress(offset);
-    if (ptr == nullptr) {
-        return;
-    }
-    (*ptr)++;
-}
-
-void Memory::decrementAt(memory_address offset) {
-    auto ptr = getMemoryAddress(offset);
-    if (ptr == nullptr) {
-        return;
-    }
-    (*ptr)--;
 }
 
 u16 Memory::read16BitsAt(memory_address offset) {

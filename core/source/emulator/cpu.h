@@ -25,6 +25,7 @@
 #include <util/debug.h>
 #include <instructions/instructions.h>
 #include <emulator/gb_type.h>
+#include <emulator/io_registers.h>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 #include <fstream>
@@ -48,7 +49,8 @@ namespace FunkyBoy {
 
     class CPU {
     private:
-        std::shared_ptr<Memory> memory;
+        io_registers_ptr ioRegisters;
+        MemoryPtr memory;
         const GameBoyType gbType;
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
@@ -62,7 +64,6 @@ namespace FunkyBoy {
         Operand operands[25]{};
 
         u16 timerCounter;
-        u16 divCounter;
 
         void powerUpInit();
 
@@ -96,8 +97,7 @@ namespace FunkyBoy {
         u8 *regA;
 
     public:
-        CPU(GameBoyType gbType, std::shared_ptr<Memory> memory);
-        explicit CPU(std::shared_ptr<Memory> memory);
+        CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters);
 
         void setProgramCounter(u16 offset);
 

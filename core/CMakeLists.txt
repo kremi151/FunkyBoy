@@ -13,6 +13,7 @@ endif(MSVC)
 set(SOURCES
 #        library.cpp
         source/emulator/emulator.cpp
+        source/emulator/io_registers.cpp
         source/emulator/cpu.cpp
         source/util/romsizes.cpp
         source/cartridge/cartridge.cpp

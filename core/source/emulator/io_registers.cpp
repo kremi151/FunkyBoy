@@ -14,34 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_IO_REGISTERS_H
-#define FB_CORE_IO_REGISTERS_H
+#include "io_registers.h"
 
-#include <util/typedefs.h>
-#include <util/testing.h>
-#include <memory>
+using namespace FunkyBoy;
 
-#define FB_REG_DIV 0xFF04
-#define FB_REG_TIMA 0xFF05
-#define FB_REG_TMA 0xFF06
-#define FB_REG_TAC 0xFF07
-
-namespace FunkyBoy {
-
-    class io_registers {
-    test_public:
-        u8 div_lsb;
-    public:
-        u8 div_msb;
-
-        io_registers();
-
-        void incrementDiv();
-        void resetDiv();
-    };
-
-    typedef std::shared_ptr<io_registers> io_registers_ptr;
-
+io_registers::io_registers(): div_lsb(0), div_msb(0) {
 }
 
-#endif //FB_CORE_IO_REGISTERS_H
+void io_registers::incrementDiv() {
+    if (++div_lsb != 0) {
+        return;
+    }
+    if (++div_msb == 0) {
+        div_lsb = 0;
+    }
+}
+
+void io_registers::resetDiv() {
+    div_lsb = 0;
+    div_msb = 0;
+}

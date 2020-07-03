@@ -20,6 +20,7 @@
 #include <filesystem>
 #include <memory>
 #include <emulator/cpu.h>
+#include <emulator/io_registers.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <cartridge/cartridge.h>
@@ -30,12 +31,13 @@ namespace FunkyBoy {
 
     class Emulator {
     test_public:
-        std::shared_ptr<Cartridge> cartridge;
-        std::shared_ptr<Memory> memory;
+        CartridgePtr cartridge;
 
+        io_registers_ptr ioRegisters;
+        MemoryPtr memory;
         CPU cpu;
     public:
-        Emulator();
+        explicit Emulator(GameBoyType gbType);
 
         CartridgeStatus loadGame(const std::filesystem::path &romPath);
         Cartridge &getCartridge();

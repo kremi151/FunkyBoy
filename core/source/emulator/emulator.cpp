@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <emulator/gb_type.h>
 #include <cartridge/header.h>
 
 // TODO: For debugging, remove it afterwards:
@@ -25,7 +26,9 @@
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(): cartridge(new Cartridge), memory(new Memory(cartridge)), cpu(memory) {
+Emulator::Emulator(GameBoyType gbType): ioRegisters(new io_registers), cartridge(new Cartridge)
+    , memory(new Memory(cartridge, ioRegisters)), cpu(gbType, memory, ioRegisters)
+{
 }
 
 CartridgeStatus Emulator::loadGame(const std::filesystem::path &romPath) {

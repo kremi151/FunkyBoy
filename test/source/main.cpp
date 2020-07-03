@@ -22,6 +22,8 @@
 
 #define RUN_ROM_TESTS
 
+#define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
+
 bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
     do {
         if (!cpu.doTick()) {
@@ -32,8 +34,9 @@ bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
 }
 
 TEST(test16BitReadWrite) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::Memory memory(cartridge);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    FunkyBoy::Memory memory(cartridge, io);
 
     memory.write16BitsTo(0xC000, 0x12, 0x34);
     int val = memory.read16BitsAt(0xC000);
@@ -45,8 +48,9 @@ TEST(test16BitReadWrite) {
 }
 
 TEST(testEchoRAM) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::Memory memory(cartridge);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    FunkyBoy::Memory memory(cartridge, io);
 
     // Write to beginning of internal RAM bank 0
     memory.write8BitsTo(0xC000, 42);
@@ -65,7 +69,7 @@ TEST(testEchoRAM) {
 }
 
 TEST(testReadROMTitle) {
-    FunkyBoy::Emulator emulator;
+    FunkyBoy::Emulator emulator(TEST_GB_TYPE);
     std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "cpu_instrs.gb";
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
@@ -76,9 +80,10 @@ TEST(testReadROMTitle) {
 }
 
 TEST(testPopPushStackPointer) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
-    FunkyBoy::CPU cpu(memory);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
 
     cpu.instrContext.push16Bits(0x1806);
     auto val = cpu.instrContext.pop16Bits();
@@ -97,9 +102,10 @@ TEST(testPopPushStackPointer) {
 }
 
 TEST(testReadWriteHLAndAF) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
-    FunkyBoy::CPU cpu(memory);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
 
     // In this test, we check for enforcing little-endianness
 
@@ -119,9 +125,10 @@ TEST(testReadWriteHLAndAF) {
 }
 
 TEST(testReadWrite16BitRegisters) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
-    FunkyBoy::CPU cpu(memory);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
 
     // In this test, we check for enforcing little-endianness
 
@@ -148,9 +155,10 @@ TEST(testReadWrite16BitRegisters) {
 }
 
 TEST(test16BitLoads) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
-    FunkyBoy::CPU cpu(memory);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -200,9 +208,10 @@ TEST(test16BitLoads) {
 }
 
 TEST(testLDHA) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
-    FunkyBoy::CPU cpu(memory);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -237,23 +246,52 @@ TEST(testLDHA) {
 }
 
 TEST(testDIVIncrement) {
-    std::shared_ptr<FunkyBoy::Cartridge> cartridge(new FunkyBoy::Cartridge);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge);
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
 
-    memory->write8BitsTo(0xFF04, 0x18);
-    assertEquals(0x00, memory->read8BitsAt(0xFF04));
-    memory->incrementAt(0xFF04);
-    assertEquals(0x01, memory->read8BitsAt(0xFF04));
-    memory->incrementAt(0xFF04);
-    assertEquals(0x02, memory->read8BitsAt(0xFF04));
-    memory->write8BitsTo(0xFF04, 0x33);
-    assertEquals(0x00, memory->read8BitsAt(0xFF04));
+    memory->write8BitsTo(FB_REG_DIV, 0x18);
+    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
+    assertEquals(0x00, io->div_msb);
+    assertEquals(0x00, io->div_lsb);
+    io->incrementDiv();
+    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
+    assertEquals(0x00, io->div_msb);
+    assertEquals(0x01, io->div_lsb);
+    io->incrementDiv();
+    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
+    assertEquals(0x00, io->div_msb);
+    assertEquals(0x02, io->div_lsb);
+    io->div_lsb = 255;
+    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
+    io->incrementDiv();
+    assertEquals(0x01, memory->read8BitsAt(FB_REG_DIV));
+    assertEquals(0x01, io->div_msb);
+    assertEquals(0x00, io->div_lsb);
+    io->incrementDiv();
+    assertEquals(0x01, memory->read8BitsAt(FB_REG_DIV));
+    assertEquals(0x01, io->div_msb);
+    assertEquals(0x01, io->div_lsb);
+    io->div_lsb = 255;
+    io->div_msb = 255;
+    assertEquals(0xff, memory->read8BitsAt(FB_REG_DIV));
+    io->incrementDiv();
+    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
+    assertEquals(0x00, io->div_msb);
+    assertEquals(0x00, io->div_lsb);
+    io->div_lsb = 0x42;
+    io->div_msb = 0x69;
+    assertEquals(0x69, memory->read8BitsAt(FB_REG_DIV));
+    memory->write8BitsTo(FB_REG_DIV, 0x13);
+    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
+    assertEquals(0x00, io->div_msb);
+    assertEquals(0x00, io->div_lsb);
 }
 
 #ifdef RUN_ROM_TESTS
 
 void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks) {
-    FunkyBoy::Emulator emulator;
+    FunkyBoy::Emulator emulator(TEST_GB_TYPE);
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 

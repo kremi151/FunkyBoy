@@ -29,8 +29,9 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, std::shared_ptr<Memory> memory): memory(std::move(memory)), gbType(gbType), timerCounter(0)
-    , instrContext(gbType), divCounter(0), cycleState(CycleState::FETCH), operandIndex(0)
+CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): memory(std::move(memory)), gbType(gbType)
+    , ioRegisters(std::move(ioRegisters)), timerCounter(0), instrContext(gbType)
+    , cycleState(CycleState::FETCH), operandIndex(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -62,9 +63,6 @@ CPU::CPU(GameBoyType gbType, std::shared_ptr<Memory> memory): memory(std::move(m
 
     // Initialize registers
     powerUpInit();
-}
-
-CPU::CPU(std::shared_ptr<Memory> memory): CPU(GameBoyType::GameBoyDMG, std::move(memory)) {
 }
 
 void CPU::powerUpInit() {
@@ -1051,12 +1049,7 @@ bool CPU::doInterrupts() {
 }
 
 void CPU::doDivider() {
-    if (divCounter++ % 256 != 0) {
-        // Frequency: 16384Hz => every 256th cycle
-        return;
-    }
-    divCounter = 0;
-    memory->incrementAt(FB_REG_DIV);
+    ioRegisters->incrementDiv();
 }
 
 void CPU::doTimer() {

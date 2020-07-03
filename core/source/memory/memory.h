@@ -19,13 +19,15 @@
 
 #include <util/typedefs.h>
 #include <cartridge/cartridge.h>
-#include <memory>
+#include <emulator/io_registers.h>
 
 namespace FunkyBoy {
 
     class Memory {
     private:
-        std::shared_ptr<Cartridge> cartridge;
+        CartridgePtr cartridge;
+        io_registers_ptr ioRegisters;
+
         u8 *vram; // Character RAM
         u8 *bgMapData1;
         u8 *bgMapData2;
@@ -42,14 +44,12 @@ namespace FunkyBoy {
 
         bool interceptWrite(memory_address offset, u8 val);
     public:
-        explicit Memory(std::shared_ptr<Cartridge> cartridge);
+        Memory(CartridgePtr cartridge, io_registers_ptr ioRegisters);
         ~Memory();
 
         u8 read8BitsAt(memory_address offset);
         i8 readSigned8BitsAt(memory_address offset);
         void write8BitsTo(memory_address offset, u8 val);
-        void incrementAt(memory_address offset);
-        void decrementAt(memory_address offset);
 
         u16 read16BitsAt(memory_address offset);
 
