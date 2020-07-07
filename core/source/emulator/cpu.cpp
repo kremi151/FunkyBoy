@@ -59,6 +59,7 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): me
     instrContext.memory = this->memory;
     instrContext.operands = operands;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
+    instrContext.haltBugRequested = false;
     instrContext.cpuState = CPUState::RUNNING;
 
     // Initialize registers
@@ -192,7 +193,12 @@ bool CPU::doCycle() {
 }
 
 void CPU::doFetch() {
-    instrContext.instr = memory->read8BitsAt(instrContext.progCounter++);
+    if (!instrContext.haltBugRequested) {
+        instrContext.instr = memory->read8BitsAt(instrContext.progCounter++);
+    } else {
+        instrContext.instr = memory->read8BitsAt(instrContext.progCounter);
+        instrContext.haltBugRequested = false;
+    }
 }
 
 bool CPU::doDecode() {

@@ -33,6 +33,12 @@ bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
     return true;
 }
 
+void assertDoFullMachineCycle(FunkyBoy::CPU &cpu) {
+    if (!doFullMachineCycle(cpu)) {
+        failure("Emulation tick failed");
+    }
+}
+
 TEST(test16BitReadWrite) {
     FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
@@ -293,6 +299,72 @@ TEST(testDIVIncrement) {
     assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
     assertEquals(0x00, io->sys_counter_msb);
     assertEquals(0x00, io->sys_counter_lsb);
+}
+
+TEST(testHALTBugSkipping) {
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+
+    // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
+    cartridge->rom = new FunkyBoy::u8[0x105];
+
+    auto initialProgCounter = 0x100;
+    cpu.instrContext.progCounter = initialProgCounter;
+    cpu.instrContext.interruptMasterEnable = FunkyBoy::IMEState::DISABLED;
+
+    // Program ROM
+    cartridge->rom[initialProgCounter] = 0x76;      // HALT
+    cartridge->rom[initialProgCounter + 1] = 0x3C;  // INC A
+    cartridge->rom[initialProgCounter + 2] = 0x00;  // NOP
+
+    FunkyBoy::u8 originalA = *cpu.instrContext.regA;
+
+    assertDoFullMachineCycle(cpu);
+    assertEquals(0x76, cpu.instrContext.instr);
+    assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
+    assertEquals(originalA, *cpu.regA);
+
+    assertDoFullMachineCycle(cpu);
+    assertEquals(0x3C, cpu.instrContext.instr);
+    assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
+    assertEquals(originalA + 1, *cpu.regA);
+
+    assertDoFullMachineCycle(cpu);
+    assertEquals(0x3C, cpu.instrContext.instr);
+    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
+    assertEquals(originalA + 2, *cpu.regA);
+}
+
+TEST(testHALTBugHanging) {
+    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
+    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
+    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+
+    // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
+    cartridge->rom = new FunkyBoy::u8[0x105];
+
+    auto initialProgCounter = 0x100;
+    cpu.instrContext.progCounter = initialProgCounter;
+    cpu.instrContext.interruptMasterEnable = FunkyBoy::IMEState::DISABLED;
+
+    // Program ROM
+    cartridge->rom[initialProgCounter] = 0x76;      // HALT
+    cartridge->rom[initialProgCounter + 1] = 0x76;  // HALT
+    cartridge->rom[initialProgCounter + 2] = 0x3C;  // INC A
+
+    *cpu.instrContext.regA = 0x00;
+    FunkyBoy::u8 originalA = *cpu.instrContext.regA;
+
+    // Maybe a bit excessive, but iterating 100 times without advancing the PC should demonstrate the HALT bug correctly
+    for (int i = 0 ; i < 100 ; i++) {
+        assertDoFullMachineCycle(cpu);
+        assertEquals(0x76, cpu.instrContext.instr);
+        assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
+        assertEquals(originalA, *cpu.regA);
+    }
 }
 
 #ifdef RUN_ROM_TESTS

@@ -53,9 +53,9 @@ bool Instructions::stop(InstrContext &context) {
 bool Instructions::halt(InstrContext &context) {
     if (context.interruptMasterEnable == IMEState::ENABLED) {
         context.cpuState = CPUState::HALTED;
-    } else if (context.gbType == GameBoyType::GameBoyCGB) {
+    } else if (context.gbType != GameBoyType::GameBoyCGB) {
         // On non-GBC devices, the next instruction is skipped if HALT was requested with IME being disabled
-        context.progCounter++;
+        context.haltBugRequested = true;
     }
     return true;
 }

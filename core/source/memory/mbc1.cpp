@@ -92,7 +92,7 @@ bool MBC1::interceptWrite(memory_address offset, u8 val) {
         bank = ((val & 0b11) << 5) | (bank & 0x0011111);
         debug_print_2(" 0x%02X\n", bank);
         return true;
-    } else if (offset <= 0x7FFFF) {
+    } else if (offset <= 0x7FFF) {
         romBankingMode = (val & 0b1) == 0;
         debug_print_2("[MBC1] Set banking mode to %d\n", !romBankingMode);
         return true;

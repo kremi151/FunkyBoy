@@ -71,6 +71,8 @@ namespace FunkyBoy {
         CPUState cpuState;
         IMEState interruptMasterEnable;
 
+        bool haltBugRequested;
+
         /* inline */ u16 readHL() {
             return (*regL & 0xffu) | (*regH << 8u);
         }
