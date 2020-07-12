@@ -63,8 +63,7 @@ namespace FunkyBoy {
         void powerUpInit();
 
         bool doCycle();
-        void doFetch();
-        bool doDecode();
+        bool doFetchAndDecode();
 
         bool doInterrupts();
         void doTimer();

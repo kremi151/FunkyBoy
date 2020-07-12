@@ -189,22 +189,19 @@ bool CPU::doCycle() {
         instrContext.cpuState = CPUState::RUNNING;
     }
 
-    doFetch();
-    bool result = doDecode();
+    bool result = doFetchAndDecode();
     operandIndex = 0;
     return result;
 }
 
-void CPU::doFetch() {
+bool CPU::doFetchAndDecode() {
     if (!instrContext.haltBugRequested) {
         instrContext.instr = memory->read8BitsAt(instrContext.progCounter++);
     } else {
         instrContext.instr = memory->read8BitsAt(instrContext.progCounter);
         instrContext.haltBugRequested = false;
     }
-}
 
-bool CPU::doDecode() {
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (instrContext.instr & 0xff);
     file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regB & 0xff);
