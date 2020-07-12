@@ -24,9 +24,6 @@
 // Uncomment to enable step-by-step breakpoints
 // #define FB_DEBUG_STEPS
 
-// Uncomment to enable printing current opcode and register values to a file
-// #define FB_DEBUG_WRITE_EXECUTION_LOG
-
 #include <cstdio>
 
 #if defined(FB_DEBUG) && FB_DEBUG_LOG_LEVEL >= 4
@@ -57,5 +54,7 @@
 #define debug_break() ((void)0)
 
 #endif
+
+
 
 #endif //FUNKYBOY_CORE_DEBUG_H

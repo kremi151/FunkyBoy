@@ -30,6 +30,7 @@ set(SOURCES
         source/instructions/jumps.cpp
         source/instructions/rot_shifts.cpp
         source/instructions/conditions.cpp
+        source/instructions/debug.cpp
         source/util/endianness.cpp
         source/util/registers.cpp
         source/util/flags.cpp
@@ -62,6 +63,7 @@ set(HEADERS
         source/instructions/jumps.h
         source/instructions/rot_shifts.h
         source/instructions/conditions.h
+        source/instructions/debug.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h
