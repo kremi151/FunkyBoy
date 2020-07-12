@@ -41,12 +41,6 @@ namespace FunkyBoy {
         JOYPAD      = 4
     };
 
-    enum CycleState {
-        FETCH = 0,
-        DECODE = 1,
-        EXECUTE = 2
-    };
-
     class CPU {
     private:
         io_registers_ptr ioRegisters;
@@ -79,12 +73,14 @@ namespace FunkyBoy {
 
     test_public:
 
-        CycleState cycleState;
-
         InstrContext instrContext;
 
         u16 readAF();
         void writeAF(u16 val);
+
+#if defined(FB_TESTING)
+        bool mCycleCompleted;
+#endif
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
 

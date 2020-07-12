@@ -25,11 +25,12 @@
 #define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
+    cpu.mCycleCompleted = false;
     do {
         if (!cpu.doTick()) {
             return false;
         }
-    } while (cpu.cycleState != FunkyBoy::CycleState::FETCH);
+    } while (!cpu.mCycleCompleted);
     return true;
 }
 

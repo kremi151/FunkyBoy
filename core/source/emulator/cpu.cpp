@@ -31,9 +31,12 @@ using namespace FunkyBoy;
 
 CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): memory(std::move(memory)), gbType(gbType)
     , ioRegisters(std::move(ioRegisters)), timerCounter(0), instrContext(gbType), timerOverflowing(false)
-    , cycleState(CycleState::FETCH), operandIndex(0)
+    , operandIndex(0)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
+#endif
+#if defined(FB_TESTING)
+    , mCycleCompleted(false)
 #endif
 {
     regB = registers;
@@ -61,6 +64,11 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): me
     instrContext.interruptMasterEnable = IMEState::DISABLED;
     instrContext.haltBugRequested = false;
     instrContext.cpuState = CPUState::RUNNING;
+
+    // Fetch/Execute overlapping -> initial fetch is performed without executing any other instruction
+    // To simulate this, we set a NOP as the first instruction, which does nothing
+    operands[0] = Instructions::nop;
+    operands[1] = nullptr;
 
     // Initialize registers
     powerUpInit();
@@ -132,7 +140,7 @@ void CPU::powerUpInit() {
 bool CPU::doTick() {
     bool result;
 
-    if ((instrContext.cpuState == CPUState::RUNNING && cycleState == CycleState::FETCH) || instrContext.cpuState == CPUState::HALTED) {
+    if ((instrContext.cpuState == CPUState::RUNNING /* TODO: Check timing with instructions ; && cycleState == CycleState::FETCH */) || instrContext.cpuState == CPUState::HALTED) {
         if (doInterrupts()) {
             // An interrupt has started, so we set the state to RUNNING again
             instrContext.cpuState = CPUState::RUNNING;
@@ -168,28 +176,25 @@ bool CPU::doTick() {
 }
 
 bool CPU::doCycle() {
-    switch (cycleState) {
-        case FETCH:
-            doFetch();
-            cycleState = CycleState::DECODE;
-            return true;
-        case DECODE: {
-            bool result = doDecode();
-            cycleState = CycleState::EXECUTE;
-            operandIndex = 0;
-            return result;
-        }
-        case EXECUTE: {
-            auto op = operands[operandIndex++];
-            if (!op(instrContext) || operands[operandIndex] == nullptr) {
-                cycleState = CycleState::FETCH;
-            }
-            return true;
-        }
-        default:
-            fprintf(stderr, "Illegal cycle state: %d\n", static_cast<int>(cycleState));
-            return false;
+    auto op = operands[operandIndex++];
+    bool shouldFetch = operands[operandIndex] == nullptr;
+
+    if (!op(instrContext)) {
+        shouldFetch = true;
     }
+
+#if defined(FB_TESTING)
+    mCycleCompleted = true;
+#endif
+
+    if (!shouldFetch) {
+        return true;
+    }
+
+    doFetch();
+    bool result = doDecode();
+    operandIndex = 0;
+    return result;
 }
 
 void CPU::doFetch() {
