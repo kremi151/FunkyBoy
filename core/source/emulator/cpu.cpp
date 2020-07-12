@@ -169,6 +169,7 @@ bool CPU::doTick() {
 
 bool CPU::doCycle() {
     auto op = operands[operandIndex++];
+
     bool shouldFetch = operands[operandIndex] == nullptr;
 
     if (!op(instrContext)) {
@@ -989,7 +990,13 @@ bool CPU::doFetchAndDecode() {
         case 0xCB: {
             debug_print_4("prefix (CB)\n");
             operands[0] = Instructions::decodePrefix;
-            operands[1] = nullptr;
+            // Small workaround:
+            // To avoid our fetch/execution overlap implementation to override the prefix operands fetched in
+            // Instructions::decodePrefix, we add a dummy operand. Like this when we check if the next operand would
+            // have been null, we do not directly replace the prefix operands. We only do it once they have been
+            // executed.
+            operands[1] = Instructions::nop;
+            operands[2] = nullptr;
             return true;
         }
         default: {

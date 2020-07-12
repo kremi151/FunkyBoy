@@ -18,7 +18,7 @@
 #define FB_CORE_INSTRUCTIONS_DEBUG_H
 
 // Uncomment to enable printing current opcode and register values to a file
-#define FB_DEBUG_WRITE_EXECUTION_LOG
+// #define FB_DEBUG_WRITE_EXECUTION_LOG
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 
