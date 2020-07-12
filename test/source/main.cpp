@@ -25,12 +25,12 @@
 #define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
-    cpu.mCycleCompleted = false;
+    cpu.instructionCompleted = false;
     do {
         if (!cpu.doTick()) {
             return false;
         }
-    } while (!cpu.mCycleCompleted);
+    } while (!cpu.instructionCompleted);
     return true;
 }
 
@@ -174,43 +174,48 @@ TEST(test16BitLoads) {
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter + 1] = 0x06;
     cartridge->rom[initialProgCounter + 2] = 0x18;
+    cartridge->rom[initialProgCounter + 3] = 0x00;
 
     // Set opcode 0x01 (LD BC,d16)
     cartridge->rom[initialProgCounter] = 0x01;
-    if (!doFullMachineCycle(cpu)) {
-        failure("Emulation tick failed");
-    }
-    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
+    assertDoFullMachineCycle(cpu); // Initial fetch
+    assertDoFullMachineCycle(cpu); // Actual execution
+
+    // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
+    assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
     assertEquals(0x06, (*cpu.regC) & 0xff);
     assertEquals(0x18, (*cpu.regB) & 0xff);
 
     // Set opcode 0x11 (LD DE,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x11;
-    if (!doFullMachineCycle(cpu)) {
-        failure("Emulation tick failed");
-    }
-    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
+    assertDoFullMachineCycle(cpu); // Initial fetch
+    assertDoFullMachineCycle(cpu); // Actual execution
+
+    // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
+    assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
     assertEquals(0x06, (*cpu.regE) & 0xff);
     assertEquals(0x18, (*cpu.regD) & 0xff);
 
     // Set opcode 0x21 (LD HL,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x21;
-    if (!doFullMachineCycle(cpu)) {
-        failure("Emulation tick failed");
-    }
-    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
+    assertDoFullMachineCycle(cpu); // Initial fetch
+    assertDoFullMachineCycle(cpu); // Actual execution
+
+    // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
+    assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
     assertEquals(0x06, (*cpu.regL) & 0xff);
     assertEquals(0x18, (*cpu.regH) & 0xff);
 
     // Set opcode 0x31 (LD SP,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x31;
-    if (!doFullMachineCycle(cpu)) {
-        failure("Emulation tick failed");
-    }
-    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
+    assertDoFullMachineCycle(cpu); // Initial fetch
+    assertDoFullMachineCycle(cpu); // Actual execution
+
+    // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
+    assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
     assertEquals(0x1806, cpu.instrContext.stackPointer);
 }
 
@@ -231,10 +236,10 @@ TEST(testLDHA) {
     cartridge->rom[initialProgCounter] = 0xF0;
     memory->write8BitsTo(0xFFCE, 0x42);
     assertNotEquals(0x42, *cpu.regA);
-    if (!doFullMachineCycle(cpu)) {
-        failure("Emulation tick failed");
-    }
-    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
+    assertDoFullMachineCycle(cpu); // Initial fetch
+    assertDoFullMachineCycle(cpu); // Actual execution
+    // PC = initial + fetch(1) + a8(1) + fetch(1)
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(0x42, *cpu.regA);
 
     // Reset prog counter and register
@@ -245,10 +250,10 @@ TEST(testLDHA) {
     cartridge->rom[initialProgCounter] = 0xE0;
     *cpu.regA = 0x42;
     assertNotEquals(0x42, memory->read8BitsAt(0xFFCE));
-    if (!doFullMachineCycle(cpu)) {
-        failure("Emulation tick failed");
-    }
-    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
+    assertDoFullMachineCycle(cpu); // Initial fetch
+    assertDoFullMachineCycle(cpu); // Actual execution
+    // PC = initial + fetch(1) + a8(1) + fetch(1)
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(0x42, memory->read8BitsAt(0xFFCE));
 }
 
@@ -322,19 +327,25 @@ TEST(testHALTBugSkipping) {
 
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
+    // Initial fetch without executing anything
     assertDoFullMachineCycle(cpu);
     assertEquals(0x76, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x3C, cpu.instrContext.instr);
+    assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
-    assertEquals(originalA + 1, *cpu.regA);
+    assertEquals(originalA, *cpu.regA);
 
     assertDoFullMachineCycle(cpu);
     assertEquals(0x3C, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
+    assertEquals(originalA + 1, *cpu.regA);
+
+    assertDoFullMachineCycle(cpu);
+    assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(originalA + 2, *cpu.regA);
 }
 

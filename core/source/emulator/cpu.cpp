@@ -36,7 +36,7 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): me
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
 #if defined(FB_TESTING)
-    , mCycleCompleted(false)
+    , instructionCompleted(false)
 #endif
 {
     regB = registers;
@@ -183,13 +183,13 @@ bool CPU::doCycle() {
         shouldFetch = true;
     }
 
-#if defined(FB_TESTING)
-    mCycleCompleted = true;
-#endif
-
     if (!shouldFetch) {
         return true;
     }
+
+#if defined(FB_TESTING)
+    instructionCompleted = true;
+#endif
 
     doFetch();
     bool result = doDecode();

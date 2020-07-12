@@ -79,7 +79,7 @@ namespace FunkyBoy {
         void writeAF(u16 val);
 
 #if defined(FB_TESTING)
-        bool mCycleCompleted;
+        bool instructionCompleted;
 #endif
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
