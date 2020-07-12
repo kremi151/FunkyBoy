@@ -140,13 +140,6 @@ void CPU::powerUpInit() {
 bool CPU::doTick() {
     bool result;
 
-    if ((instrContext.cpuState == CPUState::RUNNING /* TODO: Check timing with instructions ; && cycleState == CycleState::FETCH */) || instrContext.cpuState == CPUState::HALTED) {
-        if (doInterrupts()) {
-            // An interrupt has started, so we set the state to RUNNING again
-            instrContext.cpuState = CPUState::RUNNING;
-        }
-    }
-
     // TODO: If STOPPED, react to joypad input
 
     // TODO: Handle timer here or earlier?
@@ -190,6 +183,11 @@ bool CPU::doCycle() {
 #if defined(FB_TESTING)
     instructionCompleted = true;
 #endif
+
+    if ((instrContext.cpuState == CPUState::RUNNING || instrContext.cpuState == CPUState::HALTED) && doInterrupts()) {
+        // An interrupt has started, so we set the state to RUNNING (again)
+        instrContext.cpuState = CPUState::RUNNING;
+    }
 
     doFetch();
     bool result = doDecode();
