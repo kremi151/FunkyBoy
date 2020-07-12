@@ -16,11 +16,14 @@
 
 #include "debug.h"
 
+#include <instructions/instruction_context.h>
+
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 
 using namespace FunkyBoy;
 
-void Debug::writeExecutionToLog(std::ofstream &file, FunkyBoy::InstrContext &instrContext) {
+void Debug::writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::InstrContext &instrContext) {
+    file << discriminator << " ";
     file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (instrContext.instr & 0xff);
     file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*instrContext.regB & 0xff);
     file << " C=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*instrContext.regC & 0xff);

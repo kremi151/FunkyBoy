@@ -20,6 +20,7 @@
 #include <util/typedefs.h>
 #include <memory/memory.h>
 #include <emulator/gb_type.h>
+#include <instructions/debug.h>
 
 namespace FunkyBoy {
 
@@ -85,6 +86,10 @@ namespace FunkyBoy {
 
         void write16BitRegister(u8 position, u16 val);
         u16 read16BitRegister(u8 position);
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+        std::ofstream *executionLog;
+#endif
     };
 
 }

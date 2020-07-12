@@ -18,17 +18,20 @@
 #define FB_CORE_INSTRUCTIONS_DEBUG_H
 
 // Uncomment to enable printing current opcode and register values to a file
-// #define FB_DEBUG_WRITE_EXECUTION_LOG
+#define FB_DEBUG_WRITE_EXECUTION_LOG
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <instructions/instruction_context.h>
+
+namespace FunkyBoy {
+    class InstrContext;
+}
 
 namespace FunkyBoy::Debug {
-    void writeExecutionToLog(std::ofstream &file, FunkyBoy::InstrContext &instrContext);
+    void writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::InstrContext &instrContext);
 }
 
 #endif

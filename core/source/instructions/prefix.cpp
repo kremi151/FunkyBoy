@@ -22,6 +22,7 @@
 #include <instructions/reads.h>
 #include <instructions/writes.h>
 #include <instructions/misc.h>
+#include <instructions/debug.h>
 
 using namespace FunkyBoy;
 
@@ -277,6 +278,11 @@ bool __prefix_set_HL(InstrContext &context) {
 
 bool Instructions::decodePrefix(InstrContext &context) {
     context.instr = context.memory->read8BitsAt(context.progCounter++);
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+    FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context);
+#endif
+
     switch (context.instr) {
         // rlc reg
         case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {

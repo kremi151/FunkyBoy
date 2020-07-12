@@ -60,6 +60,10 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): me
     instrContext.haltBugRequested = false;
     instrContext.cpuState = CPUState::RUNNING;
 
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+    instrContext.executionLog = &file;
+#endif
+
     // Fetch/Execute overlapping -> initial fetch is performed without executing any other instruction
     // To simulate this, we set a NOP as the first instruction, which does nothing
     operands[0] = Instructions::nop;
@@ -198,7 +202,7 @@ bool CPU::doFetchAndDecode() {
     }
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    FunkyBoy::Debug::writeExecutionToLog(file, instrContext);
+    FunkyBoy::Debug::writeExecutionToLog('I', file, instrContext);
     instr++;
 #endif
 
