@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
+#ifndef FB_TESTS_UNIT_TESTS_H
+#define FB_TESTS_UNIT_TESTS_H
+
 #include <acacia.h>
 
-#include "rom_tests.h"
-#include "unit_tests.h"
+acacia::Report __fbTests_runUnitTests();
 
-int main() {
-    auto unitTestsReport = __fbTests_runUnitTests();
-    auto romTestsReport = __fbTests_runRomTests();
-
-    acacia::Report totalReport;
-    totalReport += unitTestsReport;
-    totalReport += romTestsReport;
-
-    std::ofstream reportFile("test-report.xml");
-    acacia::generateJUnitReport(totalReport, reportFile);
-
-    return totalReport ? 0 : 1;
-}
+#endif //FB_TESTS_UNIT_TESTS_H

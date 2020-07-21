@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-#include <acacia.h>
+#ifndef FB_TESTS_COMMONS_H
+#define FB_TESTS_COMMONS_H
 
-#include "rom_tests.h"
-#include "unit_tests.h"
+#include <emulator/gb_type.h>
 
-int main() {
-    auto unitTestsReport = __fbTests_runUnitTests();
-    auto romTestsReport = __fbTests_runRomTests();
+#define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
 
-    acacia::Report totalReport;
-    totalReport += unitTestsReport;
-    totalReport += romTestsReport;
-
-    std::ofstream reportFile("test-report.xml");
-    acacia::generateJUnitReport(totalReport, reportFile);
-
-    return totalReport ? 0 : 1;
-}
+#endif //FB_TESTS_COMMONS_H
