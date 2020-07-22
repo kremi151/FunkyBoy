@@ -20,15 +20,13 @@
 #include "unit_tests.h"
 
 int main() {
-    auto unitTestsReport = __fbTests_runUnitTests();
-    auto romTestsReport = __fbTests_runRomTests();
+    acacia::Report report;
 
-    acacia::Report totalReport;
-    totalReport += unitTestsReport;
-    totalReport += romTestsReport;
+    report += __fbTests_runUnitTests();
+    report += __fbTests_runRomTests();
 
     std::ofstream reportFile("test-report.xml");
-    acacia::generateJUnitReport(totalReport, reportFile);
+    acacia::generateJUnitReport(report, reportFile);
 
-    return totalReport ? 0 : 1;
+    return report ? 0 : 1;
 }
