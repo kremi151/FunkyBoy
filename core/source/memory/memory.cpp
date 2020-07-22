@@ -77,12 +77,13 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     } else if (offset <= 0xFEFF) {
         return nullptr;
     } else if (offset == FB_REG_DIV) {
-        return &ioRegisters->sys_counter_msb;
+        // Write access is protected by interceptWrite
+        return const_cast<u8 *>(&ioRegisters->sysCounterMsb());
     } else if (offset <= 0xFF7F) {
         return hwIO + (offset - 0xFF00);
     } else if (offset <= 0xFFFE) {
         return hram + (offset - 0xFF80);
-    } else if (offset == 0xFFFF) {
+    } else if (offset == FB_REG_IE) {
         return &interruptEnableRegister;
     } else {
         return nullptr;

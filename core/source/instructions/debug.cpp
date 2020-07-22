@@ -38,4 +38,9 @@ void Debug::writeExecutionToLog(uint8_t discriminator, std::ofstream &file, Funk
     file << std::endl;
 }
 
+void Debug::writeInterruptToLog(uint16_t interrupt, std::ofstream &file) {
+    file << "Int 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << interrupt;
+    file << std::endl;
+}
+
 #endif

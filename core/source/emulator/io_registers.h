@@ -21,23 +21,30 @@
 #include <util/testing.h>
 #include <memory>
 
+#define FB_REG_P1 0xFF00
 #define FB_REG_DIV 0xFF04
 #define FB_REG_TIMA 0xFF05
 #define FB_REG_TMA 0xFF06
 #define FB_REG_TAC 0xFF07
+#define FB_REG_IE 0xFFFF
 
 namespace FunkyBoy {
 
     class io_registers {
     test_public:
         u8 sys_counter_lsb;
-    public:
         u8 sys_counter_msb;
+    public:
 
         io_registers();
 
-        void incrementSysCounter(u8 amount);
+        void incrementSysCounter();
         void resetSysCounter();
+
+        fb_inline u16 getSysCounter();
+
+        fb_inline const u8 &sysCounterLsb();
+        fb_inline const u8 &sysCounterMsb();
     };
 
     typedef std::shared_ptr<io_registers> io_registers_ptr;

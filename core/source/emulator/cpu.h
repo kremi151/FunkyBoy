@@ -58,8 +58,10 @@ namespace FunkyBoy {
         u8 operandIndex;
         Operand operands[25]{};
 
-        u16 timerCounter;
-        bool timerOverflowing;
+        u8 cpuInterCycleCounter;
+
+        i8 timerOverflowingCycles;
+        bool delayedTIMAIncrease;
 
         void powerUpInit();
 
@@ -67,8 +69,7 @@ namespace FunkyBoy {
         bool doFetchAndDecode();
 
         bool doInterrupts();
-        void doTimer();
-        void doDivider();
+        void doTimers();
         void requestInterrupt(InterruptType type);
 
     test_public:

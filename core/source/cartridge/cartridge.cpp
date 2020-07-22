@@ -35,6 +35,22 @@ Cartridge::~Cartridge() {
     delete[] ram;
 }
 
+bool hasCartridgeRam(u8 cartridgeType) {
+    switch (cartridgeType) {
+        case 0x02: case 0x03:
+        case 0x08: case 0x09:
+        case 0x0C: case 0x0D:
+        case 0x12: case 0x13:
+        case 0x1A: case 0x1B:
+        case 0x1D: case 0x1E:
+        case 0x22:
+        case 0xFF:
+            return true;
+        default:
+            return false;
+    }
+}
+
 void Cartridge::loadROM(std::ifstream &file) {
     if (!file.good()) {
         status = CartridgeStatus::ROMFileNotReadable;
@@ -83,7 +99,11 @@ void Cartridge::loadROM(std::ifstream &file) {
         status = CartridgeStatus::RAMSizeUnsupported;
         return;
     }
-    ramSizeType = static_cast<CartridgeRAMSize>(header->ramSize);
+    u8 ramSize = header->ramSize;
+    if (ramSize == 0 && hasCartridgeRam(header->cartridgeType)) {
+        ramSize = 1;
+    }
+    ramSizeType = static_cast<CartridgeRAMSize>(ramSize);
 
     switch (header->cartridgeType) {
         case 0x00:

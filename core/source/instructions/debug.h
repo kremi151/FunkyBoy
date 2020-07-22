@@ -32,6 +32,7 @@ namespace FunkyBoy {
 
 namespace FunkyBoy::Debug {
     void writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::InstrContext &instrContext);
+    void writeInterruptToLog(uint16_t interrupt, std::ofstream &file);
 }
 
 #endif
