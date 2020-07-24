@@ -22,6 +22,7 @@
 #include <memory/memory.h>
 #include <memory>
 #include <emulator/emulator.h>
+#include <controllers/serial_null.h>
 #include <fstream>
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
@@ -40,38 +41,40 @@ void assertDoFullMachineCycle(FunkyBoy::CPU &cpu) {
     }
 }
 
-TEST(test16BitReadWrite) {
+FunkyBoy::MemoryPtr createMemory() {
     FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    FunkyBoy::Memory memory(cartridge, io);
+    return std::make_shared<FunkyBoy::Memory>(cartridge, std::make_shared<FunkyBoy::Controller::SerialControllerVoid>(), io);
+}
 
-    memory.write16BitsTo(0xC000, 0x12, 0x34);
-    int val = memory.read16BitsAt(0xC000);
+TEST(test16BitReadWrite) {
+    auto memory = createMemory();
+
+    memory->write16BitsTo(0xC000, 0x12, 0x34);
+    int val = memory->read16BitsAt(0xC000);
     assertEquals(0x1234, val);
 
-    memory.write16BitsTo(0xC002, 0x1234);
-    val = memory.read16BitsAt(0xC002);
+    memory->write16BitsTo(0xC002, 0x1234);
+    val = memory->read16BitsAt(0xC002);
     assertEquals(0x1234, val);
 }
 
 TEST(testEchoRAM) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    FunkyBoy::Memory memory(cartridge, io);
+    auto memory = createMemory();
 
     // Write to beginning of internal RAM bank 0
-    memory.write8BitsTo(0xC000, 42);
-    int val = memory.read8BitsAt(0xE000);
+    memory->write8BitsTo(0xC000, 42);
+    int val = memory->read8BitsAt(0xE000);
     assertEquals(42, val);
 
     // Write to end of internal RAM bank 0
-    memory.write8BitsTo(0xCFFF, 124);
-    val = memory.read8BitsAt(0xEFFF);
+    memory->write8BitsTo(0xCFFF, 124);
+    val = memory->read8BitsAt(0xEFFF);
     assertEquals(124, val);
 
     // Write to beginning of internal RAM bank 1
-    memory.write8BitsTo(0xD000, 186);
-    val = memory.read8BitsAt(0xF000);
+    memory->write8BitsTo(0xD000, 186);
+    val = memory->read8BitsAt(0xF000);
     assertEquals(186, val);
 }
 
@@ -87,10 +90,8 @@ TEST(testReadROMTitle) {
 }
 
 TEST(testPopPushStackPointer) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+    auto memory = createMemory();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
 
     cpu.instrContext.push16Bits(0x1806);
     auto val = cpu.instrContext.pop16Bits();
@@ -109,10 +110,8 @@ TEST(testPopPushStackPointer) {
 }
 
 TEST(testReadWriteHLAndAF) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+    auto memory = createMemory();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
 
     // In this test, we check for enforcing little-endianness
 
@@ -132,10 +131,8 @@ TEST(testReadWriteHLAndAF) {
 }
 
 TEST(testReadWrite16BitRegisters) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+    auto memory = createMemory();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
 
     // In this test, we check for enforcing little-endianness
 
@@ -162,10 +159,9 @@ TEST(testReadWrite16BitRegisters) {
 }
 
 TEST(test16BitLoads) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+    auto memory = createMemory();
+    auto cartridge = memory->getCartridge();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -261,9 +257,8 @@ TEST(test16BitLoads) {
 }*/
 
 TEST(testDIVIncrement) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
+    auto memory = createMemory();
+    auto io = memory->getIoRegisters();
 
     memory->write8BitsTo(FB_REG_DIV, 0x18);
     assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
@@ -304,10 +299,9 @@ TEST(testDIVIncrement) {
 }
 
 TEST(testHALTBugSkipping) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+    auto memory = createMemory();
+    auto cartridge = memory->getCartridge();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -346,10 +340,9 @@ TEST(testHALTBugSkipping) {
 }
 
 TEST(testHALTBugHanging) {
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    auto memory = std::make_shared<FunkyBoy::Memory>(cartridge, io);
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
+    auto memory = createMemory();
+    auto cartridge = memory->getCartridge();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];

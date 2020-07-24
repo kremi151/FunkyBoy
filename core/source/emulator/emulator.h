@@ -24,6 +24,7 @@
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <cartridge/cartridge.h>
+#include <controllers/serial.h>
 #include <memory/memory.h>
 #include <memory>
 
@@ -32,12 +33,14 @@ namespace FunkyBoy {
     class Emulator {
     test_public:
         CartridgePtr cartridge;
+        Controller::SerialControllerPtr serialController;
 
         io_registers_ptr ioRegisters;
         MemoryPtr memory;
         CPU cpu;
     public:
         explicit Emulator(GameBoyType gbType);
+        Emulator(GameBoyType gbType, const Controller::SerialControllerPtr &serialController);
 
         CartridgeStatus loadGame(const std::filesystem::path &romPath);
         Cartridge &getCartridge();

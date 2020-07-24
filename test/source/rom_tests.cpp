@@ -17,13 +17,17 @@
 #include "rom_tests.h"
 
 #include "commons.h"
+#include "controllers/serial_test.h"
 
 #include <acacia.h>
 #include <memory/memory.h>
 #include <emulator/emulator.h>
 
 void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks) { expectedTicks *= 4;
-    FunkyBoy::Emulator emulator(TEST_GB_TYPE);
+    FunkyBoy::Emulator emulator(
+            TEST_GB_TYPE,
+            std::make_shared<FunkyBoy::Controller::SerialControllerTest>()
+    );
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 

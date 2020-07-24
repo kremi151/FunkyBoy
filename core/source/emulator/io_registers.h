@@ -22,6 +22,8 @@
 #include <memory>
 
 #define FB_REG_P1 0xFF00
+#define FB_REG_SB 0xFF01
+#define FB_REG_SC 0xFF02
 #define FB_REG_DIV 0xFF04
 #define FB_REG_TIMA 0xFF05
 #define FB_REG_TMA 0xFF06

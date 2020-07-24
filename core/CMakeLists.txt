@@ -15,6 +15,7 @@ set(SOURCES
         source/emulator/emulator.cpp
         source/emulator/io_registers.cpp
         source/emulator/cpu.cpp
+        source/controllers/serial_null.cpp
         source/util/romsizes.cpp
         source/cartridge/cartridge.cpp
         source/memory/memory.cpp
@@ -42,6 +43,8 @@ set(HEADERS
         source/emulator/gb_type.h
         source/emulator/io_registers.h
         source/emulator/cpu.h
+        source/controllers/serial.h
+        source/controllers/serial_null.h
         source/util/typedefs.h
         source/cartridge/header.h
         source/util/romsizes.h

@@ -6,12 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 set(SOURCES
+        source/controllers/serial_test.cpp
         source/rom_tests.cpp
         source/unit_tests.cpp
         source/main.cpp
         )
 
 set(HEADERS
+        source/controllers/serial_test.h
         source/commons.h
         source/rom_tests.h
         source/unit_tests.h

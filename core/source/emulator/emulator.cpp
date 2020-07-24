@@ -20,16 +20,23 @@
 #include <fstream>
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
+#include <controllers/serial_null.h>
 
 // TODO: For debugging, remove it afterwards:
 #include <sstream>
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(GameBoyType gbType): ioRegisters(new io_registers), cartridge(new Cartridge)
-    , memory(new Memory(cartridge, ioRegisters)), cpu(gbType, memory, ioRegisters)
+Emulator::Emulator(GameBoyType gbType, const Controller::SerialControllerPtr& serialController): ioRegisters(new io_registers)
+    , cartridge(new Cartridge), serialController(serialController), cpu(gbType, memory, ioRegisters)
+    , memory(new Memory(cartridge, serialController, ioRegisters))
 {
 }
+
+Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
+        gbType,
+        std::make_shared<Controller::SerialControllerVoid>()
+) {}
 
 CartridgeStatus Emulator::loadGame(const std::filesystem::path &romPath) {
     std::ifstream romFile(romPath.c_str(), std::ios::binary);

@@ -24,8 +24,8 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge, io_registers_ptr ioRegisters): cartridge(std::move(cartridge))
-    , ioRegisters(std::move(ioRegisters)), interruptEnableRegister(0)
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::SerialControllerPtr serialController, io_registers_ptr ioRegisters): cartridge(std::move(cartridge))
+    , serialController(std::move(serialController)), ioRegisters(std::move(ioRegisters)), interruptEnableRegister(0)
 {
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
@@ -113,8 +113,8 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
         // Writing to read-only area, so we let it intercept by the MBC
         return true;
     }
-    if (offset == 0xFF02 && val == 0x81) {
-        std::cout << read8BitsAt(0xFF01);
+    if (offset == FB_REG_SC && val == 0x81) {
+        serialController->sendByte(read8BitsAt(FB_REG_SB));
     }
     if (offset == FB_REG_DIV) {
         // Direct write to DIV ; reset to 0
@@ -162,3 +162,15 @@ void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
     *ptr = lsb;
     *(ptr+1) = msb;
 }
+
+#ifdef FB_TESTING
+
+io_registers_ptr& Memory::getIoRegisters() {
+    return ioRegisters;
+}
+
+CartridgePtr& Memory::getCartridge() {
+    return cartridge;
+}
+
+#endif
