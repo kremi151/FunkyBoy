@@ -141,7 +141,7 @@ bool CPU::doTick() {
 
     // TODO: If STOPPED, react to joypad input
 
-    if (instrContext.cpuState == CPUState::RUNNING && cpuInterCycleCounter == 0) {
+    if (cpuInterCycleCounter == 0) {
         result = doCycle();
     } else {
         result = true;
@@ -169,30 +169,48 @@ bool CPU::doTick() {
 }
 
 bool CPU::doCycle() {
-    auto op = operands[operandIndex++];
-
-    bool shouldFetch = operands[operandIndex] == nullptr;
-
-    if (!op(instrContext)) {
-        shouldFetch = true;
-    }
-
-    if (!shouldFetch) {
+    if (instrContext.cpuState == CPUState::STOPPED) {
         return true;
     }
 
+    bool shouldDoInterrupts = instrContext.cpuState == CPUState::HALTED;
+    bool shouldFetch = false;
+
+    if (instrContext.cpuState == CPUState::RUNNING) {
+        auto op = operands[operandIndex++];
+
+        shouldFetch = operands[operandIndex] == nullptr;
+
+        if (!op(instrContext)) {
+            shouldFetch = true;
+        }
+        shouldDoInterrupts = shouldFetch;
+    }
+
 #if defined(FB_TESTING)
-    instructionCompleted = true;
+    if (shouldFetch || shouldDoInterrupts) {
+        instructionCompleted = true;
+    }
 #endif
 
-    if ((instrContext.cpuState == CPUState::RUNNING || instrContext.cpuState == CPUState::HALTED) && doInterrupts()) {
-        // An interrupt has started, so we set the state to RUNNING (again)
+    // TODO:
+    // HALT mode is exited when a flag in register IF is set and the corresponding flag in IE is also set,
+    // regardless of the value of IME. The only difference is that IME='1' will make the CPU jump to the
+    // interrupt vector (and clear the IF flag), while IME='0' will only make the CPU continue executing
+    // instructions, but the jump won't be performed (and the IF flag won't be cleared).
+
+    if (shouldDoInterrupts && (instrContext.cpuState == CPUState::RUNNING || instrContext.cpuState == CPUState::HALTED) && doInterrupts()) {
+        // An interrupt has started (or IME=false && (IF & IE) != 0), so we set the state to RUNNING (again)
         instrContext.cpuState = CPUState::RUNNING;
     }
 
-    bool result = doFetchAndDecode();
-    operandIndex = 0;
-    return result;
+    if (shouldFetch) {
+        bool result = doFetchAndDecode();
+        operandIndex = 0;
+        return result;
+    } else {
+        return true;
+    }
 }
 
 bool CPU::doFetchAndDecode() {
@@ -1022,14 +1040,18 @@ inline u8 getInterruptBitMask(InterruptType type) {
 }
 
 bool CPU::doInterrupts() {
-    if (instrContext.interruptMasterEnable != IMEState::ENABLED) {
+    if (instrContext.cpuState == CPUState::STOPPED) {
         return false;
     }
-    u8 _if = memory->read8BitsAt(0xFF0F) & 0b11111u;
-    u8 _ie = memory->read8BitsAt(0xFFFF);
-    u8 _intr = _if & _ie;
+    u8 _if = memory->read8BitsAt(FB_REG_IF) & 0x1fu;
+    u8 _ie = memory->read8BitsAt(FB_REG_IE) & 0x1fu;
+    u8 _intr = _if & _ie & 0x1f;
     if (!_intr) {
         return false;
+    }
+    if (instrContext.interruptMasterEnable != IMEState::ENABLED) {
+        // If CPU is halted, do not handle interrupt but just let it continue executing instructions again
+        return instrContext.cpuState == CPUState::HALTED;
     }
     for (u8 shift = 0 ; shift <= 4 ; shift++) {
         u8 bitMask = 1u << shift;
@@ -1049,7 +1071,7 @@ bool CPU::doInterrupts() {
         instrContext.progCounter = addr;
         debug_print_4("Do interrupt at 0x%04X\n", addr);
         _if &= ~bitMask;
-        memory->write8BitsTo(0xFF0F, _if); // TODO: Investigate "Timer doesn't work" error from ROM output
+        memory->write8BitsTo(FB_REG_IF, _if); // TODO: Investigate "Timer doesn't work" error from ROM output
         // TODO: Interrupt Service Routine should take 5 cycles
         return true;
     }
@@ -1101,8 +1123,8 @@ void CPU::doTimers() {
 
 void CPU::requestInterrupt(InterruptType type) {
     //fprintf(stdout, "#req int %d\n", type);
-    u8 _if = memory->read8BitsAt(0xFF0F);
-    memory->write8BitsTo(0xFF0F, _if | getInterruptBitMask(type));
+    u8 _if = memory->read8BitsAt(FB_REG_IF);
+    memory->write8BitsTo(FB_REG_IF, _if | getInterruptBitMask(type));
 }
 
 void CPU::setProgramCounter(u16 offset) {

@@ -46,12 +46,16 @@ bool Instructions::disableInterrupts(InstrContext &context) {
 }
 
 bool Instructions::stop(InstrContext &context) {
+    *context.regA = 0;
+    *context.regB = context.memory->read8BitsAt(FB_REG_IE);
+    context.memory->write8BitsTo(FB_REG_IE, 0);
+    context.memory->write8BitsTo(FB_REG_P1, 0);
     context.cpuState = CPUState::STOPPED;
     return true;
 }
 
 bool Instructions::halt(InstrContext &context) {
-    if (context.interruptMasterEnable == IMEState::ENABLED) {
+    if (context.interruptMasterEnable == IMEState::ENABLED || (context.memory->read8BitsAt(FB_REG_IE) & context.memory->read8BitsAt(FB_REG_IF) & 0x1f) == 0) {
         context.cpuState = CPUState::HALTED;
     } else if (context.gbType != GameBoyType::GameBoyCGB) {
         // On non-GBC devices, the next instruction is skipped if HALT was requested with IME being disabled
