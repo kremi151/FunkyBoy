@@ -310,6 +310,10 @@ TEST(testHALTBugSkipping) {
     cpu.instrContext.progCounter = initialProgCounter;
     cpu.instrContext.interruptMasterEnable = FunkyBoy::IMEState::DISABLED;
 
+    // HALT bug is triggered when IME == 0 && (IE & IF) != 0
+    memory->write8BitsTo(FB_REG_IE, 0x4);
+    memory->write8BitsTo(FB_REG_IF, 0x4);
+
     // Program ROM
     cartridge->rom[initialProgCounter] = 0x76;      // HALT
     cartridge->rom[initialProgCounter + 1] = 0x3C;  // INC A
@@ -350,6 +354,10 @@ TEST(testHALTBugHanging) {
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
     cpu.instrContext.interruptMasterEnable = FunkyBoy::IMEState::DISABLED;
+
+    // HALT bug is triggered when IME == 0 && (IE & IF) != 0
+    memory->write8BitsTo(FB_REG_IE, 0x4);
+    memory->write8BitsTo(FB_REG_IF, 0x4);
 
     // Program ROM
     cartridge->rom[initialProgCounter] = 0x76;      // HALT
