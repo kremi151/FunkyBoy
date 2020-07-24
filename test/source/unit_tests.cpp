@@ -343,6 +343,66 @@ TEST(testHALTBugSkipping) {
     assertEquals(originalA + 2, *cpu.regA);
 }
 
+TEST(testHALTNoSkippingIfIMEDisabled) {
+    auto memory = createMemory();
+    auto cartridge = memory->getCartridge();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+
+    // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
+    cartridge->rom = new FunkyBoy::u8[0x105];
+
+    auto initialProgCounter = 0x100;
+    cpu.instrContext.progCounter = initialProgCounter;
+    cpu.instrContext.interruptMasterEnable = FunkyBoy::IMEState::DISABLED;
+
+    // HALT bug is triggered when IME == 0 && (IE & IF) != 0
+    // So we set (IE & IF) == 0 here
+    memory->write8BitsTo(FB_REG_IE, 0x4);
+    memory->write8BitsTo(FB_REG_IF, 0x2);
+
+    // Program ROM
+    cartridge->rom[initialProgCounter] = 0x76;      // HALT
+    cartridge->rom[initialProgCounter + 1] = 0x3C;  // INC A
+    cartridge->rom[initialProgCounter + 2] = 0x00;  // NOP
+
+    FunkyBoy::u8 originalA = *cpu.instrContext.regA;
+
+    // Initial fetch without executing anything
+    assertDoFullMachineCycle(cpu);
+    assertEquals(0x76, cpu.instrContext.instr);
+    assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
+    assertEquals(originalA, *cpu.regA);
+
+    // Assert that we are indeed in HALT mode (no execution of any opcode)
+    for (int i = 0 ; i < 5 ; i++) {
+        assertDoFullMachineCycle(cpu);
+
+        assertEquals(FunkyBoy::CPUState::HALTED, cpu.instrContext.cpuState);
+
+        assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
+        assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
+        assertEquals(originalA, *cpu.regA);
+    }
+
+    // Set IE and IF to same value -> should request an interrupt
+    memory->write8BitsTo(FB_REG_IE, 0x4);
+    memory->write8BitsTo(FB_REG_IF, 0x4);
+
+    // As IME == 0, we must not jump to the interrupt vector
+    // Instead, we just continue reading the next opcodes
+
+    // We stay stuck for one cycle on the current opcode before we proceed
+    assertDoFullMachineCycle(cpu);
+    assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
+    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
+    assertEquals(originalA, *cpu.regA);
+
+    assertDoFullMachineCycle(cpu);
+    assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
+    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
+    assertEquals(originalA + 1, *cpu.regA);
+}
+
 TEST(testHALTBugHanging) {
     auto memory = createMemory();
     auto cartridge = memory->getCartridge();
