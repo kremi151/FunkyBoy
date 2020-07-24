@@ -16,8 +16,8 @@
 
 #include <acacia.h>
 
-#include "rom_tests.h"
 #include "unit_tests.h"
+#include "rom_cpu_instrs_tests.h"
 
 int main() {
     acacia::Report report;

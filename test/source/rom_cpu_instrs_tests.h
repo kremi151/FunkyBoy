@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_ROM_TESTS_H
-#define FB_TESTS_ROM_TESTS_H
+#ifndef FB_TESTS_ROM_CPU_INSTRS_TESTS_H
+#define FB_TESTS_ROM_CPU_INSTRS_TESTS_H
 
 #include <acacia.h>
 
 acacia::Report __fbTests_runRomTests();
 
-#endif //FB_TESTS_ROM_TESTS_H
+#endif //FB_TESTS_ROM_CPU_INSTRS_TESTS_H

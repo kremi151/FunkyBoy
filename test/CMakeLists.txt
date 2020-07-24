@@ -7,7 +7,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 set(SOURCES
         source/controllers/serial_test.cpp
-        source/rom_tests.cpp
+        source/commons.cpp
+        source/rom_cpu_instrs_tests.cpp
         source/unit_tests.cpp
         source/main.cpp
         )
@@ -15,7 +16,7 @@ set(SOURCES
 set(HEADERS
         source/controllers/serial_test.h
         source/commons.h
-        source/rom_tests.h
+        source/rom_cpu_instrs_tests.h
         source/unit_tests.h
         )
 
