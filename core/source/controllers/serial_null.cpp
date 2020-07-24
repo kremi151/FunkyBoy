@@ -18,6 +18,6 @@
 
 using namespace FunkyBoy::Controller;
 
-void SerialControllerVoid::sendByte(u8 data) {
+void SerialControllerVoid::sendByte(FunkyBoy::u8 data) {
     // Do nothing
 }
