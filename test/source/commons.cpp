@@ -20,6 +20,7 @@
 #include <acacia.h>
 #include <memory/memory.h>
 #include <emulator/emulator.h>
+#include <cstring>
 
 void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks) {
     expectedTicks *= 4;
