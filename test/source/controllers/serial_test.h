@@ -19,11 +19,16 @@
 
 #include <controllers/serial.h>
 
+// sizeof("Passed") = 6
+#define FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE 6
+
 namespace FunkyBoy::Controller {
 
     class SerialControllerTest: public SerialController {
     public:
         void sendByte(u8 data) override;
+
+        char lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE + 1]{};
     };
 
 }

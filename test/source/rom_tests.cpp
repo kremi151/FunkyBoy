@@ -24,9 +24,10 @@
 #include <emulator/emulator.h>
 
 void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks) { expectedTicks *= 4;
+    auto serial = std::make_shared<FunkyBoy::Controller::SerialControllerTest>();
     FunkyBoy::Emulator emulator(
             TEST_GB_TYPE,
-            std::make_shared<FunkyBoy::Controller::SerialControllerTest>()
+            serial
     );
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
@@ -34,6 +35,10 @@ void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTic
     for (unsigned int i = 0 ; i < expectedTicks ; i++) {
         if (!emulator.doTick()) {
             testFailure("Emulation tick failed");
+        }
+        if (std::strcmp("Passed", serial->lastWord) == 0) {
+            std::cout << std::endl;
+            break;
         }
     }
 

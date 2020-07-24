@@ -21,4 +21,8 @@ using namespace FunkyBoy::Controller;
 
 void SerialControllerTest::sendByte(FunkyBoy::u8 data) {
     std::cout << data;
+    for (u8 i = 1 ; i < FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE ; i++) {
+        lastWord[i - 1] = lastWord[i];
+    }
+    lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE - 1] = data;
 }
