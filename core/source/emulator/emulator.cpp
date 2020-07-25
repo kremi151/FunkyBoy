@@ -44,7 +44,7 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     cartridge->loadROM(romFile);
 
     if (cartridge->getStatus() != CartridgeStatus::Loaded) {
-        std::cerr << "ROM could not be loaded" << std::endl;
+        std::cerr << "ROM could not be loaded from " << romPath.string() << std::endl;
         return cartridge->getStatus();
     }
 
