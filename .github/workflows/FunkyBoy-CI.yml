@@ -55,7 +55,7 @@ jobs:
           cmakeGenerator: ${{ matrix.config.generator }}
       - name: Perform tests (Windows)
         if: ${{ matrix.config.os == 'windows-latest' }}
-        run: "fb_tests.exe"
+        run: ".\\fb_tests.exe"
         working-directory: "${{ github.workspace }}/test/_fb_tests"
       - name: Perform tests (Linux + macOS)
         if: ${{ matrix.config.os != 'windows-latest' }}
