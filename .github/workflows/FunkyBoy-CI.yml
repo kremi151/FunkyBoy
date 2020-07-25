@@ -41,7 +41,7 @@ jobs:
           buildDirectory: "${{ github.workspace }}/../../_fb_test"
       - name: Perform tests (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: "${{ github.workspace }}/../../_fb_test/fb_test.exe"
+        run: "${{ github.workspace }}/../../_fb_test/fb_tests.exe"
       - name: Perform tests (Linux + macOS)
         if: ${{ matrix.os != 'windows-latest' }}
-        run: "${{ github.workspace }}/../../_fb_test/fb_test"
+        run: "${{ github.workspace }}/../../_fb_test/fb_tests"
