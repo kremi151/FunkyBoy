@@ -38,8 +38,8 @@ jobs:
           cmakeListsTxtPath: "${{ github.workspace }}/test/CMakeLists.txt"
           buildDirectory: "${{ github.workspace }}/../../_fb_test"
       - name: Perform tests (Windows)
-        if: ${{ matrix.os == "windows-latest" }}
+        if: ${{ matrix.os == 'windows-latest' }}
         run: "${{ github.workspace }}/../../_fb_test/fb_test.exe"
       - name: Perform tests (Linux + macOS)
-        if: ${{ matrix.os != "windows-latest" }}
+        if: ${{ matrix.os != 'windows-latest' }}
         run: "${{ github.workspace }}/../../_fb_test/fb_test"
