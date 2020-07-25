@@ -19,6 +19,7 @@
 #include "commons.h"
 
 #include <acacia.h>
+#include <util/fs.h>
 #include <memory/memory.h>
 #include <memory>
 #include <emulator/emulator.h>
@@ -80,7 +81,7 @@ TEST(testEchoRAM) {
 
 TEST(testReadROMTitle) {
     FunkyBoy::Emulator emulator(TEST_GB_TYPE);
-    std::filesystem::path romPath = std::filesystem::path("..") / "gb-test-roms" / "cpu_instrs" / "cpu_instrs.gb";
+    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "gb-test-roms" / "cpu_instrs" / "cpu_instrs.gb";
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 

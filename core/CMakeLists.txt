@@ -48,6 +48,7 @@ set(HEADERS
         source/util/typedefs.h
         source/cartridge/header.h
         source/util/romsizes.h
+        source/util/fs.h
         source/cartridge/cartridge.h
         source/memory/memory.h
         source/util/debug.h
@@ -74,6 +75,10 @@ set(HEADERS
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
 
+find_package(Filesystem REQUIRED)
+
 add_library(fb_core STATIC ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
+
+target_link_libraries(fb_core CXX::Filesystem)

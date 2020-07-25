@@ -14,14 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_COMMONS_H
-#define FB_TESTS_COMMONS_H
+#ifndef FB_CORE_INCLUDE_HELPER_FS_H
+#define FB_CORE_INCLUDE_HELPER_FS_H
 
-#include <emulator/gb_type.h>
-#include <util/fs.h>
+#if STD_FS_IS_EXPERIMENTAL
 
-#define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
+#include <experimental/filesystem>
 
-void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks);
+namespace FunkyBoy {
+    namespace fs = std::experimental::filesystem;
+}
 
-#endif //FB_TESTS_COMMONS_H
+#else
+
+#include <filesystem>
+
+namespace FunkyBoy {
+    namespace fs = std::filesystem;
+}
+
+#endif
+
+#endif //FB_CORE_INCLUDE_HELPER_FS_H
