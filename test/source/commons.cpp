@@ -24,10 +24,12 @@
 
 void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks) {
     expectedTicks *= 4;
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
     auto serial = std::make_shared<FunkyBoy::Controller::SerialControllerTest>();
+    controllers->setSerial(serial);
     FunkyBoy::Emulator emulator(
             TEST_GB_TYPE,
-            serial
+            controllers
     );
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);

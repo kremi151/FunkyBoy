@@ -24,8 +24,8 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::SerialControllerPtr serialController, io_registers_ptr ioRegisters): cartridge(std::move(cartridge))
-    , serialController(std::move(serialController)), ioRegisters(std::move(ioRegisters)), interruptEnableRegister(0)
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters): cartridge(std::move(cartridge))
+    , controllers(std::move(controllers)), ioRegisters(std::move(ioRegisters)), interruptEnableRegister(0)
 {
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
@@ -114,7 +114,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
         return true;
     }
     if (offset == FB_REG_SC && val == 0x81) {
-        serialController->sendByte(read8BitsAt(FB_REG_SB));
+        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
     }
     if (offset == FB_REG_DIV) {
         // Direct write to DIV ; reset to 0

@@ -21,21 +21,25 @@
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
 #include <controllers/serial_null.h>
+#include <controllers/joypad_void.h>
 
 // TODO: For debugging, remove it afterwards:
 #include <sstream>
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(GameBoyType gbType, const Controller::SerialControllerPtr& serialController): ioRegisters(new io_registers)
-    , cartridge(new Cartridge), serialController(serialController), cpu(gbType, memory, ioRegisters)
-    , memory(new Memory(cartridge, serialController, ioRegisters))
+Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers): ioRegisters(new io_registers)
+    , cartridge(new Cartridge), controllers(controllers), cpu(gbType, memory, ioRegisters)
+    , memory(new Memory(cartridge, controllers, ioRegisters))
 {
 }
 
 Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
         gbType,
-        std::make_shared<Controller::SerialControllerVoid>()
+        std::make_shared<Controller::Controllers>(
+                std::make_shared<Controller::SerialControllerVoid>(),
+                std::make_shared<Controller::JoypodControllerVoid>()
+        )
 ) {}
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {

@@ -23,7 +23,7 @@
 #include <memory/memory.h>
 #include <memory>
 #include <emulator/emulator.h>
-#include <controllers/serial_null.h>
+#include <controllers/controllers.h>
 #include <fstream>
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
@@ -45,7 +45,7 @@ void assertDoFullMachineCycle(FunkyBoy::CPU &cpu) {
 FunkyBoy::MemoryPtr createMemory() {
     FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers);
-    return std::make_shared<FunkyBoy::Memory>(cartridge, std::make_shared<FunkyBoy::Controller::SerialControllerVoid>(), io);
+    return std::make_shared<FunkyBoy::Memory>(cartridge, std::make_shared<FunkyBoy::Controller::Controllers>(), io);
 }
 
 TEST(test16BitReadWrite) {
