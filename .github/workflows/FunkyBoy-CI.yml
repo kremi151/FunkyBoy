@@ -38,10 +38,10 @@ jobs:
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/test/CMakeLists.txt"
-          buildDirectory: "${{ github.workspace }}/../../_fb_test"
+          buildDirectory: "${{ github.workspace }}/test/_fb_tests"
       - name: Perform tests (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: "${{ github.workspace }}/../../_fb_test/fb_tests.exe"
+        run: "${{ github.workspace }}/test/_fb_tests/fb_tests.exe"
       - name: Perform tests (Linux + macOS)
         if: ${{ matrix.os != 'windows-latest' }}
-        run: "${{ github.workspace }}/../../_fb_test/fb_tests"
+        run: "${{ github.workspace }}/test/_fb_tests/fb_tests"
