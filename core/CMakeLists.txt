@@ -75,6 +75,10 @@ set(HEADERS
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
 
+find_package(Filesystem REQUIRED)
+
 add_library(fb_core STATIC ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
+
+target_link_libraries(fb_core CXX::Filesystem)
