@@ -91,20 +91,22 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
 }
 
 u8 Memory::read8BitsAt(memory_address offset) {
-    auto ptr = getMemoryAddress(offset);
-    if (ptr == nullptr) {
+    u8 data;
+    if (!interceptReadAt(offset, &data)) {
         fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
         return 0;
     }
-    return *ptr;
+    return data;
 }
 
 i8 Memory::readSigned8BitsAt(memory_address offset) {
-    auto vptr = static_cast<void*>(getMemoryAddress(offset));
-    if (vptr == nullptr) {
+    u8 data;
+    if (!interceptReadAt(offset, &data)) {
         fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
         return 0;
     }
+    u8 *uptr = &data;
+    auto vptr = static_cast<void*>(uptr);
     return *static_cast<i8*>(vptr);
 }
 
@@ -124,6 +126,59 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
     return false;
 }
 
+bool Memory::interceptReadAt(FunkyBoy::memory_address offset, u8 *out) {
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        return false;
+    }
+    switch (offset) {
+        case FB_REG_P1: {
+            *out = readP1(*ptr);
+            break;
+        }
+        default: {
+            *out = *ptr;
+            break;
+        }
+    }
+    return true;
+}
+
+u8 Memory::readP1(u8 originalValue) {
+    u8 val = 0b11001111u | (originalValue & 0b00110000u);
+    auto &joypad = *controllers->getJoypad();
+    if (originalValue & 0b00100000u) {
+        // Select Button keys
+        if (joypad.isKeyPressed(Controller::JOYPAD_A)) {
+            val &= 0b11111110u;
+        }
+        if (joypad.isKeyPressed(Controller::JOYPAD_B)) {
+            val &= 0b11111101u;
+        }
+        if (joypad.isKeyPressed(Controller::JOYPAD_SELECT)) {
+            val &= 0b11111011u;
+        }
+        if (joypad.isKeyPressed(Controller::JOYPAD_START)) {
+            val &= 0b11110111u;
+        }
+    } else if (originalValue & 0b00010000u) {
+        // Select Direction keys
+        if (joypad.isKeyPressed(Controller::JOYPAD_RIGHT)) {
+            val &= 0b11111110u;
+        }
+        if (joypad.isKeyPressed(Controller::JOYPAD_LEFT)) {
+            val &= 0b11111101u;
+        }
+        if (joypad.isKeyPressed(Controller::JOYPAD_UP)) {
+            val &= 0b11111011u;
+        }
+        if (joypad.isKeyPressed(Controller::JOYPAD_DOWN)) {
+            val &= 0b11110111u;
+        }
+    }
+    return val;
+}
+
 void Memory::write8BitsTo(memory_address offset, u8 val) {
     if (interceptWrite(offset, val)) {
         return;
@@ -137,13 +192,12 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
 }
 
 u16 Memory::read16BitsAt(memory_address offset) {
-    auto ptrLsb = getMemoryAddress(offset);
-    auto ptrMsb = getMemoryAddress(offset + 1);
-    if (ptrLsb == nullptr || ptrMsb == nullptr) {
+    u8 lsb, msb;
+    if (!interceptReadAt(offset, &lsb) || !interceptReadAt(offset + 1, &msb)) {
         fprintf(stderr, "Illegal 16-bit read from 0x%04X\n", offset);
         return 0;
     }
-    return (*ptrMsb << 8) | *ptrLsb;
+    return (msb << 8) | lsb;
 }
 
 void Memory::write16BitsTo(memory_address offset, u16 val) {

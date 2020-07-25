@@ -44,7 +44,10 @@ namespace FunkyBoy {
 
         u8 *getMemoryAddress(memory_address offset);
 
+        u8 readP1(u8 originalValue);
+
         bool interceptWrite(memory_address offset, u8 val);
+        bool interceptReadAt(memory_address offset, u8 *out);
     public:
         Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
         ~Memory();
