@@ -8,11 +8,17 @@ on:
 
 jobs:
   build-core:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
         fail-fast: false
         matrix:
-            os: [ubuntu-latest, macos-latest, windows-latest]
+            config:
+              - os: ubuntu-latest
+                generator: Ninja
+              - os: macos-latest
+                generator: Ninja
+              - os: windows-latest
+                generator: VS16Win64
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,13 +28,20 @@ jobs:
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/core/CMakeLists.txt"
+          cmakeGenerator: ${{ matrix.config.generator }}
 
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
         fail-fast: false
         matrix:
-            os: [ubuntu-latest, macos-latest, windows-latest]
+            config:
+              - os: ubuntu-latest
+                generator: Ninja
+              - os: macos-latest
+                generator: Ninja
+              - os: windows-latest
+                generator: VS16Win64
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -39,11 +52,12 @@ jobs:
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/test/CMakeLists.txt"
           buildDirectory: "${{ github.workspace }}/test/_fb_tests"
+          cmakeGenerator: ${{ matrix.config.generator }}
       - name: Perform tests (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.config.os == 'windows-latest' }}
         run: "fb_tests.exe"
         working-directory: "${{ github.workspace }}/test/_fb_tests"
       - name: Perform tests (Linux + macOS)
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: ${{ matrix.config.os != 'windows-latest' }}
         run: "./fb_tests"
         working-directory: "${{ github.workspace }}/test/_fb_tests"
