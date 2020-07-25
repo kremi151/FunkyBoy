@@ -18,10 +18,10 @@
 #define FB_TESTS_COMMONS_H
 
 #include <emulator/gb_type.h>
-#include <filesystem>
+#include <util/fs.h>
 
 #define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
 
-void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks);
+void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks);
 
 #endif //FB_TESTS_COMMONS_H

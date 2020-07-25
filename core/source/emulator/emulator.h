@@ -17,7 +17,7 @@
 #ifndef CORE_EMULATOR_H
 #define CORE_EMULATOR_H
 
-#include <filesystem>
+#include <util/fs.h>
 #include <memory>
 #include <emulator/cpu.h>
 #include <emulator/io_registers.h>
@@ -42,7 +42,7 @@ namespace FunkyBoy {
         explicit Emulator(GameBoyType gbType);
         Emulator(GameBoyType gbType, const Controller::SerialControllerPtr &serialController);
 
-        CartridgeStatus loadGame(const std::filesystem::path &romPath);
+        CartridgeStatus loadGame(const fs::path &romPath);
         Cartridge &getCartridge();
 
         bool doTick();

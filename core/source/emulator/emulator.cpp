@@ -38,7 +38,7 @@ Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
         std::make_shared<Controller::SerialControllerVoid>()
 ) {}
 
-CartridgeStatus Emulator::loadGame(const std::filesystem::path &romPath) {
+CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     std::ifstream romFile(romPath.c_str(), std::ios::binary);
 
     cartridge->loadROM(romFile);

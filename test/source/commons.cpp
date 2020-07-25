@@ -22,7 +22,7 @@
 #include <emulator/emulator.h>
 #include <cstring>
 
-void testUsingROM(const std::filesystem::path &romPath, unsigned int expectedTicks) {
+void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks) {
     expectedTicks *= 4;
     auto serial = std::make_shared<FunkyBoy::Controller::SerialControllerTest>();
     FunkyBoy::Emulator emulator(
