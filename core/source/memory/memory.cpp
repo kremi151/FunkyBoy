@@ -131,23 +131,16 @@ bool Memory::interceptReadAt(FunkyBoy::memory_address offset, u8 *out) {
     if (ptr == nullptr) {
         return false;
     }
-    switch (offset) {
-        case FB_REG_P1: {
-            *out = readP1(*ptr);
-            break;
-        }
-        default: {
-            *out = *ptr;
-            break;
-        }
-    }
+    *out = *ptr;
     return true;
 }
 
-u8 Memory::readP1(u8 originalValue) {
-    u8 val = 0b11001111u | (originalValue & 0b00110000u);
+u8 Memory::updateJoypad() {
+    u8 *p1 = getMemoryAddress(FB_REG_P1);
+    u8 originalValue = *p1;
+    u8 val = originalValue | 0b11001111u;
     auto &joypad = *controllers->getJoypad();
-    if (originalValue & 0b00100000u) {
+    if ((originalValue & 0b00100000u) == 0) {
         // Select Button keys
         if (joypad.isKeyPressed(Controller::JOYPAD_A)) {
             val &= 0b11111110u;
@@ -161,7 +154,8 @@ u8 Memory::readP1(u8 originalValue) {
         if (joypad.isKeyPressed(Controller::JOYPAD_START)) {
             val &= 0b11110111u;
         }
-    } else if (originalValue & 0b00010000u) {
+    }
+    if ((originalValue & 0b00010000u) == 0) {
         // Select Direction keys
         if (joypad.isKeyPressed(Controller::JOYPAD_RIGHT)) {
             val &= 0b11111110u;
@@ -176,6 +170,7 @@ u8 Memory::readP1(u8 originalValue) {
             val &= 0b11110111u;
         }
     }
+    *p1 = val;
     return val;
 }
 

@@ -20,13 +20,12 @@
 #include <util/typedefs.h>
 #include <util/registers.h>
 #include <emulator/io_registers.h>
-#include <cmath>
 
 using namespace FunkyBoy;
 
 CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): memory(std::move(memory)), gbType(gbType)
     , ioRegisters(std::move(ioRegisters)), instrContext(gbType), timerOverflowingCycles(-1), delayedTIMAIncrease(false)
-    , operandIndex(0) , cpuInterCycleCounter(0)
+    , operandIndex(0), cpuInterCycleCounter(0), joypadWasNotPressed(true)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt"), instr(0)
 #endif
@@ -142,6 +141,7 @@ bool CPU::doTick() {
     // TODO: If STOPPED, react to joypad input
 
     if (cpuInterCycleCounter == 0) {
+        doJoypad();
         result = doCycle();
     } else {
         result = true;
@@ -1037,6 +1037,16 @@ inline memory_address getInterruptStartAddress(InterruptType type) {
 
 inline u8 getInterruptBitMask(InterruptType type) {
     return 1u << static_cast<u8>(type);
+}
+
+void CPU::doJoypad() {
+    u8 oldP1 = memory->read8BitsAt(FB_REG_P1) & 0b00001111u;
+    u8 newP1 = memory->updateJoypad() & 0b00001111u;
+    bool isNotPressed = oldP1 & newP1;
+    if (!isNotPressed && joypadWasNotPressed) {
+        requestInterrupt(InterruptType::JOYPAD);
+    }
+    joypadWasNotPressed = isNotPressed;
 }
 
 bool CPU::doInterrupts() {

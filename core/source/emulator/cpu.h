@@ -63,11 +63,14 @@ namespace FunkyBoy {
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
 
+        bool joypadWasNotPressed;
+
         void powerUpInit();
 
         bool doCycle();
         bool doFetchAndDecode();
 
+        void doJoypad();
         bool doInterrupts();
         void doTimers();
         void requestInterrupt(InterruptType type);
