@@ -110,18 +110,31 @@ i8 Memory::readSigned8BitsAt(memory_address offset) {
     return *static_cast<i8*>(vptr);
 }
 
-bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 val) {
+bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 &val) {
     if (offset <= 0x7FFF && cartridge->mbc->interceptWrite(offset, val)) {
         // Writing to read-only area, so we let it intercept by the MBC
         return true;
     }
     if (offset == FB_REG_SC && val == 0x81) {
         controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
-    }
-    if (offset == FB_REG_DIV) {
-        // Direct write to DIV ; reset to 0
-        ioRegisters->resetSysCounter();
-        return true;
+    } else {
+        switch (offset) {
+            case FB_REG_DIV: {
+                // Direct write to DIV ; reset to 0
+                ioRegisters->resetSysCounter();
+                return true;
+            }
+            case FB_REG_P1: {
+                // Only bits 4 and 5 are writable
+                u8 currentP1 = *getMemoryAddress(FB_REG_P1) & 0b00001111u;
+                val = 0b11000000u               // Bits 6 and 7 always read '1'
+                        | (val & 0b00110000u)   // Keep the two writable bits
+                        | currentP1;            // Take the read-only bits from the current P1 value
+                break;
+            }
+            default:
+                return false;
+        }
     }
     return false;
 }
