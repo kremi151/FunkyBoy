@@ -141,8 +141,6 @@ void CPU::powerUpInit() {
 bool CPU::doTick() {
     bool result;
 
-    // TODO: If STOPPED, react to joypad input
-
     if (cpuInterCycleCounter == 0) {
         doJoypad();
         result = doCycle();
@@ -1048,6 +1046,9 @@ void CPU::doJoypad() {
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
         requestInterrupt(InterruptType::JOYPAD);
+    }
+    if (!isNotPressed && instrContext.cpuState == CPUState::STOPPED) {
+        instrContext.cpuState = CPUState::RUNNING;
     }
     joypadWasNotPressed = isNotPressed;
 }
