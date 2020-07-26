@@ -133,6 +133,9 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xff4a, 0x00);
     memory->write8BitsTo(0xff4b, 0x00);
     memory->write8BitsTo(0xffff, 0x00);
+
+    // Initialize Joypad
+    memory->updateJoypad();
 }
 
 bool CPU::doTick() {
