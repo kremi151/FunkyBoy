@@ -25,8 +25,8 @@ int main() {
     report += __fbTests_runUnitTests();
     report += __fbTests_runRomTests();
 
-    std::ofstream reportFile("test-report.xml");
-    acacia::generateJUnitReport(report, reportFile);
+    std::ofstream reportFile("acacia-report.txt");
+    acacia::generateAcaciaReport(report, reportFile);
 
     return report ? 0 : 1;
 }
