@@ -1,4 +1,4 @@
-name: FunkyBoy CI
+name: Test
 
 on:
   push:
@@ -7,29 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  build-core:
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-        fail-fast: false
-        matrix:
-            config:
-              - os: ubuntu-latest
-                generator: Ninja
-              - os: macos-latest
-                generator: Ninja
-              - os: windows-latest
-                generator: VS16Win64
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: run-cmake
-        uses: lukka/run-cmake@v2.5
-        with:
-          cmakeListsTxtPath: "${{ github.workspace }}/core/CMakeLists.txt"
-          cmakeGenerator: ${{ matrix.config.generator }}
-
   test:
     runs-on: ${{ matrix.config.os }}
     strategy:
