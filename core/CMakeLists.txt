@@ -11,10 +11,10 @@ if (MSVC)
 endif(MSVC)
 
 set(SOURCES
-#        library.cpp
         source/emulator/emulator.cpp
         source/emulator/io_registers.cpp
         source/emulator/cpu.cpp
+        source/emulator/ppu.cpp
         source/controllers/controllers.cpp
         source/controllers/serial_null.cpp
         source/controllers/joypad_void.cpp
@@ -41,11 +41,11 @@ set(SOURCES
         )
 
 set(HEADERS
-#        library.h
         source/emulator/emulator.h
         source/emulator/gb_type.h
         source/emulator/io_registers.h
         source/emulator/cpu.h
+        source/emulator/ppu.h
         source/controllers/controllers.h
         source/controllers/serial.h
         source/controllers/serial_null.h

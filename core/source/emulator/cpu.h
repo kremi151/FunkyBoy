@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CORE_CPU_H
-#define CORE_CPU_H
+#ifndef FB_CORE_CPU_H
+#define FB_CORE_CPU_H
 
 #include "util/typedefs.h"
 
@@ -107,4 +107,4 @@ namespace FunkyBoy {
 
 }
 
-#endif //CORE_CPU_H
+#endif //FB_CORE_CPU_H

@@ -30,8 +30,8 @@ int main(int argc, char **argv) {
             FB_NAME,
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            640,
-            480,
+            FB_GB_DISPLAY_WIDTH * 3,
+            FB_GB_DISPLAY_HEIGHT * 3,
             0
     );
 

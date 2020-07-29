@@ -29,6 +29,10 @@
 #define FB_REG_TMA 0xFF06
 #define FB_REG_TAC 0xFF07
 #define FB_REG_IF 0xFF0F
+#define FB_REG_LCDC 0xFF40
+#define FB_REG_STAT 0xFF41
+#define FB_REG_LY 0xFF44
+#define FB_REG_LYC 0xFF45
 #define FB_REG_IE 0xFFFF
 
 namespace FunkyBoy {
