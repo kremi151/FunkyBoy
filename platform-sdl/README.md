@@ -1,5 +1,7 @@
 # FunkyBoy - SDL2
 
+![Build SDL platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20SDL%20platform/badge.svg)
+
 This is the implementation of FunkyBoy for Windows, Linux and macOS
 
 ## Development notes (Windows)
