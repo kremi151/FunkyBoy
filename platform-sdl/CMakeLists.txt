@@ -7,9 +7,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 set(SOURCES
         source/main.cpp
+        source/window/window.cpp
         )
 
 set(HEADERS
+        source/window/window.h
         )
 
 find_package(SDL2 REQUIRED)
@@ -22,6 +24,7 @@ add_executable(fb_sdl ${SOURCES} ${HEADERS})
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core" fb_core_build)
 
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
 include_directories(${SDL2_INCLUDE_DIRS})
 

@@ -15,11 +15,13 @@
  */
 
 #include <SDL.h>
+#include <util/typedefs.h>
+#include <window/window.h>
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = SDL_CreateWindow(
-            "SDL2Test",
+            FB_NAME,
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
             640,
@@ -32,9 +34,16 @@ int main() {
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
-    SDL_Delay(3000);
+    FunkyBoy::SDL::Window fbWindow{};
+
+    while (true) {
+        fbWindow.update(window);
+        if (fbWindow.hasUserRequestedExit()) {
+            break;
+        }
+    }
 
     SDL_DestroyWindow(window);
     SDL_Quit();
-    return 420;
+    return 0;
 }
