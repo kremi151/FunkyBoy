@@ -18,7 +18,7 @@
 #include <util/typedefs.h>
 #include <window/window.h>
 
-int main() {
+int main(int argc, char **argv) {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = SDL_CreateWindow(
             FB_NAME,
@@ -34,7 +34,8 @@ int main() {
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
-    FunkyBoy::SDL::Window fbWindow{};
+    FunkyBoy::SDL::Window fbWindow;
+    fbWindow.init(argc, argv);
 
     while (true) {
         fbWindow.update(window);

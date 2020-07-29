@@ -19,13 +19,18 @@
 
 #include <SDL.h>
 #include <util/typedefs.h>
+#include <emulator/emulator.h>
 
 namespace FunkyBoy::SDL {
 
     class Window {
     private:
-        SDL_Event sdlEvents;
+        SDL_Event sdlEvents{};
+        Emulator emulator;
     public:
+        Window();
+
+        void init(int argc, char **argv);
         void update(SDL_Window *window);
 
         fb_inline bool hasUserRequestedExit();

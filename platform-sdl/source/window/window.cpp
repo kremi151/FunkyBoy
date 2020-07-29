@@ -16,10 +16,33 @@
 
 #include "window.h"
 
+#include <util/fs.h>
+
 using namespace FunkyBoy::SDL;
+
+Window::Window(): emulator(GameBoyType::GameBoyDMG) {
+}
+
+void Window::init(int argc, char **argv) {
+    if (argc <= 1) {
+        std::cerr << "No ROM specified as command line argument" << std::endl;
+        return;
+    }
+    char *romPath = argv[1];
+    std::cout << "Loading ROM from " << romPath << "..." << std::endl;
+    auto status = emulator.loadGame(fs::path(argv[1]));
+    if (status == CartridgeStatus::Loaded) {
+        std::cout << "Loaded ROM at " << romPath << std::endl;
+    } else {
+        std::cerr << "Could not load ROM at " << romPath << " (status=" << status << ")" << std::endl;
+    }
+}
 
 void Window::update(SDL_Window *window) {
     SDL_PollEvent(&sdlEvents);
+    if (emulator.getCartridge().getStatus() == CartridgeStatus::Loaded) {
+        emulator.doTick();
+    }
 }
 
 fb_inline bool Window::hasUserRequestedExit() {
