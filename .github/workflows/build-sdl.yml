@@ -35,8 +35,20 @@ jobs:
       - name: Install dependencies (macOS)
         if: ${{ startsWith(matrix.config.os, 'macos-') }}
         run: brew install sdl2
-      - name: run-cmake
+      - name: Install dependencies (Windows)
+        if: ${{ startsWith(matrix.config.os, 'windows-') }}
+        run: |
+          Invoke-WebRequest 'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip' -OutFile "${{ github.workspace }}\\sdl2.zip"
+          expand-archive -path "${{ github.workspace }}\\sdl2.zip" -destinationpath "${{ github.workspace }}\\sdl2"
+        shell: powershell
+      - name: Build with CMake (Linux & macOS)
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
+      - name: Build with CMake (Windows)
+        uses: lukka/run-cmake@v2.5
+        with:
+          cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
+          cmakeGenerator: ${{ matrix.config.generator }}
+          buildWithCMakeArgs: -DSDL2_DIR="${{ github.workspace }}\\sdl2\\SDL2-2.0.12"
