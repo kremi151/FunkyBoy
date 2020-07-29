@@ -14,32 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef FB_SDL_WINDOW_H
-#define FB_SDL_WINDOW_H
+#ifndef FB_SDL_CONTROLLERS_SERIAL_SDL_H
+#define FB_SDL_CONTROLLERS_SERIAL_SDL_H
 
-#include <SDL.h>
-#include <util/typedefs.h>
-#include <emulator/emulator.h>
+#include <controllers/serial.h>
 
-namespace FunkyBoy::SDL {
+namespace FunkyBoy::Controller {
 
-    class Window {
-    private:
-        const GameBoyType gbType;
-
-        SDL_Event sdlEvents{};
-
-        Controller::ControllersPtr controllers;
-        Emulator emulator;
+    class SerialControllerSDL: public SerialController {
     public:
-        explicit Window(GameBoyType gbType);
-
-        void init(int argc, char **argv);
-        void update(SDL_Window *window);
-
-        fb_inline bool hasUserRequestedExit();
+        void sendByte(u8 data) override;
     };
 
 }
 
-#endif //FB_SDL_WINDOW_H
+#endif //FB_SDL_CONTROLLERS_SERIAL_SDL_H

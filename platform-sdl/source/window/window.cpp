@@ -17,13 +17,19 @@
 #include "window.h"
 
 #include <util/fs.h>
+#include <controllers/serial_sdl.h>
 
 using namespace FunkyBoy::SDL;
 
-Window::Window(): emulator(GameBoyType::GameBoyDMG) {
+Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
+    , controllers(new Controller::Controllers)
+    , emulator(GameBoyType::GameBoyDMG, controllers)
+{
 }
 
 void Window::init(int argc, char **argv) {
+    controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
+
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
         return;

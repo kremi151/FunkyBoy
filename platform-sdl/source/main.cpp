@@ -18,6 +18,12 @@
 #include <util/typedefs.h>
 #include <window/window.h>
 
+#include <chrono>
+#include <thread>
+
+// 4194304 Hz
+#define fb_clock_frequency (1000000000/4194304)
+
 int main(int argc, char **argv) {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = SDL_CreateWindow(
@@ -34,14 +40,21 @@ int main(int argc, char **argv) {
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
-    FunkyBoy::SDL::Window fbWindow;
+    using clock = std::chrono::high_resolution_clock;
+    auto next_frame = clock::now();
+
+    FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
     fbWindow.init(argc, argv);
 
     while (true) {
+        next_frame += std::chrono::nanoseconds(fb_clock_frequency);
+
         fbWindow.update(window);
         if (fbWindow.hasUserRequestedExit()) {
             break;
         }
+
+        std::this_thread::sleep_until(next_frame);
     }
 
     SDL_DestroyWindow(window);
