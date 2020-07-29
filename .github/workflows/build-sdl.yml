@@ -42,11 +42,13 @@ jobs:
           expand-archive -path "${{ github.workspace }}\\sdl2.zip" -destinationpath "${{ github.workspace }}\\sdl2"
         shell: powershell
       - name: Build with CMake (Linux & macOS)
+        if: ${{ !startsWith(matrix.config.os, 'windows-') }}
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
       - name: Build with CMake (Windows)
+        if: ${{ startsWith(matrix.config.os, 'windows-') }}
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
