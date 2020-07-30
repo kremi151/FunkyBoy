@@ -17,16 +17,10 @@ jobs:
             config:
               - os: ubuntu-latest
                 generator: Ninja
-                cmakeMode: CMakeListsTxtBasic
-                cmakeArgs: ''
               - os: macos-latest
                 generator: Ninja
-                cmakeMode: CMakeListsTxtBasic
-                cmakeArgs: ''
               - os: windows-latest
                 generator: VS16Win64
-                cmakeMode: CMakeListsTxtAdvanced
-                cmakeArgs: -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -47,10 +41,17 @@ jobs:
           Invoke-WebRequest 'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip' -OutFile "${{ github.workspace }}\sdl2.zip"
           expand-archive -path "${{ github.workspace }}\sdl2.zip" -destinationpath "${{ github.workspace }}\sdl2"
         shell: powershell
-      - name: Build with CMake
+      - name: Build with CMake (Linux & macOS)
+        if: ${{ !startsWith(matrix.config.os, 'windows-') }}
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
-          cmakeListsOrSettingsJson: ${{ matrix.config.cmakeMode }}
-          cmakeAppendedArgs: ${{ matrix.config.cmakeArgs }}
+      - name: Build with CMake (Windows)
+        if: ${{ startsWith(matrix.config.os, 'windows-') }}
+        uses: lukka/run-cmake@v2.5
+        with:
+          cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
+          cmakeGenerator: ${{ matrix.config.generator }}
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeAppendedArgs: -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
