@@ -20,31 +20,27 @@
 
 using namespace FunkyBoy::Controller;
 
-JoypadControllerSDL::JoypadControllerSDL(const SDL_Event &sdlEvents): sdlEvents(sdlEvents) {
+JoypadControllerSDL::JoypadControllerSDL(): keyboardState(SDL_GetKeyboardState(nullptr)) {
 }
 
 bool JoypadControllerSDL::isKeyPressed(JoypadKey key) {
-    if (sdlEvents.type != SDL_KEYDOWN) {
-        return false;
-    }
-    auto &keysym = sdlEvents.key.keysym;
     switch (key) {
         case FunkyBoy::Controller::JoypadKey::JOYPAD_A:
-            return keysym.sym == SDL_KeyCode::SDLK_q;
+            return keyboardState[SDL_SCANCODE_Q];
         case FunkyBoy::Controller::JoypadKey::JOYPAD_B:
-            return keysym.sym == SDL_KeyCode::SDLK_b;
+            return keyboardState[SDL_SCANCODE_W];
         case FunkyBoy::Controller::JoypadKey::JOYPAD_START:
-            return keysym.sym == SDL_KeyCode::SDLK_o;
+            return keyboardState[SDL_SCANCODE_O];
         case FunkyBoy::Controller::JoypadKey::JOYPAD_SELECT:
-            return keysym.sym == SDL_KeyCode::SDLK_p;
+            return keyboardState[SDL_SCANCODE_P];
         case FunkyBoy::Controller::JoypadKey::JOYPAD_LEFT:
-            return keysym.sym == SDL_KeyCode::SDLK_LEFT;
+            return keyboardState[SDL_SCANCODE_LEFT];
         case FunkyBoy::Controller::JoypadKey::JOYPAD_RIGHT:
-            return keysym.sym == SDL_KeyCode::SDLK_RIGHT;
+            return keyboardState[SDL_SCANCODE_RIGHT];
         case FunkyBoy::Controller::JoypadKey::JOYPAD_UP:
-            return keysym.sym == SDL_KeyCode::SDLK_UP;
+            return keyboardState[SDL_SCANCODE_UP];
         case FunkyBoy::Controller::JoypadKey::JOYPAD_DOWN:
-            return keysym.sym == SDL_KeyCode::SDLK_DOWN;
+            return keyboardState[SDL_SCANCODE_DOWN];
         default:
             return false;
     }

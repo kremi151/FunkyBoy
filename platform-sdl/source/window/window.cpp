@@ -30,7 +30,7 @@ Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
 
 void Window::init(int argc, char **argv) {
     controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
-    controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>(sdlEvents));
+    controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
 
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;

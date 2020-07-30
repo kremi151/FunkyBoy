@@ -24,9 +24,10 @@ namespace FunkyBoy::Controller {
 
     class JoypadControllerSDL: public JoypadController {
     private:
-        const SDL_Event &sdlEvents;
+        // Managed by the SDL library, so we must not manually free this pointer
+        const Uint8 *keyboardState;
     public:
-        explicit JoypadControllerSDL(const SDL_Event &sdlEvents);
+        JoypadControllerSDL();
 
         bool isKeyPressed(JoypadKey key) override;
     };
