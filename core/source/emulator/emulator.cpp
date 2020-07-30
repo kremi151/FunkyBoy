@@ -38,7 +38,7 @@ Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
         gbType,
         std::make_shared<Controller::Controllers>(
                 std::make_shared<Controller::SerialControllerVoid>(),
-                std::make_shared<Controller::JoypodControllerVoid>()
+                std::make_shared<Controller::JoypadControllerVoid>()
         )
 ) {}
 

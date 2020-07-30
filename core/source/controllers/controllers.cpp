@@ -29,7 +29,7 @@ Controllers::Controllers(
 
 Controllers::Controllers(): Controllers(
         std::make_shared<SerialControllerVoid>(),
-        std::make_shared<JoypodControllerVoid>()
+        std::make_shared<JoypadControllerVoid>()
 ) {
 }
 

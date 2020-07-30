@@ -8,11 +8,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 set(SOURCES
         source/main.cpp
         source/controllers/serial_sdl.cpp
+        source/controllers/joypad_sdl.cpp
         source/window/window.cpp
         )
 
 set(HEADERS
         source/controllers/serial_sdl.h
+        source/controllers/joypad_sdl.h
         source/window/window.h
         )
 

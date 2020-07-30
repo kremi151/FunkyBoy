@@ -18,6 +18,6 @@
 
 using namespace FunkyBoy::Controller;
 
-bool JoypodControllerVoid::isKeyPressed(JoypadKey key) {
+bool JoypadControllerVoid::isKeyPressed(JoypadKey key) {
     return false;
 }
