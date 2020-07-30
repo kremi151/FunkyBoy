@@ -9,7 +9,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build-core:
+  build-sdl:
     runs-on: ${{ matrix.config.os }}
     strategy:
         fail-fast: false
