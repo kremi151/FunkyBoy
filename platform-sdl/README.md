@@ -4,7 +4,40 @@
 
 This is the implementation of FunkyBoy for Windows, Linux and macOS
 
-## Development notes (Windows)
+## Build on Ubuntu
+
+1. Install SDL2 library and CMake:
+
+```
+sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+sudo apt-get update -y -qq
+sudo apt-get install libsdl2-dev cmake
+```
+2. Compile:
+
+```
+mkdir -p cmake-build && cd cmake-build
+cmake .. && make
+```
+
+## Build on macOS
+
+1. Install [Homebrew](https://brew.sh/)
+
+2. Install SDL2 library and CMake:
+
+```
+brew install sdl2 cmake
+```
+
+3. Compile:
+
+```
+mkdir -p cmake-build && cd cmake-build
+cmake .. && make
+```
+
+## Build on Windows
 
 1. Download SDL2:
 https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip
