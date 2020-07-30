@@ -16,6 +16,8 @@
 
 #include "joypad_sdl.h"
 
+#include <SDL.h>
+
 using namespace FunkyBoy::Controller;
 
 JoypadControllerSDL::JoypadControllerSDL(const SDL_Event &sdlEvents): sdlEvents(sdlEvents) {
