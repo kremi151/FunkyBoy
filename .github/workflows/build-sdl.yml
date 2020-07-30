@@ -38,8 +38,8 @@ jobs:
       - name: Install dependencies (Windows)
         if: ${{ startsWith(matrix.config.os, 'windows-') }}
         run: |
-          Invoke-WebRequest 'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip' -OutFile "${{ github.workspace }}\\sdl2.zip"
-          expand-archive -path "${{ github.workspace }}\\sdl2.zip" -destinationpath "${{ github.workspace }}\\sdl2"
+          Invoke-WebRequest 'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip' -OutFile "${{ github.workspace }}\sdl2.zip"
+          expand-archive -path "${{ github.workspace }}\sdl2.zip" -destinationpath "${{ github.workspace }}\sdl2"
         shell: powershell
       - name: Build with CMake (Linux & macOS)
         if: ${{ !startsWith(matrix.config.os, 'windows-') }}
@@ -53,4 +53,4 @@ jobs:
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
-          buildWithCMakeArgs: -DSDL2_DIR="${{ github.workspace }}\\sdl2\\SDL2-2.0.12"
+          cmakeAppendedArgs: -DSDL2_DIR="${{ github.workspace }}\\sdl2\\SDL2-2.0.12"
