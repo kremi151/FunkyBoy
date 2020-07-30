@@ -53,4 +53,5 @@ jobs:
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeAppendedArgs: -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
