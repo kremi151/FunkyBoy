@@ -18,14 +18,20 @@
 #define FB_CORE_PPU_H
 
 #include <memory/memory.h>
+#include <controllers/controllers.h>
 
 namespace FunkyBoy {
 
     class PPU {
     private:
         MemoryPtr memory;
+        Controller::ControllersPtr controllers;
+
+        u8 lx;
+
+        void drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy);
     public:
-        explicit PPU(MemoryPtr memory);
+        PPU(MemoryPtr memory, Controller::ControllersPtr controllers);
 
         void doPixel();
     };

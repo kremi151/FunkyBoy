@@ -45,3 +45,7 @@ https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip
 3. Add a `SDL2_DIR` CMake variable which points to the folder contained in the extracted archive (the full path of the `SDL2-2.0.12` folder)
 4. Add the the full path of `SDL2-2.0.12/lib/x64` to the `PATH`
 5. Ensure that you're building for the correct architecture (just saying, I was building for `x86` without noticing...)
+
+## Resources
+
+https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data

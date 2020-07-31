@@ -40,6 +40,8 @@ int main(int argc, char **argv) {
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
+    SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
+
     using clock = std::chrono::high_resolution_clock;
     auto next_frame = clock::now();
 

@@ -22,18 +22,27 @@
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
 // Bit 6 - Window Tile Map
 #define __fb_lcdc_isWindowEnabled(lcdc) (lcdc & 0b00100000u)
-// Bit 4 - BG & Window Tileset
-// Bit 3 - BG Tile Map
-// Bit 2 - Sprite Size
-// Bit 1 - Sprites Enabled
+// Differences here are 4095
+#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? 0x8000 : 0x8800)
+// Differences here are 1023
+#define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x9C00 : 0x9800)
+// Returns the height of objects (16 or 8), width is always 8
+#define __fb_lcdc_objSpriteSize(lcdc) ((lcdc & 0b00000100u) ? 16 : 8)
+#define __fb_lcsc_objEnabled(lcdc) (lcdc & 0b00000010u)
 #define __fb_lcdc_isBGEnabled(lcdc) (lcdc & 0b00000001u)
 
 using namespace FunkyBoy;
 
-PPU::PPU(FunkyBoy::MemoryPtr memory): memory(std::move(memory)) {
+PPU::PPU(FunkyBoy::MemoryPtr memory, Controller::ControllersPtr controllers): memory(std::move(memory))
+, controllers(std::move(controllers))
+, lx(0)
+{
 }
 
 void PPU::doPixel() {
+    // TODO: Finish implementation
+    // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
+
     auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
     if (!__fb_lcdc_isOn(lcdc)) {
         memory->write8BitsTo(FB_REG_LY, 0x00);
@@ -53,4 +62,11 @@ void PPU::doPixel() {
         ly = 0;
     }
     memory->write8BitsTo(FB_REG_LCDC, ly);
+}
+
+void PPU::drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy) {
+    u16 tileLine = memory->read16BitsAt(tileAddress + (ty * 2));
+    u8 colorIndex = (tileLine >> (8 + (tx & 7u))) & 1u;
+    colorIndex |= ((tileLine >> (tx & 7u)) & 1u) << 1;
+    controllers->getDisplay()->drawAt(dx, dy, colorIndex);
 }
