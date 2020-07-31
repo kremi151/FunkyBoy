@@ -20,6 +20,7 @@
 #include <util/fs.h>
 #include <memory>
 #include <emulator/cpu.h>
+#include <emulator/ppu.h>
 #include <emulator/io_registers.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
@@ -38,6 +39,7 @@ namespace FunkyBoy {
         io_registers_ptr ioRegisters;
         MemoryPtr memory;
         CPU cpu;
+        PPU ppu;
     public:
         explicit Emulator(GameBoyType gbType);
         Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);

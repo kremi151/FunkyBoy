@@ -49,3 +49,5 @@ https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip
 ## Resources
 
 https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
+
+http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (Pages 22 to 27)

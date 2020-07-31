@@ -27,8 +27,11 @@
 using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers): ioRegisters(new io_registers)
-    , cartridge(new Cartridge), controllers(controllers), cpu(gbType, memory, ioRegisters)
+    , cartridge(new Cartridge)
+    , controllers(controllers)
     , memory(new Memory(cartridge, controllers, ioRegisters))
+    , cpu(gbType, memory, ioRegisters)
+    , ppu(memory, controllers)
 {
 }
 
@@ -68,7 +71,10 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 }
 
 bool Emulator::doTick() {
-    return cpu.doTick();
+    if (!cpu.doTick()) {
+        return false;
+    }
+    ppu.doClock();
 }
 
 Cartridge & Emulator::getCartridge() {

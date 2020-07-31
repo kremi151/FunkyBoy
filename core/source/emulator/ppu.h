@@ -27,13 +27,16 @@ namespace FunkyBoy {
         MemoryPtr memory;
         Controller::ControllersPtr controllers;
 
+        u8 *bgBuffer;
+
         u8 lx;
 
         void drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy);
     public:
         PPU(MemoryPtr memory, Controller::ControllersPtr controllers);
+        ~PPU();
 
-        void doPixel();
+        void doClock();
     };
 
 }

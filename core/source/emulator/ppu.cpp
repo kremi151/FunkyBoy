@@ -19,8 +19,12 @@
 #include <util/typedefs.h>
 #include <emulator/io_registers.h>
 
+// 256 px * 256 px * 4 bytes for RGBA
+#define FB_PPU_BGBUFFER_SIZE (256 * 256 * 4)
+
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
-// Bit 6 - Window Tile Map
+// Differences here are 1023
+#define __fb_lcdc_windowTileMapDisplaySelect(lcdc) ((lcdc & 0b01000000u) ? 0x9C00 : 0x9800)
 #define __fb_lcdc_isWindowEnabled(lcdc) (lcdc & 0b00100000u)
 // Differences here are 4095
 #define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? 0x8000 : 0x8800)
@@ -36,10 +40,18 @@ using namespace FunkyBoy;
 PPU::PPU(FunkyBoy::MemoryPtr memory, Controller::ControllersPtr controllers): memory(std::move(memory))
 , controllers(std::move(controllers))
 , lx(0)
+, bgBuffer(new u8[FB_PPU_BGBUFFER_SIZE])
 {
+    for (int i = 0 ; i < FB_PPU_BGBUFFER_SIZE ; i++) {
+        bgBuffer[i] = 0;
+    }
 }
 
-void PPU::doPixel() {
+PPU::~PPU() {
+    delete[] bgBuffer;
+}
+
+void PPU::doClock() {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
 
