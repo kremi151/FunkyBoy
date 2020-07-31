@@ -31,8 +31,14 @@
 #define FB_REG_IF 0xFF0F
 #define FB_REG_LCDC 0xFF40
 #define FB_REG_STAT 0xFF41
+#define FB_REG_SCY 0xFF42
 #define FB_REG_LY 0xFF44
 #define FB_REG_LYC 0xFF45
+#define FB_REG_DMA 0xFF46
+#define FB_REG_BGP 0xFF47
+#define FB_REG_OBP0 0xFF48
+#define FB_REG_OBP1 0xFF49
+#define FB_REG_WY 0xFF4A
 #define FB_REG_IE 0xFFFF
 
 namespace FunkyBoy {
