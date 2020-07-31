@@ -49,22 +49,21 @@ Memory::~Memory() {
 }
 
 u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
-    if (offset <= 0x7FFF) {
-        return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
-    } else if (offset <= 0x97FF) {
-        return vram + (offset - 0x8000);
-    } else if (offset <= 0x9BFF) {
-        return bgMapData1 + (offset - 0x9800);
-    } else if (offset <= 0x9FFF) {
-        return bgMapData2 + (offset - 0x9C00);
-    } else if (offset <= 0xBFFF) {
-        return cartridge->mbc->getRAMMemoryAddress(offset, cartridge->ram);
-    } else if (offset <= 0xCFFF) {
-        return internalRam + (offset - 0xC000);
-    } else if (offset <= 0xDFFF) {
-        // TODO: Make this switchable
-        return dynamicRamBank + (offset - 0xD000);
-    } else if (offset <= 0xFDFF) {
+    if (offset == FB_REG_IE) {
+        return &interruptEnableRegister;
+    } else if (offset >= 0xFF80) {
+        return hram + (offset - 0xFF80);
+    } else if (offset == FB_REG_DIV) {
+        // Write access is protected by interceptWrite
+        return const_cast<u8 *>(&ioRegisters->sysCounterMsb());
+    } else if (offset >= 0xFF00) {
+        return hwIO + (offset - 0xFF00);
+    } else if (offset >= 0xFEA0) {
+        // Not usable
+        return nullptr;
+    } else if (offset >= 0xFE00) {
+        return oam + (offset - 0xFE00);
+    } else if (offset >= 0xE000) {
         // Echo RAM
         // TODO: Verify that this offset is correctly calculated (Echo RAM offset + boundary of RAM bank 0)
         if (offset <= 0xEFFF) {
@@ -72,21 +71,21 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         } else {
             return dynamicRamBank + (offset - 0xF000);
         }
-    } else if (offset <= 0xFE9F) {
-        return oam + (offset - 0xFE00);
-    } else if (offset <= 0xFEFF) {
-        return nullptr;
-    } else if (offset == FB_REG_DIV) {
-        // Write access is protected by interceptWrite
-        return const_cast<u8 *>(&ioRegisters->sysCounterMsb());
-    } else if (offset <= 0xFF7F) {
-        return hwIO + (offset - 0xFF00);
-    } else if (offset <= 0xFFFE) {
-        return hram + (offset - 0xFF80);
-    } else if (offset == FB_REG_IE) {
-        return &interruptEnableRegister;
+    } else if (offset >= 0xD000) {
+        // TODO: Make this switchable
+        return dynamicRamBank + (offset - 0xD000);
+    } else if (offset >= 0xC000) {
+        return internalRam + (offset - 0xC000);
+    } else if (offset >= 0xA000) {
+        return cartridge->mbc->getRAMMemoryAddress(offset, cartridge->ram);
+    } else if (offset >= 0x9C00) {
+        return bgMapData2 + (offset - 0x9C00);
+    } else if (offset >= 0x9800) {
+        return bgMapData1 + (offset - 0x9800);
+    } else if (offset >= 0x8000) {
+        return vram + (offset - 0x8000);
     } else {
-        return nullptr;
+        return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
     }
 }
 

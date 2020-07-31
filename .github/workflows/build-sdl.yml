@@ -3,8 +3,8 @@ name: Build SDL platform
 on:
   push:
     # Temporary as long as I'm working on this branch
-    # TODO: Just before creating a PR, put master here
-    branches: [ graphics ]
+    # TODO: Just before creating a PR, just put master here
+    branches: [ master, graphics ]
   pull_request:
     branches: [ master ]
 
