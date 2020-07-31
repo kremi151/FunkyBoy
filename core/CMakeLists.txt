@@ -18,6 +18,7 @@ set(SOURCES
         source/controllers/controllers.cpp
         source/controllers/serial_null.cpp
         source/controllers/joypad_void.cpp
+        source/controllers/display_void.cpp
         source/util/romsizes.cpp
         source/cartridge/cartridge.cpp
         source/memory/memory.cpp
@@ -51,6 +52,8 @@ set(HEADERS
         source/controllers/serial_null.h
         source/controllers/joypad.h
         source/controllers/joypad_void.h
+        source/controllers/display.h
+        source/controllers/display_void.h
         source/util/typedefs.h
         source/cartridge/header.h
         source/util/romsizes.h

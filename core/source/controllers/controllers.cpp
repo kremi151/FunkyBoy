@@ -18,18 +18,24 @@
 
 #include "serial_null.h"
 #include "joypad_void.h"
+#include "display_void.h"
 
 using namespace FunkyBoy::Controller;
 
 Controllers::Controllers(
         SerialControllerPtr serial,
-        JoypadControllerPtr joypad
-): serial(std::move(serial)), joypad(std::move(joypad)) {
+        JoypadControllerPtr joypad,
+        DisplayControllerPtr display
+): serial(std::move(serial))
+, joypad(std::move(joypad))
+, display(std::move(display))
+{
 }
 
 Controllers::Controllers(): Controllers(
         std::make_shared<SerialControllerVoid>(),
-        std::make_shared<JoypadControllerVoid>()
+        std::make_shared<JoypadControllerVoid>(),
+        std::make_shared<DisplayControllerVoid>()
 ) {
 }
 
@@ -47,4 +53,12 @@ fb_inline JoypadControllerPtr & Controllers::getJoypad() {
 
 void Controllers::setJoypad(const JoypadControllerPtr &joypadController) {
     this->joypad = joypadController;
+}
+
+fb_inline DisplayControllerPtr & Controllers::getDisplay() {
+    return display;
+}
+
+void Controllers::setDisplay(const DisplayControllerPtr &displayController) {
+    this->display = displayController;
 }

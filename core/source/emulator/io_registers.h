@@ -32,6 +32,7 @@
 #define FB_REG_LCDC 0xFF40
 #define FB_REG_STAT 0xFF41
 #define FB_REG_SCY 0xFF42
+#define FB_REG_SCX 0xFF43
 #define FB_REG_LY 0xFF44
 #define FB_REG_LYC 0xFF45
 #define FB_REG_DMA 0xFF46

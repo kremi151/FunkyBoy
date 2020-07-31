@@ -20,8 +20,6 @@
 #include <fstream>
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
-#include <controllers/serial_null.h>
-#include <controllers/joypad_void.h>
 
 // TODO: For debugging, remove it afterwards:
 #include <sstream>
@@ -36,10 +34,7 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
 
 Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
         gbType,
-        std::make_shared<Controller::Controllers>(
-                std::make_shared<Controller::SerialControllerVoid>(),
-                std::make_shared<Controller::JoypadControllerVoid>()
-        )
+        std::make_shared<Controller::Controllers>()
 ) {}
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
