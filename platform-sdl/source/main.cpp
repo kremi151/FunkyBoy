@@ -21,8 +21,8 @@
 #include <chrono>
 #include <thread>
 
-// 4194304 Hz
-#define fb_clock_frequency (1000000000/4194304)
+// 1048576 Hz = 1/4 * 4194304 Hz
+#define fb_clock_frequency (1000000000/1048576)
 
 int main(int argc, char **argv) {
     SDL_Init(SDL_INIT_VIDEO);
