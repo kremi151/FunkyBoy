@@ -58,8 +58,6 @@ namespace FunkyBoy {
         u8 operandIndex;
         Operand operands[25]{};
 
-        u8 cpuInterCycleCounter;
-
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
 
@@ -72,7 +70,7 @@ namespace FunkyBoy {
 
         void doJoypad();
         bool doInterrupts();
-        void doTimers();
+        void doTimers(u8 clocks);
         void requestInterrupt(InterruptType type);
 
     test_public:
@@ -102,7 +100,7 @@ namespace FunkyBoy {
 
         void setProgramCounter(u16 offset);
 
-        bool doTick();
+        bool doMachineCycle();
     };
 
 }

@@ -71,7 +71,7 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 }
 
 bool Emulator::doTick() {
-    if (!cpu.doTick()) {
+    if (!cpu.doMachineCycle()) {
         return false;
     }
     ppu.doClock();

@@ -44,7 +44,12 @@
 
 namespace FunkyBoy {
 
+    /* Forward declaration */
+    class CPU;
+
     class io_registers {
+    private:
+        void setSysCounter(u16 counter);
     test_public:
         u8 sys_counter_lsb;
         u8 sys_counter_msb;
@@ -59,6 +64,8 @@ namespace FunkyBoy {
 
         fb_inline const u8 &sysCounterLsb();
         fb_inline const u8 &sysCounterMsb();
+
+        friend class CPU;
     };
 
     typedef std::shared_ptr<io_registers> io_registers_ptr;

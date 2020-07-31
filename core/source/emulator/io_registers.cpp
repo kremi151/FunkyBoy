@@ -33,6 +33,11 @@ void io_registers::resetSysCounter() {
     sys_counter_msb = 0;
 }
 
+void io_registers::setSysCounter(FunkyBoy::u16 counter) {
+    sys_counter_lsb = counter & 0xffu;
+    sys_counter_msb = (counter >> 8) & 0xffu;
+}
+
 fb_inline u16 io_registers::getSysCounter() {
     return (sys_counter_msb << 8) | sys_counter_lsb;
 }

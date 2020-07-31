@@ -29,7 +29,7 @@
 bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
     cpu.instructionCompleted = false;
     do {
-        if (!cpu.doTick()) {
+        if (!cpu.doMachineCycle()) {
             return false;
         }
     } while (!cpu.instructionCompleted);
