@@ -51,6 +51,16 @@ PPU::~PPU() {
     delete[] bgBuffer;
 }
 
+// GPU Lifecycle:
+//
+// Period 1: Scanline (Accessing OAM)  | GPU mode 2 | 80 clocks
+// Period 2: Scanline (Accessing VRAM) | GPU mode 3 | 172 clocks
+// Period 3: Horizontal blank          | GPU mode 0 | 204 clocks
+//
+// Period X: Vertical blank            | GPU mode 1 | 4560 clocks (10 lines above 144)
+//
+// In total for 155 scanlines => 70224 clocks
+
 void PPU::doClock() {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
