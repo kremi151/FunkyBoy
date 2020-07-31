@@ -22,6 +22,29 @@
 
 namespace FunkyBoy {
 
+    enum GPUMode {
+        /**
+         * Horizontal blank
+         */
+        GPUMode_0,
+
+        /**
+         * Vertical blank
+         *
+         */
+        GPUMode_1,
+
+        /**
+         * OAM read mode, drawing scanline
+         */
+        GPUMode_2,
+
+        /**
+         * VRAM read mode, drawing scanline
+         */
+        GPUMode_3
+    };
+
     class PPU {
     private:
         MemoryPtr memory;
@@ -29,7 +52,10 @@ namespace FunkyBoy {
 
         u8 *bgBuffer;
 
-        u8 lx;
+        GPUMode gpuMode;
+
+        u8 scanLine;
+        u16 modeClocks;
 
         void drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy);
     public:

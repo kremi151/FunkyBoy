@@ -39,7 +39,9 @@ using namespace FunkyBoy;
 
 PPU::PPU(FunkyBoy::MemoryPtr memory, Controller::ControllersPtr controllers): memory(std::move(memory))
 , controllers(std::move(controllers))
-, lx(0)
+, gpuMode(GPUMode::GPUMode_2)
+, modeClocks(0)
+, scanLine(0)
 , bgBuffer(new u8[FB_PPU_BGBUFFER_SIZE])
 {
     for (int i = 0 ; i < FB_PPU_BGBUFFER_SIZE ; i++) {
@@ -65,6 +67,44 @@ void PPU::doClocks(u8 clocks) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
 
+    modeClocks += clocks;
+    switch (gpuMode) {
+        case GPUMode::GPUMode_0: {
+            if (modeClocks >= 204) {
+                modeClocks = 0;
+                if (++scanLine >= FB_GB_DISPLAY_HEIGHT) {
+                    gpuMode = GPUMode::GPUMode_1;
+                    // TODO: Render screen
+                } else {
+                    gpuMode = GPUMode::GPUMode_2;
+                }
+            }
+            break;
+        }
+        case GPUMode::GPUMode_1: {
+            if (modeClocks >= 4560) { // 10 scan lines
+                gpuMode = GPUMode::GPUMode_2;
+                scanLine = 0;
+            }
+            break;
+        }
+        case GPUMode::GPUMode_2: {
+            if (modeClocks >= 80) {
+                modeClocks = 0;
+                gpuMode = GPUMode::GPUMode_3;
+            }
+            break;
+        }
+        case GPUMode::GPUMode_3: {
+            if (modeClocks >= 172) {
+                modeClocks = 0;
+                gpuMode = GPUMode::GPUMode_0;
+            }
+            break;
+        }
+    }
+
+    /*
     auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
     if (!__fb_lcdc_isOn(lcdc)) {
         memory->write8BitsTo(FB_REG_LY, 0x00);
@@ -84,6 +124,7 @@ void PPU::doClocks(u8 clocks) {
         ly = 0;
     }
     memory->write8BitsTo(FB_REG_LCDC, ly);
+    */
 }
 
 void PPU::drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy) {
