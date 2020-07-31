@@ -75,6 +75,7 @@ bool Emulator::doTick() {
         return false;
     }
     ppu.doClock();
+    return true;
 }
 
 Cartridge & Emulator::getCartridge() {
