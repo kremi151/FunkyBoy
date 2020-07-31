@@ -28,7 +28,7 @@ Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
 {
 }
 
-void Window::init(int argc, char **argv) {
+void Window::init(SDL_Window *window, int argc, char **argv) {
     controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
     controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
 
@@ -41,6 +41,10 @@ void Window::init(int argc, char **argv) {
     auto status = emulator.loadGame(fs::path(argv[1]));
     if (status == CartridgeStatus::Loaded) {
         std::cout << "Loaded ROM at " << romPath << std::endl;
+
+        std::string title = reinterpret_cast<const char*>(emulator.getCartridge().getHeader()->title);
+        title += " - " FB_NAME;
+        SDL_SetWindowTitle(window, title.c_str());
     } else {
         std::cerr << "Could not load ROM at " << romPath << " (status=" << status << ")" << std::endl;
     }
