@@ -257,48 +257,6 @@ TEST(test16BitLoads) {
     assertEquals(0x42, memory->read8BitsAt(0xFFCE));
 }*/
 
-TEST(testDIVIncrement) {
-    auto memory = createMemory();
-    auto io = memory->getIoRegisters();
-
-    memory->write8BitsTo(FB_REG_DIV, 0x18);
-    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
-    assertEquals(0x00, io->sysCounterMsb());
-    assertEquals(0x00, io->sysCounterLsb());
-    io->incrementSysCounter();
-    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
-    assertEquals(0x00, io->sysCounterMsb());
-    assertEquals(0x01, io->sysCounterLsb());
-    io->incrementSysCounter();
-    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
-    assertEquals(0x00, io->sysCounterMsb());
-    assertEquals(0x02, io->sysCounterLsb());
-    io->sys_counter_lsb = 255;
-    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
-    io->incrementSysCounter();
-    assertEquals(0x01, memory->read8BitsAt(FB_REG_DIV));
-    assertEquals(0x01, io->sysCounterMsb());
-    assertEquals(0x00, io->sysCounterLsb());
-    io->incrementSysCounter();
-    assertEquals(0x01, memory->read8BitsAt(FB_REG_DIV));
-    assertEquals(0x01, io->sysCounterMsb());
-    assertEquals(0x01, io->sysCounterLsb());
-    io->sys_counter_lsb = 255;
-    io->sys_counter_msb = 255;
-    assertEquals(0xff, memory->read8BitsAt(FB_REG_DIV));
-    io->incrementSysCounter();
-    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
-    assertEquals(0x00, io->sysCounterMsb());
-    assertEquals(0x00, io->sysCounterLsb());
-    io->sys_counter_lsb = 0x42;
-    io->sys_counter_msb = 0x69;
-    assertEquals(0x69, memory->read8BitsAt(FB_REG_DIV));
-    memory->write8BitsTo(FB_REG_DIV, 0x13);
-    assertEquals(0x00, memory->read8BitsAt(FB_REG_DIV));
-    assertEquals(0x00, io->sysCounterMsb());
-    assertEquals(0x00, io->sysCounterLsb());
-}
-
 TEST(testHALTBugSkipping) {
     auto memory = createMemory();
     auto cartridge = memory->getCartridge();
