@@ -36,7 +36,7 @@ namespace FunkyBoy {
         PPU(MemoryPtr memory, Controller::ControllersPtr controllers);
         ~PPU();
 
-        void doClock();
+        void doClocks(u8 clocks);
     };
 
 }

@@ -21,13 +21,6 @@ using namespace FunkyBoy;
 io_registers::io_registers(): sys_counter_lsb(0), sys_counter_msb(0) {
 }
 
-void io_registers::incrementSysCounter() {
-    if (++sys_counter_lsb != 0) {
-        return;
-    }
-    ++sys_counter_msb;
-}
-
 void io_registers::resetSysCounter() {
     sys_counter_lsb = 0;
     sys_counter_msb = 0;
@@ -40,10 +33,6 @@ void io_registers::setSysCounter(FunkyBoy::u16 counter) {
 
 fb_inline u16 io_registers::getSysCounter() {
     return (sys_counter_msb << 8) | sys_counter_lsb;
-}
-
-fb_inline const u8 & io_registers::sysCounterLsb() {
-    return sys_counter_lsb;
 }
 
 fb_inline const u8 & io_registers::sysCounterMsb() {

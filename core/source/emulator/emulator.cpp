@@ -74,7 +74,7 @@ bool Emulator::doTick() {
     if (!cpu.doMachineCycle()) {
         return false;
     }
-    ppu.doClock();
+    ppu.doClocks(4);
     return true;
 }
 

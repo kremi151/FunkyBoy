@@ -61,7 +61,7 @@ PPU::~PPU() {
 //
 // In total for 155 scanlines => 70224 clocks
 
-void PPU::doClock() {
+void PPU::doClocks(u8 clocks) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
 

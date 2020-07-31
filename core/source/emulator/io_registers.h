@@ -57,12 +57,10 @@ namespace FunkyBoy {
 
         io_registers();
 
-        void incrementSysCounter();
         void resetSysCounter();
 
         fb_inline u16 getSysCounter();
 
-        fb_inline const u8 &sysCounterLsb();
         fb_inline const u8 &sysCounterMsb();
 
         friend class CPU;
