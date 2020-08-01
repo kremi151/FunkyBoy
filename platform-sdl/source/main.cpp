@@ -62,6 +62,9 @@ int main(int argc, char **argv) {
     }
 
     SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyTexture(frameBuffer);
+
     SDL_Quit();
     return 0;
 }
