@@ -24,7 +24,8 @@ namespace FunkyBoy::Controller {
 
     class DisplayController {
     public:
-        virtual void drawAt(u8 x, u8 y, u8 data) = 0;
+        virtual void bufferPixel(u8 x, u8 y, u8 r, u8 g, u8 b) = 0;
+        virtual void drawScreen() = 0;
     };
 
     typedef std::shared_ptr<DisplayController> DisplayControllerPtr;

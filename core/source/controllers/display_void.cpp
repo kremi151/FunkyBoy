@@ -18,6 +18,10 @@
 
 using namespace FunkyBoy::Controller;
 
-void DisplayControllerVoid::drawAt(FunkyBoy::u8 x, FunkyBoy::u8 y, FunkyBoy::u8 data) {
+void DisplayControllerVoid::bufferPixel(FunkyBoy::u8 x, FunkyBoy::u8 y, FunkyBoy::u8 r, FunkyBoy::u8 g, FunkyBoy::u8 b) {
+    // Do nothing
+}
+
+void DisplayControllerVoid::drawScreen() {
     // Do nothing
 }

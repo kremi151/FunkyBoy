@@ -50,17 +50,16 @@ namespace FunkyBoy {
         MemoryPtr memory;
         Controller::ControllersPtr controllers;
 
-        u8 *bgBuffer;
-
         GPUMode gpuMode;
 
         u8 scanLine;
         u16 modeClocks;
 
-        void drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy);
+        u8 dmgPalette[4][3]{};
+
+        void renderScanline();
     public:
         PPU(MemoryPtr memory, Controller::ControllersPtr controllers);
-        ~PPU();
 
         void doClocks(u8 clocks);
     };

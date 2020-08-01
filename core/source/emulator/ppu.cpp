@@ -42,15 +42,22 @@ PPU::PPU(FunkyBoy::MemoryPtr memory, Controller::ControllersPtr controllers): me
 , gpuMode(GPUMode::GPUMode_2)
 , modeClocks(0)
 , scanLine(0)
-, bgBuffer(new u8[FB_PPU_BGBUFFER_SIZE])
 {
-    for (int i = 0 ; i < FB_PPU_BGBUFFER_SIZE ; i++) {
-        bgBuffer[i] = 0;
-    }
-}
+    dmgPalette[0][0] = 255;
+    dmgPalette[0][1] = 255;
+    dmgPalette[0][2] = 255;
 
-PPU::~PPU() {
-    delete[] bgBuffer;
+    dmgPalette[1][0] = 192;
+    dmgPalette[1][1] = 192;
+    dmgPalette[1][2] = 192;
+
+    dmgPalette[2][0] = 96;
+    dmgPalette[2][1] = 96;
+    dmgPalette[2][2] = 96;
+
+    dmgPalette[3][0] = 0;
+    dmgPalette[3][1] = 0;
+    dmgPalette[3][2] = 0;
 }
 
 // GPU Lifecycle:
@@ -67,6 +74,12 @@ void PPU::doClocks(u8 clocks) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
 
+    auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
+    if (!__fb_lcdc_isOn(lcdc)) {
+        memory->write8BitsTo(FB_REG_LY, 0x00);
+        return; // TODO: Correct?
+    }
+
     modeClocks += clocks;
     switch (gpuMode) {
         case GPUMode::GPUMode_0: {
@@ -74,7 +87,7 @@ void PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 if (++scanLine >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
-                    // TODO: Render screen
+                    controllers->getDisplay()->drawScreen();
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
                 }
@@ -99,17 +112,13 @@ void PPU::doClocks(u8 clocks) {
             if (modeClocks >= 172) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_0;
+                renderScanline();
             }
             break;
         }
     }
 
     /*
-    auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
-    if (!__fb_lcdc_isOn(lcdc)) {
-        memory->write8BitsTo(FB_REG_LY, 0x00);
-        return; // TODO: Correct?
-    }
     auto ly = memory->read8BitsAt(FB_REG_LY);
     if (__fb_lcdc_isBGEnabled(lcdc)) {
         // TODO: Draw background
@@ -127,9 +136,34 @@ void PPU::doClocks(u8 clocks) {
     */
 }
 
+void PPU::renderScanline() {
+    u8 lcdc = memory->read8BitsAt(FB_REG_LCDC);
+    u8 scx = memory->read8BitsAt(FB_REG_SCX);
+    u8 scy = memory->read8BitsAt(FB_REG_SCY);
+    memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
+    u8 lineOffset = scx / 8;
+    u8 xInTile = scx % 8;
+    u8 yInTile = (scanLine + scy) & 7u;
+    u8 *color;
+    u16 tileLine = memory->read16BitsAt(tileMapAddr + (lineOffset * 16) + (yInTile * 2));
+    for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
+        u8 colorIndex = (tileLine >> (8 + (xInTile & 7u))) & 1u;
+        colorIndex |= ((tileLine >> (xInTile & 7u)) & 1u) << 1;
+        color = dmgPalette[colorIndex & 3u];
+        controllers->getDisplay()->bufferPixel(scanLineX, scanLine, color[0], color[1], color[2]);
+        if (++xInTile >= 8) {
+            xInTile = 0;
+            lineOffset = (lineOffset + 1) & 31;
+            tileLine = memory->read16BitsAt(tileMapAddr + (lineOffset * 16) + (yInTile * 2));
+        }
+    }
+}
+
+/*
 void PPU::drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy) {
     u16 tileLine = memory->read16BitsAt(tileAddress + (ty * 2));
     u8 colorIndex = (tileLine >> (8 + (tx & 7u))) & 1u;
     colorIndex |= ((tileLine >> (tx & 7u)) & 1u) << 1;
     controllers->getDisplay()->drawAt(dx, dy, colorIndex);
 }
+*/

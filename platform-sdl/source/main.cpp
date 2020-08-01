@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
     );
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    SDL_Texture *frameBuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
@@ -46,7 +48,7 @@ int main(int argc, char **argv) {
     auto next_frame = clock::now();
 
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
-    fbWindow.init(window, argc, argv);
+    fbWindow.init(window, renderer, frameBuffer, argc, argv);
 
     while (true) {
         next_frame += std::chrono::nanoseconds(fb_clock_frequency);

@@ -14,32 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef FB_SDL_WINDOW_H
-#define FB_SDL_WINDOW_H
+#ifndef FB_SDL_CONTROLLERS_DISPLAY_SDL_H
+#define FB_SDL_CONTROLLERS_DISPLAY_SDL_H
 
 #include <SDL.h>
-#include <util/typedefs.h>
-#include <emulator/emulator.h>
+#include <controllers/display.h>
 
-namespace FunkyBoy::SDL {
+namespace FunkyBoy::Controller {
 
-    class Window {
+    class DisplayControllerSDL: public DisplayController {
     private:
-        const GameBoyType gbType;
-
-        SDL_Event sdlEvents{};
-
-        Controller::ControllersPtr controllers;
-        Emulator emulator;
+        SDL_Renderer *renderer;
+        SDL_Texture *frameBuffer;
+        uint32_t *pixels;
     public:
-        explicit Window(GameBoyType gbType);
+        explicit DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer);
+        ~DisplayControllerSDL();
 
-        void init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv);
-        void update(SDL_Window *window);
-
-        fb_inline bool hasUserRequestedExit();
+        void bufferPixel(u8 x, u8 y, u8 r, u8 g, u8 b) override;
+        void drawScreen() override;
     };
 
 }
 
-#endif //FB_SDL_WINDOW_H
+#endif //FB_SDL_CONTROLLERS_DISPLAY_SDL_H

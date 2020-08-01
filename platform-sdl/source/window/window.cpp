@@ -19,6 +19,7 @@
 #include <util/fs.h>
 #include <controllers/serial_sdl.h>
 #include <controllers/joypad_sdl.h>
+#include <controllers/display_sdl.h>
 
 using namespace FunkyBoy::SDL;
 
@@ -28,9 +29,10 @@ Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
 {
 }
 
-void Window::init(SDL_Window *window, int argc, char **argv) {
+void Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv) {
     controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
     controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
+    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
 
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
