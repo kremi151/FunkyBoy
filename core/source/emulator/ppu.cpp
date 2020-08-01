@@ -141,20 +141,23 @@ void PPU::renderScanline(u8 ly) {
     u8 scx = memory->read8BitsAt(FB_REG_SCX);
     u8 scy = memory->read8BitsAt(FB_REG_SCY);
     memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
-    u8 lineOffset = scx / 8;
+    memory_address tileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
+    u8 tileOffsetX = scx / 8;
     u8 xInTile = scx % 8;
-    u8 yInTile = (ly + scy) & 7u;
+    u8 yInTile = (ly + scy) % 8;
     u8 *color;
-    u16 tileLine = memory->read16BitsAt(tileMapAddr + (lineOffset * 16) + (yInTile * 2));
+    u8 tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
+    u16 tileLine;
     for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
+        tileLine = memory->read16BitsAt(tileSetAddr + tile + (yInTile * 2));
         u8 colorIndex = (tileLine >> (8 + (xInTile & 7u))) & 1u;
         colorIndex |= ((tileLine >> (xInTile & 7u)) & 1u) << 1;
         color = dmgPalette[colorIndex & 3u];
         controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
         if (++xInTile >= 8) {
             xInTile = 0;
-            lineOffset = (lineOffset + 1) & 31;
-            tileLine = memory->read16BitsAt(tileMapAddr + (lineOffset * 16) + (yInTile * 2));
+            tileOffsetX = (tileOffsetX + 1) & 31;
+            tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
         }
     }
 }
