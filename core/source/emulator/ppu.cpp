@@ -43,7 +43,6 @@ PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr cont
     , controllers(std::move(controllers))
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
-    , scanLine(0)
 {
     dmgPalette[0][0] = 255;
     dmgPalette[0][1] = 255;
@@ -82,12 +81,14 @@ void PPU::doClocks(u8 clocks) {
         return; // TODO: Correct?
     }
 
+    auto ly = memory->read8BitsAt(FB_REG_LY);
+
     modeClocks += clocks;
     switch (gpuMode) {
         case GPUMode::GPUMode_0: {
             if (modeClocks >= 204) {
                 modeClocks = 0;
-                if (++scanLine >= FB_GB_DISPLAY_HEIGHT) {
+                if (++ly >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
                     controllers->getDisplay()->drawScreen();
                     cpu->requestInterrupt(InterruptType::VBLANK);
@@ -100,7 +101,7 @@ void PPU::doClocks(u8 clocks) {
         case GPUMode::GPUMode_1: {
             if (modeClocks >= 4560) { // 10 scan lines
                 gpuMode = GPUMode::GPUMode_2;
-                scanLine = 0;
+                ly = 0;
             }
             break;
         }
@@ -115,45 +116,41 @@ void PPU::doClocks(u8 clocks) {
             if (modeClocks >= 172) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_0;
-                renderScanline();
+                renderScanline(ly);
             }
             break;
         }
     }
 
+    // TODO: Compare LY with LYC and trigger interrupt
+
+    memory->write8BitsTo(FB_REG_LY, ly);
+
     /*
-    auto ly = memory->read8BitsAt(FB_REG_LY);
     if (__fb_lcdc_isBGEnabled(lcdc)) {
         // TODO: Draw background
     }
     if (__fb_lcdc_isWindowEnabled(lcdc)) {
         // TODO: Draw window
     }
-    if (++ly == FB_GB_DISPLAY_HEIGHT) {
-        // TODO: Draw one line per tick or pixel by pixel?
-        // TODO: Trigger interrupt
-    } else if (ly >= 153) {
-        ly = 0;
-    }
-    memory->write8BitsTo(FB_REG_LCDC, ly);
     */
 }
 
-void PPU::renderScanline() {
+void PPU::renderScanline(u8 ly) {
     u8 lcdc = memory->read8BitsAt(FB_REG_LCDC);
     u8 scx = memory->read8BitsAt(FB_REG_SCX);
     u8 scy = memory->read8BitsAt(FB_REG_SCY);
     memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
     u8 lineOffset = scx / 8;
     u8 xInTile = scx % 8;
-    u8 yInTile = (scanLine + scy) & 7u;
+    u8 yInTile = (ly + scy) & 7u;
     u8 *color;
     u16 tileLine = memory->read16BitsAt(tileMapAddr + (lineOffset * 16) + (yInTile * 2));
     for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
         u8 colorIndex = (tileLine >> (8 + (xInTile & 7u))) & 1u;
         colorIndex |= ((tileLine >> (xInTile & 7u)) & 1u) << 1;
         color = dmgPalette[colorIndex & 3u];
-        controllers->getDisplay()->bufferPixel(scanLineX, scanLine, color[0], color[1], color[2]);
+        controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
         if (++xInTile >= 8) {
             xInTile = 0;
             lineOffset = (lineOffset + 1) & 31;

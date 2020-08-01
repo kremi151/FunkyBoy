@@ -54,12 +54,11 @@ namespace FunkyBoy {
 
         GPUMode gpuMode;
 
-        u8 scanLine;
         u16 modeClocks;
 
         u8 dmgPalette[4][3]{};
 
-        void renderScanline();
+        void renderScanline(u8 ly);
     public:
         PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers);
 
