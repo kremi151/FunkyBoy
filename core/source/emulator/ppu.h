@@ -19,6 +19,7 @@
 
 #include <memory/memory.h>
 #include <controllers/controllers.h>
+#include <emulator/cpu.h>
 
 namespace FunkyBoy {
 
@@ -48,6 +49,7 @@ namespace FunkyBoy {
     class PPU {
     private:
         MemoryPtr memory;
+        CPUPtr cpu;
         Controller::ControllersPtr controllers;
 
         GPUMode gpuMode;
@@ -59,7 +61,7 @@ namespace FunkyBoy {
 
         void renderScanline();
     public:
-        PPU(MemoryPtr memory, Controller::ControllersPtr controllers);
+        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers);
 
         void doClocks(u8 clocks);
     };

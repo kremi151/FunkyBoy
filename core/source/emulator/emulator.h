@@ -38,7 +38,7 @@ namespace FunkyBoy {
 
         io_registers_ptr ioRegisters;
         MemoryPtr memory;
-        CPU cpu;
+        CPUPtr cpu;
         PPU ppu;
     public:
         explicit Emulator(GameBoyType gbType);

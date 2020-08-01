@@ -37,11 +37,13 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(FunkyBoy::MemoryPtr memory, Controller::ControllersPtr controllers): memory(std::move(memory))
-, controllers(std::move(controllers))
-, gpuMode(GPUMode::GPUMode_2)
-, modeClocks(0)
-, scanLine(0)
+PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers)
+    : memory(std::move(memory))
+    , cpu(std::move(cpu))
+    , controllers(std::move(controllers))
+    , gpuMode(GPUMode::GPUMode_2)
+    , modeClocks(0)
+    , scanLine(0)
 {
     dmgPalette[0][0] = 255;
     dmgPalette[0][1] = 255;
@@ -88,6 +90,7 @@ void PPU::doClocks(u8 clocks) {
                 if (++scanLine >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
                     controllers->getDisplay()->drawScreen();
+                    cpu->requestInterrupt(InterruptType::VBLANK);
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
                 }

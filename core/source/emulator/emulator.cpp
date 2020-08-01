@@ -26,12 +26,13 @@
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers): ioRegisters(new io_registers)
+Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
+    : ioRegisters(new io_registers)
     , cartridge(new Cartridge)
     , controllers(controllers)
     , memory(new Memory(cartridge, controllers, ioRegisters))
-    , cpu(gbType, memory, ioRegisters)
-    , ppu(memory, controllers)
+    , cpu(std::make_shared<CPU>(gbType, memory, ioRegisters))
+    , ppu(memory, cpu, controllers)
 {
 }
 
@@ -52,7 +53,7 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 
     auto header = cartridge->getHeader();
 
-    cpu.setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
+    cpu->setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
 
     fprintf(stdout, "Cartridge type: 0x%02X\n", header->cartridgeType);
 
@@ -71,7 +72,7 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 }
 
 bool Emulator::doTick() {
-    if (!cpu.doMachineCycle()) {
+    if (!cpu->doMachineCycle()) {
         return false;
     }
     ppu.doClocks(4);

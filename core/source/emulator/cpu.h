@@ -71,7 +71,6 @@ namespace FunkyBoy {
         void doJoypad();
         bool doInterrupts();
         void doTimers(u8 clocks);
-        void requestInterrupt(InterruptType type);
 
     test_public:
 
@@ -99,9 +98,12 @@ namespace FunkyBoy {
         CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters);
 
         void setProgramCounter(u16 offset);
+        void requestInterrupt(InterruptType type);
 
         bool doMachineCycle();
     };
+
+    typedef std::shared_ptr<CPU> CPUPtr;
 
 }
 
