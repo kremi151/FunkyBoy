@@ -76,21 +76,22 @@ u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
 
 bool MBC1::interceptWrite(memory_address offset, u8 val) {
     if (offset <= 0x1FFF) {
-        ramEnabled = (val == 0x0A);
+        ramEnabled = ((val & 0xfu) == 0xA);
         debug_print_2("[MBC1] Enable RAM? %d\n", ramEnabled);
         return true;
     } else if (offset <= 0x3FFF) {
         // Set ROM Bank number (lower 5 bits)
+        val &= 0b0011111u;
         if (val == 0) val = 1;
         debug_print_2("[MBC1] bank mode %d switch ROM bank from 0x%02X to", !romBankingMode, bank);
-        bank = (bank & 0b1100000) | (val & 0b0011111);
-        debug_print_2(" 0x%02X\n", bank);
+        bank = (bank & 0b1100000u) | val;
+        debug_print_2(" 0x%02X (val=%d)\n", bank, val);
         return true;
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
         debug_print_2("[MBC1] bank mode %d switch ROM/RAM bank from 0x%02X to", !romBankingMode, bank);
-        bank = ((val & 0b11) << 5) | (bank & 0x0011111);
-        debug_print_2(" 0x%02X\n", bank);
+        bank = ((val & 0b11u) << 5) | (bank & 0b0011111u);
+        debug_print_2(" 0x%02X (val=%d)\n", bank, val);
         return true;
     } else if (offset <= 0x7FFF) {
         romBankingMode = (val & 0b1) == 0;

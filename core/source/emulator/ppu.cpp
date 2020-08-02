@@ -74,6 +74,7 @@ PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr cont
 void PPU::doClocks(u8 clocks) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
+    // See http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (pages 22-27)
 
     auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
     if (!__fb_lcdc_isOn(lcdc)) {
@@ -152,9 +153,6 @@ void PPU::renderScanline(u8 ly) {
     u16 tileLine;
     for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
         tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
-        //if ((tileSetAddr + tile + (yInTile * 2)) >= 0x8200) {
-            //fprintf(stdout, "tileLine: 0x%04X at 0x%04X (LY=%d, SCX=%d, SCY=%d, yInTile=%d)\n", tileLine, tileSetAddr + (tile * 16) + (yInTile * 2), ly, scx, scy, yInTile);
-        //}
         u8 colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
         colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
         color = dmgPalette[colorIndex & 3u];
@@ -166,12 +164,3 @@ void PPU::renderScanline(u8 ly) {
         }
     }
 }
-
-/*
-void PPU::drawTilePixel(memory_address tileAddress, u8 tx, u8 ty, u8 dx, u8 dy) {
-    u16 tileLine = memory->read16BitsAt(tileAddress + (ty * 2));
-    u8 colorIndex = (tileLine >> (8 + (tx & 7u))) & 1u;
-    colorIndex |= ((tileLine >> (tx & 7u)) & 1u) << 1;
-    controllers->getDisplay()->drawAt(dx, dy, colorIndex);
-}
-*/
