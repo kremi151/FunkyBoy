@@ -64,5 +64,5 @@ jobs:
         if: ${{ !startsWith(matrix.config.os, 'windows-') }}
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.os.artifact }}
+          name: ${{ matrix.config.artifact }}
           path: "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl"
