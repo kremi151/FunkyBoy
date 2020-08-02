@@ -17,10 +17,13 @@ jobs:
             config:
               - os: ubuntu-latest
                 generator: Ninja
+                artifact: FunkyBoy-linux
               - os: macos-latest
                 generator: Ninja
+                artifact: FunkyBoy-macOS
               - os: windows-latest
                 generator: VS16Win64
+                artifact: FunkyBoy-windows
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -61,5 +64,5 @@ jobs:
         if: ${{ !startsWith(matrix.config.os, 'windows-') }}
         uses: actions/upload-artifact@v2
         with:
-          name: FunkyBoy
+          name: ${{ matrix.os.artifact }}
           path: "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl"
