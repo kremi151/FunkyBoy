@@ -9,7 +9,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build-sdl:
+  build-sdl-unix:
     runs-on: ${{ matrix.config.os }}
     strategy:
         fail-fast: false
@@ -21,9 +21,6 @@ jobs:
               - os: macos-latest
                 generator: Ninja
                 artifact: FunkyBoy-macOS
-              - os: windows-latest
-                generator: VS16Win64
-                artifact: FunkyBoy-windows
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,32 +35,41 @@ jobs:
       - name: Install dependencies (macOS)
         if: ${{ startsWith(matrix.config.os, 'macos-') }}
         run: brew install sdl2
-      - name: Install dependencies (Windows)
-        if: ${{ startsWith(matrix.config.os, 'windows-') }}
-        run: |
-          Invoke-WebRequest 'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip' -OutFile "${{ github.workspace }}\sdl2.zip"
-          expand-archive -path "${{ github.workspace }}\sdl2.zip" -destinationpath "${{ github.workspace }}\sdl2"
-        shell: powershell
-      - name: Build with CMake (Linux & macOS)
-        if: ${{ !startsWith(matrix.config.os, 'windows-') }}
+      - name: Build with CMake
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
           buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
           cmakeBuildType: Release
-      - name: Build with CMake (Windows)
-        if: ${{ startsWith(matrix.config.os, 'windows-') }}
-        uses: lukka/run-cmake@v2.5
-        with:
-          cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
-          cmakeGenerator: ${{ matrix.config.generator }}
-          buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeAppendedArgs: -DCMAKE_BUILD_TYPE=Release -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
-      - name: Upload artifact (Linux & macOS)
-        if: ${{ !startsWith(matrix.config.os, 'windows-') }}
+      - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.config.artifact }}
           path: "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl"
+
+  build-sdl-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          Invoke-WebRequest 'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip' -OutFile "${{ github.workspace }}\sdl2.zip"
+          expand-archive -path "${{ github.workspace }}\sdl2.zip" -destinationpath "${{ github.workspace }}\sdl2"
+        shell: powershell
+      - name: Build with CMake
+        uses: lukka/run-cmake@v2.5
+        with:
+          cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
+          cmakeGenerator: VS16Win64
+          buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeAppendedArgs: -DCMAKE_BUILD_TYPE=Release -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.config.artifact }}
+          path: "${{ github.workspace }}/platform-sdl/cmake-build/*/fb_sdl.exe"
