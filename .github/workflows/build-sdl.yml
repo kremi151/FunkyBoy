@@ -62,4 +62,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: FunkyBoy
-          path: "${{ github.workspace }}/platform-sdl/cmake-build/fb-sdl"
+          path: "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl"
