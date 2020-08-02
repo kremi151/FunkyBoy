@@ -16,10 +16,8 @@ jobs:
         matrix:
             config:
               - os: ubuntu-latest
-                generator: Ninja
                 artifact: FunkyBoy-linux
               - os: macos-latest
-                generator: Ninja
                 artifact: FunkyBoy-macOS
     steps:
       - name: Checkout
@@ -39,7 +37,6 @@ jobs:
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
-          cmakeGenerator: ${{ matrix.config.generator }}
           buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
           cmakeBuildType: Release
       - name: Upload artifact
@@ -71,5 +68,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.config.artifact }}
+          name: FunkyBoy-windows
           path: "${{ github.workspace }}/platform-sdl/cmake-build/*/fb_sdl.exe"
