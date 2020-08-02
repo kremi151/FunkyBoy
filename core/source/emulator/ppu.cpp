@@ -155,8 +155,8 @@ void PPU::renderScanline(u8 ly) {
         //if ((tileSetAddr + tile + (yInTile * 2)) >= 0x8200) {
             //fprintf(stdout, "tileLine: 0x%04X at 0x%04X (LY=%d, SCY=%d, yInTile=%d)\n", tileLine, tileSetAddr + (tile * 16) + (yInTile * 2), ly, scy, yInTile);
         //}
-        u8 colorIndex = (tileLine >> (8 + (xInTile & 7u))) & 1u;
-        colorIndex |= ((tileLine >> (xInTile & 7u)) & 1u) << 1;
+        u8 colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
+        colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
         color = dmgPalette[colorIndex & 3u];
         controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
         if (++xInTile >= 8) {
