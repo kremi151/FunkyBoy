@@ -142,7 +142,7 @@ void PPU::renderScanline(u8 ly) {
     const u8 scy = memory->read8BitsAt(FB_REG_SCY);
     const u16 y = ly + scy;
     memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
-    tileMapAddr += (y & 255u) / 8;
+    tileMapAddr += ((y & 255u) / 8) * 32;
     memory_address tileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
     u8 tileOffsetX = scx / 8;
     u8 xInTile = scx % 8;
@@ -153,7 +153,7 @@ void PPU::renderScanline(u8 ly) {
     for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
         tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
         //if ((tileSetAddr + tile + (yInTile * 2)) >= 0x8200) {
-            //fprintf(stdout, "tileLine: 0x%04X at 0x%04X (LY=%d, SCY=%d, yInTile=%d)\n", tileLine, tileSetAddr + (tile * 16) + (yInTile * 2), ly, scy, yInTile);
+            //fprintf(stdout, "tileLine: 0x%04X at 0x%04X (LY=%d, SCX=%d, SCY=%d, yInTile=%d)\n", tileLine, tileSetAddr + (tile * 16) + (yInTile * 2), ly, scx, scy, yInTile);
         //}
         u8 colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
         colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
