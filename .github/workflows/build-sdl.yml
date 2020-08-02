@@ -47,11 +47,19 @@ jobs:
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
+          buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
       - name: Build with CMake (Windows)
         if: ${{ startsWith(matrix.config.os, 'windows-') }}
         uses: lukka/run-cmake@v2.5
         with:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           cmakeGenerator: ${{ matrix.config.generator }}
+          buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeAppendedArgs: -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
+      - name: Upload artifact (Linux & macOS)
+        if: ${{ !startsWith(matrix.config.os, 'windows-') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: FunkyBoy
+          path: "${{ github.workspace }}/platform-sdl/cmake-build/fb-sdl"
