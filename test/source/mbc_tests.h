@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
+#ifndef FB_TESTS_MBC_TESTS_H
+#define FB_TESTS_MBC_TESTS_H
+
 #include <acacia.h>
 
-#include "unit_tests.h"
-#include "rom_cpu_instrs_tests.h"
-#include "mbc_tests.h"
+acacia::Report __fbTests_runMbcTests();
 
-int main() {
-    acacia::Report report;
-
-    report += __fbTests_runUnitTests();
-    report += __fbTests_runMbcTests();
-    report += __fbTests_runRomTests();
-
-    std::ofstream reportFile("acacia-report.txt");
-    acacia::generateAcaciaReport(report, reportFile);
-
-    return report ? 0 : 1;
-}
+#endif //FB_TESTS_MBC_TESTS_H

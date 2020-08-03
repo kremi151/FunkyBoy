@@ -22,7 +22,12 @@
 
 using namespace FunkyBoy;
 
-MBC1::MBC1(MBC1RAMSize ramSize): bank(1), romBankingMode(true), ramSize(ramSize), ramEnabled(false) {
+MBC1::MBC1(MBC1RAMSize ramSize)
+    : bank(1)
+    , romBankingMode(true)
+    , ramSize(ramSize)
+    , ramEnabled(false)
+{
 }
 
 inline u8 MBC1::getROMBank() {
@@ -35,7 +40,12 @@ inline u8 MBC1::getRAMBank() {
 
 u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
     if (offset <= 0x3FFF) {
-        return rom + offset;
+        if (romBankingMode) {
+            return rom + offset;
+        } else {
+            // TODO: Is this correct? Apparently it should be done like this according to https://gekkio.fi/files/gb-docs/gbctr.pdf
+            return rom + ((bank & 0b1100000) * FB_MBC1_ROM_BANK_SIZE) + offset;
+        }
     } else if (offset <= 0x7FFF) {
         return rom + (getROMBank() * FB_MBC1_ROM_BANK_SIZE) + (offset - 0x4000);
     } else {
