@@ -28,6 +28,8 @@
 
 #define FB_TEST_MBC1_ROM_BANK_SIZE (16 * 1024)
 
+#define FB_TEST_CARTRIDGE_RAM_OFFSET 0xA000
+
 #define assertPointerAddrEquals(expectedPtr, expectedOffset, actualPtr) \
 assertEquals(reinterpret_cast<unsigned long>(expectedPtr) + expectedOffset, reinterpret_cast<unsigned long>(actualPtr))
 
@@ -80,7 +82,7 @@ TEST(mbc1RomBankingExample2Test) {
     assertEquals(0x44, mbc1.bank);
     assertEquals(0x44, mbc1.getROMBank());
 
-    FunkyBoy::u8 *dummyRomPtr = 0;
+    auto dummyRomPtr = reinterpret_cast<FunkyBoy::u8*>(0);
     FunkyBoy::u8 *addr = mbc1.getROMMemoryAddress(0x72A7, dummyRomPtr);
 
     assertPointerAddrEquals(dummyRomPtr, 0x1132A7, addr);
@@ -107,8 +109,8 @@ TEST(mbc1RamBankingExample1Test) {
     assertEquals(0b1000001, mbc1.bank);
     assertEquals(0b10, mbc1.getRAMBank());
 
-    FunkyBoy::u8 *dummyRamPtr = 0;
-    FunkyBoy::u8 *addr = mbc1.getRAMMemoryAddress(0xB123, dummyRamPtr);
+    auto *dummyRamPtr = reinterpret_cast<FunkyBoy::u8*>(0);
+    FunkyBoy::u8 *addr = mbc1.getRAMMemoryAddress(0xB123, dummyRamPtr) - FB_TEST_CARTRIDGE_RAM_OFFSET;
 
     assertPointerAddrEquals(dummyRamPtr, 0x5123, addr);
 }
