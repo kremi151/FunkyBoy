@@ -22,13 +22,13 @@
 
 using namespace FunkyBoy;
 
-unsigned int getMBC1RAMBankSize(MBC1RAMSize size) {
+u16 getMBC1RAMBankSize(MBC1RAMSize size) {
     switch (size) {
         case MBC1_2KByte:
-            return static_cast<unsigned int>(MBC1_2KByte);
+            return static_cast<u16>(MBC1_2KByte);
         case MBC1_8KByte:
         case MBC1_32KByte:
-            return static_cast<unsigned int>(MBC1_8KByte);
+            return static_cast<u16>(MBC1_8KByte);
         default:
             return 0;
     }

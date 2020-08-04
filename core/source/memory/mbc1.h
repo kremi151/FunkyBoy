@@ -32,10 +32,10 @@ namespace FunkyBoy {
     class MBC1: public MBC {
     private:
         const MBC1RAMSize ramSize;
-        const unsigned int ramBankSize;
-        unsigned long romBankOffsetLower{};
-        unsigned long romBankOffset{};
-        unsigned long ramBankOffset{};
+        const u16 ramBankSize;
+        u32 romBankOffsetLower{};
+        u32 romBankOffset{};
+        u32 ramBankOffset{};
         void updateBanks();
     test_public:
         u8 preliminaryRomBank, romBank{};
