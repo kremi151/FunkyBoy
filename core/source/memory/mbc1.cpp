@@ -22,20 +22,40 @@
 
 using namespace FunkyBoy;
 
+unsigned int getMBC1RAMBankSize(MBC1RAMSize size) {
+    switch (size) {
+        case MBC1_2KByte:
+            return static_cast<unsigned int>(MBC1_2KByte);
+        case MBC1_8KByte:
+        case MBC1_32KByte:
+            return static_cast<unsigned int>(MBC1_8KByte);
+        default:
+            return 0;
+    }
+}
+
 MBC1::MBC1(MBC1RAMSize ramSize)
-    : bank(1)
+    : preliminaryRomBank(1)
+    , preliminaryRamBank(0)
+    , ramBankSize(getMBC1RAMBankSize(ramSize))
     , romBankingMode(true)
     , ramSize(ramSize)
     , ramEnabled(false)
 {
+    updateBanks();
 }
 
-inline u8 MBC1::getROMBank() {
-    return romBankingMode ? (bank & 0b1111111) : (bank & 0b11111);
-}
+void MBC1::updateBanks() {
+    debug_print_2("[MBC1] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", !romBankingMode, romBank, ramBank);
 
-inline u8 MBC1::getRAMBank() {
-    return romBankingMode ? 0 : ((bank >> 5) & 0b11);
+    romBank = romBankingMode ? (preliminaryRomBank & 0b1111111u) : (preliminaryRomBank & 0b11111u);
+    ramBank = romBankingMode ? 0 : (preliminaryRamBank & 0b11u);
+
+    romBankOffsetLower = (preliminaryRomBank & 0b1100000u) * FB_MBC1_ROM_BANK_SIZE;
+    romBankOffset = romBank * FB_MBC1_ROM_BANK_SIZE;
+    ramBankOffset = ramBank * ramBankSize;
+
+    debug_print_2(" [rom=0x%02X,ram=0x%02X]\n", romBank, ramBank);
 }
 
 u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
@@ -44,24 +64,12 @@ u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
             return rom + offset;
         } else {
             // TODO: Is this correct? Apparently it should be done like this according to https://gekkio.fi/files/gb-docs/gbctr.pdf
-            return rom + ((bank & 0b1100000) * FB_MBC1_ROM_BANK_SIZE) + offset;
+            return rom + romBankOffsetLower + offset;
         }
     } else if (offset <= 0x7FFF) {
-        return rom + (getROMBank() * FB_MBC1_ROM_BANK_SIZE) + (offset - 0x4000);
+        return rom + romBankOffset + (offset - 0x4000);
     } else {
         return nullptr;
-    }
-}
-
-u8 getMBC1RAMBankSize(MBC1RAMSize size) {
-    switch (size) {
-        case MBC1_2KByte:
-            return static_cast<u8>(MBC1_2KByte);
-        case MBC1_8KByte:
-        case MBC1_32KByte:
-            return static_cast<u8>(MBC1_8KByte);
-        default:
-            return 0;
     }
 }
 
@@ -81,7 +89,7 @@ u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
     } else {
         return nullptr;
     }
-    return ram + (getRAMBank() * getMBC1RAMBankSize(ramSize)) + (offset - 0xA000);
+    return ram + ramBankOffset + (offset - 0xA000);
 }
 
 bool MBC1::interceptWrite(memory_address offset, u8 val) {
@@ -93,19 +101,21 @@ bool MBC1::interceptWrite(memory_address offset, u8 val) {
         // Set ROM Bank number (lower 5 bits)
         val &= 0b0011111u;
         if (val == 0) val = 1;
-        debug_print_2("[MBC1] bank mode %d switch ROM bank from 0x%02X to", !romBankingMode, bank);
-        bank = (bank & 0b1100000u) | val;
-        debug_print_2(" 0x%02X (val=%d)\n", bank, val);
+        debug_print_2("[MBC1] about to update ROM bank with value %d\n", val);
+        preliminaryRomBank = (preliminaryRomBank & 0b1100000u) | val;
+        updateBanks();
         return true;
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
-        debug_print_2("[MBC1] bank mode %d switch ROM/RAM bank from 0x%02X to", !romBankingMode, bank);
-        bank = ((val & 0b11u) << 5) | (bank & 0b0011111u);
-        debug_print_2(" 0x%02X (val=%d)\n", bank, val);
+        debug_print_2("[MBC1] about to update ROM/RAM bank with value %d\n", val);
+        preliminaryRomBank = ((val & 0b11u) << 5) | (preliminaryRomBank & 0b0011111u);
+        preliminaryRamBank = val & 0b11u;
+        updateBanks();
         return true;
     } else if (offset <= 0x7FFF) {
         romBankingMode = (val & 0b1) == 0;
         debug_print_2("[MBC1] Set banking mode to %d\n", !romBankingMode);
+        updateBanks();
         return true;
     }
     return false;
