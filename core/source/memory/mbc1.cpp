@@ -71,9 +71,11 @@ void MBC1::updateBanks() {
     romBank = romBankingMode ? (preliminaryRomBank & 0b1111111u) : (preliminaryRomBank & 0b11111u);
     ramBank = romBankingMode ? 0 : (preliminaryRamBank & 0b11u);
 
-    romBank &= getROMBankBitMask(romSize);
+    u8 romBankMask = getROMBankBitMask(romSize);
+    romBank &= romBankMask;
 
-    romBankOffsetLower = (preliminaryRomBank & 0b1100000u) * FB_MBC1_ROM_BANK_SIZE;
+    romBankMask &= 0b1100000u;
+    romBankOffsetLower = (preliminaryRomBank & romBankMask) * FB_MBC1_ROM_BANK_SIZE;
     romBankOffset = romBank * FB_MBC1_ROM_BANK_SIZE;
     ramBankOffset = ramBank * ramBankSize;
 
