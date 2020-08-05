@@ -38,8 +38,8 @@ TEST(mbc1RomBankingExample1Test) {
 
     assertEquals(1, mbc1.romBank);
 
-    assertEquals(false, mbc1.ramEnabled);
-    assertEquals(true, mbc1.romBankingMode);
+    assertFalse( mbc1.ramEnabled);
+    assertTrue( mbc1.romBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK1, 0x12);
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b01);
@@ -55,11 +55,11 @@ TEST(mbc1RomBankingExample1Test) {
     assertPointerAddrEquals(dummyRomPtr, 0x1000, addr);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
-    assertEquals(true, mbc1.ramEnabled);
-    assertEquals(true, mbc1.romBankingMode);
+    assertTrue( mbc1.ramEnabled);
+    assertTrue( mbc1.romBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_MODE, 0b1);
-    assertEquals(false, mbc1.romBankingMode);
+    assertFalse( mbc1.romBankingMode);
 
     addr = mbc1.getROMMemoryAddress(0x1000, dummyRomPtr);
     assertPointerAddrEquals(dummyRomPtr, (0x5000 - 0x4000) + (0x20 * FB_TEST_MBC1_ROM_BANK_SIZE), addr);
@@ -70,8 +70,8 @@ TEST(mbc1RomBankingExample2Test) {
 
     assertEquals(1, mbc1.romBank);
 
-    assertEquals(false, mbc1.ramEnabled);
-    assertEquals(true, mbc1.romBankingMode);
+    assertFalse( mbc1.ramEnabled);
+    assertTrue( mbc1.romBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK1, 0b00100);
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
@@ -90,15 +90,15 @@ TEST(mbc1RamBankingExample1Test) {
     assertEquals(1, mbc1.romBank);
     assertEquals(0, mbc1.ramBank);
 
-    assertEquals(false, mbc1.ramEnabled);
-    assertEquals(true, mbc1.romBankingMode);
+    assertFalse( mbc1.ramEnabled);
+    assertTrue( mbc1.romBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
-    assertEquals(true, mbc1.ramEnabled);
-    assertEquals(true, mbc1.romBankingMode);
+    assertTrue( mbc1.ramEnabled);
+    assertTrue( mbc1.romBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_MODE, 0b1);
-    assertEquals(false, mbc1.romBankingMode);
+    assertFalse( mbc1.romBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
 
