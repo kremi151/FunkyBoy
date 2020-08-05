@@ -35,12 +35,21 @@ u16 getMBC1RAMBankSize(MBC1RAMSize size) {
 }
 
 u8 getROMBankBitMask(ROMSize romSize) {
-    // TODO: Complete using https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header#0148_-_ROM_Size
     switch (romSize) {
+        case ROMSize::ROM_SIZE_64K:
+            return 0b11u;
+        case ROMSize::ROM_SIZE_128K:
+            return 0b111u;
+        case ROMSize::ROM_SIZE_256K:
+            return 0b1111u;
         case ROMSize::ROM_SIZE_512K:
             return 0b11111u;
+        case ROMSize::ROM_SIZE_1024K:
+        case ROMSize::ROM_SIZE_2048K:
+        case ROMSize::ROM_SIZE_4096K:
+            return 0b111111u;
         default:
-            return 0b11111111u;
+            return 0b0u;
     }
 }
 
