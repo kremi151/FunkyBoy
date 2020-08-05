@@ -34,7 +34,7 @@
 assertEquals(reinterpret_cast<unsigned long>(expectedPtr) + expectedOffset, reinterpret_cast<unsigned long>(actualPtr))
 
 TEST(mbc1RomBankingExample1Test) {
-    FunkyBoy::MBC1 mbc1(FunkyBoy::MBC1RAMSize::MBC1_32KByte);
+    FunkyBoy::MBC1 mbc1(FunkyBoy::ROMSize::ROM_SIZE_4096K, FunkyBoy::MBC1RAMSize::MBC1_32KByte);
 
     assertEquals(1, mbc1.romBank);
 
@@ -66,7 +66,7 @@ TEST(mbc1RomBankingExample1Test) {
 }
 
 TEST(mbc1RomBankingExample2Test) {
-    FunkyBoy::MBC1 mbc1(FunkyBoy::MBC1RAMSize::MBC1_32KByte);
+    FunkyBoy::MBC1 mbc1(FunkyBoy::ROMSize::ROM_SIZE_4096K, FunkyBoy::MBC1RAMSize::MBC1_32KByte);
 
     assertEquals(1, mbc1.romBank);
 
@@ -85,7 +85,7 @@ TEST(mbc1RomBankingExample2Test) {
 }
 
 TEST(mbc1RamBankingExample1Test) {
-    FunkyBoy::MBC1 mbc1(FunkyBoy::MBC1RAMSize::MBC1_32KByte);
+    FunkyBoy::MBC1 mbc1(FunkyBoy::ROMSize::ROM_SIZE_4096K, FunkyBoy::MBC1RAMSize::MBC1_32KByte);
 
     assertEquals(1, mbc1.romBank);
     assertEquals(0, mbc1.ramBank);

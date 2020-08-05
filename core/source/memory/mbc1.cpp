@@ -34,11 +34,22 @@ u16 getMBC1RAMBankSize(MBC1RAMSize size) {
     }
 }
 
-MBC1::MBC1(MBC1RAMSize ramSize)
+u8 getROMBankBitMask(ROMSize romSize) {
+    // TODO: Complete using https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header#0148_-_ROM_Size
+    switch (romSize) {
+        case ROMSize::ROM_SIZE_512K:
+            return 0b11111u;
+        default:
+            return 0b11111111u;
+    }
+}
+
+MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
     : preliminaryRomBank(1)
     , preliminaryRamBank(0)
     , ramBankSize(getMBC1RAMBankSize(ramSize))
     , romBankingMode(true)
+    , romSize(romSize)
     , ramSize(ramSize)
     , ramEnabled(false)
 {
@@ -50,6 +61,8 @@ void MBC1::updateBanks() {
 
     romBank = romBankingMode ? (preliminaryRomBank & 0b1111111u) : (preliminaryRomBank & 0b11111u);
     ramBank = romBankingMode ? 0 : (preliminaryRamBank & 0b11u);
+
+    romBank &= getROMBankBitMask(romSize);
 
     romBankOffsetLower = (preliminaryRomBank & 0b1100000u) * FB_MBC1_ROM_BANK_SIZE;
     romBankOffset = romBank * FB_MBC1_ROM_BANK_SIZE;

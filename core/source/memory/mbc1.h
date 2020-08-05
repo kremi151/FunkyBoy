@@ -19,6 +19,7 @@
 
 #include <memory/mbc.h>
 #include <util/testing.h>
+#include <util/romsizes.h>
 
 namespace FunkyBoy {
 
@@ -31,6 +32,7 @@ namespace FunkyBoy {
 
     class MBC1: public MBC {
     private:
+        const ROMSize romSize;
         const MBC1RAMSize ramSize;
         const u16 ramBankSize;
         u32 romBankOffsetLower{};
@@ -43,7 +45,7 @@ namespace FunkyBoy {
         bool romBankingMode;
         bool ramEnabled;
     public:
-        explicit MBC1(MBC1RAMSize ramSize);
+        MBC1(ROMSize romSize, MBC1RAMSize ramSize);
 
         virtual u8 *getROMMemoryAddress(memory_address offset, u8 *rom) override;
         virtual u8 *getRAMMemoryAddress(memory_address offset, u8 *ram) override;

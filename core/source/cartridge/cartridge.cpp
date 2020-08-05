@@ -83,7 +83,10 @@ void Cartridge::loadROM(std::ifstream &file) {
 
     std::cout << "ROM title: " << header->title << std::endl;
 
-    auto romFlagInBytes = romSizeInBytes(static_cast<ROMSize>(header->romSize));
+    auto romSizeType = static_cast<ROMSize>(header->romSize);
+    std::cout << "ROM size type: " << romSizeType << std::endl;
+
+    auto romFlagInBytes = romSizeInBytes(romSizeType);
     if (romFlagInBytes == 0) {
         std::cerr << "Unknown rom size flag: " << (header->romSize & 0xFF) << std::endl;
         status = CartridgeStatus::ROMParseError;
@@ -110,7 +113,7 @@ void Cartridge::loadROM(std::ifstream &file) {
             mbc = std::make_unique<MBCNone>();
             break;
         case 0x01:
-            mbc = std::make_unique<MBC1>(MBC1RAMSize::MBC1_NoRam);
+            mbc = std::make_unique<MBC1>(romSizeType, MBC1RAMSize::MBC1_NoRam);
             break;
         case 0x02:
         case 0x03: {
@@ -133,7 +136,7 @@ void Cartridge::loadROM(std::ifstream &file) {
                     status = CartridgeStatus::ROMUnsupportedMBC;
                     return;
             }
-            mbc = std::make_unique<MBC1>(mbc1RamSize);
+            mbc = std::make_unique<MBC1>(romSizeType, mbc1RamSize);
             break;
         }
         default:
