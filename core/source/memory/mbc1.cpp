@@ -36,6 +36,10 @@ u16 getMBC1RAMBankSize(MBC1RAMSize size) {
 
 u8 getROMBankBitMask(ROMSize romSize) {
     switch (romSize) {
+        case ROMSize::ROM_SIZE_32K:
+            // 32K ROMs have in theory no banking, as bank 0 is mapped to 0x0000-0x3FFF
+            // and bank 1 to 0x4000-0x7000, with every bank being 16K
+            return 0b1u;
         case ROMSize::ROM_SIZE_64K:
             return 0b11u;
         case ROMSize::ROM_SIZE_128K:
