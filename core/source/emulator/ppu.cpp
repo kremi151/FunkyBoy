@@ -101,8 +101,11 @@ void PPU::doClocks(u8 clocks) {
         }
         case GPUMode::GPUMode_1: {
             if (modeClocks >= 4560) { // 10 scan lines
+                modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_2;
                 ly = 0;
+            } else if (modeClocks % 204 == 0) {
+                ly++;
             }
             break;
         }
