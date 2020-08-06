@@ -77,7 +77,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     } else if (offset >= 0xC000) {
         return internalRam + (offset - 0xC000);
     } else if (offset >= 0xA000) {
-        return cartridge->mbc->getRAMMemoryAddress(offset, cartridge->ram);
+        return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
     } else if (offset >= 0x9C00) {
         return bgMapData2 + (offset - 0x9C00);
     } else if (offset >= 0x9800) {

@@ -102,11 +102,11 @@ TEST(mbc1RamBankingExample1Test) {
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
 
-    assertEquals(0b1000001, mbc1.romBank);
+    assertEquals(0b1, mbc1.romBank);
     assertEquals(0b10, mbc1.ramBank);
 
     auto *dummyRamPtr = reinterpret_cast<FunkyBoy::u8*>(0);
-    FunkyBoy::u8 *addr = mbc1.getRAMMemoryAddress(0xB123, dummyRamPtr) - FB_TEST_CARTRIDGE_RAM_OFFSET;
+    FunkyBoy::u8 *addr = mbc1.getRAMMemoryAddress(0xB123 - FB_TEST_CARTRIDGE_RAM_OFFSET, dummyRamPtr);
 
     assertPointerAddrEquals(dummyRamPtr, 0x5123, addr);
 }

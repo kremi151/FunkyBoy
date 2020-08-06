@@ -103,22 +103,20 @@ u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
 }
 
 u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
-    if (!ramEnabled) {
-        return nullptr;
-    } else if (ramSize == MBC1RAMSize::MBC1_NoRam || offset < 0xA000) {
+    if (!ramEnabled || ramSize == MBC1RAMSize::MBC1_NoRam) {
         return nullptr;
     } else if (ramSize == MBC1RAMSize::MBC1_2KByte) {
-        if (offset > 0xA7FF) {
+        if (offset > 0x07FF) {
             return nullptr;
         }
     } else if (ramSize == MBC1RAMSize::MBC1_8KByte || ramSize == MBC1RAMSize::MBC1_32KByte) {
-        if (offset > 0xBFFF) {
+        if (offset > 0x1FFF) {
             return nullptr;
         }
     } else {
         return nullptr;
     }
-    return ram + ramBankOffset + (offset - 0xA000);
+    return ram + ramBankOffset + offset;
 }
 
 bool MBC1::interceptWrite(memory_address offset, u8 val) {
