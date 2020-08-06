@@ -49,9 +49,10 @@ u8 getROMBankBitMask(ROMSize romSize) {
         case ROMSize::ROM_SIZE_512K:
             return 0b11111u;
         case ROMSize::ROM_SIZE_1024K:
+            return 0b111111u;
         case ROMSize::ROM_SIZE_2048K:
         case ROMSize::ROM_SIZE_4096K:
-            return 0b111111u;
+            return 0b1111111u;
         default:
             return 0b0u;
     }
