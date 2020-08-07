@@ -32,7 +32,7 @@
 #define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x9C00 : 0x9800)
 // Returns the height of objects (16 or 8), width is always 8
 #define __fb_lcdc_objSpriteSize(lcdc) ((lcdc & 0b00000100u) ? 16 : 8)
-#define __fb_lcsc_objEnabled(lcdc) (lcdc & 0b00000010u)
+#define __fb_lcdc_objEnabled(lcdc) (lcdc & 0b00000010u)
 #define __fb_lcdc_isBGEnabled(lcdc) (lcdc & 0b00000001u)
 
 using namespace FunkyBoy;
@@ -138,6 +138,7 @@ void PPU::renderScanline(u8 ly) {
     const u16 y = ly + scy;
     const memory_address bgOrWindowTileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
+    const bool objEnabled = __fb_lcdc_objEnabled(lcdc);
     memory_address bgTileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
     bgTileMapAddr += ((y & 255u) / 8) * 32;
     u8 bgTileOffsetX = scx / 8;
@@ -147,11 +148,12 @@ void PPU::renderScanline(u8 ly) {
     u16 bgTile = bgEnabled ? memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX) : 0;
     u16 bgTileLine;
     if (bgEnabled) {
+        const u8 bgPalette = memory->read8BitsAt(FB_REG_BGP);
         for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
             bgTileLine = memory->read16BitsAt(bgOrWindowTileSetAddr + (bgTile * 16) + (yInTile * 2));
             u8 colorIndex = (bgTileLine >> (15 - (xInBgTile & 7u))) & 1u;
             colorIndex |= ((bgTileLine >> (7 - (xInBgTile & 7u))) & 1u) << 1;
-            color = dmgPalette[colorIndex & 3u];
+            color = dmgPalette[(bgPalette >> (colorIndex * 2u)) & 3u];
             controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
             if (++xInBgTile >= 8) {
                 xInBgTile = 0;
