@@ -20,37 +20,17 @@
 #include <memory/memory.h>
 #include <controllers/controllers.h>
 #include <emulator/cpu.h>
+#include <emulator/io_registers.h>
+#include <util/gpumode.h>
 
 namespace FunkyBoy {
-
-    enum GPUMode {
-        /**
-         * Horizontal blank
-         */
-        GPUMode_0,
-
-        /**
-         * Vertical blank
-         *
-         */
-        GPUMode_1,
-
-        /**
-         * OAM read mode, drawing scanline
-         */
-        GPUMode_2,
-
-        /**
-         * VRAM read mode, drawing scanline
-         */
-        GPUMode_3
-    };
 
     class PPU {
     private:
         MemoryPtr memory;
         CPUPtr cpu;
         Controller::ControllersPtr controllers;
+        io_registers_ptr ioRegisters;
 
         GPUMode gpuMode;
 
@@ -60,7 +40,7 @@ namespace FunkyBoy {
 
         void renderScanline(u8 ly);
     public:
-        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers);
+        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
 
         void doClocks(u8 clocks);
     };

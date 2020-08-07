@@ -18,6 +18,11 @@
 
 using namespace FunkyBoy;
 
+#define FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
+#define FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
+#define FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
+#define FB_REG_OFFSET_LY (FB_REG_LY - 0xFF00)
+
 io_registers::io_registers(Controller::ControllersPtr controllers)
     : sys_counter_lsb(0)
     , sys_counter_msb(0)
@@ -48,9 +53,6 @@ fb_inline const u8 & io_registers::sysCounterMsb() {
     return sys_counter_msb;
 }
 
-#define FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
-#define FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
-
 void io_registers::handleMemoryWrite(u8 offset, u8 value) {
     switch (offset) {
         case FB_REG_OFFSET_DIV: {
@@ -65,6 +67,13 @@ void io_registers::handleMemoryWrite(u8 offset, u8 value) {
                   | (value & 0b00110000u) // Keep the two writable bits
                   | currentP1;            // Take the read-only bits from the current P1 value
             *(hwIO + FB_REG_OFFSET_P1) = value;
+            break;
+        }
+        case FB_REG_OFFSET_STAT: {
+            // Only bits 3-6 are writable, bit 7 reads always '1'
+            value = (value & 0b01111000u) | 0b10000000u;
+            value |= *(hwIO + FB_REG_OFFSET_STAT) & 0b00000111u;
+            *(hwIO + FB_REG_OFFSET_STAT) = value;
             break;
         }
         default: {
@@ -115,4 +124,14 @@ u8 io_registers::updateJoypad() {
     }
     p1 = val;
     return val;
+}
+
+void io_registers::updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly) {
+    u8 stat = 0b10000000u; // Bit 7 always returns '1'
+    if (lcdOn) {
+        stat |= static_cast<u8>(gpuMode) & 0b11u;
+    }
+    *(hwIO + FB_REG_OFFSET_STAT) = stat;
+
+    *(hwIO + FB_REG_OFFSET_LY) = ly;
 }

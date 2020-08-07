@@ -81,6 +81,7 @@ set(HEADERS
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h
+        source/util/gpumode.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
