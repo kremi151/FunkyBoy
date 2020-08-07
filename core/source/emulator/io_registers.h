@@ -64,8 +64,6 @@ namespace FunkyBoy {
 
         fb_inline u16 getSysCounter();
 
-        fb_inline const u8 &sysCounterMsb();
-
         void handleMemoryWrite(u8 offset, u8 value);
         u8 handleMemoryRead(u8 offset);
 

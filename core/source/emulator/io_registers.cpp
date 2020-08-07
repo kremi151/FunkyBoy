@@ -49,10 +49,6 @@ fb_inline u16 io_registers::getSysCounter() {
     return (sys_counter_msb << 8) | sys_counter_lsb;
 }
 
-fb_inline const u8 & io_registers::sysCounterMsb() {
-    return sys_counter_msb;
-}
-
 void io_registers::handleMemoryWrite(u8 offset, u8 value) {
     switch (offset) {
         case FB_REG_OFFSET_DIV: {
@@ -84,7 +80,12 @@ void io_registers::handleMemoryWrite(u8 offset, u8 value) {
 }
 
 u8 io_registers::handleMemoryRead(u8 offset) {
-    return *(hwIO + offset);
+    switch (offset) {
+        case FB_REG_OFFSET_DIV:
+            return sys_counter_msb;
+        default:
+            return *(hwIO + offset);
+    }
 }
 
 u8 io_registers::updateJoypad() {

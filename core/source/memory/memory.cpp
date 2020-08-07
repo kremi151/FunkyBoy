@@ -56,9 +56,6 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         return &interruptEnableRegister;
     } else if (offset >= 0xFF80) {
         return hram + (offset - 0xFF80);
-    } else if (offset == FB_REG_DIV) {
-        // Write access is protected by interceptWrite
-        return const_cast<u8 *>(&ioRegisters->sysCounterMsb());
     } else if (offset >= 0xFF00) {
         // Handled by interceptWrite and interceptReadAt
         fprintf(stderr, "Attempting to get access to HWIO, this means that the developer has forked something up\n");
