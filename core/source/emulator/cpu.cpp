@@ -141,7 +141,7 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xffff, 0x00);
 
     // Initialize Joypad
-    memory->updateJoypad();
+    ioRegisters->updateJoypad();
 }
 
 bool CPU::doMachineCycle() {
@@ -241,7 +241,7 @@ inline u8 getInterruptBitMask(InterruptType type) {
 
 void CPU::doJoypad() {
     u8 oldP1 = memory->read8BitsAt(FB_REG_P1) & 0b00001111u;
-    u8 newP1 = memory->updateJoypad() & 0b00001111u;
+    u8 newP1 = ioRegisters->updateJoypad() & 0b00001111u;
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
         requestInterrupt(InterruptType::JOYPAD);

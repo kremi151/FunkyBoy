@@ -19,6 +19,7 @@
 
 #include <util/typedefs.h>
 #include <util/testing.h>
+#include <controllers/controllers.h>
 #include <memory>
 
 #define FB_REG_P1 0xFF00
@@ -49,19 +50,25 @@ namespace FunkyBoy {
 
     class io_registers {
     private:
+        u8 *hwIO;
+        Controller::ControllersPtr controllers;
         void setSysCounter(u16 counter);
+        void resetSysCounter();
     test_public:
         u8 sys_counter_lsb;
         u8 sys_counter_msb;
     public:
-
-        io_registers();
-
-        void resetSysCounter();
+        explicit io_registers(Controller::ControllersPtr controllers);
+        ~io_registers();
 
         fb_inline u16 getSysCounter();
 
         fb_inline const u8 &sysCounterMsb();
+
+        void handleMemoryWrite(u8 offset, u8 value);
+        u8 handleMemoryRead(u8 offset);
+
+        u8 updateJoypad();
 
         friend class CPU;
     };

@@ -35,7 +35,6 @@ namespace FunkyBoy {
         u8 *bgMapData2;
         u8 *internalRam;
         u8 *oam;
-        u8 *hwIO;
         u8 *hram;
         u8 interruptEnableRegister;
 
@@ -49,8 +48,6 @@ namespace FunkyBoy {
     public:
         Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
         ~Memory();
-
-        u8 updateJoypad();
 
         u8 read8BitsAt(memory_address offset);
         i8 readSigned8BitsAt(memory_address offset);
