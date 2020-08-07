@@ -22,12 +22,14 @@
 // 256 px * 256 px * 4 bytes for RGBA
 #define FB_PPU_BGBUFFER_SIZE (256 * 256 * 4)
 
+#define FB_TILE_DATA_OBJ 0x8000
+
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
 // Differences here are 1023
 #define __fb_lcdc_windowTileMapDisplaySelect(lcdc) ((lcdc & 0b01000000u) ? 0x9C00 : 0x9800)
 #define __fb_lcdc_isWindowEnabled(lcdc) (lcdc & 0b00100000u)
 // Differences here are 4095
-#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? 0x8000 : 0x8800)
+#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? FB_TILE_DATA_OBJ : 0x8800)
 // Differences here are 1023
 #define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x9C00 : 0x9800)
 // Returns the height of objects (16 or 8), width is always 8
@@ -171,18 +173,17 @@ void PPU::renderScanline(u8 ly) {
         memory_address objAddr = 0xFE00;
         u8 objY, objX, objTile, objFlags;
         for (u8 objIdx = 0 ; objIdx < 40 ; objIdx++) {
-            objY = memory->read8BitsAt(objAddr++);
+            objY = memory->read8BitsAt(objAddr++) - 16;
             objX = memory->read8BitsAt(objAddr++);
             objTile = memory->read8BitsAt(objAddr++);
             objFlags = memory->read8BitsAt(objAddr++);
-            objY -= 16;
             if (ly < objY || ly >= objY + objHeight) {
                 continue;
             }
             const u8 objPalette = (objFlags & 0b00010000u) ? objPalette1 : objPalette0;
             const u8 yInObj = (ly - objY);
 
-            tile = memory->read8BitsAt(bgTileMapAddr + objTile);
+            tile = memory->read8BitsAt(FB_TILE_DATA_OBJ + objTile);
             tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
                 u8 x = objX + xOnObj - 8;

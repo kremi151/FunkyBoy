@@ -23,7 +23,8 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): memory(std::move(memory))
+CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters)
+    : memory(std::move(memory))
     , gbType(gbType)
     , ioRegisters(std::move(ioRegisters))
     , instrContext(gbType)
