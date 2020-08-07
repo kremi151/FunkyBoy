@@ -175,17 +175,17 @@ void PPU::renderScanline(u8 ly) {
             objX = memory->read8BitsAt(objAddr++);
             objTile = memory->read8BitsAt(objAddr++);
             objFlags = memory->read8BitsAt(objAddr++);
+            objY -= 16;
             if (ly < objY || ly >= objY + objHeight) {
                 continue;
             }
             const u8 objPalette = (objFlags & 0b00010000u) ? objPalette1 : objPalette0;
             const u8 yInObj = (ly - objY);
 
-
             tile = memory->read8BitsAt(bgTileMapAddr + objTile);
             tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
-                u8 x = objX + xOnObj;
+                u8 x = objX + xOnObj - 8;
                 if (x >= FB_GB_DISPLAY_WIDTH) {
                     // Out of display bounds
                     continue;
