@@ -129,15 +129,6 @@ void PPU::doClocks(u8 clocks) {
     // TODO: Compare LY with LYC and trigger interrupt
 
     memory->write8BitsTo(FB_REG_LY, ly);
-
-    /*
-    if (__fb_lcdc_isBGEnabled(lcdc)) {
-        // TODO: Draw background
-    }
-    if (__fb_lcdc_isWindowEnabled(lcdc)) {
-        // TODO: Draw window
-    }
-    */
 }
 
 void PPU::renderScanline(u8 ly) {
@@ -145,25 +136,28 @@ void PPU::renderScanline(u8 ly) {
     const u8 scx = memory->read8BitsAt(FB_REG_SCX);
     const u8 scy = memory->read8BitsAt(FB_REG_SCY);
     const u16 y = ly + scy;
-    memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
-    tileMapAddr += ((y & 255u) / 8) * 32;
-    memory_address tileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
-    u8 tileOffsetX = scx / 8;
-    u8 xInTile = scx % 8;
+    const memory_address bgOrWindowTileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
+    const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
+    memory_address bgTileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
+    bgTileMapAddr += ((y & 255u) / 8) * 32;
+    u8 bgTileOffsetX = scx / 8;
+    u8 xInBgTile = scx % 8;
     const u8 yInTile = y % 8;
     u8 *color;
-    u16 tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
-    u16 tileLine;
-    for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
-        tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
-        u8 colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
-        colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
-        color = dmgPalette[colorIndex & 3u];
-        controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
-        if (++xInTile >= 8) {
-            xInTile = 0;
-            tileOffsetX = (tileOffsetX + 1) & 31;
-            tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
+    u16 bgTile = bgEnabled ? memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX) : 0;
+    u16 bgTileLine;
+    if (bgEnabled) {
+        for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
+            bgTileLine = memory->read16BitsAt(bgOrWindowTileSetAddr + (bgTile * 16) + (yInTile * 2));
+            u8 colorIndex = (bgTileLine >> (15 - (xInBgTile & 7u))) & 1u;
+            colorIndex |= ((bgTileLine >> (7 - (xInBgTile & 7u))) & 1u) << 1;
+            color = dmgPalette[colorIndex & 3u];
+            controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
+            if (++xInBgTile >= 8) {
+                xInBgTile = 0;
+                bgTileOffsetX = (bgTileOffsetX + 1) & 31;
+                bgTile = memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX);
+            }
         }
     }
 }
