@@ -155,7 +155,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
     }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
-        fprintf(stderr, "Illegal 8-bit write to 0x%04X\n", offset);
+        fprintf(stderr, "Illegal 8-bit write to 0x%04X => 0x%02X\n", offset, val);
         return;
     }
     *ptr = val;
