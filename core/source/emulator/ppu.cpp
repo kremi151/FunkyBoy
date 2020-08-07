@@ -171,11 +171,11 @@ void PPU::renderScanline(u8 ly) {
         const u8 objPalette1 = memory->read8BitsAt(FB_REG_OBP1);
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
         memory_address objAddr = 0xFE00;
-        u8 objY, objX, objTile, objFlags;
+        u8 objY, objX, objFlags;
         for (u8 objIdx = 0 ; objIdx < 40 ; objIdx++) {
             objY = memory->read8BitsAt(objAddr++) - 16;
             objX = memory->read8BitsAt(objAddr++);
-            objTile = memory->read8BitsAt(objAddr++);
+            tile = memory->read8BitsAt(objAddr++);
             objFlags = memory->read8BitsAt(objAddr++);
             if (ly < objY || ly >= objY + objHeight) {
                 continue;
@@ -183,8 +183,7 @@ void PPU::renderScanline(u8 ly) {
             const u8 objPalette = (objFlags & 0b00010000u) ? objPalette1 : objPalette0;
             const u8 yInObj = (ly - objY);
 
-            tile = memory->read8BitsAt(FB_TILE_DATA_OBJ + objTile);
-            tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInObj * 2));
+            tileLine = memory->read16BitsAt(FB_TILE_DATA_OBJ + (tile * 16) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
                 u8 x = objX + xOnObj - 8;
                 if (x >= FB_GB_DISPLAY_WIDTH) {
