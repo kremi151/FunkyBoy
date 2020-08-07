@@ -16,6 +16,7 @@
 
 #include "memory.h"
 
+#include <util/endianness.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <emulator/io_registers.h>
@@ -24,8 +25,12 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters): cartridge(std::move(cartridge))
-    , controllers(std::move(controllers)), ioRegisters(std::move(ioRegisters)), interruptEnableRegister(0)
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters)
+    : cartridge(std::move(cartridge))
+    , controllers(std::move(controllers))
+    , ioRegisters(std::move(ioRegisters))
+    , interruptEnableRegister(0)
+    , dmaStarted(false)
 {
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
@@ -116,8 +121,21 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 &val) 
     }
     switch (offset & 0xFF00u) {
         case 0xFF00: {
-            if (offset == FB_REG_SC && val == 0x81) {
-                controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+            switch (offset) {
+                case FB_REG_SC: {
+                    if (val == 0x81) {
+                        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+                    }
+                    break;
+                }
+                case FB_REG_DMA: {
+                    dmaStarted = true;
+                    dmaMsb = val & 0xF1u;
+                    dmaLsb = 0x00;
+                    break;
+                }
+                default:
+                    break;
             }
             if (offset < 0xFF80) {
                 // IO registers
@@ -185,6 +203,20 @@ void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
     }
     *ptr = lsb;
     *(ptr+1) = msb;
+}
+
+fb_inline bool Memory::isDMA() {
+    return dmaStarted;
+}
+
+void Memory::doDMA() {
+    if (!dmaStarted) {
+        return;
+    }
+    *(oam + dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
+    if (++dmaLsb > 0x9F) {
+        dmaStarted = false;
+    }
 }
 
 #ifdef FB_TESTING
