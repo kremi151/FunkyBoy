@@ -58,7 +58,6 @@ namespace FunkyBoy {
 
         u16 read16BitsAt(memory_address offset);
 
-        [[deprecated]]
         void write16BitsTo(memory_address offset, u16 val);
         void write16BitsTo(memory_address offset, u8 msb, u8 lsb);
 

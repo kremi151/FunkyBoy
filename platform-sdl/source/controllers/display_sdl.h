@@ -31,7 +31,7 @@ namespace FunkyBoy::Controller {
         u8 dmgPalette[4][3]{};
     public:
         explicit DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer);
-        ~DisplayControllerSDL();
+        ~DisplayControllerSDL() override;
 
         void drawScanLine(u8 y, u8 *buffer) override;
         void drawScreen() override;
