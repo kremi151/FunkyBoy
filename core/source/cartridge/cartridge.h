@@ -67,6 +67,7 @@ namespace FunkyBoy {
         ~Cartridge();
 
         void loadROM(std::ifstream &file);
+        void loadROM(std::ifstream &file, bool strictSizeCheck);
 
         const ROMHeader *getHeader();
         CartridgeStatus getStatus();

@@ -20,26 +20,25 @@
 #include <fstream>
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
-#include <controllers/serial_null.h>
-#include <controllers/joypad_void.h>
 
 // TODO: For debugging, remove it afterwards:
 #include <sstream>
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers): ioRegisters(new io_registers)
-    , cartridge(new Cartridge), controllers(controllers), cpu(gbType, memory, ioRegisters)
+Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
+    : cartridge(new Cartridge)
+    , controllers(controllers)
+    , ioRegisters(new io_registers(controllers))
     , memory(new Memory(cartridge, controllers, ioRegisters))
+    , cpu(std::make_shared<CPU>(gbType, memory, ioRegisters))
+    , ppu(memory, cpu, controllers, ioRegisters)
 {
 }
 
 Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
         gbType,
-        std::make_shared<Controller::Controllers>(
-                std::make_shared<Controller::SerialControllerVoid>(),
-                std::make_shared<Controller::JoypodControllerVoid>()
-        )
+        std::make_shared<Controller::Controllers>()
 ) {}
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
@@ -54,7 +53,7 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 
     auto header = cartridge->getHeader();
 
-    cpu.setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
+    cpu->setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
 
     fprintf(stdout, "Cartridge type: 0x%02X\n", header->cartridgeType);
 
@@ -73,7 +72,11 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 }
 
 bool Emulator::doTick() {
-    return cpu.doTick();
+    if (!cpu->doMachineCycle()) {
+        return false;
+    }
+    ppu.doClocks(4);
+    return true;
 }
 
 Cartridge & Emulator::getCartridge() {

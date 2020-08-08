@@ -23,7 +23,7 @@ u8 * MBCNone::getROMMemoryAddress(memory_address offset, u8 *rom) {
 }
 
 u8 * MBCNone::getRAMMemoryAddress(FunkyBoy::memory_address offset, FunkyBoy::u8 *ram) {
-    return ram + (offset - 0xA000);
+    return ram + offset;
 }
 
 bool MBCNone::interceptWrite(memory_address offset, FunkyBoy::u8 val) {

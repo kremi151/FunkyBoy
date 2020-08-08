@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#ifndef FB_CORE_CONTROLLERS_DISPLAY_VOID_H
+#define FB_CORE_CONTROLLERS_DISPLAY_VOID_H
 
-#include "joypad.h"
+#include "display.h"
 
 namespace FunkyBoy::Controller {
 
-    class JoypadControllerVoid: public JoypadController {
+    class DisplayControllerVoid: public DisplayController {
     public:
-        bool isKeyPressed(JoypadKey key) override;
+        void drawScanLine(u8 y, u8 *buffer) override;
+        void drawScreen() override;
     };
 
 }
 
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#endif //FB_CORE_CONTROLLERS_DISPLAY_VOID_H

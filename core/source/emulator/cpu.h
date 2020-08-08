@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CORE_CPU_H
-#define CORE_CPU_H
+#ifndef FB_CORE_CPU_H
+#define FB_CORE_CPU_H
 
 #include "util/typedefs.h"
 
@@ -58,8 +58,6 @@ namespace FunkyBoy {
         u8 operandIndex;
         Operand operands[25]{};
 
-        u8 cpuInterCycleCounter;
-
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
 
@@ -72,8 +70,7 @@ namespace FunkyBoy {
 
         void doJoypad();
         bool doInterrupts();
-        void doTimers();
-        void requestInterrupt(InterruptType type);
+        void doTimers(u8 clocks);
 
     test_public:
 
@@ -101,10 +98,13 @@ namespace FunkyBoy {
         CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters);
 
         void setProgramCounter(u16 offset);
+        void requestInterrupt(InterruptType type);
 
-        bool doTick();
+        bool doMachineCycle();
     };
+
+    typedef std::shared_ptr<CPU> CPUPtr;
 
 }
 
-#endif //CORE_CPU_H
+#endif //FB_CORE_CPU_H

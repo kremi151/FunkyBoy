@@ -14,18 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#ifndef FB_CORE_UTIL_GPUMODE_H
+#define FB_CORE_UTIL_GPUMODE_H
 
-#include "joypad.h"
+namespace FunkyBoy {
 
-namespace FunkyBoy::Controller {
+    enum GPUMode {
+        /**
+         * Horizontal blank
+         */
+        GPUMode_0 = 0b00,
 
-    class JoypadControllerVoid: public JoypadController {
-    public:
-        bool isKeyPressed(JoypadKey key) override;
+        /**
+         * Vertical blank
+         *
+         */
+        GPUMode_1 = 0b01,
+
+        /**
+         * OAM read mode, drawing scanline
+         */
+        GPUMode_2 = 0b10,
+
+        /**
+         * VRAM read mode, drawing scanline
+         */
+        GPUMode_3 = 0b11
     };
 
 }
 
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#endif //FB_CORE_UTIL_GPUMODE_H

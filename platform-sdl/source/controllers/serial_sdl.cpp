@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#include "serial_sdl.h"
 
-#include "joypad.h"
+#include <iostream>
 
-namespace FunkyBoy::Controller {
+using namespace FunkyBoy::Controller;
 
-    class JoypadControllerVoid: public JoypadController {
-    public:
-        bool isKeyPressed(JoypadKey key) override;
-    };
-
+void SerialControllerSDL::sendByte(FunkyBoy::u8 data) {
+    // TODO: This is only temporary so that I see whether my emulator is doing something, to be removed
+    std::cout << data;
 }
-
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H

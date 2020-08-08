@@ -14,42 +14,38 @@
  * limitations under the License.
  */
 
-#ifndef CORE_EMULATOR_H
-#define CORE_EMULATOR_H
+#ifndef FB_CORE_PPU_H
+#define FB_CORE_PPU_H
 
-#include <util/fs.h>
-#include <memory>
-#include <emulator/cpu.h>
-#include <emulator/ppu.h>
-#include <emulator/io_registers.h>
-#include <util/typedefs.h>
-#include <util/debug.h>
-#include <cartridge/cartridge.h>
-#include <controllers/controllers.h>
 #include <memory/memory.h>
-#include <memory>
+#include <controllers/controllers.h>
+#include <emulator/cpu.h>
+#include <emulator/io_registers.h>
+#include <util/gpumode.h>
 
 namespace FunkyBoy {
 
-    class Emulator {
-    test_public:
-        CartridgePtr cartridge;
-        Controller::ControllersPtr controllers;
-
-        io_registers_ptr ioRegisters;
+    class PPU {
+    private:
         MemoryPtr memory;
         CPUPtr cpu;
-        PPU ppu;
+        Controller::ControllersPtr controllers;
+        io_registers_ptr ioRegisters;
+
+        GPUMode gpuMode;
+
+        u16 modeClocks;
+
+        u8 *scanLineBuffer;
+
+        void renderScanline(u8 ly);
     public:
-        explicit Emulator(GameBoyType gbType);
-        Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);
+        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
+        ~PPU();
 
-        CartridgeStatus loadGame(const fs::path &romPath);
-        Cartridge &getCartridge();
-
-        bool doTick();
+        void doClocks(u8 clocks);
     };
 
 }
 
-#endif //CORE_EMULATOR_H
+#endif //FB_CORE_PPU_H

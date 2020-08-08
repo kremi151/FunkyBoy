@@ -16,6 +16,7 @@
 
 #include "memory.h"
 
+#include <util/endianness.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <emulator/io_registers.h>
@@ -24,15 +25,18 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters): cartridge(std::move(cartridge))
-    , controllers(std::move(controllers)), ioRegisters(std::move(ioRegisters)), interruptEnableRegister(0)
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters)
+    : cartridge(std::move(cartridge))
+    , controllers(std::move(controllers))
+    , ioRegisters(std::move(ioRegisters))
+    , interruptEnableRegister(0)
+    , dmaStarted(false)
 {
     vram = new u8[6144]{};
     bgMapData1 = new u8[1024]{};
     bgMapData2 = new u8[1024]{};
     internalRam = new u8[8 * FB_INTERNAL_RAM_BANK_SIZE]{};
     oam = new u8[160]{};
-    hwIO = new u8[128]{};
     hram = new u8[127]{};
 
     dynamicRamBank = internalRam + FB_INTERNAL_RAM_BANK_SIZE;
@@ -44,27 +48,24 @@ Memory::~Memory() {
     delete[] bgMapData2;
     delete[] internalRam;
     delete[] oam;
-    delete[] hwIO;
     delete[] hram;
 }
 
 u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
-    if (offset <= 0x7FFF) {
-        return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
-    } else if (offset <= 0x97FF) {
-        return vram + (offset - 0x8000);
-    } else if (offset <= 0x9BFF) {
-        return bgMapData1 + (offset - 0x9800);
-    } else if (offset <= 0x9FFF) {
-        return bgMapData2 + (offset - 0x9C00);
-    } else if (offset <= 0xBFFF) {
-        return cartridge->mbc->getRAMMemoryAddress(offset, cartridge->ram);
-    } else if (offset <= 0xCFFF) {
-        return internalRam + (offset - 0xC000);
-    } else if (offset <= 0xDFFF) {
-        // TODO: Make this switchable
-        return dynamicRamBank + (offset - 0xD000);
-    } else if (offset <= 0xFDFF) {
+    if (offset == FB_REG_IE) {
+        return &interruptEnableRegister;
+    } else if (offset >= 0xFF80) {
+        return hram + (offset - 0xFF80);
+    } else if (offset >= 0xFF00) {
+        // Handled by interceptWrite and interceptReadAt
+        fprintf(stderr, "Attempting to get access to HWIO, this means that the developer has forked something up\n");
+        return nullptr;
+    } else if (offset >= 0xFEA0) {
+        // Not usable
+        return nullptr;
+    } else if (offset >= 0xFE00) {
+        return oam + (offset - 0xFE00);
+    } else if (offset >= 0xE000) {
         // Echo RAM
         // TODO: Verify that this offset is correctly calculated (Echo RAM offset + boundary of RAM bank 0)
         if (offset <= 0xEFFF) {
@@ -72,21 +73,21 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         } else {
             return dynamicRamBank + (offset - 0xF000);
         }
-    } else if (offset <= 0xFE9F) {
-        return oam + (offset - 0xFE00);
-    } else if (offset <= 0xFEFF) {
-        return nullptr;
-    } else if (offset == FB_REG_DIV) {
-        // Write access is protected by interceptWrite
-        return const_cast<u8 *>(&ioRegisters->sysCounterMsb());
-    } else if (offset <= 0xFF7F) {
-        return hwIO + (offset - 0xFF00);
-    } else if (offset <= 0xFFFE) {
-        return hram + (offset - 0xFF80);
-    } else if (offset == FB_REG_IE) {
-        return &interruptEnableRegister;
+    } else if (offset >= 0xD000) {
+        // TODO: Make this switchable
+        return dynamicRamBank + (offset - 0xD000);
+    } else if (offset >= 0xC000) {
+        return internalRam + (offset - 0xC000);
+    } else if (offset >= 0xA000) {
+        return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
+    } else if (offset >= 0x9C00) {
+        return bgMapData2 + (offset - 0x9C00);
+    } else if (offset >= 0x9800) {
+        return bgMapData1 + (offset - 0x9800);
+    } else if (offset >= 0x8000) {
+        return vram + (offset - 0x8000);
     } else {
-        return nullptr;
+        return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
     }
 }
 
@@ -115,31 +116,38 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 &val) 
         // Writing to read-only area, so we let it intercept by the MBC
         return true;
     }
-    if (offset == FB_REG_SC && val == 0x81) {
-        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
-    } else {
+    if ((offset & 0xFF00u) == 0xFF00u) {
         switch (offset) {
-            case FB_REG_DIV: {
-                // Direct write to DIV ; reset to 0
-                ioRegisters->resetSysCounter();
-                return true;
+            case FB_REG_SC: {
+                if (val == 0x81) {
+                    controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+                }
+                break;
             }
-            case FB_REG_P1: {
-                // Only bits 4 and 5 are writable
-                u8 currentP1 = *getMemoryAddress(FB_REG_P1) & 0b00001111u;
-                val = 0b11000000u               // Bits 6 and 7 always read '1'
-                        | (val & 0b00110000u)   // Keep the two writable bits
-                        | currentP1;            // Take the read-only bits from the current P1 value
+            case FB_REG_DMA: {
+                dmaStarted = true;
+                dmaMsb = val & 0xF1u;
+                dmaLsb = 0x00;
                 break;
             }
             default:
-                return false;
+                break;
+        }
+        if (offset < 0xFF80) {
+            // IO registers
+            ioRegisters->handleMemoryWrite(offset - 0xFF00u, val);
+            return true;
         }
     }
     return false;
 }
 
 bool Memory::interceptReadAt(FunkyBoy::memory_address offset, u8 *out) {
+    if (offset >= 0xFF00u && offset < 0xFF80) {
+        // IO registers
+        *out = ioRegisters->handleMemoryRead(offset - 0xFF00);
+        return true;
+    }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
         return false;
@@ -148,52 +156,13 @@ bool Memory::interceptReadAt(FunkyBoy::memory_address offset, u8 *out) {
     return true;
 }
 
-u8 Memory::updateJoypad() {
-    u8 *p1 = getMemoryAddress(FB_REG_P1);
-    u8 originalValue = *p1;
-    u8 val = originalValue | 0b11001111u;
-    auto &joypad = *controllers->getJoypad();
-    if ((originalValue & 0b00100000u) == 0) {
-        // Select Button keys
-        if (joypad.isKeyPressed(Controller::JOYPAD_A)) {
-            val &= 0b11111110u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_B)) {
-            val &= 0b11111101u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_SELECT)) {
-            val &= 0b11111011u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_START)) {
-            val &= 0b11110111u;
-        }
-    }
-    if ((originalValue & 0b00010000u) == 0) {
-        // Select Direction keys
-        if (joypad.isKeyPressed(Controller::JOYPAD_RIGHT)) {
-            val &= 0b11111110u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_LEFT)) {
-            val &= 0b11111101u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_UP)) {
-            val &= 0b11111011u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_DOWN)) {
-            val &= 0b11110111u;
-        }
-    }
-    *p1 = val;
-    return val;
-}
-
 void Memory::write8BitsTo(memory_address offset, u8 val) {
     if (interceptWrite(offset, val)) {
         return;
     }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
-        fprintf(stderr, "Illegal 8-bit write to 0x%04X\n", offset);
+        fprintf(stderr, "Illegal 8-bit write to 0x%04X => 0x%02X\n", offset, val);
         return;
     }
     *ptr = val;
@@ -223,6 +192,20 @@ void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
     }
     *ptr = lsb;
     *(ptr+1) = msb;
+}
+
+fb_inline bool Memory::isDMA() {
+    return dmaStarted;
+}
+
+void Memory::doDMA() {
+    if (!dmaStarted) {
+        return;
+    }
+    *(oam + dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
+    if (++dmaLsb > 0x9F) {
+        dmaStarted = false;
+    }
 }
 
 #ifdef FB_TESTING

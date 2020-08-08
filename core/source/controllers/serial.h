@@ -24,6 +24,8 @@ namespace FunkyBoy::Controller {
 
     class SerialController {
     public:
+        virtual ~SerialController() = default;
+
         virtual void sendByte(u8 data) = 0;
     };
 

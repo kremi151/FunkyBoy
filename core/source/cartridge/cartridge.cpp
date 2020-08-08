@@ -52,6 +52,10 @@ bool hasCartridgeRam(u8 cartridgeType) {
 }
 
 void Cartridge::loadROM(std::ifstream &file) {
+    loadROM(file, false);
+}
+
+void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
     if (!file.good()) {
         status = CartridgeStatus::ROMFileNotReadable;
         return;
@@ -63,14 +67,16 @@ void Cartridge::loadROM(std::ifstream &file) {
 
     std::cout << "Seeked a length of " << length << std::endl;
 
-    if (length > romSizeInBytes(ROMSize::ROM_SIZE_4096K)) {
+    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4096K);
+    if (length > maxRomSize) {
+        std::cerr << "ROM size mismatch, seeked " << length
+            << " bytes, which is more than the maximal supported size of " << maxRomSize << " bytes" << std::endl;
         status = CartridgeStatus::ROMTooBig;
         return;
     }
 
     // It is important to always allocate 8MB for ROMs even if they are smaller
     // Some ROMs might (because of whatever reason) switch the ROM bank to an area outside of the ROM's size.
-    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4096K);
     std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(maxRomSize);
     memset(romBytes.get(), 0, maxRomSize * sizeof(u8));
 
@@ -83,12 +89,15 @@ void Cartridge::loadROM(std::ifstream &file) {
 
     std::cout << "ROM title: " << header->title << std::endl;
 
-    auto romFlagInBytes = romSizeInBytes(static_cast<ROMSize>(header->romSize));
+    auto romSizeType = static_cast<ROMSize>(header->romSize);
+    std::cout << "ROM size type: " << romSizeType << std::endl;
+
+    size_t romFlagInBytes = romSizeInBytes(romSizeType);
     if (romFlagInBytes == 0) {
         std::cerr << "Unknown rom size flag: " << (header->romSize & 0xFF) << std::endl;
         status = CartridgeStatus::ROMParseError;
         return;
-    } else if (romFlagInBytes != length) {
+    } else if (strictSizeCheck && romFlagInBytes != length) {
         std::cerr << "ROM size mismatch, loaded " << length << " bytes, but expected " << romFlagInBytes << std::endl;
         status = CartridgeStatus::ROMSizeMismatch;
         return;
@@ -110,7 +119,7 @@ void Cartridge::loadROM(std::ifstream &file) {
             mbc = std::make_unique<MBCNone>();
             break;
         case 0x01:
-            mbc = std::make_unique<MBC1>(MBC1RAMSize::MBC1_NoRam);
+            mbc = std::make_unique<MBC1>(romSizeType, MBC1RAMSize::MBC1_NoRam);
             break;
         case 0x02:
         case 0x03: {
@@ -133,7 +142,7 @@ void Cartridge::loadROM(std::ifstream &file) {
                     status = CartridgeStatus::ROMUnsupportedMBC;
                     return;
             }
-            mbc = std::make_unique<MBC1>(mbc1RamSize);
+            mbc = std::make_unique<MBC1>(romSizeType, mbc1RamSize);
             break;
         }
         default:

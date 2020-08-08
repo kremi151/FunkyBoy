@@ -18,6 +18,8 @@
 #define FB_CORE_MBC1_H
 
 #include <memory/mbc.h>
+#include <util/testing.h>
+#include <util/romsizes.h>
 
 namespace FunkyBoy {
 
@@ -30,19 +32,24 @@ namespace FunkyBoy {
 
     class MBC1: public MBC {
     private:
+        const ROMSize romSize;
         const MBC1RAMSize ramSize;
-        u8 bank;
+        const u16 ramBankSize;
+        u32 romBankOffsetLower{};
+        u32 romBankOffset{};
+        u32 ramBankOffset{};
+        void updateBanks();
+    test_public:
+        u8 preliminaryRomBank, romBank{};
+        u8 preliminaryRamBank, ramBank{};
         bool romBankingMode;
         bool ramEnabled;
-
-        u8 getROMBank();
-        u8 getRAMBank();
     public:
-        MBC1(MBC1RAMSize ramSize);
+        MBC1(ROMSize romSize, MBC1RAMSize ramSize);
 
-        virtual u8 *getROMMemoryAddress(memory_address offset, u8 *rom) override;
-        virtual u8 *getRAMMemoryAddress(memory_address offset, u8 *ram) override;
-        virtual bool interceptWrite(memory_address offset, u8 val) override;
+        u8 *getROMMemoryAddress(memory_address offset, u8 *rom) override;
+        u8 *getRAMMemoryAddress(memory_address offset, u8 *ram) override;
+        bool interceptWrite(memory_address offset, u8 val) override;
     };
 
 }

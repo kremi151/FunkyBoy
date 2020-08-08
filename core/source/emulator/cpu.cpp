@@ -23,11 +23,18 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): memory(std::move(memory)), gbType(gbType)
-    , ioRegisters(std::move(ioRegisters)), instrContext(gbType), timerOverflowingCycles(-1), delayedTIMAIncrease(false)
-    , operandIndex(0), cpuInterCycleCounter(0), joypadWasNotPressed(true)
+CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters)
+    : memory(std::move(memory))
+    , gbType(gbType)
+    , ioRegisters(std::move(ioRegisters))
+    , instrContext(gbType)
+    , timerOverflowingCycles(-1)
+    , delayedTIMAIncrease(false)
+    , operandIndex(0)
+    , joypadWasNotPressed(true)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    , file("exec_opcodes_fb_v2.txt"), instr(0)
+    , file("exec_opcodes_fb_v2.txt")
+    , instr(0)
 #endif
 #if defined(FB_TESTING)
     , instructionCompleted(false)
@@ -135,21 +142,15 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xffff, 0x00);
 
     // Initialize Joypad
-    memory->updateJoypad();
+    ioRegisters->updateJoypad();
 }
 
-bool CPU::doTick() {
-    bool result;
-
-    if (cpuInterCycleCounter == 0) {
-        doJoypad();
-        result = doCycle();
-    } else {
-        result = true;
-    }
+bool CPU::doMachineCycle() {
+    doJoypad();
+    bool result = doCycle();
 
     // TODO: Handle timer here or earlier?
-    doTimers();
+    doTimers(4);
 
     // Due to a hardware quirk, enabling interrupts becomes active after the instruction following an EI,
     // so we simulate this behaviour here
@@ -164,8 +165,6 @@ bool CPU::doTick() {
             break;
     }
 
-    cpuInterCycleCounter = (cpuInterCycleCounter + 1) % 4;
-
     return result;
 }
 
@@ -176,16 +175,24 @@ bool CPU::doCycle() {
 
     bool shouldDoInterrupts = instrContext.cpuState == CPUState::HALTED;
     bool shouldFetch = false;
+    const bool isDMA = memory->isDMA();
 
     if (instrContext.cpuState == CPUState::RUNNING) {
-        auto op = operands[operandIndex++];
+        if (isDMA) {
+            // TODO: Support interrupts during DMA (so far they are not executed)
 
-        shouldFetch = operands[operandIndex] == nullptr;
+            shouldFetch = true; // Fetch any potential interrupt instructions
+            shouldDoInterrupts = true;
+        } else {
+            auto op = operands[operandIndex++];
 
-        if (!op(instrContext)) {
-            shouldFetch = true;
+            shouldFetch = operands[operandIndex] == nullptr;
+
+            if (!op(instrContext)) {
+                shouldFetch = true;
+            }
+            shouldDoInterrupts = shouldFetch;
         }
-        shouldDoInterrupts = shouldFetch;
     }
 
 #if defined(FB_TESTING)
@@ -199,13 +206,16 @@ bool CPU::doCycle() {
         instrContext.cpuState = CPUState::RUNNING;
     }
 
-    if (shouldFetch) {
-        bool result = doFetchAndDecode();
-        operandIndex = 0;
-        return result;
-    } else {
+    if (isDMA) {
+        memory->doDMA();
+        return true;
+    } else if (!shouldFetch) {
         return true;
     }
+
+    bool result = doFetchAndDecode();
+    operandIndex = 0;
+    return result;
 }
 
 bool CPU::doFetchAndDecode() {
@@ -243,7 +253,7 @@ inline u8 getInterruptBitMask(InterruptType type) {
 
 void CPU::doJoypad() {
     u8 oldP1 = memory->read8BitsAt(FB_REG_P1) & 0b00001111u;
-    u8 newP1 = memory->updateJoypad() & 0b00001111u;
+    u8 newP1 = ioRegisters->updateJoypad() & 0b00001111u;
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
         requestInterrupt(InterruptType::JOYPAD);
@@ -293,33 +303,59 @@ bool CPU::doInterrupts() {
     return false;
 }
 
-void CPU::doTimers() {
-    ioRegisters->incrementSysCounter();
-    if (timerOverflowingCycles != -1 && --timerOverflowingCycles == 0) {
-        //fprintf(stdout, "# Request Timer interrupt\n");
-        memory->write8BitsTo(FB_REG_TIMA, memory->read8BitsAt(FB_REG_TMA));
-        requestInterrupt(InterruptType::TIMER);
-        timerOverflowingCycles = -1;
+bool doTimerObscureCheck(u8 clocks, u16 sysCounter, u8 tac) {
+    while (clocks > 0) {
+        switch (tac & 0b11u) {
+            case 0u: {
+                if (sysCounter & 0b1000000000u) {
+                    return true;
+                }
+                break;
+            }
+            case 1u: {
+                if (sysCounter & 0b1000u) {
+                    return true;
+                }
+                break;
+            }
+            case 2u: {
+                if (sysCounter & 0b100000u) {
+                    return true;
+                }
+                break;
+            }
+            case 3u: {
+                if (sysCounter & 0b10000000u) {
+                    return true;
+                }
+                break;
+            }
+            default: {
+                fprintf(stderr, "Illegal timer frequency\n");
+                return false;
+            }
+        }
+        sysCounter++;
+        clocks--;
+    }
+    return false;
+}
+
+void CPU::doTimers(u8 clocks) {
+    u16 sysCounter = ioRegisters->getSysCounter();
+    ioRegisters->setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
+    if (timerOverflowingCycles != -1) {
+        timerOverflowingCycles -= clocks;
+        if (timerOverflowingCycles <= 0) {
+            //fprintf(stdout, "# Request Timer interrupt\n");
+            memory->write8BitsTo(FB_REG_TIMA, memory->read8BitsAt(FB_REG_TMA));
+            requestInterrupt(InterruptType::TIMER);
+            timerOverflowingCycles = -1;
+        }
     }
     u8 tac = memory->read8BitsAt(FB_REG_TAC);
     bool comp1 = (tac & 0b100u) != 0;
-    switch (tac & 0b11u) {
-        case 0u:
-            comp1 &= (ioRegisters->sysCounterMsb() & 0b10) != 0;
-            break;
-        case 1u:
-            comp1 &= (ioRegisters->sysCounterLsb() & 0b1000) != 0;
-            break;
-        case 2u:
-            comp1 &= (ioRegisters->sysCounterLsb() & 0b100000) != 0;
-            break;
-        case 3u:
-            comp1 &= (ioRegisters->sysCounterLsb() & 0b10000000) != 0;
-            break;
-        default:
-            fprintf(stderr, "Illegal timer frequency\n");
-            return;
-    }
+    comp1 &= doTimerObscureCheck(clocks, sysCounter, tac);
     // Falling edge detector
     if (delayedTIMAIncrease && !comp1) {
         u8 tima = memory->read8BitsAt(FB_REG_TIMA);

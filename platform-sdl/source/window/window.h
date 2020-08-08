@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#ifndef FB_SDL_WINDOW_H
+#define FB_SDL_WINDOW_H
 
-#include "joypad.h"
+#include <SDL.h>
+#include <util/typedefs.h>
+#include <emulator/emulator.h>
 
-namespace FunkyBoy::Controller {
+namespace FunkyBoy::SDL {
 
-    class JoypadControllerVoid: public JoypadController {
+    class Window {
+    private:
+        const GameBoyType gbType;
+
+        SDL_Event sdlEvents{};
+
+        Controller::ControllersPtr controllers;
+        Emulator emulator;
     public:
-        bool isKeyPressed(JoypadKey key) override;
+        explicit Window(GameBoyType gbType);
+
+        void init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv);
+        void update(SDL_Window *window);
+
+        fb_inline bool hasUserRequestedExit();
     };
 
 }
 
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#endif //FB_SDL_WINDOW_H

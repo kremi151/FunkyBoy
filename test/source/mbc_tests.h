@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#ifndef FB_TESTS_MBC_TESTS_H
+#define FB_TESTS_MBC_TESTS_H
 
-#include "joypad.h"
+#include <acacia.h>
 
-namespace FunkyBoy::Controller {
+acacia::Report __fbTests_runMbcTests();
 
-    class JoypadControllerVoid: public JoypadController {
-    public:
-        bool isKeyPressed(JoypadKey key) override;
-    };
-
-}
-
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#endif //FB_TESTS_MBC_TESTS_H

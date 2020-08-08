@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#ifndef FB_SDL_CONTROLLERS_DISPLAY_SDL_H
+#define FB_SDL_CONTROLLERS_DISPLAY_SDL_H
 
-#include "joypad.h"
+#include <SDL.h>
+#include <controllers/display.h>
 
 namespace FunkyBoy::Controller {
 
-    class JoypadControllerVoid: public JoypadController {
+    class DisplayControllerSDL: public DisplayController {
+    private:
+        SDL_Renderer *renderer;
+        SDL_Texture *frameBuffer;
+        uint32_t *pixels;
+
+        u8 dmgPalette[4][3]{};
     public:
-        bool isKeyPressed(JoypadKey key) override;
+        explicit DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer);
+        ~DisplayControllerSDL();
+
+        void drawScanLine(u8 y, u8 *buffer) override;
+        void drawScreen() override;
     };
 
 }
 
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#endif //FB_SDL_CONTROLLERS_DISPLAY_SDL_H

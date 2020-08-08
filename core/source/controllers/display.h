@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#ifndef FB_CORE_CONTROLLERS_DISPLAY_H
+#define FB_CORE_CONTROLLERS_DISPLAY_H
 
-#include "joypad.h"
+#include <memory>
+#include <util/typedefs.h>
 
 namespace FunkyBoy::Controller {
 
-    class JoypadControllerVoid: public JoypadController {
+    class DisplayController {
     public:
-        bool isKeyPressed(JoypadKey key) override;
+        virtual ~DisplayController() = default;
+
+        virtual void drawScanLine(u8 y, u8 *buffer) = 0;
+        virtual void drawScreen() = 0;
     };
+
+    typedef std::shared_ptr<DisplayController> DisplayControllerPtr;
 
 }
 
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#endif //FB_CORE_CONTROLLERS_DISPLAY_H

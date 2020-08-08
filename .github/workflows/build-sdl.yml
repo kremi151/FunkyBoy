@@ -1,0 +1,70 @@
+name: Build SDL platform
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-sdl-unix:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+        fail-fast: false
+        matrix:
+            config:
+              - os: ubuntu-latest
+                artifact: FunkyBoy-linux
+              - os: macos-latest
+                artifact: FunkyBoy-macOS
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dependencies (Ubuntu)
+        if: ${{ startsWith(matrix.config.os, 'ubuntu-') }}
+        run: |
+          sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+          sudo apt-get update -y -qq
+          sudo apt-get install libsdl2-dev
+      - name: Install dependencies (macOS)
+        if: ${{ startsWith(matrix.config.os, 'macos-') }}
+        run: brew install sdl2
+      - name: Build with CMake
+        uses: lukka/run-cmake@v2.5
+        with:
+          cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
+          buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
+          cmakeBuildType: Release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.config.artifact }}
+          path: "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl"
+
+  build-sdl-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          Invoke-WebRequest 'https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip' -OutFile "${{ github.workspace }}\sdl2.zip"
+          expand-archive -path "${{ github.workspace }}\sdl2.zip" -destinationpath "${{ github.workspace }}\sdl2"
+        shell: powershell
+      - name: Build with CMake
+        uses: lukka/run-cmake@v2.5
+        with:
+          cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
+          cmakeGenerator: VS16Win64
+          buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeAppendedArgs: -DCMAKE_BUILD_TYPE=Release -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: FunkyBoy-windows
+          path: "${{ github.workspace }}/platform-sdl/cmake-build/*/fb_sdl.exe"

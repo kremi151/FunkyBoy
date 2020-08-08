@@ -35,9 +35,11 @@ namespace FunkyBoy {
         u8 *bgMapData2;
         u8 *internalRam;
         u8 *oam;
-        u8 *hwIO;
         u8 *hram;
         u8 interruptEnableRegister;
+
+        u8 dmaMsb{}, dmaLsb{};
+        bool dmaStarted;
 
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
@@ -50,8 +52,6 @@ namespace FunkyBoy {
         Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
         ~Memory();
 
-        u8 updateJoypad();
-
         u8 read8BitsAt(memory_address offset);
         i8 readSigned8BitsAt(memory_address offset);
         void write8BitsTo(memory_address offset, u8 val);
@@ -61,6 +61,9 @@ namespace FunkyBoy {
         [[deprecated]]
         void write16BitsTo(memory_address offset, u16 val);
         void write16BitsTo(memory_address offset, u8 msb, u8 lsb);
+
+        fb_inline bool isDMA();
+        void doDMA();
 
 #ifdef FB_TESTING
         io_registers_ptr &getIoRegisters();
