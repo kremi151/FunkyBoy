@@ -35,6 +35,8 @@ namespace FunkyBoy::Controller {
 
     class JoypadController {
     public:
+        virtual ~JoypadController() = default;
+
         virtual bool isKeyPressed(JoypadKey key) = 0;
     };
 
