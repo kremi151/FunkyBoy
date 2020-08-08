@@ -36,11 +36,12 @@ namespace FunkyBoy {
 
         u16 modeClocks;
 
-        u8 dmgPalette[4][3]{};
+        u8 *scanLineBuffer;
 
         void renderScanline(u8 ly);
     public:
         PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
+        ~PPU();
 
         void doClocks(u8 clocks);
     };

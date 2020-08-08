@@ -46,22 +46,12 @@ PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr cont
     , ioRegisters(std::move(ioRegisters))
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
+    , scanLineBuffer(new u8[FB_GB_DISPLAY_WIDTH])
 {
-    dmgPalette[0][0] = 255;
-    dmgPalette[0][1] = 255;
-    dmgPalette[0][2] = 255;
+}
 
-    dmgPalette[1][0] = 192;
-    dmgPalette[1][1] = 192;
-    dmgPalette[1][2] = 192;
-
-    dmgPalette[2][0] = 96;
-    dmgPalette[2][1] = 96;
-    dmgPalette[2][2] = 96;
-
-    dmgPalette[3][0] = 0;
-    dmgPalette[3][1] = 0;
-    dmgPalette[3][2] = 0;
+PPU::~PPU() {
+    delete[] scanLineBuffer;
 }
 
 // GPU Lifecycle:
@@ -147,19 +137,17 @@ void PPU::renderScanline(u8 ly) {
     u8 bgTileOffsetX = scx / 8;
     u8 xInBgTile = scx % 8;
     const u8 yInTile = y % 8;
-    u8 *color;
     u16 tile = 0;
     u16 tileLine;
     u8 colorIndex;
     if (bgEnabled) {
         const u8 bgPalette = memory->read8BitsAt(FB_REG_BGP);
         tile = memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX);
-        for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
+        for (u8 scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
             tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
             colorIndex = (tileLine >> (15 - (xInBgTile & 7u))) & 1u;
             colorIndex |= ((tileLine >> (7 - (xInBgTile & 7u))) & 1u) << 1;
-            color = dmgPalette[(bgPalette >> (colorIndex * 2u)) & 3u];
-            controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
+            scanLineBuffer[scanLineX] = (bgPalette >> (colorIndex * 2u)) & 3u;
             if (++xInBgTile >= 8) {
                 xInBgTile = 0;
                 bgTileOffsetX = (bgTileOffsetX + 1) & 31;
@@ -207,9 +195,9 @@ void PPU::renderScanline(u8 ly) {
                     colorIndex = (tileLine >> (15 - (xOnObj & 7u))) & 1u;
                     colorIndex |= ((tileLine >> (7 - (xOnObj & 7u))) & 1u) << 1;
                 }
-                color = dmgPalette[(objPalette >> (colorIndex * 2u)) & 3u];
-                controllers->getDisplay()->bufferPixel(x, ly, color[0], color[1], color[2]);
+                scanLineBuffer[x] = (objPalette >> (colorIndex * 2u)) & 3u;
             }
         }
     }
+    controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
 }
