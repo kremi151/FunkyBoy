@@ -19,7 +19,7 @@
 
 #include <instructions/instructions.h>
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Operands {
 
     using operand_buffer = Operand[25];
 

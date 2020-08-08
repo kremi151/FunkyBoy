@@ -19,7 +19,7 @@
 
 #include "instruction_context.h"
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Operands {
 
     /**
      * LD r,r

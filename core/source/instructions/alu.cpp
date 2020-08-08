@@ -66,27 +66,27 @@ inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     Flags::setFlags(flags, *regA == 0, false, false, false);
 }
 
-bool Instructions::add_A_r(InstrContext &context) {
+bool Operands::add_A_r(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], false);
     return true;
 }
 
-bool Instructions::add_A_d(InstrContext &context) {
+bool Operands::add_A_d(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.lsb, false);
     return true;
 }
 
-bool Instructions::adc_A_r(InstrContext &context) {
+bool Operands::adc_A_r(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], Flags::isCarry(context.regF));
     return true;
 }
 
-bool Instructions::adc_A_d(InstrContext &context) {
+bool Operands::adc_A_d(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.lsb, Flags::isCarry(context.regF));
     return true;
 }
 
-bool Instructions::add_HL_ss(InstrContext &context) {
+bool Operands::add_HL_ss(InstrContext &context) {
     // 0x09 -> 00 1001 -> BC
     // 0x19 -> 01 1001 -> DE
     // 0x29 -> 10 1001 -> HL
@@ -94,85 +94,85 @@ bool Instructions::add_HL_ss(InstrContext &context) {
     return true;
 }
 
-bool Instructions::add_HL_SP(InstrContext &context) {
+bool Operands::add_HL_SP(InstrContext &context) {
     __alu_addToHL(context, context.stackPointer);
     return true;
 }
 
-bool Instructions::add_SP_e(InstrContext &context) {
+bool Operands::add_SP_e(InstrContext &context) {
     context.stackPointer = Util::addToSP(context.regF, context.stackPointer, context.signedByte);
     return true;
 }
 
-bool Instructions::add_A_HL(InstrContext &context) {
+bool Operands::add_A_HL(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), false);
     return true;
 }
 
-bool Instructions::adc_A_HL(InstrContext &context) {
+bool Operands::adc_A_HL(InstrContext &context) {
     __alu_adc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), Flags::isCarry(context.regF));
     return true;
 }
 
-bool Instructions::sub_A_r(InstrContext &context) {
+bool Operands::sub_A_r(InstrContext &context) {
     __alu_sbc(context.regF, context.regA, context.registers[context.instr & 7u], false);
     return true;
 }
 
-bool Instructions::sub_A_d(InstrContext &context) {
+bool Operands::sub_A_d(InstrContext &context) {
     __alu_sbc(context.regF, context.regA, context.lsb, false);
     return true;
 }
 
-bool Instructions::sbc_A_r(InstrContext &context) {
+bool Operands::sbc_A_r(InstrContext &context) {
     __alu_sbc(context.regF, context.regA, context.registers[context.instr & 7u], Flags::isCarry(context.regF));
     return true;
 }
 
-bool Instructions::sbc_A_d(InstrContext &context) {
+bool Operands::sbc_A_d(InstrContext &context) {
     __alu_sbc(context.regF, context.regA, context.lsb, Flags::isCarry(context.regF));
     return true;
 }
 
-bool Instructions::sub_HL(InstrContext &context) {
+bool Operands::sub_HL(InstrContext &context) {
     __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), false);
     return true;
 }
 
-bool Instructions::sbc_A_HL(InstrContext &context) {
+bool Operands::sbc_A_HL(InstrContext &context) {
     __alu_sbc(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()), Flags::isCarry(context.regF));
     return true;
 }
 
-bool Instructions::cp_r(InstrContext &context) {
+bool Operands::cp_r(InstrContext &context) {
     __alu_cp(context.regF, context.regA, context.registers[context.instr & 0b00000111u]);
     return true;
 }
 
-bool Instructions::cp_d(InstrContext &context) {
+bool Operands::cp_d(InstrContext &context) {
     __alu_cp(context.regF, context.regA, context.lsb);
     return true;
 }
 
-bool Instructions::cp_HL(InstrContext &context) {
+bool Operands::cp_HL(InstrContext &context) {
     u8 val = context.memory->read8BitsAt(context.readHL());
     __alu_cp(context.regF, context.regA, val);
     return true;
 }
 
-bool Instructions::inc_ss(InstrContext &context) {
+bool Operands::inc_ss(InstrContext &context) {
     u8 position = context.instr >> 4u & 3u;
     u16 val = context.read16BitRegister(position);
     context.write16BitRegister(position, val + 1);
     return true;
 }
 
-bool Instructions::inc_SP(InstrContext &context) {
+bool Operands::inc_SP(InstrContext &context) {
     context.stackPointer++;
     return true;
 }
 
-bool Instructions::inc_HL(InstrContext &context) {
+bool Operands::inc_HL(InstrContext &context) {
     u16 hl = context.readHL();
     u8 oldVal = context.memory->read8BitsAt(hl);
     u8 newVal = oldVal + 1;
@@ -184,7 +184,7 @@ bool Instructions::inc_HL(InstrContext &context) {
     return true;
 }
 
-bool Instructions::inc_r(InstrContext &context) {
+bool Operands::inc_r(InstrContext &context) {
     auto reg = context.registers + (context.instr >> 3u & 7u);
     (*reg)++;
     Flags::setZero(context.regF, *reg == 0);
@@ -194,19 +194,19 @@ bool Instructions::inc_r(InstrContext &context) {
     return true;
 }
 
-bool Instructions::dec_ss(InstrContext &context) {
+bool Operands::dec_ss(InstrContext &context) {
     u8 position = context.instr >> 4u & 3u;
     u16 val = context.read16BitRegister(position);
     context.write16BitRegister(position, val - 1);
     return true;
 }
 
-bool Instructions::dec_SP(InstrContext &context) {
+bool Operands::dec_SP(InstrContext &context) {
     context.stackPointer--;
     return true;
 }
 
-bool Instructions::dec_HL(InstrContext &context) {
+bool Operands::dec_HL(InstrContext &context) {
     u16 hl = context.readHL();
     u8 oldVal = context.memory->read8BitsAt(hl);
     u8 newVal = oldVal - 1;
@@ -218,7 +218,7 @@ bool Instructions::dec_HL(InstrContext &context) {
     return true;
 }
 
-bool Instructions::dec_r(InstrContext &context) {
+bool Operands::dec_r(InstrContext &context) {
     auto reg = context.registers + (context.instr >> 3 & 7);
     (*reg)--;
     Flags::setZero(context.regF, *reg == 0);
@@ -228,7 +228,7 @@ bool Instructions::dec_r(InstrContext &context) {
     return true;
 }
 
-bool Instructions::or_r(InstrContext &context) {
+bool Operands::or_r(InstrContext &context) {
     // 0xB0 -> 10110 000 -> B
     // 0xB1 -> 10110 001 -> C
     // 0xB2 -> 10110 010 -> D
@@ -241,17 +241,17 @@ bool Instructions::or_r(InstrContext &context) {
     return true;
 }
 
-bool Instructions::or_d(InstrContext &context) {
+bool Operands::or_d(InstrContext &context) {
     __alu_or(context.regF, context.regA, context.lsb);
     return true;
 }
 
-bool Instructions::or_HL(InstrContext &context) {
+bool Operands::or_HL(InstrContext &context) {
     __alu_or(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
     return true;
 }
 
-bool Instructions::and_r(InstrContext &context) {
+bool Operands::and_r(InstrContext &context) {
     // 0xA0 -> 10100 000 -> B
     // 0xA1 -> 10100 001 -> C
     // 0xA2 -> 10100 010 -> D
@@ -264,27 +264,27 @@ bool Instructions::and_r(InstrContext &context) {
     return true;
 }
 
-bool Instructions::and_d(InstrContext &context) {
+bool Operands::and_d(InstrContext &context) {
     __alu_and(context.regF, context.regA, context.lsb);
     return true;
 }
 
-bool Instructions::and_HL(InstrContext &context) {
+bool Operands::and_HL(InstrContext &context) {
     __alu_and(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
     return true;
 }
 
-bool Instructions::xor_r(InstrContext &context) {
+bool Operands::xor_r(InstrContext &context) {
     __alu_xor(context.regF, context.regA, context.registers[context.instr & 0b111u]);
     return true;
 }
 
-bool Instructions::xor_d(InstrContext &context) {
+bool Operands::xor_d(InstrContext &context) {
     __alu_xor(context.regF, context.regA, context.lsb);
     return true;
 }
 
-bool Instructions::xor_HL(InstrContext &context) {
+bool Operands::xor_HL(InstrContext &context) {
     __alu_xor(context.regF, context.regA, context.memory->read8BitsAt(context.readHL()));
     return true;
 }

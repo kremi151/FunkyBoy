@@ -20,18 +20,18 @@
 
 using namespace FunkyBoy;
 
-bool Instructions::checkIsZero(InstrContext &context) {
+bool Operands::checkIsZero(InstrContext &context) {
     return Flags::isZero(context.regF);
 }
 
-bool Instructions::checkIsNotZero(InstrContext &context) {
+bool Operands::checkIsNotZero(InstrContext &context) {
     return !Flags::isZero(context.regF);
 }
 
-bool Instructions::checkIsCarry(InstrContext &context) {
+bool Operands::checkIsCarry(InstrContext &context) {
     return Flags::isCarry(context.regF);
 }
 
-bool Instructions::checkIsNotCarry(InstrContext &context) {
+bool Operands::checkIsNotCarry(InstrContext &context) {
     return !Flags::isCarry(context.regF);
 }

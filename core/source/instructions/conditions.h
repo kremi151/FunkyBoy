@@ -19,7 +19,7 @@
 
 #include <instructions/instruction_context.h>
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Operands {
 
     /**
      * Checks if zero flag is set. If not set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.

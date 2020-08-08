@@ -276,7 +276,7 @@ bool __prefix_set_HL(InstrContext &context) {
     return true;
 }
 
-bool Instructions::decodePrefix(InstrContext &context) {
+bool Operands::decodePrefix(InstrContext &context) {
     context.instr = context.memory->read8BitsAt(context.progCounter++);
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
@@ -294,9 +294,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // rlc (HL)
         case 0x06: {
             debug_print_4("rlc (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix__rlc_lsb;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -310,9 +310,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // rrc (HL)
         case 0x0E: {
             debug_print_4("rrc (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix__rrc_lsb;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -326,9 +326,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // rl (HL)
         case 0x16: {
             debug_print_4("rl (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_rl_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -342,9 +342,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // rr (HL)
         case 0x1E: {
             debug_print_4("rr (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_rr_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -358,9 +358,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // sla (HL)
         case 0x26: {
             debug_print_4("sla (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_sla_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -374,9 +374,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // sra (HL)
         case 0x2E: {
             debug_print_4("sra (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_sra_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -390,9 +390,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // swap (HL)
         case 0x36: {
             debug_print_4("swap (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_swap_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -406,9 +406,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // srl (HL)
         case 0x3E: {
             debug_print_4("srl (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_srl_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -429,9 +429,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // bit n,(HL)
         case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x76: case 0x7E: {
             debug_print_4("srl (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_bit_HL;
-            context.operands[3] = Instructions::_pad_;
+            context.operands[3] = Operands::_pad_;
             context.operands[4] = nullptr;
             return true;
         }
@@ -452,9 +452,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // res n,(HL)
         case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
             debug_print_4("res (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_res_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }
@@ -475,9 +475,9 @@ bool Instructions::decodePrefix(InstrContext &context) {
         // set n,(HL)
         case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE: {
             debug_print_4("set (HL)\n");
-            context.operands[1] = Instructions::readHLMem;
+            context.operands[1] = Operands::readHLMem;
             context.operands[2] = __prefix_set_HL;
-            context.operands[3] = Instructions::writeLSBIntoHLMem;
+            context.operands[3] = Operands::writeLSBIntoHLMem;
             context.operands[4] = nullptr;
             return true;
         }

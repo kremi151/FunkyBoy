@@ -19,7 +19,7 @@
 
 #include <instructions/instruction_context.h>
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Operands {
 
     /**
      * RRCA

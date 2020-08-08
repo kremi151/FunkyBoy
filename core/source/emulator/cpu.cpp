@@ -72,7 +72,7 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters)
 
     // Fetch/Execute overlapping -> initial fetch is performed without executing any other instruction
     // To simulate this, we set a NOP as the first instruction, which does nothing
-    operands[0] = Instructions::nop;
+    operands[0] = Operands::nop;
     operands[1] = nullptr;
 
     // Initialize registers
@@ -231,7 +231,7 @@ bool CPU::doFetchAndDecode() {
     instr++;
 #endif
 
-    if (!Instructions::decodeOpcode(instrContext.instr, operands)) {
+    if (!Operands::decodeOpcode(instrContext.instr, operands)) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
         return false;
     }

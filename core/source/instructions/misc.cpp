@@ -20,32 +20,32 @@
 
 using namespace FunkyBoy;
 
-bool Instructions::nop(InstrContext &context) {
+bool Operands::nop(InstrContext &context) {
     // do nothing
     return true;
 }
 
-bool Instructions::_pad_(InstrContext &context) {
+bool Operands::_pad_(InstrContext &context) {
     // do nothing
     return true;
 }
 
-bool Instructions::enableInterruptsImmediately(InstrContext &context) {
+bool Operands::enableInterruptsImmediately(InstrContext &context) {
     context.interruptMasterEnable = IMEState::ENABLED;
     return true;
 }
 
-bool Instructions::enableInterruptsDelayed(InstrContext &context) {
+bool Operands::enableInterruptsDelayed(InstrContext &context) {
     context.interruptMasterEnable = IMEState::REQUEST_ENABLE;
     return true;
 }
 
-bool Instructions::disableInterrupts(InstrContext &context) {
+bool Operands::disableInterrupts(InstrContext &context) {
     context.interruptMasterEnable = IMEState::DISABLED;
     return true;
 }
 
-bool Instructions::stop(InstrContext &context) {
+bool Operands::stop(InstrContext &context) {
     *context.regA = 0;
     *context.regB = context.memory->read8BitsAt(FB_REG_IE);
     context.memory->write8BitsTo(FB_REG_IE, 0);
@@ -54,7 +54,7 @@ bool Instructions::stop(InstrContext &context) {
     return true;
 }
 
-bool Instructions::halt(InstrContext &context) {
+bool Operands::halt(InstrContext &context) {
     if (context.interruptMasterEnable == IMEState::ENABLED || (context.memory->read8BitsAt(FB_REG_IE) & context.memory->read8BitsAt(FB_REG_IF) & 0x1f) == 0) {
         context.cpuState = CPUState::HALTED;
     } else if (context.gbType != GameBoyType::GameBoyCGB) {
@@ -64,7 +64,7 @@ bool Instructions::halt(InstrContext &context) {
     return true;
 }
 
-bool Instructions::daa(InstrContext &context) {
+bool Operands::daa(InstrContext &context) {
     u8 val = *context.regA;
     if (Flags::isSubstraction(context.regF)) {
         if (Flags::isCarry(context.regF)) {
@@ -88,19 +88,19 @@ bool Instructions::daa(InstrContext &context) {
     return true;
 }
 
-bool Instructions::cpl(InstrContext &context) {
+bool Operands::cpl(InstrContext &context) {
     *context.regA = ~*context.regA;
     Flags::setSubstraction(context.regF, true);
     Flags::setHalfCarry(context.regF, true);
     return true;
 }
 
-bool Instructions::scf(InstrContext &context) {
+bool Operands::scf(InstrContext &context) {
     Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, true);
     return true;
 }
 
-bool Instructions::ccf(InstrContext &context) {
+bool Operands::ccf(InstrContext &context) {
     Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, !Flags::isCarry(context.regF));
     return true;
 }

@@ -21,28 +21,28 @@
 
 using namespace FunkyBoy;
 
-bool Instructions::jp(InstrContext &context) {
+bool Operands::jp(InstrContext &context) {
     debug_print_4("JP from 0x%04X", context.progCounter);
     context.progCounter = Util::compose16Bits(context.lsb, context.msb);
     debug_print_4(" to 0x%04X\n", context.progCounter);
     return true;
 }
 
-bool Instructions::jp_HL(InstrContext &context) {
+bool Operands::jp_HL(InstrContext &context) {
     debug_print_4("JP (HL) from 0x%04X", context.progCounter);
     context.progCounter = context.readHL();
     debug_print_4(" to 0x%04X\n", context.progCounter);
     return true;
 }
 
-bool Instructions::jr(InstrContext &context) {
+bool Operands::jr(InstrContext &context) {
     debug_print_4("JR from 0x%04X + %d", context.progCounter, context.signedByte);
     context.progCounter += context.signedByte;
     debug_print_4(" to 0x%04X\n", context.progCounter);
     return true;
 }
 
-bool Instructions::call(InstrContext &context) {
+bool Operands::call(InstrContext &context) {
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     debug_print_4("call from 0x%04X\n", context.progCounter);
     context.push16Bits(context.progCounter);
@@ -51,12 +51,12 @@ bool Instructions::call(InstrContext &context) {
     return true;
 }
 
-bool Instructions::ret(InstrContext &context) {
+bool Operands::ret(InstrContext &context) {
     context.progCounter = context.pop16Bits();
     return true;
 }
 
-bool Instructions::rst(InstrContext &context) {
+bool Operands::rst(InstrContext &context) {
     u8 rstAddr = (context.instr >> 3u & 7u) * 8u;
     debug_print_4("rst %02XH\n", rstAddr);
     context.push16Bits(context.progCounter);

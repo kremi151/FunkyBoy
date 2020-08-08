@@ -19,7 +19,7 @@
 
 #include <instructions/instruction_context.h>
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Operands {
 
     bool jp(InstrContext &context);
     bool jp_HL(InstrContext &context);

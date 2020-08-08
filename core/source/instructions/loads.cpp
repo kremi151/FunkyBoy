@@ -21,92 +21,92 @@
 
 using namespace FunkyBoy;
 
-bool Instructions::load_r_r(InstrContext &context) {
+bool Operands::load_r_r(InstrContext &context) {
     u8 &dst = context.registers[context.instr >> 3u & 7u];
     u8 src = context.registers[context.instr & 7u];
     dst = src;
     return true;
 }
 
-bool Instructions::load_mem_dd_A(InstrContext &context) {
+bool Operands::load_mem_dd_A(InstrContext &context) {
     context.memory->write8BitsTo(Util::compose16Bits(context.lsb, context.msb), *context.regA);
     return true;
 }
 
-bool Instructions::load_A_mem_dd(InstrContext &context) {
+bool Operands::load_A_mem_dd(InstrContext &context) {
     *context.regA = context.memory->read8BitsAt(Util::compose16Bits(context.lsb, context.msb));
     return true;
 }
 
-bool Instructions::load_A_d(InstrContext &context) {
+bool Operands::load_A_d(InstrContext &context) {
     *context.regA = context.lsb;
     return true;
 }
 
-bool Instructions::load_dd_nn(InstrContext &context) {
+bool Operands::load_dd_nn(InstrContext &context) {
     context.write16BitRegister(context.instr >> 4u & 3u, Util::compose16Bits(context.lsb, context.msb));
     return true;
 }
 
-bool Instructions::load_SP_nn(InstrContext &context) {
+bool Operands::load_SP_nn(InstrContext &context) {
     context.stackPointer = Util::compose16Bits(context.lsb, context.msb);
     return true;
 }
 
-bool Instructions::load_nn_SP(InstrContext &context) {
+bool Operands::load_nn_SP(InstrContext &context) {
     context.memory->write16BitsTo(Util::compose16Bits(context.lsb, context.msb), context.stackPointer);
     return true;
 }
 
-bool Instructions::load_r_n(InstrContext &context) {
+bool Operands::load_r_n(InstrContext &context) {
     context.registers[context.instr >> 3 & 0b111] = context.lsb;
     return true;
 }
 
-bool Instructions::load_HL_n(InstrContext &context) {
+bool Operands::load_HL_n(InstrContext &context) {
     context.memory->write8BitsTo(context.readHL(), context.lsb);
     return true;
 }
 
-bool Instructions::load_reg_dd_A(InstrContext &context) {
+bool Operands::load_reg_dd_A(InstrContext &context) {
     context.memory->write8BitsTo(context.read16BitRegister(context.instr >> 4 & 1), *context.regA);
     return true;
 }
 
-bool Instructions::load_A_reg_dd(InstrContext &context) {
+bool Operands::load_A_reg_dd(InstrContext &context) {
     *context.regA = context.memory->read8BitsAt(context.read16BitRegister(context.instr >> 4 & 1));
     return true;
 }
 
-bool Instructions::load_HLI_A(InstrContext &context) {
+bool Operands::load_HLI_A(InstrContext &context) {
     u16 hl = context.readHL();
     context.memory->write8BitsTo(hl, *context.regA);
     context.writeHL(hl + 1);
     return true;
 }
 
-bool Instructions::load_HLD_A(InstrContext &context) {
+bool Operands::load_HLD_A(InstrContext &context) {
     u16 hl = context.readHL();
     context.memory->write8BitsTo(hl, *context.regA);
     context.writeHL(hl - 1);
     return true;
 }
 
-bool Instructions::load_A_HLI(InstrContext &context) {
+bool Operands::load_A_HLI(InstrContext &context) {
     u16 hl = context.readHL();
     *context.regA = context.memory->read8BitsAt(hl);
     context.writeHL(hl + 1);
     return true;
 }
 
-bool Instructions::load_A_HLD(InstrContext &context) {
+bool Operands::load_A_HLD(InstrContext &context) {
     u16 hl = context.readHL();
     *context.regA = context.memory->read8BitsAt(hl);
     context.writeHL(hl - 1);
     return true;
 }
 
-bool Instructions::load_HL_r(InstrContext &context) {
+bool Operands::load_HL_r(InstrContext &context) {
     // 0x70 -> 1110 000 -> B
     // 0x70 -> 1110 001 -> C
     // 0x70 -> 1110 010 -> D
@@ -120,7 +120,7 @@ bool Instructions::load_HL_r(InstrContext &context) {
     return true;
 }
 
-bool Instructions::load_r_HL(InstrContext &context) {
+bool Operands::load_r_HL(InstrContext &context) {
     // 0x46 -> 1 000 110 -> B
     // 0x4E -> 1 001 110 -> C
     // 0x56 -> 1 010 110 -> D
@@ -134,12 +134,12 @@ bool Instructions::load_r_HL(InstrContext &context) {
     return true;
 }
 
-bool Instructions::load_SP_HL(InstrContext &context) {
+bool Operands::load_SP_HL(InstrContext &context) {
     context.stackPointer = context.readHL();
     return true;
 }
 
-bool Instructions::load_HL_SPe(InstrContext &context) {
+bool Operands::load_HL_SPe(InstrContext &context) {
     context.writeHL(Util::addToSP(context.regF, context.stackPointer, context.signedByte));
     return true;
 }

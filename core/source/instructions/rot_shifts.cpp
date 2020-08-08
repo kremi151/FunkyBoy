@@ -20,21 +20,21 @@
 
 using namespace FunkyBoy;
 
-bool Instructions::rrca(InstrContext &context) {
+bool Operands::rrca(InstrContext &context) {
     u8 a = *context.regA;
     *context.regA = (a >> 1) | ((a & 1) << 7);
     Flags::setFlags(context.regF, false, false, false, a & 1u);
     return true;
 }
 
-bool Instructions::rlca(InstrContext &context) {
+bool Operands::rlca(InstrContext &context) {
     u8 a = *context.regA;
     *context.regA = (a << 1) | ((a & 128) >> 7);
     Flags::setFlags(context.regF, false, false, false, (a & 128u) != 0);
     return true;
 }
 
-bool Instructions::rra(InstrContext &context) {
+bool Operands::rra(InstrContext &context) {
     u8 a = *context.regA;
     *context.regA = a >> 1;
     if (Flags::isCarry(context.regF)) {
@@ -44,7 +44,7 @@ bool Instructions::rra(InstrContext &context) {
     return true;
 }
 
-bool Instructions::rla(InstrContext &context) {
+bool Operands::rla(InstrContext &context) {
     u8 a = *context.regA;
     *context.regA = a << 1;
     if (Flags::isCarry(context.regF)) {

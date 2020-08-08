@@ -19,7 +19,7 @@
 
 #include "instruction_context.h"
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Operands {
 
     /**
      * Reads the next byte into {@code lsb}

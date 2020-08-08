@@ -19,7 +19,7 @@
 
 #include <instructions/instruction_context.h>
 
-namespace FunkyBoy::Instructions {
+namespace FunkyBoy::Operands {
 
     /**
      * Writes 16 bits composed by {@code lsb} and {@code msb} into 16bit register.
