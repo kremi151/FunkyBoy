@@ -2,11 +2,9 @@ name: Test
 
 on:
   push:
-    # Temporary as long as I'm working on this branch
-    # TODO: Just before creating a PR, just put master here
-    branches: [ master, graphics ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, graphics ]
+    branches: [ master ]
 
 jobs:
   test:
