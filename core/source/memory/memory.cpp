@@ -116,52 +116,44 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 &val) 
         // Writing to read-only area, so we let it intercept by the MBC
         return true;
     }
-    switch (offset & 0xFF00u) {
-        case 0xFF00: {
-            switch (offset) {
-                case FB_REG_SC: {
-                    if (val == 0x81) {
-                        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
-                    }
-                    break;
+    if ((offset & 0xFF00u) == 0xFF00u) {
+        switch (offset) {
+            case FB_REG_SC: {
+                if (val == 0x81) {
+                    controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
                 }
-                case FB_REG_DMA: {
-                    dmaStarted = true;
-                    dmaMsb = val & 0xF1u;
-                    dmaLsb = 0x00;
-                    break;
-                }
-                default:
-                    break;
+                break;
             }
-            if (offset < 0xFF80) {
-                // IO registers
-                ioRegisters->handleMemoryWrite(offset - 0xFF00u, val);
-                return true;
+            case FB_REG_DMA: {
+                dmaStarted = true;
+                dmaMsb = val & 0xF1u;
+                dmaLsb = 0x00;
+                break;
             }
+            default:
+                break;
+        }
+        if (offset < 0xFF80) {
+            // IO registers
+            ioRegisters->handleMemoryWrite(offset - 0xFF00u, val);
+            return true;
         }
     }
     return false;
 }
 
 bool Memory::interceptReadAt(FunkyBoy::memory_address offset, u8 *out) {
-    switch (offset & 0xFF00u) {
-        case 0xFF00: {
-            if (offset < 0xFF80) {
-                // IO registers
-                *out = ioRegisters->handleMemoryRead(offset - 0xFF00);
-                return true;
-            }
-        }
-        default: {
-            auto ptr = getMemoryAddress(offset);
-            if (ptr == nullptr) {
-                return false;
-            }
-            *out = *ptr;
-            return true;
-        }
+    if (offset >= 0xFF00u && offset < 0xFF80) {
+        // IO registers
+        *out = ioRegisters->handleMemoryRead(offset - 0xFF00);
+        return true;
     }
+    auto ptr = getMemoryAddress(offset);
+    if (ptr == nullptr) {
+        return false;
+    }
+    *out = *ptr;
+    return true;
 }
 
 void Memory::write8BitsTo(memory_address offset, u8 val) {
