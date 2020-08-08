@@ -161,7 +161,7 @@ void PPU::renderScanline(u8 ly) {
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
         memory_address objAddr = 0xFE00;
         u8 objY, objX, objFlags;
-        bool flipX, flipY;
+        bool hide, flipX, flipY;
         u8 objPalette;
         u8 yInObj;
         for (u8 objIdx = 0 ; objIdx < 40 ; objIdx++) {
@@ -175,6 +175,7 @@ void PPU::renderScanline(u8 ly) {
             objPalette = (objFlags & 0b00010000u) ? objPalette1 : objPalette0;
             flipX = objFlags & 0b00100000u;
             flipY = objFlags & 0b01000000u;
+            hide  = objFlags & 0b10000000u;
             if (flipY) {
                 yInObj = objHeight - (ly - objY) - 1;
             } else {
@@ -188,14 +189,16 @@ void PPU::renderScanline(u8 ly) {
                     // Out of display bounds
                     continue;
                 }
-                if (flipX) {
-                    colorIndex = (tileLine >> (xOnObj & 7u)) & 1u;
-                    colorIndex |= ((tileLine >> (xOnObj & 7u)) & 1u) << 1;
-                } else {
-                    colorIndex = (tileLine >> (15 - (xOnObj & 7u))) & 1u;
-                    colorIndex |= ((tileLine >> (7 - (xOnObj & 7u))) & 1u) << 1;
+                if (!hide || !scanLineBuffer[x]) {
+                    if (flipX) {
+                        colorIndex = (tileLine >> (xOnObj & 7u)) & 1u;
+                        colorIndex |= ((tileLine >> (xOnObj & 7u)) & 1u) << 1;
+                    } else {
+                        colorIndex = (tileLine >> (15 - (xOnObj & 7u))) & 1u;
+                        colorIndex |= ((tileLine >> (7 - (xOnObj & 7u))) & 1u) << 1;
+                    }
+                    scanLineBuffer[x] = (objPalette >> (colorIndex * 2u)) & 3u;
                 }
-                scanLineBuffer[x] = (objPalette >> (colorIndex * 2u)) & 3u;
             }
         }
     }
