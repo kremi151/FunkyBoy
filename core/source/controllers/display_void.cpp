@@ -18,7 +18,7 @@
 
 using namespace FunkyBoy::Controller;
 
-void DisplayControllerVoid::bufferPixel(FunkyBoy::u8 x, FunkyBoy::u8 y, FunkyBoy::u8 r, FunkyBoy::u8 g, FunkyBoy::u8 b) {
+void DisplayControllerVoid::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     // Do nothing
 }
 

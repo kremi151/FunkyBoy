@@ -23,7 +23,7 @@ namespace FunkyBoy::Controller {
 
     class DisplayControllerVoid: public DisplayController {
     public:
-        void bufferPixel(u8 x, u8 y, u8 r, u8 g, u8 b) override;
+        void drawScanLine(u8 y, u8 *buffer) override;
         void drawScreen() override;
     };
 

@@ -23,7 +23,8 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters): memory(std::move(memory))
+CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters)
+    : memory(std::move(memory))
     , gbType(gbType)
     , ioRegisters(std::move(ioRegisters))
     , instrContext(gbType)
@@ -174,16 +175,24 @@ bool CPU::doCycle() {
 
     bool shouldDoInterrupts = instrContext.cpuState == CPUState::HALTED;
     bool shouldFetch = false;
+    const bool isDMA = memory->isDMA();
 
     if (instrContext.cpuState == CPUState::RUNNING) {
-        auto op = operands[operandIndex++];
+        if (isDMA) {
+            // TODO: Support interrupts during DMA (so far they are not executed)
 
-        shouldFetch = operands[operandIndex] == nullptr;
+            shouldFetch = true; // Fetch any potential interrupt instructions
+            shouldDoInterrupts = true;
+        } else {
+            auto op = operands[operandIndex++];
 
-        if (!op(instrContext)) {
-            shouldFetch = true;
+            shouldFetch = operands[operandIndex] == nullptr;
+
+            if (!op(instrContext)) {
+                shouldFetch = true;
+            }
+            shouldDoInterrupts = shouldFetch;
         }
-        shouldDoInterrupts = shouldFetch;
     }
 
 #if defined(FB_TESTING)
@@ -197,13 +206,16 @@ bool CPU::doCycle() {
         instrContext.cpuState = CPUState::RUNNING;
     }
 
-    if (shouldFetch) {
-        bool result = doFetchAndDecode();
-        operandIndex = 0;
-        return result;
-    } else {
+    if (isDMA) {
+        memory->doDMA();
+        return true;
+    } else if (!shouldFetch) {
         return true;
     }
+
+    bool result = doFetchAndDecode();
+    operandIndex = 0;
+    return result;
 }
 
 bool CPU::doFetchAndDecode() {

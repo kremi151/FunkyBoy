@@ -20,6 +20,7 @@
 #include <util/typedefs.h>
 #include <util/testing.h>
 #include <controllers/controllers.h>
+#include <util/gpumode.h>
 #include <memory>
 
 #define FB_REG_P1 0xFF00
@@ -63,12 +64,11 @@ namespace FunkyBoy {
 
         fb_inline u16 getSysCounter();
 
-        fb_inline const u8 &sysCounterMsb();
-
         void handleMemoryWrite(u8 offset, u8 value);
         u8 handleMemoryRead(u8 offset);
 
         u8 updateJoypad();
+        void updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly);
 
         friend class CPU;
     };

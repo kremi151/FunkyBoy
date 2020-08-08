@@ -22,12 +22,14 @@
 // 256 px * 256 px * 4 bytes for RGBA
 #define FB_PPU_BGBUFFER_SIZE (256 * 256 * 4)
 
+#define FB_TILE_DATA_OBJ 0x8000
+
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
 // Differences here are 1023
 #define __fb_lcdc_windowTileMapDisplaySelect(lcdc) ((lcdc & 0b01000000u) ? 0x9C00 : 0x9800)
 #define __fb_lcdc_isWindowEnabled(lcdc) (lcdc & 0b00100000u)
 // Differences here are 4095
-#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? 0x8000 : 0x8800)
+#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? FB_TILE_DATA_OBJ : 0x8800)
 // Differences here are 1023
 #define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x9C00 : 0x9800)
 // Returns the height of objects (16 or 8), width is always 8
@@ -37,28 +39,19 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers)
+PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters)
     : memory(std::move(memory))
     , cpu(std::move(cpu))
     , controllers(std::move(controllers))
+    , ioRegisters(std::move(ioRegisters))
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
+    , scanLineBuffer(new u8[FB_GB_DISPLAY_WIDTH])
 {
-    dmgPalette[0][0] = 255;
-    dmgPalette[0][1] = 255;
-    dmgPalette[0][2] = 255;
+}
 
-    dmgPalette[1][0] = 192;
-    dmgPalette[1][1] = 192;
-    dmgPalette[1][2] = 192;
-
-    dmgPalette[2][0] = 96;
-    dmgPalette[2][1] = 96;
-    dmgPalette[2][2] = 96;
-
-    dmgPalette[3][0] = 0;
-    dmgPalette[3][1] = 0;
-    dmgPalette[3][2] = 0;
+PPU::~PPU() {
+    delete[] scanLineBuffer;
 }
 
 // GPU Lifecycle:
@@ -78,7 +71,7 @@ void PPU::doClocks(u8 clocks) {
 
     auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
     if (!__fb_lcdc_isOn(lcdc)) {
-        memory->write8BitsTo(FB_REG_LY, 0x00);
+        ioRegisters->updateLCD(false, gpuMode /* TODO: Correct* */, 0x00);
         return; // TODO: Correct?
     }
 
@@ -128,7 +121,7 @@ void PPU::doClocks(u8 clocks) {
 
     // TODO: Compare LY with LYC and trigger interrupt
 
-    memory->write8BitsTo(FB_REG_LY, ly);
+    ioRegisters->updateLCD(true, gpuMode, ly);
 }
 
 void PPU::renderScanline(u8 ly) {
@@ -136,7 +129,7 @@ void PPU::renderScanline(u8 ly) {
     const u8 scx = memory->read8BitsAt(FB_REG_SCX);
     const u8 scy = memory->read8BitsAt(FB_REG_SCY);
     const u16 y = ly + scy;
-    const memory_address bgOrWindowTileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
+    const memory_address tileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
     const bool objEnabled = __fb_lcdc_objEnabled(lcdc);
     memory_address bgTileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
@@ -144,22 +137,70 @@ void PPU::renderScanline(u8 ly) {
     u8 bgTileOffsetX = scx / 8;
     u8 xInBgTile = scx % 8;
     const u8 yInTile = y % 8;
-    u8 *color;
-    u16 bgTile = bgEnabled ? memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX) : 0;
-    u16 bgTileLine;
+    u16 tile = 0;
+    u16 tileLine;
+    u8 colorIndex;
     if (bgEnabled) {
         const u8 bgPalette = memory->read8BitsAt(FB_REG_BGP);
-        for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
-            bgTileLine = memory->read16BitsAt(bgOrWindowTileSetAddr + (bgTile * 16) + (yInTile * 2));
-            u8 colorIndex = (bgTileLine >> (15 - (xInBgTile & 7u))) & 1u;
-            colorIndex |= ((bgTileLine >> (7 - (xInBgTile & 7u))) & 1u) << 1;
-            color = dmgPalette[(bgPalette >> (colorIndex * 2u)) & 3u];
-            controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
+        tile = memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX);
+        for (u8 scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
+            tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
+            colorIndex = (tileLine >> (15 - (xInBgTile & 7u))) & 1u;
+            colorIndex |= ((tileLine >> (7 - (xInBgTile & 7u))) & 1u) << 1;
+            scanLineBuffer[scanLineX] = (bgPalette >> (colorIndex * 2u)) & 3u;
             if (++xInBgTile >= 8) {
                 xInBgTile = 0;
                 bgTileOffsetX = (bgTileOffsetX + 1) & 31;
-                bgTile = memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX);
+                tile = memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX);
             }
         }
     }
+    if (objEnabled) {
+        const u8 objPalette0 = memory->read8BitsAt(FB_REG_OBP0);
+        const u8 objPalette1 = memory->read8BitsAt(FB_REG_OBP1);
+        const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
+        memory_address objAddr = 0xFE00;
+        u8 objY, objX, objFlags;
+        bool hide, flipX, flipY;
+        u8 objPalette;
+        u8 yInObj;
+        for (u8 objIdx = 0 ; objIdx < 40 ; objIdx++) {
+            objY = memory->read8BitsAt(objAddr++) - 16;
+            objX = memory->read8BitsAt(objAddr++);
+            tile = memory->read8BitsAt(objAddr++);
+            objFlags = memory->read8BitsAt(objAddr++);
+            if (ly < objY || ly >= objY + objHeight) {
+                continue;
+            }
+            objPalette = (objFlags & 0b00010000u) ? objPalette1 : objPalette0;
+            flipX = objFlags & 0b00100000u;
+            flipY = objFlags & 0b01000000u;
+            hide  = objFlags & 0b10000000u;
+            if (flipY) {
+                yInObj = objHeight - (ly - objY) - 1;
+            } else {
+                yInObj = (ly - objY);
+            }
+
+            tileLine = memory->read16BitsAt(FB_TILE_DATA_OBJ + (tile * 16) + (yInObj * 2));
+            for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
+                u8 x = objX + xOnObj - 8;
+                if (x >= FB_GB_DISPLAY_WIDTH) {
+                    // Out of display bounds
+                    continue;
+                }
+                if (!hide || !scanLineBuffer[x]) {
+                    if (flipX) {
+                        colorIndex = (tileLine >> (xOnObj & 7u)) & 1u;
+                        colorIndex |= ((tileLine >> (xOnObj & 7u)) & 1u) << 1;
+                    } else {
+                        colorIndex = (tileLine >> (15 - (xOnObj & 7u))) & 1u;
+                        colorIndex |= ((tileLine >> (7 - (xOnObj & 7u))) & 1u) << 1;
+                    }
+                    scanLineBuffer[x] = (objPalette >> (colorIndex * 2u)) & 3u;
+                }
+            }
+        }
+    }
+    controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
 }

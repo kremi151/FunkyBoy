@@ -38,6 +38,9 @@ namespace FunkyBoy {
         u8 *hram;
         u8 interruptEnableRegister;
 
+        u8 dmaMsb{}, dmaLsb{};
+        bool dmaStarted;
+
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
 
@@ -58,6 +61,9 @@ namespace FunkyBoy {
         [[deprecated]]
         void write16BitsTo(memory_address offset, u16 val);
         void write16BitsTo(memory_address offset, u8 msb, u8 lsb);
+
+        fb_inline bool isDMA();
+        void doDMA();
 
 #ifdef FB_TESTING
         io_registers_ptr &getIoRegisters();

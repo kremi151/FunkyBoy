@@ -14,24 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_DISPLAY_H
-#define FB_CORE_CONTROLLERS_DISPLAY_H
+#ifndef FB_CORE_UTIL_GPUMODE_H
+#define FB_CORE_UTIL_GPUMODE_H
 
-#include <memory>
-#include <util/typedefs.h>
+namespace FunkyBoy {
 
-namespace FunkyBoy::Controller {
+    enum GPUMode {
+        /**
+         * Horizontal blank
+         */
+        GPUMode_0 = 0b00,
 
-    class DisplayController {
-    public:
-        virtual ~DisplayController() = default;
+        /**
+         * Vertical blank
+         *
+         */
+        GPUMode_1 = 0b01,
 
-        virtual void drawScanLine(u8 y, u8 *buffer) = 0;
-        virtual void drawScreen() = 0;
+        /**
+         * OAM read mode, drawing scanline
+         */
+        GPUMode_2 = 0b10,
+
+        /**
+         * VRAM read mode, drawing scanline
+         */
+        GPUMode_3 = 0b11
     };
-
-    typedef std::shared_ptr<DisplayController> DisplayControllerPtr;
 
 }
 
-#endif //FB_CORE_CONTROLLERS_DISPLAY_H
+#endif //FB_CORE_UTIL_GPUMODE_H
