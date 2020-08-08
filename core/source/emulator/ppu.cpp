@@ -150,12 +150,13 @@ void PPU::renderScanline(u8 ly) {
     u8 *color;
     u16 tile = 0;
     u16 tileLine;
+    u8 colorIndex;
     if (bgEnabled) {
         const u8 bgPalette = memory->read8BitsAt(FB_REG_BGP);
         tile = memory->read8BitsAt(bgTileMapAddr + bgTileOffsetX);
         for (u8 scanLineX = 0 ; scanLineX < 160 ; scanLineX++) {
             tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
-            u8 colorIndex = (tileLine >> (15 - (xInBgTile & 7u))) & 1u;
+            colorIndex = (tileLine >> (15 - (xInBgTile & 7u))) & 1u;
             colorIndex |= ((tileLine >> (7 - (xInBgTile & 7u))) & 1u) << 1;
             color = dmgPalette[(bgPalette >> (colorIndex * 2u)) & 3u];
             controllers->getDisplay()->bufferPixel(scanLineX, ly, color[0], color[1], color[2]);
@@ -172,6 +173,9 @@ void PPU::renderScanline(u8 ly) {
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
         memory_address objAddr = 0xFE00;
         u8 objY, objX, objFlags;
+        bool flipX, flipY;
+        u8 objPalette;
+        u8 yInObj;
         for (u8 objIdx = 0 ; objIdx < 40 ; objIdx++) {
             objY = memory->read8BitsAt(objAddr++) - 16;
             objX = memory->read8BitsAt(objAddr++);
@@ -180,8 +184,14 @@ void PPU::renderScanline(u8 ly) {
             if (ly < objY || ly >= objY + objHeight) {
                 continue;
             }
-            const u8 objPalette = (objFlags & 0b00010000u) ? objPalette1 : objPalette0;
-            const u8 yInObj = (ly - objY);
+            objPalette = (objFlags & 0b00010000u) ? objPalette1 : objPalette0;
+            flipX = objFlags & 0b00100000u;
+            flipY = objFlags & 0b01000000u;
+            if (flipY) {
+                yInObj = objHeight - (ly - objY) - 1;
+            } else {
+                yInObj = (ly - objY);
+            }
 
             tileLine = memory->read16BitsAt(FB_TILE_DATA_OBJ + (tile * 16) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
@@ -190,8 +200,13 @@ void PPU::renderScanline(u8 ly) {
                     // Out of display bounds
                     continue;
                 }
-                u8 colorIndex = (tileLine >> (15 - (xOnObj & 7u))) & 1u;
-                colorIndex |= ((tileLine >> (7 - (xOnObj & 7u))) & 1u) << 1;
+                if (flipX) {
+                    colorIndex = (tileLine >> (xOnObj & 7u)) & 1u;
+                    colorIndex |= ((tileLine >> (xOnObj & 7u)) & 1u) << 1;
+                } else {
+                    colorIndex = (tileLine >> (15 - (xOnObj & 7u))) & 1u;
+                    colorIndex |= ((tileLine >> (7 - (xOnObj & 7u))) & 1u) << 1;
+                }
                 color = dmgPalette[(objPalette >> (colorIndex * 2u)) & 3u];
                 controllers->getDisplay()->bufferPixel(x, ly, color[0], color[1], color[2]);
             }
