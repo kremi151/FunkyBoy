@@ -19,9 +19,6 @@
 #include <util/typedefs.h>
 #include <emulator/io_registers.h>
 
-// 256 px * 256 px * 4 bytes for RGBA
-#define FB_PPU_BGBUFFER_SIZE (256 * 256 * 4)
-
 #define FB_TILE_DATA_OBJ 0x8000
 
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
@@ -126,21 +123,25 @@ void PPU::doClocks(u8 clocks) {
 
 void PPU::renderScanline(u8 ly) {
     const u8 lcdc = memory->read8BitsAt(FB_REG_LCDC);
-    const u8 scx = memory->read8BitsAt(FB_REG_SCX);
-    const u8 scy = memory->read8BitsAt(FB_REG_SCY);
-    u16 y = ly + scy;
     const memory_address tileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
     const bool objEnabled = __fb_lcdc_objEnabled(lcdc);
     const bool windowEnabled = __fb_lcdc_isWindowEnabled(lcdc);
-    u8 tileOffsetX = scx / 8;
-    u8 xInTile = scx % 8;
-    u8 yInTile = y % 8;
-    u16 tile = 0;
+    u16 y;
+    u8 tileOffsetX;
+    u8 xInTile;
+    u8 yInTile;
+    u16 tile;
     u16 tileLine;
     u8 palette;
     u8 colorIndex;
     if (bgEnabled) {
+        const u8 scx = memory->read8BitsAt(FB_REG_SCX);
+        const u8 scy = memory->read8BitsAt(FB_REG_SCY);
+        y = ly + scy;
+        tileOffsetX = scx / 8;
+        xInTile = scx % 8;
+        yInTile = y % 8;
         memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
         tileMapAddr += ((y & 255u) / 8) * 32;
         palette = memory->read8BitsAt(FB_REG_BGP);
@@ -207,7 +208,9 @@ void PPU::renderScanline(u8 ly) {
         u8 wy = memory->read8BitsAt(FB_REG_WY);
         if (ly >= wy) {
             y = ly - wy;
+            yInTile = y % 8;
             xInTile = 0;
+            tileOffsetX = 0;
             u8 wx = memory->read8BitsAt(FB_REG_WX) - 7;
             memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
             tileMapAddr += ((y & 255u) / 8) * 32;
