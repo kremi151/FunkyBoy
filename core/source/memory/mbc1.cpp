@@ -18,6 +18,8 @@
 #include <util/debug.h>
 #include "mbc1.h"
 
+#define mbc1_print(...) debug_print_4(__VA_ARGS__)
+
 #define FB_MBC1_ROM_BANK_SIZE (16 * 1024)
 
 using namespace FunkyBoy;
@@ -71,7 +73,7 @@ MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
 }
 
 void MBC1::updateBanks() {
-    debug_print_2("[MBC1] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", !romBankingMode, romBank, ramBank);
+    mbc1_print("[MBC1] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", !romBankingMode, romBank, ramBank);
 
     romBank = romBankingMode ? (preliminaryRomBank & 0b1111111u) : (preliminaryRomBank & 0b11111u);
     ramBank = romBankingMode ? 0 : (preliminaryRamBank & 0b11u);
@@ -84,7 +86,7 @@ void MBC1::updateBanks() {
     romBankOffset = romBank * FB_MBC1_ROM_BANK_SIZE;
     ramBankOffset = ramBank * ramBankSize;
 
-    debug_print_2(" [rom=0x%02X,ram=0x%02X]\n", romBank, ramBank);
+    mbc1_print(" [rom=0x%02X,ram=0x%02X]\n", romBank, ramBank);
 }
 
 u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
@@ -122,26 +124,26 @@ u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
 bool MBC1::interceptWrite(memory_address offset, u8 val) {
     if (offset <= 0x1FFF) {
         ramEnabled = ((val & 0xfu) == 0xA);
-        debug_print_2("[MBC1] Enable RAM? %d\n", ramEnabled);
+        mbc1_print("[MBC1] Enable RAM? %d\n", ramEnabled);
         return true;
     } else if (offset <= 0x3FFF) {
         // Set ROM Bank number (lower 5 bits)
         val &= 0b0011111u;
         if (val == 0) val = 1;
-        debug_print_2("[MBC1] about to update ROM bank with value %d\n", val);
+        mbc1_print("[MBC1] about to update ROM bank with value %d\n", val);
         preliminaryRomBank = (preliminaryRomBank & 0b1100000u) | val;
         updateBanks();
         return true;
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
-        debug_print_2("[MBC1] about to update ROM/RAM bank with value %d\n", val);
+        mbc1_print("[MBC1] about to update ROM/RAM bank with value %d\n", val);
         preliminaryRomBank = ((val & 0b11u) << 5) | (preliminaryRomBank & 0b0011111u);
         preliminaryRamBank = val & 0b11u;
         updateBanks();
         return true;
     } else if (offset <= 0x7FFF) {
         romBankingMode = (val & 0b1) == 0;
-        debug_print_2("[MBC1] Set banking mode to %d\n", !romBankingMode);
+        mbc1_print("[MBC1] Set banking mode to %d\n", !romBankingMode);
         updateBanks();
         return true;
     }
