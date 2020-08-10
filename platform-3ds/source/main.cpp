@@ -107,11 +107,11 @@ extern "C" {
             std::cout << "ROM title: " << emulator.getCartridge().getHeader()->title << std::endl;
         } else {
             std::cerr << "Could not load ROM at " << FB_3DS_ROM_PATH << " (status=" << status << ")" << std::endl;
-            std::cerr << "Press any key to exit" << std::endl;
-            while (!hidKeysDown());
-            gfxExit();
+            pressAToExit();
             return 0;
         }
+
+        std::cout << "Press X to quit" << std::endl;
 
         gspWaitForVBlank();
         gfxSwapBuffers();
@@ -126,7 +126,7 @@ extern "C" {
 
             // Your code goes here
             u32 kDown = hidKeysDown();
-            if (kDown & KEY_START)
+            if (kDown & KEY_X)
                 break; // break in order to return to hbmenu
         }
 
