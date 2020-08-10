@@ -15,13 +15,13 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <3ds.h>
 #include <memory>
 
 #include <emulator/emulator.h>
 #include <controllers/display_3ds.h>
+#include <controllers/joypad_3ds.h>
 
 #define FB_3DS_ROM_PATH "funkyboy3DS/game.gb"
 
@@ -95,6 +95,7 @@ extern "C" {
         // Emulator config
         auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
         controllers->setDisplay(std::make_shared<FunkyBoy::Controller::DisplayController3DS>());
+        controllers->setJoypad(std::make_shared<FunkyBoy::Controller::JoypadController3DS>());
 
         FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG, controllers);
 

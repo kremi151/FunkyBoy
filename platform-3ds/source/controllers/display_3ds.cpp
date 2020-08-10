@@ -47,7 +47,7 @@ void DisplayController3DS::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
         *(fbOffset++) = 0xff;
         *(fbOffset++) = dmgPalette[*buffer & 3u][0];
         *(fbOffset++) = dmgPalette[*buffer & 3u][1];
-        *(fbOffset++) = dmgPalette[*buffer & 3u][2];
+        *(fbOffset) = dmgPalette[*buffer & 3u][2];
         buffer++;
     }
 }

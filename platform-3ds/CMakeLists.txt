@@ -10,10 +10,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 set(SOURCES
         source/main.cpp
         source/controllers/display_3ds.cpp
+        source/controllers/joypad_3ds.cpp
         )
 
 set(HEADERS
         source/controllers/display_3ds.h
+        source/controllers/joypad_3ds.h
         )
 
 # Use the devkitArm suggested flags. This is not mandatory.
