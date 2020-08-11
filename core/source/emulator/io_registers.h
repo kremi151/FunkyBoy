@@ -21,7 +21,6 @@
 #include <util/testing.h>
 #include <controllers/controllers.h>
 #include <util/gpumode.h>
-#include <memory>
 
 #define FB_REG_P1 0xFF00
 #define FB_REG_SB 0xFF01
@@ -51,14 +50,16 @@ namespace FunkyBoy {
 
     class io_registers {
     private:
+        u16 *ptrCounter;
         u8 *hwIO;
         Controller::ControllersPtr controllers;
         void setSysCounter(u16 counter);
         void resetSysCounter();
     test_public:
-        u8 sys_counter_lsb;
-        u8 sys_counter_msb;
+        u8 *sys_counter_lsb;
+        u8 *sys_counter_msb;
     public:
+        io_registers(const io_registers &registers);
         explicit io_registers(Controller::ControllersPtr controllers);
         ~io_registers();
 
@@ -74,8 +75,6 @@ namespace FunkyBoy {
 
         friend class CPU;
     };
-
-    typedef std::shared_ptr<io_registers> io_registers_ptr;
 
 }
 

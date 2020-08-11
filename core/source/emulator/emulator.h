@@ -36,7 +36,7 @@ namespace FunkyBoy {
         CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
 
-        io_registers_ptr ioRegisters;
+        io_registers ioRegisters;
         MemoryPtr memory;
         CPUPtr cpu;
         PPU ppu;

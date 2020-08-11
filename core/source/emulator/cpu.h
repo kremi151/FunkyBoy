@@ -44,7 +44,7 @@ namespace FunkyBoy {
 
     class CPU {
     private:
-        io_registers_ptr ioRegisters;
+        io_registers ioRegisters;
         MemoryPtr memory;
         const GameBoyType gbType;
 
@@ -95,7 +95,7 @@ namespace FunkyBoy {
         u8 *regA;
 
     public:
-        CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters);
+        CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters);
 
         void setProgramCounter(u16 offset);
         void requestInterrupt(InterruptType type);

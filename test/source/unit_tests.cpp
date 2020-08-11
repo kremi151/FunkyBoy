@@ -45,7 +45,7 @@ void assertDoFullMachineCycle(FunkyBoy::CPU &cpu) {
 FunkyBoy::MemoryPtr createMemory() {
     auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
     FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers_ptr io(new FunkyBoy::io_registers(controllers));
+    FunkyBoy::io_registers io(controllers);
     return std::make_shared<FunkyBoy::Memory>(cartridge, controllers, io);
 }
 

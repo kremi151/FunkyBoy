@@ -23,10 +23,10 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters)
+CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
     : memory(std::move(memory))
     , gbType(gbType)
-    , ioRegisters(std::move(ioRegisters))
+    , ioRegisters(ioRegisters)
     , instrContext(gbType)
     , timerOverflowingCycles(-1)
     , delayedTIMAIncrease(false)
@@ -142,7 +142,7 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xffff, 0x00);
 
     // Initialize Joypad
-    ioRegisters->updateJoypad();
+    ioRegisters.updateJoypad();
 }
 
 bool CPU::doMachineCycle() {
@@ -252,8 +252,8 @@ inline u8 getInterruptBitMask(InterruptType type) {
 }
 
 void CPU::doJoypad() {
-    u8 oldP1 = ioRegisters->getP1() & 0b00001111u;
-    u8 newP1 = ioRegisters->updateJoypad() & 0b00001111u;
+    u8 oldP1 = ioRegisters.getP1() & 0b00001111u;
+    u8 newP1 = ioRegisters.updateJoypad() & 0b00001111u;
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
         requestInterrupt(InterruptType::JOYPAD);
@@ -342,8 +342,8 @@ bool doTimerObscureCheck(u8 clocks, u16 sysCounter, u8 tac) {
 }
 
 void CPU::doTimers(u8 clocks) {
-    u16 sysCounter = ioRegisters->getSysCounter();
-    ioRegisters->setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
+    u16 sysCounter = ioRegisters.getSysCounter();
+    ioRegisters.setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
     if (timerOverflowingCycles != -1) {
         timerOverflowingCycles -= clocks;
         if (timerOverflowingCycles <= 0) {

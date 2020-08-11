@@ -30,7 +30,7 @@ namespace FunkyBoy {
         MemoryPtr memory;
         CPUPtr cpu;
         Controller::ControllersPtr controllers;
-        io_registers_ptr ioRegisters;
+        io_registers ioRegisters;
 
         GPUMode gpuMode;
 
@@ -40,7 +40,7 @@ namespace FunkyBoy {
 
         void renderScanline(u8 ly);
     public:
-        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
+        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters);
         ~PPU();
 
         void doClocks(u8 clocks);
