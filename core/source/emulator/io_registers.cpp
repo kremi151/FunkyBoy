@@ -136,3 +136,7 @@ void io_registers::updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly) {
 
     *(hwIO + FB_REG_OFFSET_LY) = ly;
 }
+
+u8 &io_registers::getP1() {
+    return *(hwIO + FB_REG_OFFSET_P1);
+}

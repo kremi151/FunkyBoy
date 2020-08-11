@@ -70,6 +70,8 @@ namespace FunkyBoy {
         u8 updateJoypad();
         void updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly);
 
+        u8 &getP1();
+
         friend class CPU;
     };
 
