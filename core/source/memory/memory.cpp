@@ -94,7 +94,9 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
 u8 Memory::read8BitsAt(memory_address offset) {
     u8 data;
     if (!interceptReadAt(offset, &data)) {
+#if defined(FB_DEBUG)
         fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
+#endif
         return 0;
     }
     return data;
@@ -103,7 +105,9 @@ u8 Memory::read8BitsAt(memory_address offset) {
 i8 Memory::readSigned8BitsAt(memory_address offset) {
     u8 data;
     if (!interceptReadAt(offset, &data)) {
+#if defined(FB_DEBUG)
         fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
+#endif
         return 0;
     }
     u8 *uptr = &data;
@@ -162,7 +166,9 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
     }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
+#if defined(FB_DEBUG)
         fprintf(stderr, "Illegal 8-bit write to 0x%04X => 0x%02X\n", offset, val);
+#endif
         return;
     }
     *ptr = val;
@@ -171,7 +177,9 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
 u16 Memory::read16BitsAt(memory_address offset) {
     u8 lsb, msb;
     if (!interceptReadAt(offset, &lsb) || !interceptReadAt(offset + 1, &msb)) {
+#if defined(FB_DEBUG)
         fprintf(stderr, "Illegal 16-bit read from 0x%04X\n", offset);
+#endif
         return 0;
     }
     return (msb << 8) | lsb;
@@ -187,7 +195,9 @@ void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
     }
     auto ptr = getMemoryAddress(offset);
     if (ptr == nullptr) {
+#if defined(FB_DEBUG)
         fprintf(stderr, "Illegal 16-bit write to 0x%04X\n", offset);
+#endif
         return;
     }
     *ptr = lsb;
