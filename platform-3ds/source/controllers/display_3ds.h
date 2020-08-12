@@ -25,6 +25,9 @@ namespace FunkyBoy::Controller {
     private:
         u8 dmgPalette[4][3]{};
 
+        u8 *frameBuffer;
+        u16 frameWidth, frameHeight;
+
         u8 offsetEffectiveX, offsetEffectiveY;
         bool offsetsCalculated;
     public:

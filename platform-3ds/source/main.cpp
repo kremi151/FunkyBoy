@@ -119,10 +119,10 @@ extern "C" {
         // Main loop
         while (aptMainLoop())
         {
-            hidScanInput();
-
             // TODO: Limit frame rate
-            emulator.doTick();
+            if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
+                hidScanInput();
+            }
 
             // Your code goes here
             u32 kDown = hidKeysDown();

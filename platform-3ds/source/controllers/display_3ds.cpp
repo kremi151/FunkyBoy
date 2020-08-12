@@ -24,6 +24,9 @@ DisplayController3DS::DisplayController3DS()
     : offsetEffectiveX(0)
     , offsetEffectiveY(0)
     , offsetsCalculated(false)
+    , frameBuffer(nullptr)
+    , frameWidth(0)
+    , frameHeight(0)
 {
     dmgPalette[0][0] = 255;
     dmgPalette[0][1] = 255;
@@ -43,16 +46,17 @@ DisplayController3DS::DisplayController3DS()
 }
 
 void DisplayController3DS::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
-    u16 width, height;
-    u8 *fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &width, &height);
+    if (!frameBuffer) {
+        frameBuffer = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &frameWidth, &frameHeight);
+    }
     if (!offsetsCalculated) {
-        offsetEffectiveX = (height - FB_GB_DISPLAY_WIDTH) / 2;
-        offsetEffectiveY = (width - FB_GB_DISPLAY_HEIGHT) / 2;
+        offsetEffectiveX = (frameHeight - FB_GB_DISPLAY_WIDTH) / 2;
+        offsetEffectiveY = (frameWidth - FB_GB_DISPLAY_HEIGHT) / 2;
         offsetsCalculated = true;
     }
     y = offsetEffectiveY + FB_GB_DISPLAY_HEIGHT - y - 1;
     for (u8 x = 0; x < FB_GB_DISPLAY_WIDTH; x++) {
-        u8 *fbOffset = fb + ((offsetEffectiveX + x) * width * 4) + (y * 4);
+        u8 *fbOffset = frameBuffer + ((offsetEffectiveX + x) * frameWidth * 4) + (y * 4);
         *(fbOffset++) = 0xff;
         *(fbOffset++) = dmgPalette[*buffer & 3u][0];
         *(fbOffset++) = dmgPalette[*buffer & 3u][1];
@@ -64,4 +68,5 @@ void DisplayController3DS::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
 void DisplayController3DS::drawScreen() {
     gspWaitForVBlank();
     gfxSwapBuffers();
+    frameBuffer = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &frameWidth, &frameHeight);
 }
