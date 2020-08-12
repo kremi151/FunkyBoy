@@ -20,70 +20,70 @@
 
 using namespace FunkyBoy;
 
-bool Operands::readLSB(InstrContext &context) {
-    context.lsb = context.memory->read8BitsAt(context.progCounter++);
+bool Operands::readLSB(InstrContext &context, Memory &memory) {
+    context.lsb = memory.read8BitsAt(context.progCounter++);
     return true;
 }
 
-bool Operands::readMSB(InstrContext &context) {
-    context.msb = context.memory->read8BitsAt(context.progCounter++);
+bool Operands::readMSB(InstrContext &context, Memory &memory) {
+    context.msb = memory.read8BitsAt(context.progCounter++);
     return true;
 }
 
-bool Operands::readSigned(InstrContext &context) {
-    context.signedByte = context.memory->readSigned8BitsAt(context.progCounter++);
+bool Operands::readSigned(InstrContext &context, Memory &memory) {
+    context.signedByte = memory.readSigned8BitsAt(context.progCounter++);
     return true;
 }
 
-bool Operands::readRegCAsLSB(InstrContext &context) {
+bool Operands::readRegCAsLSB(InstrContext &context, Memory &memory) {
     context.lsb = *context.regC;
     context.msb = 0xFF;
     return true;
 }
 
-bool Operands::readMemAsLSB(InstrContext &context) {
-    context.lsb = context.memory->read8BitsAt(context.progCounter++);
+bool Operands::readMemAsLSB(InstrContext &context, Memory &memory) {
+    context.lsb = memory.read8BitsAt(context.progCounter++);
     context.msb = 0xFF;
     return true;
 }
 
-bool Operands::readRRLSBIntoStack(InstrContext &context) {
+bool Operands::readRRLSBIntoStack(InstrContext &context, Memory &memory) {
     u8 *reg = Util::decodeRRAddressFromOpcode(context.registers, context.instr) + 1;
     context.stackPointer--;
-    context.memory->write8BitsTo(context.stackPointer, *reg);
+    memory.write8BitsTo(context.stackPointer, *reg);
     return true;
 }
 
-bool Operands::readRRMSBIntoStack(InstrContext &context) {
+bool Operands::readRRMSBIntoStack(InstrContext &context, Memory &memory) {
     u8 *reg = Util::decodeRRAddressFromOpcode(context.registers, context.instr);
     context.stackPointer--;
-    context.memory->write8BitsTo(context.stackPointer, *reg);
+    memory.write8BitsTo(context.stackPointer, *reg);
     return true;
 }
 
-bool Operands::readStackIntoLSB(InstrContext &context) {
-    context.lsb = context.memory->read8BitsAt(context.stackPointer++);
+bool Operands::readStackIntoLSB(InstrContext &context, Memory &memory) {
+    context.lsb = memory.read8BitsAt(context.stackPointer++);
     return true;
 }
 
-bool Operands::readStackIntoMSB(InstrContext &context) {
-    context.msb = context.memory->read8BitsAt(context.stackPointer++);
+bool Operands::readStackIntoMSB(InstrContext &context, Memory &memory) {
+    context.msb = memory.read8BitsAt(context.stackPointer++);
     return true;
 }
 
-bool Operands::readRegAIntoStack(InstrContext &context) {
+bool Operands::readRegAIntoStack(InstrContext &context, Memory &memory) {
     context.stackPointer--;
-    context.memory->write8BitsTo(context.stackPointer, *context.regA);
+    memory.write8BitsTo(context.stackPointer, *context.regA);
     return true;
 }
 
-bool Operands::readRegFIntoStack(InstrContext &context) {
+bool Operands::readRegFIntoStack(InstrContext &context, Memory &memory) {
     context.stackPointer--;
-    context.memory->write8BitsTo(context.stackPointer, *context.regF);
+    memory.write8BitsTo(context.stackPointer, *context.regF);
     return true;
 }
 
-bool Operands::readHLMem(InstrContext &context) {
-    context.lsb = context.memory->read8BitsAt(context.readHL());
+bool Operands::readHLMem(InstrContext &context, Memory &memory) {
+    context.lsb = memory.read8BitsAt(context.readHL());
     return true;
 }

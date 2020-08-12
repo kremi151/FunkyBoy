@@ -95,19 +95,19 @@ TEST(testPopPushStackPointer) {
     auto memory = createMemory();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
 
-    cpu.instrContext.push16Bits(0x1806);
-    auto val = cpu.instrContext.pop16Bits();
+    cpu.instrContext.push16Bits(*memory, 0x1806);
+    auto val = cpu.instrContext.pop16Bits(*memory);
     assertEquals(0x1806, val);
 
-    cpu.instrContext.push16Bits(0x28, 0x09);
-    cpu.instrContext.push16Bits(0x1223);
-    cpu.instrContext.push16Bits(0x42, 0x69);
+    cpu.instrContext.push16Bits(*memory, 0x28, 0x09);
+    cpu.instrContext.push16Bits(*memory, 0x1223);
+    cpu.instrContext.push16Bits(*memory, 0x42, 0x69);
 
-    val = cpu.instrContext.pop16Bits();
+    val = cpu.instrContext.pop16Bits(*memory);
     assertEquals(0x4269, val);
-    val = cpu.instrContext.pop16Bits();
+    val = cpu.instrContext.pop16Bits(*memory);
     assertEquals(0x1223, val);
-    val = cpu.instrContext.pop16Bits();
+    val = cpu.instrContext.pop16Bits(*memory);
     assertEquals(0x2809, val);
 }
 

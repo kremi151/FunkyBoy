@@ -60,7 +60,6 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
     instrContext.regA = regA;
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
-    instrContext.memory = this->memory;
     instrContext.operands = operands;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
     instrContext.haltBugRequested = false;
@@ -188,7 +187,7 @@ bool CPU::doCycle() {
 
             shouldFetch = operands[operandIndex] == nullptr;
 
-            if (!op(instrContext)) {
+            if (!op(instrContext, *memory)) {
                 shouldFetch = true;
             }
             shouldDoInterrupts = shouldFetch;
@@ -287,7 +286,7 @@ bool CPU::doInterrupts() {
         memory_address addr = getInterruptStartAddress(interruptType);
         instrContext.interruptMasterEnable = IMEState::DISABLED;
         // TODO: do 2 NOP cycles (when implementing cycle accuracy)
-        instrContext.push16Bits(instrContext.progCounter);
+        instrContext.push16Bits(*memory, instrContext.progCounter);
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         FunkyBoy::Debug::writeInterruptToLog(addr, file);

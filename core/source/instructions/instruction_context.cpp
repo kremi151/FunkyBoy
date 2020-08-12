@@ -21,20 +21,20 @@ using namespace FunkyBoy;
 InstrContext::InstrContext(FunkyBoy::GameBoyType gbType): gbType(gbType) {
 }
 
-void InstrContext::push16Bits(FunkyBoy::u16 val) {
+void InstrContext::push16Bits(Memory &memory, u16 val) {
     stackPointer -= 2;
-    memory->write8BitsTo(stackPointer, (u8) (val));
-    memory->write8BitsTo(stackPointer + 1, (u8) (val >> 8u));
+    memory.write8BitsTo(stackPointer, (u8) (val));
+    memory.write8BitsTo(stackPointer + 1, (u8) (val >> 8u));
 }
 
-void InstrContext::push16Bits(FunkyBoy::u8 inMsb, FunkyBoy::u8 inLsb) {
+void InstrContext::push16Bits(Memory &memory, u8 inMsb, u8 inLsb) {
     stackPointer -= 2;
-    memory->write8BitsTo(stackPointer, inLsb);
-    memory->write8BitsTo(stackPointer + 1, inMsb);
+    memory.write8BitsTo(stackPointer, inLsb);
+    memory.write8BitsTo(stackPointer + 1, inMsb);
 }
 
-u16 InstrContext::pop16Bits() {
-    u16 val = memory->read8BitsAt(stackPointer) | (memory->read8BitsAt(stackPointer + 1) << 8u);
+u16 InstrContext::pop16Bits(Memory &memory) {
+    u16 val = memory.read8BitsAt(stackPointer) | (memory.read8BitsAt(stackPointer + 1) << 8u);
     stackPointer += 2;
     return val;
 }

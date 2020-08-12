@@ -52,6 +52,9 @@ namespace FunkyBoy {
         Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters);
         ~Memory();
 
+        Memory(const Memory &other) = delete;
+        Memory &operator= (const Memory &other) = delete;
+
         u8 read8BitsAt(memory_address offset);
         i8 readSigned8BitsAt(memory_address offset);
         void write8BitsTo(memory_address offset, u8 val);

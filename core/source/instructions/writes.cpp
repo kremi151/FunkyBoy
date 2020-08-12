@@ -20,20 +20,20 @@
 
 using namespace FunkyBoy;
 
-bool Operands::write16BitsIntoRR(InstrContext &context) {
+bool Operands::write16BitsIntoRR(InstrContext &context, Memory &memory) {
     u8 *reg = Util::decodeRRAddressFromOpcode(context.registers, context.instr);
     *reg = context.msb;
     *(reg + 1) = context.lsb;
     return true;
 }
 
-bool Operands::write16BitsIntoAF(InstrContext &context) {
+bool Operands::write16BitsIntoAF(InstrContext &context, Memory &memory) {
     *context.regA = context.msb;
     *context.regF = context.lsb & 0b11110000u; // Only store 4 most significant bits into register F
     return true;
 }
 
-bool Operands::writeLSBIntoHLMem(InstrContext &context) {
-    context.memory->write8BitsTo(context.readHL(), context.lsb);
+bool Operands::writeLSBIntoHLMem(InstrContext &context, Memory &memory) {
+    memory.write8BitsTo(context.readHL(), context.lsb);
     return true;
 }

@@ -26,28 +26,28 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool checkIsZero(InstrContext &context);
+    bool checkIsZero(InstrContext &context, Memory &memory);
 
     /**
      * Checks if zero flag is not set. If set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
      * @param context
      * @return
      */
-    bool checkIsNotZero(InstrContext &context);
+    bool checkIsNotZero(InstrContext &context, Memory &memory);
 
     /**
      * Checks if carry flag is set. If not set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
      * @param context
      * @return
      */
-    bool checkIsCarry(InstrContext &context);
+    bool checkIsCarry(InstrContext &context, Memory &memory);
 
     /**
      * Checks if carry flag is not set. If set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
      * @param context
      * @return
      */
-    bool checkIsNotCarry(InstrContext &context);
+    bool checkIsNotCarry(InstrContext &context, Memory &memory);
 
 }
 

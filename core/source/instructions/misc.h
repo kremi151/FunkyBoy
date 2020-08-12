@@ -26,21 +26,21 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool nop(InstrContext &context);
+    bool nop(InstrContext &context, Memory &memory);
 
     /**
      * Like {@code nop}, but used as a marker for padding instructions to reach a certain amount of cycles
      * @param context
      * @return
      */
-    bool _pad_(InstrContext &context);
+    bool _pad_(InstrContext &context, Memory &memory);
 
     /**
      * Enables interrupts without delay
      * @param context
      * @return
      */
-    bool enableInterruptsImmediately(InstrContext &context);
+    bool enableInterruptsImmediately(InstrContext &context, Memory &memory);
 
     /**
      * Enables interrupts with delay.
@@ -48,56 +48,56 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool enableInterruptsDelayed(InstrContext &context);
+    bool enableInterruptsDelayed(InstrContext &context, Memory &memory);
 
     /**
      * Disables interrupts
      * @param context
      * @return
      */
-    bool disableInterrupts(InstrContext &context);
+    bool disableInterrupts(InstrContext &context, Memory &memory);
 
     /**
      * STOP
      * @param context
      * @return
      */
-    bool stop(InstrContext &context);
+    bool stop(InstrContext &context, Memory &memory);
 
     /**
      * HALT
      * @param context
      * @return
      */
-    bool halt(InstrContext &context);
+    bool halt(InstrContext &context, Memory &memory);
 
     /**
      * DAA
      * @param context
      * @return
      */
-    bool daa(InstrContext &context);
+    bool daa(InstrContext &context, Memory &memory);
 
     /**
      * CPL
      * @param context
      * @return
      */
-    bool cpl(InstrContext &context);
+    bool cpl(InstrContext &context, Memory &memory);
 
     /**
      * SCF
      * @param context
      * @return
      */
-    bool scf(InstrContext &context);
+    bool scf(InstrContext &context, Memory &memory);
 
     /**
      * CCF
      * @param context
      * @return
      */
-    bool ccf(InstrContext &context);
+    bool ccf(InstrContext &context, Memory &memory);
 
 }
 

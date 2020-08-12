@@ -39,11 +39,11 @@ namespace FunkyBoy {
 
     class InstrContext;
 
-    typedef bool (*Operand)(InstrContext &context);
+    typedef bool (*Operand)(InstrContext &context, Memory &memory);
 
     class InstrContext {
     public:
-        InstrContext(GameBoyType gbType);
+        explicit InstrContext(GameBoyType gbType);
 
         const GameBoyType gbType;
 
@@ -57,8 +57,6 @@ namespace FunkyBoy {
         u8 *regL;
         u8 *regF;
         u8 *regA;
-
-        MemoryPtr memory;
 
         u8 lsb;
         u8 msb;
@@ -80,9 +78,9 @@ namespace FunkyBoy {
 
         void writeHL(u16 val);
 
-        void push16Bits(u16 val);
-        void push16Bits(u8 msb, u8 lsb);
-        u16 pop16Bits();
+        void push16Bits(Memory &memory, u16 val);
+        void push16Bits(Memory &memory, u8 msb, u8 lsb);
+        u16 pop16Bits(Memory &memory);
 
         void write16BitRegister(u8 position, u16 val);
         u16 read16BitRegister(u8 position);
