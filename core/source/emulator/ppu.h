@@ -22,6 +22,7 @@
 #include <emulator/cpu.h>
 #include <emulator/io_registers.h>
 #include <util/gpumode.h>
+#include <util/typedefs.h>
 
 namespace FunkyBoy {
 
@@ -43,7 +44,7 @@ namespace FunkyBoy {
         PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters);
         ~PPU();
 
-        void doClocks(u8 clocks);
+        ret_code doClocks(u8 clocks);
     };
 
 }

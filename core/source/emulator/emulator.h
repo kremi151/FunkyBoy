@@ -18,6 +18,7 @@
 #define CORE_EMULATOR_H
 
 #include <util/fs.h>
+#include <util/return_codes.h>
 #include <memory>
 #include <emulator/cpu.h>
 #include <emulator/ppu.h>
@@ -47,7 +48,7 @@ namespace FunkyBoy {
         CartridgeStatus loadGame(const fs::path &romPath);
         Cartridge &getCartridge();
 
-        bool doTick();
+        ret_code doTick();
     };
 
 }

@@ -19,6 +19,7 @@
 #include <utility>
 #include <util/typedefs.h>
 #include <util/registers.h>
+#include <util/return_codes.h>
 #include <emulator/io_registers.h>
 
 using namespace FunkyBoy;
@@ -144,9 +145,9 @@ void CPU::powerUpInit() {
     ioRegisters.updateJoypad();
 }
 
-bool CPU::doMachineCycle() {
+ret_code CPU::doMachineCycle() {
     doJoypad();
-    bool result = doCycle();
+    auto result = doCycle();
 
     // TODO: Handle timer here or earlier?
     doTimers(4);
@@ -167,9 +168,9 @@ bool CPU::doMachineCycle() {
     return result;
 }
 
-bool CPU::doCycle() {
+ret_code CPU::doCycle() {
     if (instrContext.cpuState == CPUState::STOPPED) {
-        return true;
+        return FB_RET_SUCCESS | FB_RET_SKIPPED;
     }
 
     bool shouldDoInterrupts = instrContext.cpuState == CPUState::HALTED;
@@ -207,17 +208,17 @@ bool CPU::doCycle() {
 
     if (isDMA) {
         memory->doDMA();
-        return true;
+        return FB_RET_SUCCESS;
     } else if (!shouldFetch) {
-        return true;
+        return FB_RET_SUCCESS;
     }
 
-    bool result = doFetchAndDecode();
+    auto result = doFetchAndDecode();
     operandIndex = 0;
     return result;
 }
 
-bool CPU::doFetchAndDecode() {
+ret_code CPU::doFetchAndDecode() {
     if (!instrContext.haltBugRequested) {
         instrContext.instr = memory->read8BitsAt(instrContext.progCounter++);
     } else {
@@ -232,9 +233,9 @@ bool CPU::doFetchAndDecode() {
 
     if (!Operands::decodeOpcode(instrContext.instr, operands)) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
-        return false;
+        return 0;
     }
-    return true;
+    return FB_RET_SUCCESS;
 }
 
 inline memory_address getInterruptStartAddress(InterruptType type) {

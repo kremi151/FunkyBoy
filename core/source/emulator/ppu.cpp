@@ -16,7 +16,7 @@
 
 #include "ppu.h"
 
-#include <util/typedefs.h>
+#include <util/return_codes.h>
 #include <emulator/io_registers.h>
 
 #define FB_TILE_DATA_OBJ 0x8000
@@ -61,7 +61,7 @@ PPU::~PPU() {
 //
 // In total for 155 scanlines => 70224 clocks
 
-void PPU::doClocks(u8 clocks) {
+ret_code PPU::doClocks(u8 clocks) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
     // See http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (pages 22-27)
@@ -69,9 +69,10 @@ void PPU::doClocks(u8 clocks) {
     auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
     if (!__fb_lcdc_isOn(lcdc)) {
         ioRegisters.updateLCD(false, gpuMode /* TODO: Correct* */, 0x00);
-        return; // TODO: Correct?
+        return FB_RET_SUCCESS; // TODO: Correct?
     }
 
+    ret_code result = FB_RET_SUCCESS;
     auto ly = memory->read8BitsAt(FB_REG_LY);
 
     modeClocks += clocks;
@@ -83,6 +84,7 @@ void PPU::doClocks(u8 clocks) {
                     gpuMode = GPUMode::GPUMode_1;
                     controllers->getDisplay()->drawScreen();
                     cpu->requestInterrupt(InterruptType::VBLANK);
+                    result |= FB_RET_NEW_FRAME;
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
                 }
@@ -119,6 +121,8 @@ void PPU::doClocks(u8 clocks) {
     // TODO: Compare LY with LYC and trigger interrupt
 
     ioRegisters.updateLCD(true, gpuMode, ly);
+
+    return result;
 }
 
 void PPU::renderScanline(u8 ly) {
