@@ -48,12 +48,14 @@ int main(int argc, char **argv) {
     auto next_frame = clock::now();
 
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
-    fbWindow.init(window, renderer, frameBuffer, argc, argv);
+    bool romLoaded = fbWindow.init(window, renderer, frameBuffer, argc, argv);
 
     while (true) {
         next_frame += std::chrono::nanoseconds(fb_clock_frequency);
 
-        fbWindow.update(window);
+        if (romLoaded) {
+            fbWindow.update(window);
+        }
         if (fbWindow.hasUserRequestedExit()) {
             break;
         }

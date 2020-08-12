@@ -19,6 +19,7 @@
 
 #define FB_RET_SUCCESS 1
 #define FB_RET_SKIPPED (1 << 1)
-#define FB_RET_NEW_FRAME (1 << 2)
+#define FB_RET_NEW_SCANLINE (1 << 2)
+#define FB_RET_NEW_FRAME (1 << 3)
 
 #endif //FB_CORE_RETURN_CODES_H

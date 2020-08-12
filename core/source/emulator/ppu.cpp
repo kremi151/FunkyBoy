@@ -113,6 +113,7 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_0;
                 renderScanline(ly);
+                result |= FB_RET_NEW_SCANLINE;
             }
             break;
         }

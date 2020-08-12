@@ -34,7 +34,7 @@ namespace FunkyBoy::SDL {
     public:
         explicit Window(GameBoyType gbType);
 
-        void init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv);
+        bool init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv);
         void update(SDL_Window *window);
 
         fb_inline bool hasUserRequestedExit();

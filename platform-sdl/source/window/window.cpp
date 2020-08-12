@@ -29,14 +29,14 @@ Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
 {
 }
 
-void Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv) {
+bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv) {
     controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
     controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
     controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
 
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
-        return;
+        return false;
     }
     char *romPath = argv[1];
     std::cout << "Loading ROM from " << romPath << "..." << std::endl;
@@ -47,15 +47,17 @@ void Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
         std::string title = reinterpret_cast<const char*>(emulator.getCartridge().getHeader()->title);
         title += " - " FB_NAME;
         SDL_SetWindowTitle(window, title.c_str());
+        return true;
     } else {
         std::cerr << "Could not load ROM at " << romPath << " (status=" << status << ")" << std::endl;
+        return false;
     }
 }
 
 void Window::update(SDL_Window *window) {
-    SDL_PollEvent(&sdlEvents);
-    if (emulator.getCartridge().getStatus() == CartridgeStatus::Loaded) {
-        emulator.doTick();
+    if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
+        // Poll keyboard inputs once per frame
+        SDL_PollEvent(&sdlEvents);
     }
 }
 
