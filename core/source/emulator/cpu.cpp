@@ -177,6 +177,8 @@ ret_code CPU::doCycle() {
     bool shouldFetch = false;
     const bool isDMA = memory->isDMA();
 
+    ret_code result = FB_RET_SUCCESS;
+
     if (instrContext.cpuState == CPUState::RUNNING) {
         if (isDMA) {
             // TODO: Support interrupts during DMA (so far they are not executed)
@@ -186,7 +188,10 @@ ret_code CPU::doCycle() {
         } else {
             auto op = operands[operandIndex++];
 
-            shouldFetch = operands[operandIndex] == nullptr;
+            if (operands[operandIndex] == nullptr) {
+                shouldFetch = true;
+                result |= FB_RET_INSTRUCTION_DONE;
+            }
 
             if (!op(instrContext, *memory)) {
                 shouldFetch = true;
@@ -208,12 +213,12 @@ ret_code CPU::doCycle() {
 
     if (isDMA) {
         memory->doDMA();
-        return FB_RET_SUCCESS;
+        return result;
     } else if (!shouldFetch) {
-        return FB_RET_SUCCESS;
+        return result;
     }
 
-    auto result = doFetchAndDecode();
+    result |= doFetchAndDecode();
     operandIndex = 0;
     return result;
 }
