@@ -26,28 +26,28 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool rrca(InstrContext &context);
+    bool rrca(InstrContext &context, Memory &memory);
 
     /**
      * RLCA
      * @param context
      * @return
      */
-    bool rlca(InstrContext &context);
+    bool rlca(InstrContext &context, Memory &memory);
 
     /**
      * RRA
      * @param context
      * @return
      */
-    bool rra(InstrContext &context);
+    bool rra(InstrContext &context, Memory &memory);
 
     /**
      * RLA
      * @param context
      * @return
      */
-    bool rla(InstrContext &context);
+    bool rla(InstrContext &context, Memory &memory);
 
 }
 

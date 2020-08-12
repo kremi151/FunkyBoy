@@ -29,7 +29,7 @@ using namespace FunkyBoy;
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
     : cartridge(new Cartridge)
     , controllers(controllers)
-    , ioRegisters(new io_registers(controllers))
+    , ioRegisters(controllers)
     , memory(new Memory(cartridge, controllers, ioRegisters))
     , cpu(std::make_shared<CPU>(gbType, memory, ioRegisters))
     , ppu(memory, cpu, controllers, ioRegisters)

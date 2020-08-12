@@ -20,33 +20,50 @@ using namespace FunkyBoy;
 
 #define FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
 #define FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
+#define FB_REG_OFFSET_IF (FB_REG_IF - 0xFF00)
 #define FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
 #define FB_REG_OFFSET_LY (FB_REG_LY - 0xFF00)
 
+io_registers::io_registers(const io_registers &registers)
+    : sys_counter_lsb(registers.sys_counter_lsb)
+    , sys_counter_msb(registers.sys_counter_msb)
+    , hwIO(registers.hwIO)
+    , controllers(registers.controllers)
+    , ptrCounter(registers.ptrCounter)
+{
+    (*ptrCounter)++;
+}
+
 io_registers::io_registers(Controller::ControllersPtr controllers)
-    : sys_counter_lsb(0)
-    , sys_counter_msb(0)
+    : sys_counter_lsb(new u8(0))
+    , sys_counter_msb(new u8(0))
     , hwIO(new u8[128]{})
     , controllers(std::move(controllers))
+    , ptrCounter(new u16(1))
 {
 }
 
 io_registers::~io_registers() {
-    delete[] hwIO;
+    if (--(*ptrCounter) < 1) {
+        delete sys_counter_lsb;
+        delete sys_counter_msb;
+        delete[] hwIO;
+        delete ptrCounter;
+    }
 }
 
 void io_registers::resetSysCounter() {
-    sys_counter_lsb = 0;
-    sys_counter_msb = 0;
+    *sys_counter_lsb = 0;
+    *sys_counter_msb = 0;
 }
 
 void io_registers::setSysCounter(FunkyBoy::u16 counter) {
-    sys_counter_lsb = counter & 0xffu;
-    sys_counter_msb = (counter >> 8) & 0xffu;
+    *sys_counter_lsb = counter & 0xffu;
+    *sys_counter_msb = (counter >> 8) & 0xffu;
 }
 
 fb_inline u16 io_registers::getSysCounter() {
-    return (sys_counter_msb << 8) | sys_counter_lsb;
+    return (*sys_counter_msb << 8) | *sys_counter_lsb;
 }
 
 void io_registers::handleMemoryWrite(u8 offset, u8 value) {
@@ -82,7 +99,7 @@ void io_registers::handleMemoryWrite(u8 offset, u8 value) {
 u8 io_registers::handleMemoryRead(u8 offset) {
     switch (offset) {
         case FB_REG_OFFSET_DIV:
-            return sys_counter_msb;
+            return *sys_counter_msb;
         default:
             return *(hwIO + offset);
     }
@@ -135,4 +152,12 @@ void io_registers::updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly) {
     *(hwIO + FB_REG_OFFSET_STAT) = stat;
 
     *(hwIO + FB_REG_OFFSET_LY) = ly;
+}
+
+u8 &io_registers::getP1() {
+    return *(hwIO + FB_REG_OFFSET_P1);
+}
+
+u8 &io_registers::getIF() {
+    return *(hwIO + FB_REG_OFFSET_IF);
 }

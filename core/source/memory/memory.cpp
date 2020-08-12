@@ -25,10 +25,10 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters)
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters)
     : cartridge(std::move(cartridge))
     , controllers(std::move(controllers))
-    , ioRegisters(std::move(ioRegisters))
+    , ioRegisters(ioRegisters)
     , interruptEnableRegister(0)
     , dmaStarted(false)
 {
@@ -135,7 +135,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 &val) 
         }
         if (offset < 0xFF80) {
             // IO registers
-            ioRegisters->handleMemoryWrite(offset - 0xFF00u, val);
+            ioRegisters.handleMemoryWrite(offset - 0xFF00u, val);
             return true;
         }
     }
@@ -145,7 +145,7 @@ bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 &val) 
 bool Memory::interceptReadAt(FunkyBoy::memory_address offset, u8 *out) {
     if (offset >= 0xFF00u && offset < 0xFF80) {
         // IO registers
-        *out = ioRegisters->handleMemoryRead(offset - 0xFF00);
+        *out = ioRegisters.handleMemoryRead(offset - 0xFF00);
         return true;
     }
     auto ptr = getMemoryAddress(offset);
@@ -210,7 +210,7 @@ void Memory::doDMA() {
 
 #ifdef FB_TESTING
 
-io_registers_ptr& Memory::getIoRegisters() {
+io_registers& Memory::getIoRegisters() {
     return ioRegisters;
 }
 

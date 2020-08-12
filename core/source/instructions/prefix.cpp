@@ -26,7 +26,7 @@
 
 using namespace FunkyBoy;
 
-bool __prefix__rlc_r(InstrContext &context) {
+bool __prefix__rlc_r(InstrContext &context, Memory &memory) {
     u8 *reg = context.registers + (context.instr & 0b111);
     u8 newVal = (*reg << 1) | ((*reg >> 7) & 0b1);
     Flags::setFlags(context.regF, newVal == 0, false, false, (*reg & 0b10000000) > 0);
@@ -34,7 +34,7 @@ bool __prefix__rlc_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix__rlc_lsb(InstrContext &context) {
+bool __prefix__rlc_lsb(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
     u8 newVal = (oldVal << 1) | ((oldVal >> 7) & 0b1);
     Flags::setFlags(context.regF, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
@@ -42,7 +42,7 @@ bool __prefix__rlc_lsb(InstrContext &context) {
     return true;
 }
 
-bool __prefix__rrc_r(InstrContext &context) {
+bool __prefix__rrc_r(InstrContext &context, Memory &memory) {
     u8 *reg = context.registers + (context.instr & 0b111);
     u8 newVal = (*reg >> 1) | ((*reg & 0b1) << 7);
     Flags::setFlags(context.regF, newVal == 0, false, false, (*reg & 0b1) > 0);
@@ -50,7 +50,7 @@ bool __prefix__rrc_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix__rrc_lsb(InstrContext &context) {
+bool __prefix__rrc_lsb(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
     u8 newVal = (oldVal >> 1) | ((oldVal & 0b1) << 7);
     Flags::setFlags(context.regF, newVal == 0, false, false, (oldVal & 0b1) > 0);
@@ -58,7 +58,7 @@ bool __prefix__rrc_lsb(InstrContext &context) {
     return true;
 }
 
-bool __prefix_rl_r(InstrContext &context) {
+bool __prefix_rl_r(InstrContext &context, Memory &memory) {
     u8 *reg = context.registers + (context.instr & 0b111);
     u8 newVal = (*reg << 1);
     if (Flags::isCarry(context.regF)) {
@@ -69,7 +69,7 @@ bool __prefix_rl_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_rl_HL(InstrContext &context) {
+bool __prefix_rl_HL(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
     u8 newVal = (oldVal << 1);
     if (Flags::isCarry(context.regF)) {
@@ -80,7 +80,7 @@ bool __prefix_rl_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_rr_r(InstrContext &context) {
+bool __prefix_rr_r(InstrContext &context, Memory &memory) {
     // 0x18 -> 11 000 -> B
     // 0x19 -> 11 001 -> C
     // 0x1A -> 11 010 -> D
@@ -99,7 +99,7 @@ bool __prefix_rr_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_rr_HL(InstrContext &context) {
+bool __prefix_rr_HL(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
     u8 newVal = oldVal >> 1;
     if (Flags::isCarry(context.regF)) {
@@ -110,7 +110,7 @@ bool __prefix_rr_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_sla_r(InstrContext &context) {
+bool __prefix_sla_r(InstrContext &context, Memory &memory) {
     // 0x20 -> 100 000 -> B
     // 0x21 -> 100 001 -> C
     // 0x22 -> 100 010 -> D
@@ -126,7 +126,7 @@ bool __prefix_sla_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_sla_HL(InstrContext &context) {
+bool __prefix_sla_HL(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
     u8 newVal = oldVal << 1;
     Flags::setFlags(context.regF, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
@@ -134,7 +134,7 @@ bool __prefix_sla_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_sra_r(InstrContext &context) {
+bool __prefix_sra_r(InstrContext &context, Memory &memory) {
     u8 *reg = context.registers + (context.instr & 0b111);
     u8 newVal = (*reg >> 1) | (*reg & 0b10000000);
     Flags::setFlags(context.regF, newVal == 0, false, false, *reg & 0b1);
@@ -142,7 +142,7 @@ bool __prefix_sra_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_sra_HL(InstrContext &context) {
+bool __prefix_sra_HL(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
     u8 newVal = (oldVal >> 1) | (oldVal & 0b10000000);
     Flags::setFlags(context.regF, newVal == 0, false, false, oldVal & 0b1);
@@ -150,14 +150,14 @@ bool __prefix_sra_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_swap_r(InstrContext &context) {
+bool __prefix_swap_r(InstrContext &context, Memory &memory) {
     u8 *reg = context.registers + (context.instr & 0b111);
     *reg = ((*reg >> 4) & 0b1111) | ((*reg & 0b1111) << 4);
     Flags::setFlags(context.regF, *reg == 0, false, false, false);
     return true;
 }
 
-bool __prefix_swap_HL(InstrContext &context) {
+bool __prefix_swap_HL(InstrContext &context, Memory &memory) {
     u8 val = context.lsb;
     val = ((val >> 4) & 0b1111) | ((val & 0b1111) << 4);
     context.lsb = val;
@@ -165,7 +165,7 @@ bool __prefix_swap_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_srl_r(InstrContext &context) {
+bool __prefix_srl_r(InstrContext &context, Memory &memory) {
     // 0x38 -> 111 000 -> B
     // 0x39 -> 111 001 -> C
     // 0x3A -> 111 010 -> D
@@ -181,7 +181,7 @@ bool __prefix_srl_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_srl_HL(InstrContext &context) {
+bool __prefix_srl_HL(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
     u8 newVal = oldVal >> 1;
     Flags::setFlags(context.regF, newVal == 0, false, false, oldVal & 0b1);
@@ -189,7 +189,7 @@ bool __prefix_srl_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_bit_r(InstrContext &context) {
+bool __prefix_bit_r(InstrContext &context, Memory &memory) {
     // 0x40 -> 1 000 000 -> 0,B
     // 0x41 -> 1 000 001 -> 0,C
     // 0x42 -> 1 000 010 -> 0,D
@@ -228,7 +228,7 @@ bool __prefix_bit_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_bit_HL(InstrContext &context) {
+bool __prefix_bit_HL(InstrContext &context, Memory &memory) {
     // 0x46 -> 1 000 110 -> 0
     // 0x4E -> 1 001 110 -> 1
     // 0x56 -> 1 010 110 -> 2
@@ -244,7 +244,7 @@ bool __prefix_bit_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_res_r(InstrContext &context) {
+bool __prefix_res_r(InstrContext &context, Memory &memory) {
     u8 bitShift = (context.instr >> 3) & 0b111;
     u8 regPos = context.instr & 0b111;
     u8 *reg = context.registers + regPos;
@@ -252,7 +252,7 @@ bool __prefix_res_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_res_HL(InstrContext &context) {
+bool __prefix_res_HL(InstrContext &context, Memory &memory) {
     u8 bitShift = (context.instr >> 3) & 0b111;
     u8 val = context.lsb;
     val &= ~(1 << bitShift);
@@ -260,7 +260,7 @@ bool __prefix_res_HL(InstrContext &context) {
     return true;
 }
 
-bool __prefix_set_r(InstrContext &context) {
+bool __prefix_set_r(InstrContext &context, Memory &memory) {
     u8 bitMask = (context.instr >> 3) & 0b111;
     u8 regPos = context.instr & 0b111;
     u8 *reg = context.registers + regPos;
@@ -268,7 +268,7 @@ bool __prefix_set_r(InstrContext &context) {
     return true;
 }
 
-bool __prefix_set_HL(InstrContext &context) {
+bool __prefix_set_HL(InstrContext &context, Memory &memory) {
     u8 bitMask = (context.instr >> 3) & 0b111;
     u8 val = context.lsb;
     val |= (1 << bitMask);
@@ -276,8 +276,8 @@ bool __prefix_set_HL(InstrContext &context) {
     return true;
 }
 
-bool Operands::decodePrefix(InstrContext &context) {
-    context.instr = context.memory->read8BitsAt(context.progCounter++);
+bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
+    context.instr = memory.read8BitsAt(context.progCounter++);
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context);

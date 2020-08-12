@@ -23,10 +23,10 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters)
+CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
     : memory(std::move(memory))
     , gbType(gbType)
-    , ioRegisters(std::move(ioRegisters))
+    , ioRegisters(ioRegisters)
     , instrContext(gbType)
     , timerOverflowingCycles(-1)
     , delayedTIMAIncrease(false)
@@ -60,7 +60,6 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, io_registers_ptr ioRegisters)
     instrContext.regA = regA;
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
-    instrContext.memory = this->memory;
     instrContext.operands = operands;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
     instrContext.haltBugRequested = false;
@@ -142,7 +141,7 @@ void CPU::powerUpInit() {
     memory->write8BitsTo(0xffff, 0x00);
 
     // Initialize Joypad
-    ioRegisters->updateJoypad();
+    ioRegisters.updateJoypad();
 }
 
 bool CPU::doMachineCycle() {
@@ -188,7 +187,7 @@ bool CPU::doCycle() {
 
             shouldFetch = operands[operandIndex] == nullptr;
 
-            if (!op(instrContext)) {
+            if (!op(instrContext, *memory)) {
                 shouldFetch = true;
             }
             shouldDoInterrupts = shouldFetch;
@@ -252,8 +251,8 @@ inline u8 getInterruptBitMask(InterruptType type) {
 }
 
 void CPU::doJoypad() {
-    u8 oldP1 = memory->read8BitsAt(FB_REG_P1) & 0b00001111u;
-    u8 newP1 = ioRegisters->updateJoypad() & 0b00001111u;
+    u8 oldP1 = ioRegisters.getP1() & 0b00001111u;
+    u8 newP1 = ioRegisters.updateJoypad() & 0b00001111u;
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
         requestInterrupt(InterruptType::JOYPAD);
@@ -268,7 +267,8 @@ bool CPU::doInterrupts() {
     if (instrContext.cpuState == CPUState::STOPPED) {
         return false;
     }
-    u8 _if = memory->read8BitsAt(FB_REG_IF) & 0x1fu;
+    u8 &_if = ioRegisters.getIF();
+    _if %= 0x1fu;
     u8 _ie = memory->read8BitsAt(FB_REG_IE) & 0x1fu;
     u8 _intr = _if & _ie & 0x1f;
     if (!_intr) {
@@ -287,7 +287,7 @@ bool CPU::doInterrupts() {
         memory_address addr = getInterruptStartAddress(interruptType);
         instrContext.interruptMasterEnable = IMEState::DISABLED;
         // TODO: do 2 NOP cycles (when implementing cycle accuracy)
-        instrContext.push16Bits(instrContext.progCounter);
+        instrContext.push16Bits(*memory, instrContext.progCounter);
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         FunkyBoy::Debug::writeInterruptToLog(addr, file);
@@ -295,8 +295,7 @@ bool CPU::doInterrupts() {
 
         instrContext.progCounter = addr;
         debug_print_4("Do interrupt at 0x%04X\n", addr);
-        _if &= ~bitMask;
-        memory->write8BitsTo(FB_REG_IF, _if); // TODO: Investigate "Timer doesn't work" error from ROM output
+        _if &= ~bitMask; // Writes directly to io_registry
         // TODO: Interrupt Service Routine should take 5 cycles
         return true;
     }
@@ -342,8 +341,8 @@ bool doTimerObscureCheck(u8 clocks, u16 sysCounter, u8 tac) {
 }
 
 void CPU::doTimers(u8 clocks) {
-    u16 sysCounter = ioRegisters->getSysCounter();
-    ioRegisters->setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
+    u16 sysCounter = ioRegisters.getSysCounter();
+    ioRegisters.setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
     if (timerOverflowingCycles != -1) {
         timerOverflowingCycles -= clocks;
         if (timerOverflowingCycles <= 0) {
@@ -374,8 +373,8 @@ void CPU::doTimers(u8 clocks) {
 
 void CPU::requestInterrupt(InterruptType type) {
     //fprintf(stdout, "#req int %d\n", type);
-    u8 _if = memory->read8BitsAt(FB_REG_IF);
-    memory->write8BitsTo(FB_REG_IF, _if | getInterruptBitMask(type));
+    u8 &_if = ioRegisters.getIF();
+    _if |= getInterruptBitMask(type);
 }
 
 void CPU::setProgramCounter(u16 offset) {

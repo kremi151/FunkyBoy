@@ -20,42 +20,42 @@
 
 using namespace FunkyBoy;
 
-bool Operands::nop(InstrContext &context) {
+bool Operands::nop(InstrContext &context, Memory &memory) {
     // do nothing
     return true;
 }
 
-bool Operands::_pad_(InstrContext &context) {
+bool Operands::_pad_(InstrContext &context, Memory &memory) {
     // do nothing
     return true;
 }
 
-bool Operands::enableInterruptsImmediately(InstrContext &context) {
+bool Operands::enableInterruptsImmediately(InstrContext &context, Memory &memory) {
     context.interruptMasterEnable = IMEState::ENABLED;
     return true;
 }
 
-bool Operands::enableInterruptsDelayed(InstrContext &context) {
+bool Operands::enableInterruptsDelayed(InstrContext &context, Memory &memory) {
     context.interruptMasterEnable = IMEState::REQUEST_ENABLE;
     return true;
 }
 
-bool Operands::disableInterrupts(InstrContext &context) {
+bool Operands::disableInterrupts(InstrContext &context, Memory &memory) {
     context.interruptMasterEnable = IMEState::DISABLED;
     return true;
 }
 
-bool Operands::stop(InstrContext &context) {
+bool Operands::stop(InstrContext &context, Memory &memory) {
     *context.regA = 0;
-    *context.regB = context.memory->read8BitsAt(FB_REG_IE);
-    context.memory->write8BitsTo(FB_REG_IE, 0);
-    context.memory->write8BitsTo(FB_REG_P1, 0);
+    *context.regB = memory.read8BitsAt(FB_REG_IE);
+    memory.write8BitsTo(FB_REG_IE, 0);
+    memory.write8BitsTo(FB_REG_P1, 0);
     context.cpuState = CPUState::STOPPED;
     return true;
 }
 
-bool Operands::halt(InstrContext &context) {
-    if (context.interruptMasterEnable == IMEState::ENABLED || (context.memory->read8BitsAt(FB_REG_IE) & context.memory->read8BitsAt(FB_REG_IF) & 0x1f) == 0) {
+bool Operands::halt(InstrContext &context, Memory &memory) {
+    if (context.interruptMasterEnable == IMEState::ENABLED || (memory.read8BitsAt(FB_REG_IE) & memory.read8BitsAt(FB_REG_IF) & 0x1f) == 0) {
         context.cpuState = CPUState::HALTED;
     } else if (context.gbType != GameBoyType::GameBoyCGB) {
         // On non-GBC devices, the next instruction is skipped if HALT was requested with IME being disabled
@@ -64,7 +64,7 @@ bool Operands::halt(InstrContext &context) {
     return true;
 }
 
-bool Operands::daa(InstrContext &context) {
+bool Operands::daa(InstrContext &context, Memory &memory) {
     u8 val = *context.regA;
     if (Flags::isSubstraction(context.regF)) {
         if (Flags::isCarry(context.regF)) {
@@ -88,19 +88,19 @@ bool Operands::daa(InstrContext &context) {
     return true;
 }
 
-bool Operands::cpl(InstrContext &context) {
+bool Operands::cpl(InstrContext &context, Memory &memory) {
     *context.regA = ~*context.regA;
     Flags::setSubstraction(context.regF, true);
     Flags::setHalfCarry(context.regF, true);
     return true;
 }
 
-bool Operands::scf(InstrContext &context) {
+bool Operands::scf(InstrContext &context, Memory &memory) {
     Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, true);
     return true;
 }
 
-bool Operands::ccf(InstrContext &context) {
+bool Operands::ccf(InstrContext &context, Memory &memory) {
     Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, !Flags::isCarry(context.regF));
     return true;
 }

@@ -28,7 +28,7 @@ namespace FunkyBoy {
     private:
         CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
-        io_registers_ptr ioRegisters;
+        io_registers ioRegisters;
 
         u8 *vram; // Character RAM
         u8 *bgMapData1;
@@ -49,8 +49,11 @@ namespace FunkyBoy {
         bool interceptWrite(memory_address offset, u8 &val);
         bool interceptReadAt(memory_address offset, u8 *out);
     public:
-        Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters);
+        Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters);
         ~Memory();
+
+        Memory(const Memory &other) = delete;
+        Memory &operator= (const Memory &other) = delete;
 
         u8 read8BitsAt(memory_address offset);
         i8 readSigned8BitsAt(memory_address offset);
@@ -65,7 +68,7 @@ namespace FunkyBoy {
         void doDMA();
 
 #ifdef FB_TESTING
-        io_registers_ptr &getIoRegisters();
+        io_registers &getIoRegisters();
         CartridgePtr &getCartridge();
 #endif
     };

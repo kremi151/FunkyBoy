@@ -27,21 +27,21 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool write16BitsIntoRR(InstrContext &context);
+    bool write16BitsIntoRR(InstrContext &context, Memory &memory);
 
     /**
      * Writes 16 bits composed by {@code lsb} and {@code msb} into AF register
      * @param context
      * @return
      */
-    bool write16BitsIntoAF(InstrContext &context);
+    bool write16BitsIntoAF(InstrContext &context, Memory &memory);
 
     /**
      * Writes {@code lsb} into (HL)
      * @param context
      * @return
      */
-    bool writeLSBIntoHLMem(InstrContext &context);
+    bool writeLSBIntoHLMem(InstrContext &context, Memory &memory);
 
 }
 

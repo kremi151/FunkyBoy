@@ -25,31 +25,31 @@ namespace FunkyBoy::Operands {
      * Reads the next byte into {@code lsb}
      * @param context
      */
-    bool readLSB(InstrContext &context);
+    bool readLSB(InstrContext &context, Memory &memory);
 
     /**
      * Reads the next byte into {@code msb}
      * @param context
      */
-    bool readMSB(InstrContext &context);
+    bool readMSB(InstrContext &context, Memory &memory);
 
     /**
      * Reads a signed byte into {@code signedByte}
      * @param context
      */
-    bool readSigned(InstrContext &context);
+    bool readSigned(InstrContext &context, Memory &memory);
 
     /**
      * Reads C into {@code lsb}, 0xFF into {@code msb}
      * @param context
      */
-    bool readRegCAsLSB(InstrContext &context);
+    bool readRegCAsLSB(InstrContext &context, Memory &memory);
 
     /**
      * Reads next unsigned byte into {@code lsb}, 0xFF into {@code msb}
      * @param context
      */
-    bool readMemAsLSB(InstrContext &context);
+    bool readMemAsLSB(InstrContext &context, Memory &memory);
 
     /**
      * Decrements SP (SP--) first, then reads LSB(rr) into memory pointed by SP
@@ -57,7 +57,7 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool readRRLSBIntoStack(InstrContext &context);
+    bool readRRLSBIntoStack(InstrContext &context, Memory &memory);
 
     /**
      * Decrements SP (SP--) first, then reads MSB(rr) into memory pointed by SP.
@@ -65,7 +65,7 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool readRRMSBIntoStack(InstrContext &context);
+    bool readRRMSBIntoStack(InstrContext &context, Memory &memory);
 
     /**
      * Reads memory pointed by SP into {@code lsb}, then increments SP (SP++).
@@ -73,7 +73,7 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool readStackIntoLSB(InstrContext &context);
+    bool readStackIntoLSB(InstrContext &context, Memory &memory);
 
     /**
      * Reads memory pointed by SP into {@code msb}, then increments SP (SP++).
@@ -81,7 +81,7 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool readStackIntoMSB(InstrContext &context);
+    bool readStackIntoMSB(InstrContext &context, Memory &memory);
 
     /**
      * Decrements SP (SP--) first, then reads register F into memory pointed by SP
@@ -89,7 +89,7 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool readRegFIntoStack(InstrContext &context);
+    bool readRegFIntoStack(InstrContext &context, Memory &memory);
 
     /**
      * Decrements SP (SP--) first, then reads register A into memory pointed by SP.
@@ -97,14 +97,14 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool readRegAIntoStack(InstrContext &context);
+    bool readRegAIntoStack(InstrContext &context, Memory &memory);
 
     /**
      * Reads byte at address (HL) into {@code lsb}
      * @param context
      * @return
      */
-    bool readHLMem(InstrContext &context);
+    bool readHLMem(InstrContext &context, Memory &memory);
 
 }
 

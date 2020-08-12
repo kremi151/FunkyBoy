@@ -39,11 +39,11 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, io_registers_ptr ioRegisters)
+PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters)
     : memory(std::move(memory))
     , cpu(std::move(cpu))
     , controllers(std::move(controllers))
-    , ioRegisters(std::move(ioRegisters))
+    , ioRegisters(ioRegisters)
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
     , scanLineBuffer(new u8[FB_GB_DISPLAY_WIDTH])
@@ -71,7 +71,7 @@ void PPU::doClocks(u8 clocks) {
 
     auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
     if (!__fb_lcdc_isOn(lcdc)) {
-        ioRegisters->updateLCD(false, gpuMode /* TODO: Correct* */, 0x00);
+        ioRegisters.updateLCD(false, gpuMode /* TODO: Correct* */, 0x00);
         return; // TODO: Correct?
     }
 
@@ -121,7 +121,7 @@ void PPU::doClocks(u8 clocks) {
 
     // TODO: Compare LY with LYC and trigger interrupt
 
-    ioRegisters->updateLCD(true, gpuMode, ly);
+    ioRegisters.updateLCD(true, gpuMode, ly);
 }
 
 void PPU::renderScanline(u8 ly) {

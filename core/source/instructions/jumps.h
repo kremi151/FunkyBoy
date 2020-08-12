@@ -21,16 +21,16 @@
 
 namespace FunkyBoy::Operands {
 
-    bool jp(InstrContext &context);
-    bool jp_HL(InstrContext &context);
+    bool jp(InstrContext &context, Memory &memory);
+    bool jp_HL(InstrContext &context, Memory &memory);
 
-    bool jr(InstrContext &context);
+    bool jr(InstrContext &context, Memory &memory);
 
-    bool call(InstrContext &context);
+    bool call(InstrContext &context, Memory &memory);
 
-    bool ret(InstrContext &context);
+    bool ret(InstrContext &context, Memory &memory);
 
-    bool rst(InstrContext &context);
+    bool rst(InstrContext &context, Memory &memory);
 
 }
 
