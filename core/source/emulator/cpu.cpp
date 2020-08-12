@@ -267,7 +267,8 @@ bool CPU::doInterrupts() {
     if (instrContext.cpuState == CPUState::STOPPED) {
         return false;
     }
-    u8 _if = memory->read8BitsAt(FB_REG_IF) & 0x1fu;
+    u8 &_if = ioRegisters.getIF();
+    _if %= 0x1fu;
     u8 _ie = memory->read8BitsAt(FB_REG_IE) & 0x1fu;
     u8 _intr = _if & _ie & 0x1f;
     if (!_intr) {
@@ -294,8 +295,7 @@ bool CPU::doInterrupts() {
 
         instrContext.progCounter = addr;
         debug_print_4("Do interrupt at 0x%04X\n", addr);
-        _if &= ~bitMask;
-        memory->write8BitsTo(FB_REG_IF, _if); // TODO: Investigate "Timer doesn't work" error from ROM output
+        _if &= ~bitMask; // Writes directly to io_registry
         // TODO: Interrupt Service Routine should take 5 cycles
         return true;
     }
@@ -373,8 +373,8 @@ void CPU::doTimers(u8 clocks) {
 
 void CPU::requestInterrupt(InterruptType type) {
     //fprintf(stdout, "#req int %d\n", type);
-    u8 _if = memory->read8BitsAt(FB_REG_IF);
-    memory->write8BitsTo(FB_REG_IF, _if | getInterruptBitMask(type));
+    u8 &_if = ioRegisters.getIF();
+    _if |= getInterruptBitMask(type);
 }
 
 void CPU::setProgramCounter(u16 offset) {

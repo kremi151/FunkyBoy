@@ -20,6 +20,7 @@ using namespace FunkyBoy;
 
 #define FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
 #define FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
+#define FB_REG_OFFSET_IF (FB_REG_IF - 0xFF00)
 #define FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
 #define FB_REG_OFFSET_LY (FB_REG_LY - 0xFF00)
 
@@ -155,4 +156,8 @@ void io_registers::updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly) {
 
 u8 &io_registers::getP1() {
     return *(hwIO + FB_REG_OFFSET_P1);
+}
+
+u8 &io_registers::getIF() {
+    return *(hwIO + FB_REG_OFFSET_IF);
 }
