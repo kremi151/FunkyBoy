@@ -71,12 +71,13 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     return cartridge->getStatus();
 }
 
-bool Emulator::doTick() {
-    if (!cpu->doMachineCycle()) {
-        return false;
+ret_code Emulator::doTick() {
+    auto result = cpu->doMachineCycle();
+    if (!result) {
+        return 0;
     }
-    ppu.doClocks(4);
-    return true;
+    result |= ppu.doClocks(4);
+    return result;
 }
 
 Cartridge & Emulator::getCartridge() {

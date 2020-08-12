@@ -65,8 +65,8 @@ namespace FunkyBoy {
 
         void powerUpInit();
 
-        bool doCycle();
-        bool doFetchAndDecode();
+        ret_code doCycle();
+        ret_code doFetchAndDecode();
 
         void doJoypad();
         bool doInterrupts();
@@ -100,7 +100,7 @@ namespace FunkyBoy {
         void setProgramCounter(u16 offset);
         void requestInterrupt(InterruptType type);
 
-        bool doMachineCycle();
+        ret_code doMachineCycle();
     };
 
     typedef std::shared_ptr<CPU> CPUPtr;
