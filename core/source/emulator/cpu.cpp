@@ -175,6 +175,7 @@ ret_code CPU::doCycle() {
 
     bool shouldDoInterrupts = instrContext.cpuState == CPUState::HALTED;
     bool shouldFetch = false;
+    bool interruptServiced = false;
     const bool isDMA = memory->isDMA();
 
     ret_code result = FB_RET_SUCCESS;
@@ -209,13 +210,16 @@ ret_code CPU::doCycle() {
     if (shouldDoInterrupts && (instrContext.cpuState == CPUState::RUNNING || instrContext.cpuState == CPUState::HALTED) && doInterrupts()) {
         // An interrupt has started (or IME=false && (IF & IE) != 0), so we set the state to RUNNING (again)
         instrContext.cpuState = CPUState::RUNNING;
+        interruptServiced = true;
     }
 
-    if (isDMA) {
-        memory->doDMA();
-        return result;
-    } else if (!shouldFetch) {
-        return result;
+    if (!interruptServiced) {
+        if (isDMA) {
+            memory->doDMA();
+            return result;
+        } else if (!shouldFetch) {
+            return result;
+        }
     }
 
     result |= doFetchAndDecode();
