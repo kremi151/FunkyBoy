@@ -51,43 +51,64 @@ Memory::~Memory() {
     delete[] hram;
 }
 
+#define FB_MEMORY_NIBBLE_RANGE(x) \
+case 0x ## x ## 0: case 0x ## x ## 1: case 0x ## x ## 2: case 0x ## x ## 3: case 0x ## x ## 4: case 0x ## x ## 5: \
+case 0x ## x ## 6: case 0x ## x ## 7: case 0x ## x ## 8: case 0x ## x ## 9: case 0x ## x ## A: case 0x ## x ## B: \
+case 0x ## x ## C: case 0x ## x ## D: case 0x ## x ## E: case 0x ## x ## F
+
 u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
-    if (offset == FB_REG_IE) {
-        return &interruptEnableRegister;
-    } else if (offset >= 0xFF80) {
-        return hram + (offset - 0xFF80);
-    } else if (offset >= 0xFF00) {
-        // Handled by interceptWrite and interceptReadAt
-        fprintf(stderr, "Attempting to get access to HWIO, this means that the developer has forked something up\n");
-        return nullptr;
-    } else if (offset >= 0xFEA0) {
-        // Not usable
-        return nullptr;
-    } else if (offset >= 0xFE00) {
-        return oam + (offset - 0xFE00);
-    } else if (offset >= 0xE000) {
-        // Echo RAM
-        // TODO: Verify that this offset is correctly calculated (Echo RAM offset + boundary of RAM bank 0)
-        if (offset <= 0xEFFF) {
+    switch ((offset >> 8) & 0xff) {
+        FB_MEMORY_NIBBLE_RANGE(0):
+        FB_MEMORY_NIBBLE_RANGE(1):
+        FB_MEMORY_NIBBLE_RANGE(2):
+        FB_MEMORY_NIBBLE_RANGE(3):
+        FB_MEMORY_NIBBLE_RANGE(4):
+        FB_MEMORY_NIBBLE_RANGE(5):
+        FB_MEMORY_NIBBLE_RANGE(6):
+        FB_MEMORY_NIBBLE_RANGE(7):
+            return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
+        FB_MEMORY_NIBBLE_RANGE(8):
+        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x96: case 0x97:
+            return vram + (offset - 0x8000);
+        case 0x98: case 0x99: case 0x9A: case 0x9B:
+            return bgMapData1 + (offset - 0x9800);
+        case 0x9C: case 0x9D: case 0x9E: case 0x9F:
+            return bgMapData2 + (offset - 0x9C00);
+        FB_MEMORY_NIBBLE_RANGE(A):
+        FB_MEMORY_NIBBLE_RANGE(B):
+            return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
+        FB_MEMORY_NIBBLE_RANGE(C):
+            return internalRam + (offset - 0xC000);
+        FB_MEMORY_NIBBLE_RANGE(D):
+            // TODO: Make this switchable
+            return dynamicRamBank + (offset - 0xD000);
+        FB_MEMORY_NIBBLE_RANGE(E):
             return internalRam + (offset - 0xE000);
-        } else {
+        case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5: case 0xF6:
+        case 0xF7: case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD:
             return dynamicRamBank + (offset - 0xF000);
+        case 0xFE: {
+            if (offset < 0xFEA0) {
+                return oam + (offset - 0xFE00);
+            } else {
+                // Not usable
+                return nullptr;
+            }
         }
-    } else if (offset >= 0xD000) {
-        // TODO: Make this switchable
-        return dynamicRamBank + (offset - 0xD000);
-    } else if (offset >= 0xC000) {
-        return internalRam + (offset - 0xC000);
-    } else if (offset >= 0xA000) {
-        return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
-    } else if (offset >= 0x9C00) {
-        return bgMapData2 + (offset - 0x9C00);
-    } else if (offset >= 0x9800) {
-        return bgMapData1 + (offset - 0x9800);
-    } else if (offset >= 0x8000) {
-        return vram + (offset - 0x8000);
-    } else {
-        return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
+        case 0xFF: {
+            if (offset == FB_REG_IE) {
+                return &interruptEnableRegister;
+            } else if (offset >= 0xFF80) {
+                return hram + (offset - 0xFF80);
+            } else {
+                // Handled by interceptWrite and interceptReadAt
+                fprintf(stderr, "Attempting to get access to HWIO, this means that the developer has forked something up\n");
+                return nullptr;
+            }
+        }
+        default:
+            fprintf(stderr, "Attempt to access unmapped memory at 0x%04X\n", offset);
+            return nullptr;
     }
 }
 
