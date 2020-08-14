@@ -1,0 +1,20 @@
+name: Build core
+
+on:
+  push:
+    branches: [ master, platform_3ds_poc ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-3ds:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: run-cmake
+        uses: lukka/run-cmake@v2.5
