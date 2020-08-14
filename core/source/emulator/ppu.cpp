@@ -192,6 +192,10 @@ void PPU::renderScanline(u8 ly) {
                 yInObj = (ly - objY);
             }
 
+            if (objHeight == 16) {
+                // In 8x16 mode, the least significant bit of the tile number is treated as '0'
+                tile &= 0b11111110u;
+            }
             tileLine = memory->read16BitsAt(FB_TILE_DATA_OBJ + (tile * 16) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
                 u8 x = objX + xOnObj - 8;
