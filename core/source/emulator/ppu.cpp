@@ -21,12 +21,15 @@
 
 #define FB_TILE_DATA_OBJ 0x8000
 
+// Should be 0x8800, but as tiles are numbered from -127 to 128, we take 0x9000 as the offset
+#define FB_TILE_DATA_UPPER 0x9000
+
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
 // Differences here are 1023
 #define __fb_lcdc_windowTileMapDisplaySelect(lcdc) ((lcdc & 0b01000000u) ? 0x9C00 : 0x9800)
 #define __fb_lcdc_isWindowEnabled(lcdc) (lcdc & 0b00100000u)
 // Differences here are 4095
-#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? FB_TILE_DATA_OBJ : 0x8800)
+#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? FB_TILE_DATA_OBJ : FB_TILE_DATA_UPPER)
 // Differences here are 1023
 #define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x9C00 : 0x9800)
 // Returns the height of objects (16 or 8), width is always 8
