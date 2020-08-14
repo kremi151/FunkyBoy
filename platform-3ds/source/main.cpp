@@ -111,6 +111,8 @@ extern "C" {
             return 0;
         }
 
+        emulator.loadCartridgeRamFromFS();
+
         std::cout << "Press X to quit" << std::endl;
 
         gspWaitForVBlank();
@@ -129,6 +131,8 @@ extern "C" {
             if (kDown & KEY_X)
                 break; // break in order to return to hbmenu
         }
+
+        emulator.writeCartridgeRamToFS();
 
         gfxExit();
         return 0;
