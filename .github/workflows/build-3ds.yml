@@ -17,4 +17,4 @@ jobs:
       - name: Run build in DevkitARM container
         uses: docker://devkitpro/devkitarm:20200730
         with:
-          entrypoint: cd /github/workspace/platform-3ds && mkdir cmake-build-3ds && cd cmake-build-3ds && cmake .. && make
+          entrypoint: ./.github/workflows/scripts/build-3ds.sh
