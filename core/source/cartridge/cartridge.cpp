@@ -83,7 +83,9 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
     size_t length = file.tellg();
     file.seekg(0, std::ios::beg);
 
+#ifdef FB_DEBUG
     std::cout << "Seeked a length of " << length << std::endl;
+#endif
 
     size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4096K);
     if (length > maxRomSize) {
@@ -105,10 +107,13 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
 
     auto *header = reinterpret_cast<ROMHeader*>(romBytes.get());
 
-    std::cout << "ROM title: " << header->title << std::endl;
-
     auto romSizeType = static_cast<ROMSize>(header->romSize);
+
+#ifdef FB_DEBUG
+    std::cout << "ROM title: " << header->title << std::endl;
     std::cout << "ROM size type: " << romSizeType << std::endl;
+    std::cout << "RAM size: " << getCartridgeRamSize(header->ramSize) << " KB" << std::endl;
+#endif
 
     size_t romFlagInBytes = romSizeInBytes(romSizeType);
     if (romFlagInBytes == 0) {

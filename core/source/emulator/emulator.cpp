@@ -55,6 +55,7 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 
     cpu->setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
 
+#ifdef FB_DEBUG
     fprintf(stdout, "Cartridge type: 0x%02X\n", header->cartridgeType);
 
     std::cout << "Nintendo logo:" << std::endl;
@@ -67,6 +68,7 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
         ss << " ";
     }
     std::cout << ss.str() << std::endl;
+#endif
 
     savePath = romPath;
     savePath.replace_extension(".sav");
