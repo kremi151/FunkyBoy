@@ -63,6 +63,8 @@ int main(int argc, char **argv) {
         std::this_thread::sleep_until(next_frame);
     }
 
+    fbWindow.deinit();
+
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyTexture(frameBuffer);

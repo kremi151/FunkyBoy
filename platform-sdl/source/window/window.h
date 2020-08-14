@@ -36,6 +36,7 @@ namespace FunkyBoy::SDL {
 
         bool init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv);
         void update(SDL_Window *window);
+        void deinit();
 
         fb_inline bool hasUserRequestedExit();
     };

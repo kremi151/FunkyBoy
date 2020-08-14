@@ -44,6 +44,8 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     if (status == CartridgeStatus::Loaded) {
         std::cout << "Loaded ROM at " << romPath << std::endl;
 
+        emulator.loadCartridgeRamFromFS();
+
         std::string title = reinterpret_cast<const char*>(emulator.getCartridge().getHeader()->title);
         title += " - " FB_NAME;
         SDL_SetWindowTitle(window, title.c_str());
@@ -59,6 +61,10 @@ void Window::update(SDL_Window *window) {
         // Poll keyboard inputs once per frame
         SDL_PollEvent(&sdlEvents);
     }
+}
+
+void Window::deinit() {
+    emulator.writeCartridgeRamToFS();
 }
 
 fb_inline bool Window::hasUserRequestedExit() {
