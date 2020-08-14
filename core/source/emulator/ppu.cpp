@@ -211,7 +211,9 @@ void PPU::renderScanline(u8 ly) {
                         colorIndex = (tileLine >> (15 - (xOnObj & 7u))) & 1u;
                         colorIndex |= ((tileLine >> (7 - (xOnObj & 7u))) & 1u) << 1;
                     }
-                    scanLineBuffer[x] = (palette >> (colorIndex * 2u)) & 3u;
+                    if (colorIndex) {
+                        scanLineBuffer[x] = (palette >> (colorIndex * 2u)) & 3u;
+                    }
                 }
             }
         }
