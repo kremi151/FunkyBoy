@@ -18,3 +18,8 @@ jobs:
         uses: docker://devkitpro/devkitarm:20200730
         with:
           entrypoint: ./.github/workflows/scripts/build-3ds.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: FunkyBoy-3DS
+          path: "${{ github.workspace }}/platform-3ds/cmake-build/fb_3ds.3dsx"
