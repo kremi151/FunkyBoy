@@ -1,16 +1,12 @@
 #!/bin/sh
 
-tmp_dir=$(mktemp -d -t ci-XXXXXXXXXX)
-
 echo "Upgrade to newer CMake"
-sudo apt-get purge cmake
-cd $tmp_dir
-wget https://github.com/Kitware/CMake/releases/download/v3.18.1/cmake-3.18.1.tar.gz
-tar -xzvf cmake-3.18.1.tar.gz
-cd cmake-3.18.1
-./bootstrap
-make -j4
-sudo make install
+new_cmake_dir="$HOME/tmp_cmake"
+mkdir $new_cmake_dir
+cd $new_cmake_dir
+wget https://cmake.org/files/v3.18/cmake-3.18.1-Linux-x86_64.tar.gz
+tar -xzvf cmake-3.18.1-Linux-x86_64.tar.gz
+export PATH="$new_cmake_dir/cmake-3.18.1-Linux-x86_64/bin:$PATH"
 
 echo "Test CMake installation"
 cd ~
