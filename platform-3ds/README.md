@@ -20,3 +20,9 @@ Follow the [official Tutorial](https://devkitpro.org/wiki/Getting_Started)
 mkdir -p cmake-build && cd cmake-build
 cmake .. && make
 ```
+
+## How to use
+
+This is a very bare bone port of FunkyBoy, there is so far no GUI that allows you to pick ROMs. \
+FunkyBoy looks for a ROM, relatively to the folder where the `.3dsx` binary lives, at `./funkyboy3DS/game.gb`. \
+If a ROM has been found at that location, it gets loaded at the startup of FunkyBoy.
