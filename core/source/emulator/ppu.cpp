@@ -130,7 +130,7 @@ ret_code PPU::doClocks(u8 clocks) {
 }
 
 void PPU::renderScanline(u8 ly) {
-    const u8 lcdc = memory->read8BitsAt(FB_REG_LCDC);
+    const u8 &lcdc = ioRegisters.getLCDC();
     const memory_address tileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
     const bool objEnabled = __fb_lcdc_objEnabled(lcdc);
@@ -144,15 +144,15 @@ void PPU::renderScanline(u8 ly) {
     u8 palette;
     u8 colorIndex;
     if (bgEnabled) {
-        const u8 scx = memory->read8BitsAt(FB_REG_SCX);
-        const u8 scy = memory->read8BitsAt(FB_REG_SCY);
+        const u8 &scx = ioRegisters.getSCX();
+        const u8 &scy = ioRegisters.getSCY();
         y = ly + scy;
         tileOffsetX = scx / 8;
         xInTile = scx % 8;
         yInTile = y % 8;
         memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
         tileMapAddr += ((y & 255u) / 8) * 32;
-        palette = memory->read8BitsAt(FB_REG_BGP);
+        palette = ioRegisters.getBGP();
         tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
         for (u8 scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
             tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
@@ -167,8 +167,8 @@ void PPU::renderScanline(u8 ly) {
         }
     }
     if (objEnabled) {
-        const u8 objPalette0 = memory->read8BitsAt(FB_REG_OBP0);
-        const u8 objPalette1 = memory->read8BitsAt(FB_REG_OBP1);
+        const u8 objPalette0 = ioRegisters.getOBP0();
+        const u8 objPalette1 = ioRegisters.getOBP1();
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
         memory_address objAddr = 0xFE00;
         u8 objY, objX, objFlags;
@@ -219,16 +219,16 @@ void PPU::renderScanline(u8 ly) {
         }
     }
     if (windowEnabled) {
-        u8 wy = memory->read8BitsAt(FB_REG_WY);
+        const u8 wy = ioRegisters.getWY();
         if (ly >= wy) {
             y = ly - wy;
             yInTile = y % 8;
             xInTile = 0;
             tileOffsetX = 0;
-            u8 wx = memory->read8BitsAt(FB_REG_WX) - 7;
+            const u8 wx = ioRegisters.getWX() - 7;
             memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
             tileMapAddr += ((y & 255u) / 8) * 32;
-            palette = memory->read8BitsAt(FB_REG_BGP);
+            palette = ioRegisters.getBGP();
             tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
             for (u8 scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
                 tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));

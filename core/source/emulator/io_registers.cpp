@@ -21,8 +21,16 @@ using namespace FunkyBoy;
 #define FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
 #define FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
 #define FB_REG_OFFSET_IF (FB_REG_IF - 0xFF00)
+#define FB_REG_OFFSET_LCDC (FB_REG_LCDC - 0xFF00)
 #define FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
+#define FB_REG_OFFSET_SCY (FB_REG_SCY - 0xFF00)
+#define FB_REG_OFFSET_SCX (FB_REG_SCX - 0xFF00)
 #define FB_REG_OFFSET_LY (FB_REG_LY - 0xFF00)
+#define FB_REG_OFFSET_BGP (FB_REG_BGP - 0xFF00)
+#define FB_REG_OFFSET_OBP0 (FB_REG_OBP0 - 0xFF00)
+#define FB_REG_OFFSET_OBP1 (FB_REG_OBP1 - 0xFF00)
+#define FB_REG_OFFSET_WY (FB_REG_WY - 0xFF00)
+#define FB_REG_OFFSET_WX (FB_REG_WX - 0xFF00)
 
 io_registers::io_registers(const io_registers &registers)
     : sys_counter_lsb(registers.sys_counter_lsb)
@@ -160,4 +168,36 @@ u8 &io_registers::getP1() {
 
 u8 &io_registers::getIF() {
     return *(hwIO + FB_REG_OFFSET_IF);
+}
+
+u8 &io_registers::getLCDC() {
+    return *(hwIO + FB_REG_OFFSET_LCDC);
+}
+
+u8 &io_registers::getSCX() {
+    return *(hwIO + FB_REG_OFFSET_SCX);
+}
+
+u8 &io_registers::getSCY() {
+    return *(hwIO + FB_REG_OFFSET_SCY);
+}
+
+u8 &io_registers::getBGP() {
+    return *(hwIO + FB_REG_OFFSET_BGP);
+}
+
+u8 &io_registers::getOBP0() {
+    return *(hwIO + FB_REG_OFFSET_OBP0);
+}
+
+u8 &io_registers::getOBP1() {
+    return *(hwIO + FB_REG_OFFSET_OBP1);
+}
+
+u8 &io_registers::getWX() {
+    return *(hwIO + FB_REG_OFFSET_WX);
+}
+
+u8 &io_registers::getWY() {
+    return *(hwIO + FB_REG_OFFSET_WY);
 }

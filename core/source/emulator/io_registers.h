@@ -74,6 +74,14 @@ namespace FunkyBoy {
 
         u8 &getP1();
         u8 &getIF();
+        u8 &getLCDC();
+        u8 &getSCX();
+        u8 &getSCY();
+        u8 &getBGP();
+        u8 &getOBP0();
+        u8 &getOBP1();
+        u8 &getWY();
+        u8 &getWX();
 
         friend class CPU;
     };
