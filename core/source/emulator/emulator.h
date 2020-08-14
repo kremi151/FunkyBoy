@@ -33,6 +33,8 @@
 namespace FunkyBoy {
 
     class Emulator {
+    private:
+        fs::path savePath;
     test_public:
         CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
@@ -46,6 +48,9 @@ namespace FunkyBoy {
         Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);
 
         CartridgeStatus loadGame(const fs::path &romPath);
+        void loadCartridgeRamFromFS();
+        void writeCartridgeRamToFS();
+
         Cartridge &getCartridge();
 
         ret_code doTick();

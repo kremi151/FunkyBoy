@@ -51,6 +51,24 @@ bool hasCartridgeRam(u8 cartridgeType) {
     }
 }
 
+size_t getCartridgeRamSize(u8 ramSizeType) {
+    auto type = static_cast<CartridgeRAMSize>(ramSizeType);
+    switch (type) {
+        case CartridgeRAMSize::CRAM_2KB:
+            return 2048;
+        case CartridgeRAMSize::CRAM_8KB:
+            return 8192;
+        case CartridgeRAMSize::CRAM_32KB:
+            return 32768;
+        case CartridgeRAMSize::CRAM_64KB:
+            return 65536;
+        case CartridgeRAMSize::CRAM_128KB:
+            return 131072;
+        default:
+            return 0;
+    }
+}
+
 void Cartridge::loadROM(std::ifstream &file) {
     loadROM(file, false);
 }
@@ -65,7 +83,9 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
     size_t length = file.tellg();
     file.seekg(0, std::ios::beg);
 
+#ifdef FB_DEBUG
     std::cout << "Seeked a length of " << length << std::endl;
+#endif
 
     size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4096K);
     if (length > maxRomSize) {
@@ -87,10 +107,13 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
 
     auto *header = reinterpret_cast<ROMHeader*>(romBytes.get());
 
-    std::cout << "ROM title: " << header->title << std::endl;
-
     auto romSizeType = static_cast<ROMSize>(header->romSize);
+
+#ifdef FB_DEBUG
+    std::cout << "ROM title: " << header->title << std::endl;
     std::cout << "ROM size type: " << romSizeType << std::endl;
+    std::cout << "RAM size: " << getCartridgeRamSize(header->ramSize) << " KB" << std::endl;
+#endif
 
     size_t romFlagInBytes = romSizeInBytes(romSizeType);
     if (romFlagInBytes == 0) {
@@ -154,6 +177,22 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
     romSize = length;
 
     status = CartridgeStatus::Loaded;
+}
+
+void Cartridge::loadRamFromFS(std::ifstream &file) {
+    auto ramSize = getCartridgeRamSize(getHeader()->ramSize);
+    if (ramSize == 0) {
+        return;
+    }
+    file.read(static_cast<char*>(static_cast<void*>(ram)), ramSize);
+}
+
+void Cartridge::writeRamToFS(std::ofstream &file) {
+    auto ramSize = getCartridgeRamSize(getHeader()->ramSize);
+    if (ramSize == 0) {
+        return;
+    }
+    file.write(static_cast<char*>(static_cast<void*>(ram)), ramSize);
 }
 
 const ROMHeader * Cartridge::getHeader() {
