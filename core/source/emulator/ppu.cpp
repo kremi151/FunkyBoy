@@ -19,19 +19,21 @@
 #include <util/return_codes.h>
 #include <emulator/io_registers.h>
 
-#define FB_TILE_DATA_OBJ 0x8000
+// Lower tile set lives at 0x8000 in memory
+#define FB_TILE_DATA_LOWER 0x0000
 
-// Should be 0x8800, but as tiles are numbered from -127 to 128, we take 0x9000 as the offset
-#define FB_TILE_DATA_UPPER 0x9000
+// Lower tile set lives at 0x8800 in memory.
+// As tiles are numbered from -127 to 128, we take 0x9000 as the offset.
+#define FB_TILE_DATA_UPPER 0x1000
 
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
 // Differences here are 1023
-#define __fb_lcdc_windowTileMapDisplaySelect(lcdc) ((lcdc & 0b01000000u) ? 0x9C00 : 0x9800)
+#define __fb_lcdc_windowTileMapDisplaySelect(lcdc) ((lcdc & 0b01000000u) ? 0x1C00 : 0x1800)
 #define __fb_lcdc_isWindowEnabled(lcdc) (lcdc & 0b00100000u)
 // Differences here are 4095
-#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? FB_TILE_DATA_OBJ : FB_TILE_DATA_UPPER)
+#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? FB_TILE_DATA_LOWER : FB_TILE_DATA_UPPER)
 // Differences here are 1023
-#define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x9C00 : 0x9800)
+#define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x1C00 : 0x1800)
 // Returns the height of objects (16 or 8), width is always 8
 #define __fb_lcdc_objSpriteSize(lcdc) ((lcdc & 0b00000100u) ? 16 : 8)
 #define __fb_lcdc_objEnabled(lcdc) (lcdc & 0b00000010u)
@@ -39,9 +41,8 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
-    : memory(std::move(memory))
-    , cpu(std::move(cpu))
+PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+    : cpu(std::move(cpu))
     , controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
@@ -155,17 +156,17 @@ void PPU::renderScanline(u8 ly) {
         memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
         tileMapAddr += ((y & 255u) / 8) * 32;
         palette = ioRegisters.getBGP();
-        tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
+        tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
         u8 &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
-            tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
+            tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + (tile * 16) + (yInTile * 2));
             colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
             colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
             scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
             if (++xInTile >= 8) {
                 xInTile = 0;
                 tileOffsetX = (tileOffsetX + 1) & 31;
-                tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
+                tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
             }
         }
     } else {
@@ -179,16 +180,16 @@ void PPU::renderScanline(u8 ly) {
         const u8 objPalette0 = ioRegisters.getOBP0();
         const u8 objPalette1 = ioRegisters.getOBP1();
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
-        memory_address objAddr = 0xFE00;
+        memory_address objAddr = 0x0000; // 0x0000 ~> 0xFE00 (start of OAM)
         u8 objY, objX, objFlags;
         bool hide, flipX, flipY;
         u8 yInObj;
         u8 &objIdx = it; // alias for it
         for (objIdx = 0 ; objIdx < 40 ; objIdx++) {
-            objY = memory->read8BitsAt(objAddr++) - 16;
-            objX = memory->read8BitsAt(objAddr++);
-            tile = memory->read8BitsAt(objAddr++);
-            objFlags = memory->read8BitsAt(objAddr++);
+            objY = ppuMemory.getOAMByte(objAddr++) - 16;
+            objX = ppuMemory.getOAMByte(objAddr++);
+            tile = ppuMemory.getOAMByte(objAddr++);
+            objFlags = ppuMemory.getOAMByte(objAddr++);
             if (ly < objY || ly >= objY + objHeight) {
                 continue;
             }
@@ -206,7 +207,7 @@ void PPU::renderScanline(u8 ly) {
                 // In 8x16 mode, the least significant bit of the tile number is treated as '0'
                 tile &= 0b11111110u;
             }
-            tileLine = memory->read16BitsAt(FB_TILE_DATA_OBJ + (tile * 16) + (yInObj * 2));
+            tileLine = ppuMemory.readVRAM16Bits(FB_TILE_DATA_LOWER + (tile * 16) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
                 u8 x = objX + xOnObj - 8;
                 if (x >= FB_GB_DISPLAY_WIDTH) {
@@ -239,17 +240,17 @@ void PPU::renderScanline(u8 ly) {
             memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
             tileMapAddr += ((y & 255u) / 8) * 32;
             palette = ioRegisters.getBGP();
-            tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
+            tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
             u8 &scanLineX = it; // alias for it
             for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
-                tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
+                tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + (tile * 16) + (yInTile * 2));
                 colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
                 colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
                 scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
                 if (++xInTile >= 8) {
                     xInTile = 0;
                     tileOffsetX = (tileOffsetX + 1) & 31;
-                    tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
+                    tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
                 }
             }
         }

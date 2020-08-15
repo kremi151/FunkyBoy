@@ -16,6 +16,8 @@
 
 #include "ppu_memory.h"
 
+#include <util/endianness.h>
+
 using namespace FunkyBoy;
 
 PPUMemory::PPUMemory()
@@ -43,6 +45,10 @@ PPUMemory::~PPUMemory() {
 
 u8 &PPUMemory::getVRAMByte(memory_address vramOffset) {
     return *(vram + vramOffset);
+}
+
+u16 PPUMemory::readVRAM16Bits(memory_address vramOffset) {
+    return Util::compose16Bits(*(vram + vramOffset), *(vram + vramOffset + 1));
 }
 
 u8 &PPUMemory::getOAMByte(memory_address oamOffset) {

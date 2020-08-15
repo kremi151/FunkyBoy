@@ -17,7 +17,6 @@
 #ifndef FB_CORE_PPU_H
 #define FB_CORE_PPU_H
 
-#include <memory/memory.h>
 #include <controllers/controllers.h>
 #include <emulator/cpu.h>
 #include <emulator/io_registers.h>
@@ -29,7 +28,6 @@ namespace FunkyBoy {
 
     class PPU {
     private:
-        MemoryPtr memory;
         CPUPtr cpu;
         Controller::ControllersPtr controllers;
         io_registers ioRegisters;
@@ -43,7 +41,7 @@ namespace FunkyBoy {
 
         void renderScanline(u8 ly);
     public:
-        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
+        PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~PPU();
 
         ret_code doClocks(u8 clocks);

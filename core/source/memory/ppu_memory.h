@@ -34,6 +34,8 @@ namespace FunkyBoy {
         PPUMemory &operator=(const PPUMemory &other) = delete;
 
         u8 &getVRAMByte(memory_address vramOffset);
+        u16 readVRAM16Bits(memory_address vramOffset);
+
         u8 &getOAMByte(memory_address oamOffset);
     };
 
