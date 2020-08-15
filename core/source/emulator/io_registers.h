@@ -77,6 +77,7 @@ namespace FunkyBoy {
         u8 &getLCDC();
         u8 &getSCX();
         u8 &getSCY();
+        u8 &getLY();
         u8 &getBGP();
         u8 &getOBP0();
         u8 &getOBP1();

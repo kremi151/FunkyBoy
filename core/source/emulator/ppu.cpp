@@ -69,14 +69,14 @@ ret_code PPU::doClocks(u8 clocks) {
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
     // See http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (pages 22-27)
 
-    auto lcdc = memory->read8BitsAt(FB_REG_LCDC);
+    auto lcdc = ioRegisters.getLCDC();
     if (!__fb_lcdc_isOn(lcdc)) {
         ioRegisters.updateLCD(false, gpuMode /* TODO: Correct* */, 0x00);
         return FB_RET_SUCCESS; // TODO: Correct?
     }
 
     ret_code result = FB_RET_SUCCESS;
-    auto ly = memory->read8BitsAt(FB_REG_LY);
+    auto ly = ioRegisters.getLY();
 
     modeClocks += clocks;
     switch (gpuMode) {

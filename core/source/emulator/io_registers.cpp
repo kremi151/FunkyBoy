@@ -182,6 +182,10 @@ u8 &io_registers::getSCY() {
     return *(hwIO + FB_REG_OFFSET_SCY);
 }
 
+u8 &io_registers::getLY() {
+    return *(hwIO + FB_REG_OFFSET_LY);
+}
+
 u8 &io_registers::getBGP() {
     return *(hwIO + FB_REG_OFFSET_BGP);
 }
