@@ -23,6 +23,8 @@ using namespace FunkyBoy;
 PPUMemory::PPUMemory()
     : vram(new u8[8192]{})
     , oam(new u8[160]{})
+    , vramAccessible(new bool(true))
+    , oamAccessible(new bool(true))
     , ptrCounter(new u16(1))
 {
 }
@@ -30,6 +32,8 @@ PPUMemory::PPUMemory()
 PPUMemory::PPUMemory(const PPUMemory &other)
     : vram(other.vram)
     , oam(other.oam)
+    , vramAccessible(other.vramAccessible)
+    , oamAccessible(other.oamAccessible)
     , ptrCounter(other.ptrCounter)
 {
     (*ptrCounter)++;
@@ -39,6 +43,8 @@ PPUMemory::~PPUMemory() {
     if (--(*ptrCounter) < 1) {
         delete[] vram;
         delete[] oam;
+        delete vramAccessible;
+        delete oamAccessible;
         delete ptrCounter;
     }
 }
@@ -51,6 +57,19 @@ u16 PPUMemory::readVRAM16Bits(memory_address vramOffset) {
     return Util::compose16Bits(*(vram + vramOffset), *(vram + vramOffset + 1));
 }
 
+bool PPUMemory::isVRAMAccessibleFromMMU() const {
+    return *vramAccessible;
+}
+
 u8 &PPUMemory::getOAMByte(memory_address oamOffset) {
     return *(oam + oamOffset);
+}
+
+bool PPUMemory::isOAMAccessibleFromMMU() const {
+    return *oamAccessible;
+}
+
+void PPUMemory::setAccessibilityFromMMU(bool accessVram, bool accessOam) {
+    *vramAccessible = accessVram;
+    *oamAccessible = accessOam;
 }

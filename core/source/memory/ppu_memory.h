@@ -25,6 +25,8 @@ namespace FunkyBoy {
     private:
         u8 *vram;
         u8 *oam;
+        bool *vramAccessible;
+        bool *oamAccessible;
         u16 *ptrCounter;
     public:
         PPUMemory();
@@ -35,8 +37,12 @@ namespace FunkyBoy {
 
         u8 &getVRAMByte(memory_address vramOffset);
         u16 readVRAM16Bits(memory_address vramOffset);
+        [[nodiscard]] bool isVRAMAccessibleFromMMU() const;
 
         u8 &getOAMByte(memory_address oamOffset);
+        [[nodiscard]] bool isOAMAccessibleFromMMU() const;
+
+        void setAccessibilityFromMMU(bool accessVram, bool accessOam);
     };
 
 }

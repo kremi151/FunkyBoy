@@ -50,6 +50,10 @@ PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers&
     , modeClocks(0)
     , scanLineBuffer(new u8[FB_GB_DISPLAY_WIDTH])
 {
+    this->ppuMemory.setAccessibilityFromMMU(
+            this->gpuMode != GPUMode::GPUMode_3,
+            this->gpuMode != GPUMode::GPUMode_2 && this->gpuMode != GPUMode::GPUMode_3
+    );
 }
 
 PPU::~PPU() {
@@ -89,9 +93,11 @@ ret_code PPU::doClocks(u8 clocks) {
                     gpuMode = GPUMode::GPUMode_1;
                     controllers->getDisplay()->drawScreen();
                     cpu->requestInterrupt(InterruptType::VBLANK);
+                    ppuMemory.setAccessibilityFromMMU(true, true);
                     result |= FB_RET_NEW_FRAME;
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
+                    ppuMemory.setAccessibilityFromMMU(true, false);
                 }
             }
             break;
@@ -100,6 +106,7 @@ ret_code PPU::doClocks(u8 clocks) {
             if (modeClocks >= 4560) { // 10 scan lines
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_2;
+                ppuMemory.setAccessibilityFromMMU(true, false);
                 ly = 0;
             } else if (modeClocks % 204 == 0) {
                 ly++;
@@ -110,6 +117,7 @@ ret_code PPU::doClocks(u8 clocks) {
             if (modeClocks >= 80) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_3;
+                ppuMemory.setAccessibilityFromMMU(false, false);
             }
             break;
         }
@@ -117,6 +125,7 @@ ret_code PPU::doClocks(u8 clocks) {
             if (modeClocks >= 172) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_0;
+                ppuMemory.setAccessibilityFromMMU(true, true);
                 renderScanline(ly);
                 result |= FB_RET_NEW_SCANLINE;
             }

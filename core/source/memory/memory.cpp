@@ -62,7 +62,9 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
             return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
         FB_MEMORY_NIBBLE_RANGE(8):
         FB_MEMORY_NIBBLE_RANGE(9):
-            return &ppuMemory.getVRAMByte(offset - 0x8000);
+            return ppuMemory.isVRAMAccessibleFromMMU()
+                ? &ppuMemory.getVRAMByte(offset - 0x8000)
+                : nullptr;
         FB_MEMORY_NIBBLE_RANGE(A):
         FB_MEMORY_NIBBLE_RANGE(B):
             return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
@@ -77,10 +79,10 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         case 0xF7: case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD:
             return dynamicRamBank + (offset - 0xF000);
         case 0xFE: {
-            if (offset < 0xFEA0) {
+            if (ppuMemory.isOAMAccessibleFromMMU() && offset < 0xFEA0) {
                 return &ppuMemory.getOAMByte(offset - 0xFE00);
             } else {
-                // Not usable
+                // Not usable or OAM is not accessible right now
                 return nullptr;
             }
         }
