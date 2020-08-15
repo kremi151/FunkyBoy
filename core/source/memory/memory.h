@@ -21,6 +21,7 @@
 #include <cartridge/cartridge.h>
 #include <controllers/controllers.h>
 #include <emulator/io_registers.h>
+#include <memory/ppu_memory.h>
 
 namespace FunkyBoy {
 
@@ -29,12 +30,9 @@ namespace FunkyBoy {
         CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
         io_registers ioRegisters;
+        PPUMemory ppuMemory;
 
-        u8 *vram; // Character RAM
-        u8 *bgMapData1;
-        u8 *bgMapData2;
         u8 *internalRam;
-        u8 *oam;
         u8 *hram;
         u8 interruptEnableRegister;
 
@@ -49,7 +47,7 @@ namespace FunkyBoy {
         bool interceptWrite(memory_address offset, u8 &val);
         bool interceptReadAt(memory_address offset, u8 *out);
     public:
-        Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters);
+        Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~Memory();
 
         Memory(const Memory &other) = delete;

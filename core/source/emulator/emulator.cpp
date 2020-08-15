@@ -30,9 +30,10 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     : cartridge(new Cartridge)
     , controllers(controllers)
     , ioRegisters(controllers)
-    , memory(new Memory(cartridge, controllers, ioRegisters))
+    , ppuMemory()
+    , memory(new Memory(cartridge, controllers, ioRegisters, ppuMemory))
     , cpu(std::make_shared<CPU>(gbType, memory, ioRegisters))
-    , ppu(memory, cpu, controllers, ioRegisters)
+    , ppu(memory, cpu, controllers, ioRegisters, ppuMemory)
 {
 }
 

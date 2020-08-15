@@ -46,7 +46,8 @@ FunkyBoy::MemoryPtr createMemory() {
     auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
     FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::io_registers io(controllers);
-    return std::make_shared<FunkyBoy::Memory>(cartridge, controllers, io);
+    FunkyBoy::PPUMemory ppuMemory;
+    return std::make_shared<FunkyBoy::Memory>(cartridge, controllers, io, ppuMemory);
 }
 
 TEST(test16BitReadWrite) {

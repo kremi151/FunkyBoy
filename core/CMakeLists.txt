@@ -24,6 +24,7 @@ set(SOURCES
         source/memory/memory.cpp
         source/memory/mbc1.cpp
         source/memory/mbc_none.cpp
+        source/memory/ppu_memory.cpp
         source/instructions/instruction_context.cpp
         source/instructions/alu.cpp
         source/instructions/loads.cpp
@@ -65,6 +66,7 @@ set(HEADERS
         source/memory/mbc.h
         source/memory/mbc1.h
         source/memory/mbc_none.h
+        source/memory/ppu_memory.h
         source/instructions/instruction_context.h
         source/instructions/alu.h
         source/instructions/loads.h

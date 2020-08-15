@@ -21,6 +21,7 @@
 #include <controllers/controllers.h>
 #include <emulator/cpu.h>
 #include <emulator/io_registers.h>
+#include <memory/ppu_memory.h>
 #include <util/gpumode.h>
 #include <util/typedefs.h>
 
@@ -32,6 +33,7 @@ namespace FunkyBoy {
         CPUPtr cpu;
         Controller::ControllersPtr controllers;
         io_registers ioRegisters;
+        PPUMemory ppuMemory;
 
         GPUMode gpuMode;
 
@@ -41,7 +43,7 @@ namespace FunkyBoy {
 
         void renderScanline(u8 ly);
     public:
-        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters);
+        PPU(MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~PPU();
 
         ret_code doClocks(u8 clocks);

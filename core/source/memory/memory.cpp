@@ -25,29 +25,22 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters)
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
     : cartridge(std::move(cartridge))
     , controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
+    , ppuMemory(ppuMemory)
     , interruptEnableRegister(0)
     , dmaStarted(false)
 {
-    vram = new u8[6144]{};
-    bgMapData1 = new u8[1024]{};
-    bgMapData2 = new u8[1024]{};
     internalRam = new u8[8 * FB_INTERNAL_RAM_BANK_SIZE]{};
-    oam = new u8[160]{};
     hram = new u8[127]{};
 
     dynamicRamBank = internalRam + FB_INTERNAL_RAM_BANK_SIZE;
 }
 
 Memory::~Memory() {
-    delete[] vram;
-    delete[] bgMapData1;
-    delete[] bgMapData2;
     delete[] internalRam;
-    delete[] oam;
     delete[] hram;
 }
 
@@ -68,12 +61,8 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
         FB_MEMORY_NIBBLE_RANGE(7):
             return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
         FB_MEMORY_NIBBLE_RANGE(8):
-        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x96: case 0x97:
-            return vram + (offset - 0x8000);
-        case 0x98: case 0x99: case 0x9A: case 0x9B:
-            return bgMapData1 + (offset - 0x9800);
-        case 0x9C: case 0x9D: case 0x9E: case 0x9F:
-            return bgMapData2 + (offset - 0x9C00);
+        FB_MEMORY_NIBBLE_RANGE(9):
+            return &ppuMemory.getVRAMByte(offset - 0x8000);
         FB_MEMORY_NIBBLE_RANGE(A):
         FB_MEMORY_NIBBLE_RANGE(B):
             return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
@@ -89,7 +78,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
             return dynamicRamBank + (offset - 0xF000);
         case 0xFE: {
             if (offset < 0xFEA0) {
-                return oam + (offset - 0xFE00);
+                return &ppuMemory.getOAMByte(offset - 0xFE00);
             } else {
                 // Not usable
                 return nullptr;
@@ -233,7 +222,7 @@ void Memory::doDMA() {
     if (!dmaStarted) {
         return;
     }
-    *(oam + dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
+    ppuMemory.getOAMByte(dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
     if (++dmaLsb > 0x9F) {
         dmaStarted = false;
     }

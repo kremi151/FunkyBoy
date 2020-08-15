@@ -28,6 +28,7 @@
 #include <cartridge/cartridge.h>
 #include <controllers/controllers.h>
 #include <memory/memory.h>
+#include <memory/ppu_memory.h>
 #include <memory>
 
 namespace FunkyBoy {
@@ -40,6 +41,7 @@ namespace FunkyBoy {
         Controller::ControllersPtr controllers;
 
         io_registers ioRegisters;
+        PPUMemory ppuMemory;
         MemoryPtr memory;
         CPUPtr cpu;
         PPU ppu;

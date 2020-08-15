@@ -39,11 +39,12 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters)
+PPU::PPU(FunkyBoy::MemoryPtr memory, CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
     : memory(std::move(memory))
     , cpu(std::move(cpu))
     , controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
+    , ppuMemory(ppuMemory)
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
     , scanLineBuffer(new u8[FB_GB_DISPLAY_WIDTH])
