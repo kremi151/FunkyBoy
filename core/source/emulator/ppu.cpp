@@ -143,6 +143,7 @@ void PPU::renderScanline(u8 ly) {
     u16 tileLine;
     u8 palette;
     u8 colorIndex;
+    u8 it;
     if (bgEnabled) {
         const u8 &scx = ioRegisters.getSCX();
         const u8 &scy = ioRegisters.getSCY();
@@ -154,7 +155,8 @@ void PPU::renderScanline(u8 ly) {
         tileMapAddr += ((y & 255u) / 8) * 32;
         palette = ioRegisters.getBGP();
         tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
-        for (u8 scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
+        u8 &scanLineX = it; // alias for it
+        for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
             tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
             colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
             colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
@@ -165,6 +167,12 @@ void PPU::renderScanline(u8 ly) {
                 tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
             }
         }
+    } else {
+        // Clear scan line buffer
+        u8 &scanLineX = it; // alias for it
+        for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
+            scanLineBuffer[scanLineX] = 0;
+        }
     }
     if (objEnabled) {
         const u8 objPalette0 = ioRegisters.getOBP0();
@@ -174,7 +182,8 @@ void PPU::renderScanline(u8 ly) {
         u8 objY, objX, objFlags;
         bool hide, flipX, flipY;
         u8 yInObj;
-        for (u8 objIdx = 0 ; objIdx < 40 ; objIdx++) {
+        u8 &objIdx = it; // alias for it
+        for (objIdx = 0 ; objIdx < 40 ; objIdx++) {
             objY = memory->read8BitsAt(objAddr++) - 16;
             objX = memory->read8BitsAt(objAddr++);
             tile = memory->read8BitsAt(objAddr++);
@@ -230,7 +239,8 @@ void PPU::renderScanline(u8 ly) {
             tileMapAddr += ((y & 255u) / 8) * 32;
             palette = ioRegisters.getBGP();
             tile = memory->read8BitsAt(tileMapAddr + tileOffsetX);
-            for (u8 scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
+            u8 &scanLineX = it; // alias for it
+            for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
                 tileLine = memory->read16BitsAt(tileSetAddr + (tile * 16) + (yInTile * 2));
                 colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
                 colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
