@@ -54,7 +54,9 @@ bool Operands::load_SP_nn(InstrContext &context, Memory &memory) {
 }
 
 bool Operands::load_nn_SP(InstrContext &context, Memory &memory) {
-    memory.write16BitsTo(Util::compose16Bits(context.lsb, context.msb), context.stackPointer);
+    memory_address address = Util::compose16Bits(context.lsb, context.msb);
+    memory.write8BitsTo(address, context.stackPointer & 0xffu);
+    memory.write8BitsTo(address + 1, (context.stackPointer >> 8) & 0xffu);
     return true;
 }
 

@@ -24,7 +24,6 @@
 #include <memory>
 #include <emulator/emulator.h>
 #include <controllers/controllers.h>
-#include <fstream>
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
     cpu.instructionCompleted = false;
@@ -48,18 +47,6 @@ FunkyBoy::MemoryPtr createMemory() {
     FunkyBoy::io_registers io(controllers);
     FunkyBoy::PPUMemory ppuMemory;
     return std::make_shared<FunkyBoy::Memory>(cartridge, controllers, io, ppuMemory);
-}
-
-TEST(test16BitReadWrite) {
-    auto memory = createMemory();
-
-    memory->write16BitsTo(0xC000, 0x12, 0x34);
-    int val = memory->read16BitsAt(0xC000);
-    assertEquals(0x1234, val);
-
-    memory->write16BitsTo(0xC002, 0x1234);
-    val = memory->read16BitsAt(0xC002);
-    assertEquals(0x1234, val);
 }
 
 TEST(testEchoRAM) {

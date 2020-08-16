@@ -57,11 +57,6 @@ namespace FunkyBoy {
         i8 readSigned8BitsAt(memory_address offset);
         void write8BitsTo(memory_address offset, u8 val);
 
-        u16 read16BitsAt(memory_address offset);
-
-        void write16BitsTo(memory_address offset, u16 val);
-        void write16BitsTo(memory_address offset, u8 msb, u8 lsb);
-
         fb_inline bool isDMA();
         void doDMA();
 

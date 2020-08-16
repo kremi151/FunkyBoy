@@ -186,36 +186,6 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
     *ptr = val;
 }
 
-u16 Memory::read16BitsAt(memory_address offset) {
-    u8 lsb, msb;
-    if (!interceptReadAt(offset, &lsb) || !interceptReadAt(offset + 1, &msb)) {
-#if defined(FB_DEBUG)
-        fprintf(stderr, "Illegal 16-bit read from 0x%04X\n", offset);
-#endif
-        return 0;
-    }
-    return (msb << 8) | lsb;
-}
-
-void Memory::write16BitsTo(memory_address offset, u16 val) {
-    write16BitsTo(offset, (val >> 8) & 0xff, val & 0xff);
-}
-
-void Memory::write16BitsTo(memory_address offset, u8 msb, u8 lsb) {
-    if (interceptWrite(offset, lsb)) {
-        return;
-    }
-    auto ptr = getMemoryAddress(offset);
-    if (ptr == nullptr) {
-#if defined(FB_DEBUG)
-        fprintf(stderr, "Illegal 16-bit write to 0x%04X\n", offset);
-#endif
-        return;
-    }
-    *ptr = lsb;
-    *(ptr+1) = msb;
-}
-
 fb_inline bool Memory::isDMA() {
     return dmaStarted;
 }
