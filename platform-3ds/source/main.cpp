@@ -25,6 +25,9 @@
 
 #define FB_3DS_ROM_PATH "funkyboy3DS/game.gb"
 
+// Un-comment to use New 3DS speed mode
+// #define __USE_N3DS_SPEED
+
 extern "C" {
 
     void pressAToExit() {
@@ -81,12 +84,14 @@ extern "C" {
         printf("This is a proof of concept :)\n");
         printf("\n");
 
+#ifdef __USE_N3DS_SPEED
         bool isNew3DS;
         APT_CheckNew3DS(&isNew3DS);
         osSetSpeedupEnable(true);
         if (!isNew3DS) {
-            printf("Running on old 3DS, brace yourself for very slow emulation\n");
+            printf("Running on old 3DS, brace yourself for slower emulation\n");
         }
+#endif
 
         if (!findSDCard()) {
             return 0;
