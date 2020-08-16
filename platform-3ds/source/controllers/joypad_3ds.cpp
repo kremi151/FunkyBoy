@@ -21,7 +21,7 @@
 using namespace FunkyBoy::Controller;
 
 bool JoypadController3DS::isKeyPressed(JoypadKey key) {
-    u32 kDown = hidKeysDown();
+    u32 kDown = hidKeysDown() | hidKeysHeld();
     switch (key) {
         case JoypadKey::JOYPAD_A:
             return kDown & KEY_A;
