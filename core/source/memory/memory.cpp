@@ -86,131 +86,128 @@ case 0xF7: case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD
 #define FB_MEMORY_HRAM_AND_IE \
 case 0xFF
 
-u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
+u8 Memory::read8BitsAt(memory_address offset) {
     switch ((offset >> 8) & 0xff) {
         FB_MEMORY_CARTRIDGE:
-            return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
+            return *cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
         FB_MEMORY_VRAM:
             return ppuMemory.isVRAMAccessibleFromMMU()
-                ? &ppuMemory.getVRAMByte(offset - 0x8000)
-                : nullptr;
+                   ? ppuMemory.getVRAMByte(offset - 0x8000)
+                   : 0xFF;
         FB_MEMORY_CARTRIDGE_RAM:
-            return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
+            return *cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
         FB_MEMORY_INTERNAL_RAM:
-            return internalRam + (offset - 0xC000);
+            return *(internalRam + (offset - 0xC000));
         FB_MEMORY_INTERNAL_RAM_DYNAMIC:
             // TODO: Make this switchable
-            return dynamicRamBank + (offset - 0xD000);
+            return *(dynamicRamBank + (offset - 0xD000));
         FB_MEMORY_ECHO_RAM:
-            return internalRam + (offset - 0xE000);
+            return *(internalRam + (offset - 0xE000));
         FB_MEMORY_ECHO_RAM_DYNAMIC:
-            return dynamicRamBank + (offset - 0xF000);
+            return *(dynamicRamBank + (offset - 0xF000));
         FB_MEMORY_OAM: {
-            if (ppuMemory.isOAMAccessibleFromMMU() && offset < 0xFEA0) {
-                return &ppuMemory.getOAMByte(offset - 0xFE00);
+            if (offset < 0xFEA0) {
+                return ppuMemory.isOAMAccessibleFromMMU()
+                    ? ppuMemory.getOAMByte(offset - 0xFE00)
+                    : 0xFF;
             } else {
-                // Not usable or OAM is not accessible right now
-                return nullptr;
+                // Not usable
+#if defined(FB_DEBUG)
+                fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
+#endif
+                return 0x00;
             }
         }
         FB_MEMORY_HRAM_AND_IE: {
             if (offset == FB_REG_IE) {
-                return &interruptEnableRegister;
+                return interruptEnableRegister;
             } else if (offset >= 0xFF80) {
-                return hram + (offset - 0xFF80);
+                return *(hram + (offset - 0xFF80));
             } else {
-                // Handled by interceptWrite and interceptReadAt
-                fprintf(stderr, "Attempting to get access to HWIO, this means that the developer has forked something up\n");
-                return nullptr;
+                return ioRegisters.handleMemoryRead(offset - 0xFF00);
             }
         }
         default:
-            fprintf(stderr, "Attempt to access unmapped memory at 0x%04X\n", offset);
-            return nullptr;
+            fprintf(stderr, "Attempt to read from unmapped memory at 0x%04X\n", offset);
+            return 0x00;
     }
-}
-
-u8 Memory::read8BitsAt(memory_address offset) {
-    u8 data;
-    if (!interceptReadAt(offset, &data)) {
-#if defined(FB_DEBUG)
-        fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
-#endif
-        return 0;
-    }
-    return data;
 }
 
 i8 Memory::readSigned8BitsAt(memory_address offset) {
-    u8 data;
-    if (!interceptReadAt(offset, &data)) {
-#if defined(FB_DEBUG)
-        fprintf(stderr, "Illegal 8-bit read from 0x%04X\n", offset);
-#endif
-        return 0;
-    }
-    u8 *uptr = &data;
-    auto vptr = static_cast<void*>(uptr);
+    u8 ubyte = read8BitsAt(offset);
+    auto vptr = static_cast<void*>(&ubyte);
     return *static_cast<i8*>(vptr);
 }
 
-bool Memory::interceptWrite(FunkyBoy::memory_address offset, FunkyBoy::u8 &val) {
-    if (offset <= 0x7FFF && cartridge->mbc->interceptWrite(offset, val)) {
-        // Writing to read-only area, so we let it intercept by the MBC
-        return true;
-    }
-    if ((offset & 0xFF00u) == 0xFF00u) {
-        switch (offset) {
-            case FB_REG_SC: {
-                if (val == 0x81) {
-                    controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
-                }
-                break;
-            }
-            case FB_REG_DMA: {
-                dmaStarted = true;
-                dmaMsb = val & 0xF1u;
-                dmaLsb = 0x00;
-                break;
-            }
-            default:
-                break;
-        }
-        if (offset < 0xFF80) {
-            // IO registers
-            ioRegisters.handleMemoryWrite(offset - 0xFF00u, val);
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Memory::interceptReadAt(FunkyBoy::memory_address offset, u8 *out) {
-    if (offset >= 0xFF00u && offset < 0xFF80) {
-        // IO registers
-        *out = ioRegisters.handleMemoryRead(offset - 0xFF00);
-        return true;
-    }
-    auto ptr = getMemoryAddress(offset);
-    if (ptr == nullptr) {
-        return false;
-    }
-    *out = *ptr;
-    return true;
-}
-
 void Memory::write8BitsTo(memory_address offset, u8 val) {
-    if (interceptWrite(offset, val)) {
-        return;
-    }
-    auto ptr = getMemoryAddress(offset);
-    if (ptr == nullptr) {
+    switch ((offset >> 8) & 0xff) {
+        FB_MEMORY_CARTRIDGE:
+            // Writing to read-only area, so we let it intercept by the MBC
+            cartridge->mbc->interceptWrite(offset, val);
+            break;
+        FB_MEMORY_VRAM: {
+            if (ppuMemory.isVRAMAccessibleFromMMU()) {
+                ppuMemory.getVRAMByte(offset - 0x8000) = val;
+            }
+            break;
+        }
+        FB_MEMORY_CARTRIDGE_RAM:
+            *cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram) = val;
+            break;
+        FB_MEMORY_INTERNAL_RAM:
+            *(internalRam + (offset - 0xC000)) = val;
+            break;
+        FB_MEMORY_INTERNAL_RAM_DYNAMIC:
+            // TODO: Make this switchable
+            *(dynamicRamBank + (offset - 0xD000)) = val;
+            break;
+        FB_MEMORY_ECHO_RAM:
+            *(internalRam + (offset - 0xE000)) = val;
+            break;
+        FB_MEMORY_ECHO_RAM_DYNAMIC:
+            *(dynamicRamBank + (offset - 0xF000)) = val;
+            break;
+        FB_MEMORY_OAM: {
+            if (offset < 0xFEA0) {
+                if (ppuMemory.isOAMAccessibleFromMMU()) {
+                    ppuMemory.getOAMByte(offset - 0xFE00) = val;
+                }
+            } else {
+                // Not usable
 #if defined(FB_DEBUG)
-        fprintf(stderr, "Illegal 8-bit write to 0x%04X => 0x%02X\n", offset, val);
+                fprintf(stderr, "Illegal 8-bit write to 0x%04X\n", offset);
 #endif
-        return;
+            }
+            break;
+        }
+        FB_MEMORY_HRAM_AND_IE: {
+            if (offset < 0xFF80) {
+                // IO registers
+
+                if (offset == FB_REG_SC) {
+                    if (val == 0x81) {
+                        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+                    }
+                } else if (offset == FB_REG_DMA) {
+                    dmaStarted = true;
+                    dmaMsb = val & 0xF1u;
+                    dmaLsb = 0x00;
+                }
+
+                ioRegisters.handleMemoryWrite(offset - 0xFF00u, val);
+            } else {
+                if (offset == FB_REG_IE) {
+                    interruptEnableRegister = val;
+                } else {
+                    *(hram + (offset - 0xFF80)) = val;
+                }
+            }
+            break;
+        }
+        default:
+            fprintf(stderr, "Attempt to write to unmapped memory at 0x%04X\n", offset);
+            break;
     }
-    *ptr = val;
 }
 
 fb_inline bool Memory::isDMA() {

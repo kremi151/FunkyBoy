@@ -41,11 +41,6 @@ namespace FunkyBoy {
 
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
-
-        u8 *getMemoryAddress(memory_address offset);
-
-        bool interceptWrite(memory_address offset, u8 &val);
-        bool interceptReadAt(memory_address offset, u8 *out);
     public:
         Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~Memory();
