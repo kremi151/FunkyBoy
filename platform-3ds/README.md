@@ -4,8 +4,8 @@
 
 This is the implementation of FunkyBoy for the Nintendo 3DS.
 
-This is more like a proof of concept of the porability of FunkyBoy. \
-The emulation is currently extremely slow (about ~10 FPS), mainly due to the fact that the code is not optimized enough for the 3DS' limited resources. \
+This is more like a proof of concept of the portability of FunkyBoy. \
+The emulation is currently quite slow (about ~30 instead of 60 FPS). \
 At a later stage of development, I might consider actively working on improving the emulator's performance on the 3DS.
 
 ## Build 
@@ -20,6 +20,9 @@ Follow the [official Tutorial](https://devkitpro.org/wiki/Getting_Started)
 mkdir -p cmake-build && cd cmake-build
 cmake .. && make
 ```
+
+The `CMakeLists.txt` file is configured to compile by default a `Release` binary for best performance during runtime.
+Please do not select a manual `CMAKE_BUILD_TYPE` of type `Debug` as that one will slow down emulation even more!
 
 ## How to use
 
