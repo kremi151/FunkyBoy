@@ -6,3 +6,9 @@
 ![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)
 
 A Gameboy emulator written in C++
+
+## Implementations
+
+* [SDL](https://github.com/kremi151/FunkyBoy/tree/master/platform-sdl) (Linux, macOS & Windows)
+* [Nintendo 3DS](https://github.com/kremi151/FunkyBoy/tree/master/platform-3ds)
+* [Tests](https://github.com/kremi151/FunkyBoy/tree/master/test)
