@@ -49,36 +49,63 @@ case 0x ## x ## 0: case 0x ## x ## 1: case 0x ## x ## 2: case 0x ## x ## 3: case
 case 0x ## x ## 6: case 0x ## x ## 7: case 0x ## x ## 8: case 0x ## x ## 9: case 0x ## x ## A: case 0x ## x ## B: \
 case 0x ## x ## C: case 0x ## x ## D: case 0x ## x ## E: case 0x ## x ## F
 
+#define FB_MEMORY_CARTRIDGE \
+FB_MEMORY_NIBBLE_RANGE(0): \
+FB_MEMORY_NIBBLE_RANGE(1): \
+FB_MEMORY_NIBBLE_RANGE(2): \
+FB_MEMORY_NIBBLE_RANGE(3): \
+FB_MEMORY_NIBBLE_RANGE(4): \
+FB_MEMORY_NIBBLE_RANGE(5): \
+FB_MEMORY_NIBBLE_RANGE(6): \
+FB_MEMORY_NIBBLE_RANGE(7)
+
+#define FB_MEMORY_VRAM \
+FB_MEMORY_NIBBLE_RANGE(8): \
+FB_MEMORY_NIBBLE_RANGE(9)
+
+#define FB_MEMORY_CARTRIDGE_RAM \
+FB_MEMORY_NIBBLE_RANGE(A): \
+FB_MEMORY_NIBBLE_RANGE(B)
+
+#define FB_MEMORY_INTERNAL_RAM \
+FB_MEMORY_NIBBLE_RANGE(C)
+
+#define FB_MEMORY_INTERNAL_RAM_DYNAMIC \
+FB_MEMORY_NIBBLE_RANGE(D)
+
+#define FB_MEMORY_ECHO_RAM \
+FB_MEMORY_NIBBLE_RANGE(E)
+
+#define FB_MEMORY_OAM \
+case 0xFE
+
+#define FB_MEMORY_ECHO_RAM_DYNAMIC \
+case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5: case 0xF6: \
+case 0xF7: case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD
+
+#define FB_MEMORY_HRAM_AND_IE \
+case 0xFF
+
 u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
     switch ((offset >> 8) & 0xff) {
-        FB_MEMORY_NIBBLE_RANGE(0):
-        FB_MEMORY_NIBBLE_RANGE(1):
-        FB_MEMORY_NIBBLE_RANGE(2):
-        FB_MEMORY_NIBBLE_RANGE(3):
-        FB_MEMORY_NIBBLE_RANGE(4):
-        FB_MEMORY_NIBBLE_RANGE(5):
-        FB_MEMORY_NIBBLE_RANGE(6):
-        FB_MEMORY_NIBBLE_RANGE(7):
+        FB_MEMORY_CARTRIDGE:
             return cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
-        FB_MEMORY_NIBBLE_RANGE(8):
-        FB_MEMORY_NIBBLE_RANGE(9):
+        FB_MEMORY_VRAM:
             return ppuMemory.isVRAMAccessibleFromMMU()
                 ? &ppuMemory.getVRAMByte(offset - 0x8000)
                 : nullptr;
-        FB_MEMORY_NIBBLE_RANGE(A):
-        FB_MEMORY_NIBBLE_RANGE(B):
+        FB_MEMORY_CARTRIDGE_RAM:
             return cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
-        FB_MEMORY_NIBBLE_RANGE(C):
+        FB_MEMORY_INTERNAL_RAM:
             return internalRam + (offset - 0xC000);
-        FB_MEMORY_NIBBLE_RANGE(D):
+        FB_MEMORY_INTERNAL_RAM_DYNAMIC:
             // TODO: Make this switchable
             return dynamicRamBank + (offset - 0xD000);
-        FB_MEMORY_NIBBLE_RANGE(E):
+        FB_MEMORY_ECHO_RAM:
             return internalRam + (offset - 0xE000);
-        case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5: case 0xF6:
-        case 0xF7: case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD:
+        FB_MEMORY_ECHO_RAM_DYNAMIC:
             return dynamicRamBank + (offset - 0xF000);
-        case 0xFE: {
+        FB_MEMORY_OAM: {
             if (ppuMemory.isOAMAccessibleFromMMU() && offset < 0xFEA0) {
                 return &ppuMemory.getOAMByte(offset - 0xFE00);
             } else {
@@ -86,7 +113,7 @@ u8* Memory::getMemoryAddress(FunkyBoy::memory_address offset) {
                 return nullptr;
             }
         }
-        case 0xFF: {
+        FB_MEMORY_HRAM_AND_IE: {
             if (offset == FB_REG_IE) {
                 return &interruptEnableRegister;
             } else if (offset >= 0xFF80) {
