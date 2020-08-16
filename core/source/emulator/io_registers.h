@@ -44,6 +44,20 @@
 #define FB_REG_WX 0xFF4B
 #define FB_REG_IE 0xFFFF
 
+#define __FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
+#define __FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
+#define __FB_REG_OFFSET_IF (FB_REG_IF - 0xFF00)
+#define __FB_REG_OFFSET_LCDC (FB_REG_LCDC - 0xFF00)
+#define __FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
+#define __FB_REG_OFFSET_SCY (FB_REG_SCY - 0xFF00)
+#define __FB_REG_OFFSET_SCX (FB_REG_SCX - 0xFF00)
+#define __FB_REG_OFFSET_LY (FB_REG_LY - 0xFF00)
+#define __FB_REG_OFFSET_BGP (FB_REG_BGP - 0xFF00)
+#define __FB_REG_OFFSET_OBP0 (FB_REG_OBP0 - 0xFF00)
+#define __FB_REG_OFFSET_OBP1 (FB_REG_OBP1 - 0xFF00)
+#define __FB_REG_OFFSET_WY (FB_REG_WY - 0xFF00)
+#define __FB_REG_OFFSET_WX (FB_REG_WX - 0xFF00)
+
 namespace FunkyBoy {
 
     /* Forward declaration */
@@ -64,7 +78,9 @@ namespace FunkyBoy {
         explicit io_registers(Controller::ControllersPtr controllers);
         ~io_registers();
 
-        fb_inline u16 getSysCounter();
+        inline u16 getSysCounter() {
+            return (*sys_counter_msb << 8) | *sys_counter_lsb;
+        }
 
         void handleMemoryWrite(u8 offset, u8 value);
         u8 handleMemoryRead(u8 offset);
@@ -72,17 +88,49 @@ namespace FunkyBoy {
         u8 updateJoypad();
         void updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly);
 
-        u8 &getP1();
-        u8 &getIF();
-        u8 &getLCDC();
-        u8 &getSCX();
-        u8 &getSCY();
-        u8 &getLY();
-        u8 &getBGP();
-        u8 &getOBP0();
-        u8 &getOBP1();
-        u8 &getWY();
-        u8 &getWX();
+        inline u8 &getP1() {
+            return *(hwIO + __FB_REG_OFFSET_P1);
+        }
+
+        inline u8 &getIF() {
+            return *(hwIO + __FB_REG_OFFSET_IF);
+        }
+
+        inline u8 &getLCDC() {
+            return *(hwIO + __FB_REG_OFFSET_LCDC);
+        }
+
+        inline u8 &getSCX() {
+            return *(hwIO + __FB_REG_OFFSET_SCX);
+        }
+
+        inline u8 &getSCY() {
+            return *(hwIO + __FB_REG_OFFSET_SCY);
+        }
+
+        inline u8 &getLY() {
+            return *(hwIO + __FB_REG_OFFSET_LY);
+        }
+
+        inline u8 &getBGP() {
+            return *(hwIO + __FB_REG_OFFSET_BGP);
+        }
+
+        inline u8 &getOBP0() {
+            return *(hwIO + __FB_REG_OFFSET_OBP0);
+        }
+
+        inline u8 &getOBP1() {
+            return *(hwIO + __FB_REG_OFFSET_OBP1);
+        }
+
+        inline u8 &getWX() {
+            return *(hwIO + __FB_REG_OFFSET_WX);
+        }
+
+        inline u8 &getWY() {
+            return *(hwIO + __FB_REG_OFFSET_WY);
+        }
 
         friend class CPU;
     };

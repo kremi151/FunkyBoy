@@ -52,7 +52,10 @@ namespace FunkyBoy {
         i8 readSigned8BitsAt(memory_address offset);
         void write8BitsTo(memory_address offset, u8 val);
 
-        fb_inline bool isDMA();
+        inline bool isDMA() {
+            return dmaStarted;
+        }
+
         void doDMA();
 
 #ifdef FB_TESTING

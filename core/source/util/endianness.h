@@ -21,7 +21,9 @@
 
 namespace FunkyBoy::Util {
 
-    u16 compose16Bits(u8 lsb, u8 msb);
+    inline u16 compose16Bits(u8 lsb, u8 msb) {
+        return (msb << 8u) | lsb;
+    }
 
 }
 

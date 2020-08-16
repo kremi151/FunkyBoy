@@ -38,7 +38,9 @@ namespace FunkyBoy::SDL {
         void update(SDL_Window *window);
         void deinit();
 
-        fb_inline bool hasUserRequestedExit();
+        [[nodiscard]] inline bool hasUserRequestedExit() const {
+            return sdlEvents.type == SDL_QUIT;
+        }
     };
 
 }

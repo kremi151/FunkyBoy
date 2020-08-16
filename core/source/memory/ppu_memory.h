@@ -35,12 +35,23 @@ namespace FunkyBoy {
 
         PPUMemory &operator=(const PPUMemory &other) = delete;
 
-        u8 &getVRAMByte(memory_address vramOffset);
-        u16 readVRAM16Bits(memory_address vramOffset);
-        [[nodiscard]] bool isVRAMAccessibleFromMMU() const;
+        inline u8 &getVRAMByte(memory_address vramOffset) {
+            return *(vram + vramOffset);
+        }
 
-        u8 &getOAMByte(memory_address oamOffset);
-        [[nodiscard]] bool isOAMAccessibleFromMMU() const;
+        u16 readVRAM16Bits(memory_address vramOffset);
+
+        [[nodiscard]] inline bool isVRAMAccessibleFromMMU() const {
+            return *vramAccessible;
+        }
+
+        inline u8 &getOAMByte(memory_address oamOffset) {
+            return *(oam + oamOffset);
+        }
+
+        [[nodiscard]] inline bool isOAMAccessibleFromMMU() const {
+            return *oamAccessible;
+        }
 
         void setAccessibilityFromMMU(bool accessVram, bool accessOam);
     };

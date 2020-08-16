@@ -28,8 +28,3 @@ u16 Util::addToSP(u8 *flags, u16 stackPointer, i8 val) {
 
     return newVal;
 }
-
-fb_inline u8* Util::decodeRRAddressFromOpcode(u8 *registers, u8 opcode) {
-    // Rightshift 4 seems to be universal when referencing 16bit registers in opcodes
-    return registers + (((opcode >> 4) & 3) * 2); // 16-bit -> x 2
-}

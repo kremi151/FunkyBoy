@@ -23,16 +23,28 @@ namespace FunkyBoy::Flags {
 
     void setFlags(u8 *flags, bool zero, bool subtraction, bool halfCarry, bool carry);
 
-    bool isCarry(const u8 *flags);
+    inline bool isCarry(const u8 *flags) {
+        return *flags & 0b00010000u;
+    }
+
     void setCarry(u8 *flags, bool carry);
 
-    bool isHalfCarry(const u8 *flags);
+    inline bool isHalfCarry(const u8 *flags) {
+        return *flags & 0b00100000u;
+    }
+
     void setHalfCarry(u8 *flags, bool halfCarry);
 
-    bool isSubstraction(const u8 *flags);
+    inline bool isSubstraction(const u8 *flags) {
+        return *flags & 0b01000000u;
+    }
+
     void setSubstraction(u8 *flags, bool substration);
 
-    bool isZero(const u8 *flags);
+    inline bool isZero(const u8 *flags) {
+        return *flags & 0b10000000u;
+    }
+
     void setZero(u8 *flags, bool zero);
 
 }

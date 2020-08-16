@@ -37,7 +37,6 @@ set(SOURCES
         source/instructions/conditions.cpp
         source/instructions/debug.cpp
         source/instructions/decoder.cpp
-        source/util/endianness.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         )

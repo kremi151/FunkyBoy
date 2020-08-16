@@ -37,13 +37,22 @@ namespace FunkyBoy::Controller {
         Controllers(SerialControllerPtr serial, JoypadControllerPtr joypad, DisplayControllerPtr display);
         Controllers();
 
-        fb_inline SerialControllerPtr &getSerial();
+        inline SerialControllerPtr &getSerial() {
+            return serial;
+        }
+
         void setSerial(const SerialControllerPtr &serialController);
 
-        fb_inline JoypadControllerPtr &getJoypad();
+        inline JoypadControllerPtr &getJoypad() {
+            return joypad;
+        }
+
         void setJoypad(const JoypadControllerPtr &joypadController);
 
-        fb_inline DisplayControllerPtr &getDisplay();
+        inline DisplayControllerPtr &getDisplay() {
+            return display;
+        }
+
         void setDisplay(const DisplayControllerPtr &displayController);
     };
 

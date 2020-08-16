@@ -210,10 +210,6 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
     }
 }
 
-fb_inline bool Memory::isDMA() {
-    return dmaStarted;
-}
-
 void Memory::doDMA() {
     if (!dmaStarted) {
         return;

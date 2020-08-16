@@ -66,7 +66,3 @@ void Window::update(SDL_Window *window) {
 void Window::deinit() {
     emulator.writeCartridgeRamToFS();
 }
-
-fb_inline bool Window::hasUserRequestedExit() {
-    return sdlEvents.type == SDL_QUIT;
-}

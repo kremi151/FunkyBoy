@@ -24,7 +24,10 @@ namespace FunkyBoy::Util {
 
     u16 addToSP(u8 *flags, u16 stackPointer, i8 val);
 
-    u8 *decodeRRAddressFromOpcode(u8 *registers, u8 opcode);
+    inline u8 *decodeRRAddressFromOpcode(u8 *registers, u8 opcode) {
+        // Rightshift 4 seems to be universal when referencing 16bit registers in opcodes
+        return registers + (((opcode >> 4) & 3) * 2); // 16-bit -> x 2
+    }
 
 }
 

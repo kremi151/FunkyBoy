@@ -39,24 +39,12 @@ Controllers::Controllers(): Controllers(
 ) {
 }
 
-fb_inline SerialControllerPtr & Controllers::getSerial() {
-    return serial;
-}
-
 void Controllers::setSerial(const SerialControllerPtr &serialController) {
     this->serial = serialController;
 }
 
-fb_inline JoypadControllerPtr & Controllers::getJoypad() {
-    return joypad;
-}
-
 void Controllers::setJoypad(const JoypadControllerPtr &joypadController) {
     this->joypad = joypadController;
-}
-
-fb_inline DisplayControllerPtr & Controllers::getDisplay() {
-    return display;
 }
 
 void Controllers::setDisplay(const DisplayControllerPtr &displayController) {

@@ -18,20 +18,6 @@
 
 using namespace FunkyBoy;
 
-#define FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
-#define FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
-#define FB_REG_OFFSET_IF (FB_REG_IF - 0xFF00)
-#define FB_REG_OFFSET_LCDC (FB_REG_LCDC - 0xFF00)
-#define FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
-#define FB_REG_OFFSET_SCY (FB_REG_SCY - 0xFF00)
-#define FB_REG_OFFSET_SCX (FB_REG_SCX - 0xFF00)
-#define FB_REG_OFFSET_LY (FB_REG_LY - 0xFF00)
-#define FB_REG_OFFSET_BGP (FB_REG_BGP - 0xFF00)
-#define FB_REG_OFFSET_OBP0 (FB_REG_OBP0 - 0xFF00)
-#define FB_REG_OFFSET_OBP1 (FB_REG_OBP1 - 0xFF00)
-#define FB_REG_OFFSET_WY (FB_REG_WY - 0xFF00)
-#define FB_REG_OFFSET_WX (FB_REG_WX - 0xFF00)
-
 io_registers::io_registers(const io_registers &registers)
     : sys_counter_lsb(registers.sys_counter_lsb)
     , sys_counter_msb(registers.sys_counter_msb)
@@ -70,31 +56,27 @@ void io_registers::setSysCounter(FunkyBoy::u16 counter) {
     *sys_counter_msb = (counter >> 8) & 0xffu;
 }
 
-fb_inline u16 io_registers::getSysCounter() {
-    return (*sys_counter_msb << 8) | *sys_counter_lsb;
-}
-
 void io_registers::handleMemoryWrite(u8 offset, u8 value) {
     switch (offset) {
-        case FB_REG_OFFSET_DIV: {
+        case __FB_REG_OFFSET_DIV: {
             // Direct write to DIV ; reset to 0
             resetSysCounter();
             break;
         }
-        case FB_REG_OFFSET_P1: {
+        case __FB_REG_OFFSET_P1: {
             // Only bits 4 and 5 are writable
-            u8 currentP1 = *(hwIO + FB_REG_OFFSET_P1) & 0b00001111u;
+            u8 currentP1 = *(hwIO + __FB_REG_OFFSET_P1) & 0b00001111u;
             value = 0b11000000u           // Bits 6 and 7 always read '1'
                   | (value & 0b00110000u) // Keep the two writable bits
                   | currentP1;            // Take the read-only bits from the current P1 value
-            *(hwIO + FB_REG_OFFSET_P1) = value;
+            *(hwIO + __FB_REG_OFFSET_P1) = value;
             break;
         }
-        case FB_REG_OFFSET_STAT: {
+        case __FB_REG_OFFSET_STAT: {
             // Only bits 3-6 are writable, bit 7 reads always '1'
             value = (value & 0b01111000u) | 0b10000000u;
-            value |= *(hwIO + FB_REG_OFFSET_STAT) & 0b00000111u;
-            *(hwIO + FB_REG_OFFSET_STAT) = value;
+            value |= *(hwIO + __FB_REG_OFFSET_STAT) & 0b00000111u;
+            *(hwIO + __FB_REG_OFFSET_STAT) = value;
             break;
         }
         default: {
@@ -106,7 +88,7 @@ void io_registers::handleMemoryWrite(u8 offset, u8 value) {
 
 u8 io_registers::handleMemoryRead(u8 offset) {
     switch (offset) {
-        case FB_REG_OFFSET_DIV:
+        case __FB_REG_OFFSET_DIV:
             return *sys_counter_msb;
         default:
             return *(hwIO + offset);
@@ -114,7 +96,7 @@ u8 io_registers::handleMemoryRead(u8 offset) {
 }
 
 u8 io_registers::updateJoypad() {
-    u8 &p1 = *(hwIO + FB_REG_OFFSET_P1);
+    u8 &p1 = *(hwIO + __FB_REG_OFFSET_P1);
     u8 originalValue = p1;
     u8 val = originalValue | 0b11001111u;
     auto &joypad = *controllers->getJoypad();
@@ -157,51 +139,7 @@ void io_registers::updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly) {
     if (lcdOn) {
         stat |= static_cast<u8>(gpuMode) & 0b11u;
     }
-    *(hwIO + FB_REG_OFFSET_STAT) = stat;
+    *(hwIO + __FB_REG_OFFSET_STAT) = stat;
 
-    *(hwIO + FB_REG_OFFSET_LY) = ly;
-}
-
-u8 &io_registers::getP1() {
-    return *(hwIO + FB_REG_OFFSET_P1);
-}
-
-u8 &io_registers::getIF() {
-    return *(hwIO + FB_REG_OFFSET_IF);
-}
-
-u8 &io_registers::getLCDC() {
-    return *(hwIO + FB_REG_OFFSET_LCDC);
-}
-
-u8 &io_registers::getSCX() {
-    return *(hwIO + FB_REG_OFFSET_SCX);
-}
-
-u8 &io_registers::getSCY() {
-    return *(hwIO + FB_REG_OFFSET_SCY);
-}
-
-u8 &io_registers::getLY() {
-    return *(hwIO + FB_REG_OFFSET_LY);
-}
-
-u8 &io_registers::getBGP() {
-    return *(hwIO + FB_REG_OFFSET_BGP);
-}
-
-u8 &io_registers::getOBP0() {
-    return *(hwIO + FB_REG_OFFSET_OBP0);
-}
-
-u8 &io_registers::getOBP1() {
-    return *(hwIO + FB_REG_OFFSET_OBP1);
-}
-
-u8 &io_registers::getWX() {
-    return *(hwIO + FB_REG_OFFSET_WX);
-}
-
-u8 &io_registers::getWY() {
-    return *(hwIO + FB_REG_OFFSET_WY);
+    *(hwIO + __FB_REG_OFFSET_LY) = ly;
 }
