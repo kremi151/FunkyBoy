@@ -176,29 +176,23 @@ ret_code CPU::doCycle() {
     bool shouldDoInterrupts = instrContext.cpuState == CPUState::HALTED;
     bool shouldFetch = false;
     bool interruptServiced = false;
-    const bool isDMA = memory->isDMA();
 
     ret_code result = FB_RET_SUCCESS;
 
     if (instrContext.cpuState == CPUState::RUNNING) {
-        if (isDMA) {
-            // TODO: Support interrupts during DMA (so far they are not executed)
+        memory->doDMA(); // TODO: Implement delay of 2 clocks
 
-            shouldFetch = true; // Fetch any potential interrupt instructions
-            shouldDoInterrupts = true;
-        } else {
-            auto op = operands[operandIndex++];
+        auto op = operands[operandIndex++];
 
-            if (operands[operandIndex] == nullptr) {
-                shouldFetch = true;
-                result |= FB_RET_INSTRUCTION_DONE;
-            }
-
-            if (!op(instrContext, *memory)) {
-                shouldFetch = true;
-            }
-            shouldDoInterrupts = shouldFetch;
+        if (operands[operandIndex] == nullptr) {
+            shouldFetch = true;
+            result |= FB_RET_INSTRUCTION_DONE;
         }
+
+        if (!op(instrContext, *memory)) {
+            shouldFetch = true;
+        }
+        shouldDoInterrupts = shouldFetch;
     }
 
 #if defined(FB_TESTING)
@@ -213,17 +207,12 @@ ret_code CPU::doCycle() {
         interruptServiced = true;
     }
 
-    if (!interruptServiced) {
-        if (isDMA) {
-            memory->doDMA();
-            return result;
-        } else if (!shouldFetch) {
-            return result;
-        }
+    if (interruptServiced || shouldFetch) {
+        result |= doFetchAndDecode();
+        operandIndex = 0;
+        return result;
     }
 
-    result |= doFetchAndDecode();
-    operandIndex = 0;
     return result;
 }
 
