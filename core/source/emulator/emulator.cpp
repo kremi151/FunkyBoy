@@ -71,8 +71,10 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     std::cout << ss.str() << std::endl;
 #endif
 
+#ifndef __ANDROID__
     savePath = romPath;
     savePath.replace_extension(".sav");
+#endif
 
     return cartridge->getStatus();
 }

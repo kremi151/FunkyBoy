@@ -35,7 +35,9 @@ namespace FunkyBoy {
 
     class Emulator {
     private:
+#ifndef __ANDROID__
         fs::path savePath;
+#endif
     test_public:
         CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
