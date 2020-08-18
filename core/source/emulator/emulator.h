@@ -50,8 +50,11 @@ namespace FunkyBoy {
         Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);
 
         CartridgeStatus loadGame(const fs::path &romPath);
+
+#ifndef __ANDROID__
         void loadCartridgeRamFromFS();
         void writeCartridgeRamToFS();
+#endif
 
         Cartridge &getCartridge();
 

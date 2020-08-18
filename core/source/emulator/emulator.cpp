@@ -77,6 +77,8 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     return cartridge->getStatus();
 }
 
+#ifndef __ANDROID__
+
 void Emulator::loadCartridgeRamFromFS() {
     if (fs::exists(savePath)) {
         std::ifstream file(savePath.c_str(), std::ios::binary);
@@ -88,6 +90,8 @@ void Emulator::writeCartridgeRamToFS() {
     std::ofstream file(savePath.c_str(), std::ios::binary);
     cartridge->writeRamToFS(file);
 }
+
+#endif
 
 ret_code Emulator::doTick() {
     auto result = cpu->doMachineCycle();
