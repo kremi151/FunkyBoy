@@ -52,6 +52,7 @@
 #define __FB_REG_OFFSET_SCY (FB_REG_SCY - 0xFF00)
 #define __FB_REG_OFFSET_SCX (FB_REG_SCX - 0xFF00)
 #define __FB_REG_OFFSET_LY (FB_REG_LY - 0xFF00)
+#define __FB_REG_OFFSET_LYC (FB_REG_LYC - 0xFF00)
 #define __FB_REG_OFFSET_BGP (FB_REG_BGP - 0xFF00)
 #define __FB_REG_OFFSET_OBP0 (FB_REG_OBP0 - 0xFF00)
 #define __FB_REG_OFFSET_OBP1 (FB_REG_OBP1 - 0xFF00)
@@ -113,6 +114,10 @@ namespace FunkyBoy {
 
         inline u8 &getLY() {
             return *(hwIO + __FB_REG_OFFSET_LY);
+        }
+
+        inline u8 &getLYC() {
+            return *(hwIO + __FB_REG_OFFSET_LYC);
         }
 
         inline u8 &getBGP() {

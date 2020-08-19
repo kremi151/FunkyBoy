@@ -39,6 +39,11 @@
 #define __fb_lcdc_objEnabled(lcdc) (lcdc & 0b00000010u)
 #define __fb_lcdc_isBGEnabled(lcdc) (lcdc & 0b00000001u)
 
+#define __fb_stat_isLYCInterrupt(stat) (stat & 0b01000000u)
+#define __fb_stat_isOAMInterrupt(stat) (stat & 0b00100000u)
+#define __fb_stat_isVBlankInterrupt(stat) (stat & 0b00010000u)
+#define __fb_stat_isHBlankInterrupt(stat) (stat & 0b00001000u)
+
 using namespace FunkyBoy;
 
 PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
@@ -96,11 +101,20 @@ ret_code PPU::doClocks(u8 clocks) {
                     gpuMode = GPUMode::GPUMode_1;
                     controllers->getDisplay()->drawScreen();
                     cpu->requestInterrupt(InterruptType::VBLANK);
+                    if (__fb_stat_isVBlankInterrupt(stat)) {
+                        cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    }
                     ppuMemory.setAccessibilityFromMMU(true, true);
                     result |= FB_RET_NEW_FRAME;
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
+                    if (__fb_stat_isOAMInterrupt(stat)) {
+                        cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    }
                     ppuMemory.setAccessibilityFromMMU(true, false);
+                }
+                if (__fb_stat_isLYCInterrupt(stat) && ly == ioRegisters.getLYC()) {
+                    cpu->requestInterrupt(InterruptType::LCD_STAT);
                 }
             }
             break;
@@ -109,10 +123,16 @@ ret_code PPU::doClocks(u8 clocks) {
             if (modeClocks >= 4560) { // 10 scan lines
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_2;
+                if (__fb_stat_isOAMInterrupt(stat)) {
+                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                }
                 ppuMemory.setAccessibilityFromMMU(true, false);
                 ly = 0;
             } else if (modeClocks % 204 == 0) {
                 ly++;
+                if (__fb_stat_isLYCInterrupt(stat) && ly == ioRegisters.getLYC()) {
+                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                }
             }
             break;
         }
@@ -128,6 +148,9 @@ ret_code PPU::doClocks(u8 clocks) {
             if (modeClocks >= 172) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_0;
+                if (__fb_stat_isHBlankInterrupt(stat)) {
+                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                }
                 ppuMemory.setAccessibilityFromMMU(true, true);
                 renderScanline(ly);
                 result |= FB_RET_NEW_SCANLINE;
@@ -135,8 +158,6 @@ ret_code PPU::doClocks(u8 clocks) {
             break;
         }
     }
-
-    // TODO: Compare LY with LYC and trigger interrupt
 
     updateStat(stat, true);
     return result;
