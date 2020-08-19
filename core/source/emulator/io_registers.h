@@ -86,7 +86,6 @@ namespace FunkyBoy {
         u8 handleMemoryRead(u8 offset);
 
         u8 updateJoypad();
-        void updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly);
 
         inline u8 &getP1() {
             return *(hwIO + __FB_REG_OFFSET_P1);
@@ -98,6 +97,10 @@ namespace FunkyBoy {
 
         inline u8 &getLCDC() {
             return *(hwIO + __FB_REG_OFFSET_LCDC);
+        }
+
+        inline u8 &getSTAT() {
+            return *(hwIO + __FB_REG_OFFSET_STAT);
         }
 
         inline u8 &getSCX() {

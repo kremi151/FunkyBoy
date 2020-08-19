@@ -133,13 +133,3 @@ u8 io_registers::updateJoypad() {
     p1 = val;
     return val;
 }
-
-void io_registers::updateLCD(bool lcdOn, GPUMode gpuMode, u8 ly) {
-    u8 stat = 0b10000000u; // Bit 7 always returns '1'
-    if (lcdOn) {
-        stat |= static_cast<u8>(gpuMode) & 0b11u;
-    }
-    *(hwIO + __FB_REG_OFFSET_STAT) = stat;
-
-    *(hwIO + __FB_REG_OFFSET_LY) = ly;
-}

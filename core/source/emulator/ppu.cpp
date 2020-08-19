@@ -76,13 +76,16 @@ ret_code PPU::doClocks(u8 clocks) {
     // See http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (pages 22-27)
 
     auto lcdc = ioRegisters.getLCDC();
+    u8 &ly = ioRegisters.getLY();
+    u8 &stat = ioRegisters.getSTAT();
+
     if (!__fb_lcdc_isOn(lcdc)) {
-        ioRegisters.updateLCD(false, gpuMode /* TODO: Correct* */, 0x00);
-        return FB_RET_SUCCESS; // TODO: Correct?
+        ly = 0;
+        updateStat(stat, false);
+        return FB_RET_SUCCESS;
     }
 
     ret_code result = FB_RET_SUCCESS;
-    auto ly = ioRegisters.getLY();
 
     modeClocks += clocks;
     switch (gpuMode) {
@@ -135,8 +138,7 @@ ret_code PPU::doClocks(u8 clocks) {
 
     // TODO: Compare LY with LYC and trigger interrupt
 
-    ioRegisters.updateLCD(true, gpuMode, ly);
-
+    updateStat(stat, true);
     return result;
 }
 
@@ -265,4 +267,15 @@ void PPU::renderScanline(u8 ly) {
         }
     }
     controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
+}
+
+void PPU::updateStat(u8 &stat, bool lcdOn) {
+    stat |= 0b10000000u; // Bit 7 always returns '1'
+
+    // Clear bits 0 and 1 so that we can update them correctly (if LCD is on)
+    stat &= 0b11111100u;
+    if (lcdOn) {
+        stat |= static_cast<u8>(gpuMode) & 0b11u;
+    }
+    // TODO: Is it correct to let bits 0 & 1 be '0' is LCD is off?
 }
