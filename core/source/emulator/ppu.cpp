@@ -23,15 +23,16 @@
 #define FB_TILE_DATA_LOWER 0x0000
 
 // Lower tile set lives at 0x8800 in memory.
-// As tiles are numbered from -127 to 128, we take 0x9000 as the offset.
-#define FB_TILE_DATA_UPPER 0x1000
+#define FB_TILE_DATA_UPPER 0x0800
+
+#define FB_SIZEOF_TILE (8 * 2)
 
 #define __fb_lcdc_isOn(lcdc) (lcdc & 0b10000000u)
 // Differences here are 1023
 #define __fb_lcdc_windowTileMapDisplaySelect(lcdc) ((lcdc & 0b01000000u) ? 0x1C00 : 0x1800)
 #define __fb_lcdc_isWindowEnabled(lcdc) (lcdc & 0b00100000u)
 // Differences here are 4095
-#define __fb_lcdc_bgAndWindowTileDataSelect(lcdc) ((lcdc & 0b00010000u) ? FB_TILE_DATA_LOWER : FB_TILE_DATA_UPPER)
+#define __fb_lcdc_useLowerTileData(lcdc) (lcdc & 0b00010000u)
 // Differences here are 1023
 #define __fb_lcdc_bgTileMapDisplaySelect(lcdc) ((lcdc & 0b00001000u) ? 0x1C00 : 0x1800)
 // Returns the height of objects (16 or 8), width is always 8
@@ -43,6 +44,11 @@
 #define __fb_stat_isOAMInterrupt(stat) (stat & 0b00100000u)
 #define __fb_stat_isVBlankInterrupt(stat) (stat & 0b00010000u)
 #define __fb_stat_isHBlankInterrupt(stat) (stat & 0b00001000u)
+
+#define __fb_getTileDataAddress(lcdc) (__fb_lcdc_useLowerTileData(lcdc) ? FB_TILE_DATA_LOWER : FB_TILE_DATA_UPPER)
+
+#define __fb_getTileSetOffset(lcdc, tileData) \
+(__fb_lcdc_useLowerTileData(lcdc) ? tileData : (static_cast<i8>(tileData) + 128)) * FB_SIZEOF_TILE
 
 using namespace FunkyBoy;
 
@@ -165,7 +171,7 @@ ret_code PPU::doClocks(u8 clocks) {
 
 void PPU::renderScanline(u8 ly) {
     const u8 &lcdc = ioRegisters.getLCDC();
-    const memory_address tileSetAddr = __fb_lcdc_bgAndWindowTileDataSelect(lcdc);
+    const memory_address tileSetAddr = __fb_getTileDataAddress(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
     const bool objEnabled = __fb_lcdc_objEnabled(lcdc);
     const bool windowEnabled = __fb_lcdc_isWindowEnabled(lcdc);
@@ -191,7 +197,7 @@ void PPU::renderScanline(u8 ly) {
         tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
         u8 &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
-            tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + (tile * 16) + (yInTile * 2));
+            tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
             colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
             colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
             scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
@@ -239,7 +245,7 @@ void PPU::renderScanline(u8 ly) {
                 // In 8x16 mode, the least significant bit of the tile number is treated as '0'
                 tile &= 0b11111110u;
             }
-            tileLine = ppuMemory.readVRAM16Bits(FB_TILE_DATA_LOWER + (tile * 16) + (yInObj * 2));
+            tileLine = ppuMemory.readVRAM16Bits(FB_TILE_DATA_LOWER + (tile * FB_SIZEOF_TILE) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
                 u8 x = objX + xOnObj - 8;
                 if (x >= FB_GB_DISPLAY_WIDTH) {
