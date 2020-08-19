@@ -339,16 +339,10 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
     // As IME == 0, we must not jump to the interrupt vector
     // Instead, we just continue reading the next opcodes
 
-    // We stay stuck for one cycle on the current opcode before we proceed
-    assertDoFullMachineCycle(cpu);
-    assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
-    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
-    assertEquals(originalA, *cpu.regA);
-
     assertDoFullMachineCycle(cpu);
     assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
-    assertEquals(originalA + 1, *cpu.regA);
+    assertEquals(originalA, *cpu.regA);
 }
 
 TEST(testHALTBugHanging) {
