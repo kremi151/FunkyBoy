@@ -86,7 +86,7 @@ ret_code PPU::doClocks(u8 clocks) {
 
     if (!__fb_lcdc_isOn(lcdc)) {
         ly = 0;
-        updateStat(stat, false);
+        updateStat(stat, ly, false);
         return FB_RET_SUCCESS;
     }
 
@@ -159,7 +159,7 @@ ret_code PPU::doClocks(u8 clocks) {
         }
     }
 
-    updateStat(stat, true);
+    updateStat(stat, ly, true);
     return result;
 }
 
@@ -290,11 +290,14 @@ void PPU::renderScanline(u8 ly) {
     controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
 }
 
-void PPU::updateStat(u8 &stat, bool lcdOn) {
+void PPU::updateStat(u8 &stat, u8 ly, bool lcdOn) {
     stat |= 0b10000000u; // Bit 7 always returns '1'
 
-    // Clear bits 0 and 1 so that we can update them correctly (if LCD is on)
-    stat &= 0b11111100u;
+    // Clear bits 0, 1 and 2 so that we can update them correctly (if LCD is on)
+    stat &= 0b11111000u;
+    if (ly == ioRegisters.getLYC()) {
+        stat |= 0b00000100u;
+    }
     if (lcdOn) {
         stat |= static_cast<u8>(gpuMode) & 0b11u;
     }

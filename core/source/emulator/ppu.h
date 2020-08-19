@@ -40,7 +40,7 @@ namespace FunkyBoy {
         u8 *scanLineBuffer;
 
         void renderScanline(u8 ly);
-        void updateStat(u8 &stat, bool lcdOn);
+        void updateStat(u8 &stat, u8 ly, bool lcdOn);
     public:
         PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~PPU();
