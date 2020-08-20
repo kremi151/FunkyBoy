@@ -281,7 +281,7 @@ void PPU::renderScanline(u8 ly) {
             tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
             u8 &scanLineX = it; // alias for it
             for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
-                tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + (tile * 16) + (yInTile * 2));
+                tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
                 colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
                 colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
                 scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
