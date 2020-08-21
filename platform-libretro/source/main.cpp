@@ -186,6 +186,8 @@ extern "C" {
                 return false;
             }
             case CartridgeStatus::Loaded: {
+                // Load save game
+                emulator->loadCartridgeRamFromFS();
                 return true;
             }
             default: {
@@ -196,6 +198,9 @@ extern "C" {
     }
 
     void retro_unload_game(void) {
+        // Write save game
+        emulator->writeCartridgeRamToFS();
+
         auto ptr = emulator.release();
         delete ptr;
     }
