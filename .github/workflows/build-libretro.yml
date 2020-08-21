@@ -42,6 +42,8 @@ jobs:
           buildDirectory: "${{ github.workspace }}/platform-libretro/cmake-build"
           cmakeGenerator: ${{ matrix.config.generator }}
           cmakeBuildType: Release
+      - name: List build files
+        run: "ls ${{ github.workspace }}/platform-libretro/cmake-build"
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
