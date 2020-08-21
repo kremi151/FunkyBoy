@@ -55,19 +55,20 @@ extern "C" {
     static unsigned currentControllerPort;
 
     void retro_init(void) {
+        currentControllerDevice = RETRO_DEVICE_JOYPAD;
+        currentControllerPort = 0;
+
         displayController = std::make_shared<Controller::DisplayControllerLibretro>();
         joypadController = std::make_shared<Controller::JoypadControllerLibretro>();
 
         dynamic_cast<Controller::DisplayControllerLibretro&>(*displayController).setVideoCallback(video_cb);
-        dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController).setInputCallback(input_state_cb, 0, 0);
+        dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController)
+            .setInputCallback(input_state_cb, currentControllerPort, currentControllerDevice);
 
         auto controllers = std::make_shared<Controller::Controllers>();
         controllers->setDisplay(displayController);
         controllers->setJoypad(joypadController);
         emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
-
-        currentControllerDevice = RETRO_DEVICE_JOYPAD;
-        currentControllerPort = 0;
     }
 
     void retro_deinit(void) {
