@@ -49,8 +49,8 @@ jobs:
         with:
           name: "${{ matrix.config.artifact }}"
           path: |
-            "${{ github.workspace }}/platform-libretro/cmake-build/*/fb_libretro.dll"
-            "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dll"
-            "${{ github.workspace }}/platform-libretro/cmake-build/*/fb_libretro.info"
-            "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.so"
-            "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dylib"
+            ${{ github.workspace }}/platform-libretro/cmake-build/*/fb_libretro.dll
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dll
+            ${{ github.workspace }}/platform-libretro/cmake-build/*/fb_libretro.info
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.so
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dylib
