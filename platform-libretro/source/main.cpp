@@ -16,8 +16,11 @@
 
 #include <libretro.h>
 #include <emulator/emulator.h>
+#include <controllers/display.h>
 
 #include <cstdarg>
+
+#include "display_libretro.h"
 
 using namespace FunkyBoy;
 
@@ -43,14 +46,22 @@ extern "C" {
     static retro_log_printf_t log_cb;
 
     static std::unique_ptr<Emulator> emulator;
+    static std::shared_ptr<Controller::DisplayController> displayController;
 
     void retro_init(void) {
-        emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG);
+        displayController = std::make_shared<Controller::DisplayControllerLibretro>();
+        dynamic_cast<Controller::DisplayControllerLibretro&>(*displayController).setVideoCallback(video_cb);
+
+        auto controllers = std::make_shared<Controller::Controllers>();
+        controllers->setDisplay(displayController);
+        emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
     }
 
     void retro_deinit(void) {
         auto ptr = emulator.release();
         delete ptr;
+
+        displayController.reset();
     }
 
     unsigned retro_api_version(void) {
@@ -116,6 +127,9 @@ extern "C" {
 
     void retro_set_video_refresh(retro_video_refresh_t cb) {
         video_cb = cb;
+        if (displayController) {
+            dynamic_cast<Controller::DisplayControllerLibretro&>(*displayController).setVideoCallback(cb);
+        }
     }
 
     void retro_reset(void) {
