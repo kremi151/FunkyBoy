@@ -96,6 +96,7 @@ extern "C" {
         float aspect = (float) FB_GB_DISPLAY_WIDTH / (float) FB_GB_DISPLAY_HEIGHT;
 
         info->timing.fps = 59.7154;
+        info->timing.sample_rate = 0.0;
 
         // TODO: Implement sound
         // info->timing.sample_rate = sampling_rate;
@@ -152,9 +153,11 @@ extern "C" {
     }
 
     void retro_run(void) {
-        if (emulator->doTick() & FB_RET_NEW_SCANLINE) {
-            input_poll_cb();
-        }
+        ret_code result;
+        do {
+            result = emulator->doTick();
+        } while (!(result & FB_RET_NEW_FRAME));
+        input_poll_cb();
     }
 
     bool retro_load_game(const struct retro_game_info *info) {
