@@ -41,6 +41,7 @@ jobs:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-libretro/CMakeLists.txt"
           buildDirectory: "${{ github.workspace }}/platform-libretro/cmake-build"
           cmakeGenerator: ${{ matrix.config.generator }}
+          cmakeBuildType: Release
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
@@ -50,3 +51,4 @@ jobs:
             "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dll"
             "${{ github.workspace }}/platform-libretro/cmake-build/*/fb_libretro.info"
             "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.so"
+            "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dylib"

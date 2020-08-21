@@ -51,4 +51,6 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
 
+set_target_properties(fb_libretro PROPERTIES PREFIX "") # no "lib" prefix for built binary on Linux
+
 target_link_libraries(fb_libretro fb_core)
