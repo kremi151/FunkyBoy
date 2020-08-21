@@ -2,7 +2,7 @@ name: Build Libretro
 
 on:
   push:
-    branches: [ master, libretro ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
