@@ -1,0 +1,39 @@
+name: Build Libretro
+
+on:
+  push:
+    branches: [ master, libretro ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-core:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+        fail-fast: false
+        matrix:
+            config:
+              - os: ubuntu-latest
+                generator: Ninja
+              - os: macos-latest
+                generator: Ninja
+              - os: windows-latest
+                generator: VS16Win64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Download libretro.h (Linux & macOS)
+        if: ${{ matrix.config.os != 'windows-latest' }}
+        run: wget -O "${{ github.workspace }}/platform-libretro/include/libretro.h" https://raw.githubusercontent.com/libretro/RetroArch/master/libretro-common/include/libretro.h
+        shell: bash
+      - name: Download libretro.h (Windows)
+        if: ${{ matrix.config.os == 'windows-latest' }}
+        run: Invoke-WebRequest 'https://raw.githubusercontent.com/libretro/RetroArch/master/libretro-common/include/libretro.h' -OutFile "${{ github.workspace }}/platform-libretro/include/libretro.h"
+        shell: powershell
+      - name: run-cmake
+        uses: lukka/run-cmake@v2.5
+        with:
+          cmakeListsTxtPath: "${{ github.workspace }}/platform-libretro/CMakeLists.txt"
+          cmakeGenerator: ${{ matrix.config.generator }}
