@@ -16,6 +16,7 @@
 
 #include "display_3ds.h"
 
+#include <palette/dmg_palette.h>
 #include <3ds.h>
 
 using namespace FunkyBoy::Controller;
@@ -28,21 +29,6 @@ DisplayController3DS::DisplayController3DS()
     , frameWidth(0)
     , frameHeight(0)
 {
-    dmgPalette[0][0] = 255;
-    dmgPalette[0][1] = 255;
-    dmgPalette[0][2] = 255;
-
-    dmgPalette[1][0] = 192;
-    dmgPalette[1][1] = 192;
-    dmgPalette[1][2] = 192;
-
-    dmgPalette[2][0] = 96;
-    dmgPalette[2][1] = 96;
-    dmgPalette[2][2] = 96;
-
-    dmgPalette[3][0] = 0;
-    dmgPalette[3][1] = 0;
-    dmgPalette[3][2] = 0;
 }
 
 void DisplayController3DS::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
@@ -58,9 +44,9 @@ void DisplayController3DS::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     for (u8 x = 0; x < FB_GB_DISPLAY_WIDTH; x++) {
         u8 *fbOffset = frameBuffer + ((offsetEffectiveX + x) * frameWidth * 4) + (y * 4);
         *(fbOffset++) = 0xff;
-        *(fbOffset++) = dmgPalette[*buffer & 3u][0];
-        *(fbOffset++) = dmgPalette[*buffer & 3u][1];
-        *(fbOffset) = dmgPalette[*buffer & 3u][2];
+        *(fbOffset++) = Palette::ARGB8888::DMG[*buffer & 3u][0];
+        *(fbOffset++) = Palette::ARGB8888::DMG[*buffer & 3u][1];
+        *(fbOffset) = Palette::ARGB8888::DMG[*buffer & 3u][2];
         buffer++;
     }
 }

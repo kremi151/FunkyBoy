@@ -1,0 +1,57 @@
+name: Build Libretro
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-libretro:
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+        fail-fast: false
+        matrix:
+            config:
+              - os: ubuntu-latest
+                generator: Ninja
+                artifact: FunkyBoy-libretro_linux
+              - os: macos-latest
+                generator: Ninja
+                artifact: FunkyBoy-libretro_macOS
+              - os: windows-latest
+                generator: VS16Win64
+                artifact: FunkyBoy-libretro_windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Download libretro.h (Linux & macOS)
+        if: ${{ matrix.config.os != 'windows-latest' }}
+        run: wget -O "${{ github.workspace }}/platform-libretro/include/libretro.h" https://raw.githubusercontent.com/libretro/RetroArch/master/libretro-common/include/libretro.h
+        shell: bash
+      - name: Download libretro.h (Windows)
+        if: ${{ matrix.config.os == 'windows-latest' }}
+        run: Invoke-WebRequest 'https://raw.githubusercontent.com/libretro/RetroArch/master/libretro-common/include/libretro.h' -OutFile "${{ github.workspace }}/platform-libretro/include/libretro.h"
+        shell: powershell
+      - name: run-cmake
+        uses: lukka/run-cmake@v2.5
+        with:
+          cmakeListsTxtPath: "${{ github.workspace }}/platform-libretro/CMakeLists.txt"
+          buildDirectory: "${{ github.workspace }}/platform-libretro/cmake-build"
+          cmakeGenerator: ${{ matrix.config.generator }}
+          cmakeBuildType: Release
+      - name: Copy Windows artifact
+        if: ${{ matrix.config.os == 'windows-latest' }}
+        run: Copy-Item -Path "${{ github.workspace }}/platform-libretro/cmake-build/Release/fb_libretro.dll" -Destination "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dll"
+        shell: powershell
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ matrix.config.artifact }}"
+          path: |
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dll
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.so
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dylib
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.info

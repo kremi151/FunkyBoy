@@ -14,35 +14,30 @@
  * limitations under the License.
  */
 
-#ifndef FUNKYBOY_CORE_TYPEDEFS_H
-#define FUNKYBOY_CORE_TYPEDEFS_H
+#ifndef FB_LIBRETRO_DISPLAY_LIBRETRO_H
+#define FB_LIBRETRO_DISPLAY_LIBRETRO_H
 
-#include <cstdint>
+#include <controllers/display.h>
 
-#define FB_NAME "FunkyBoy"
-#define FB_VERSION "0.0.1-Alpha"
+#include <libretro.h>
 
-#define FB_GB_DISPLAY_WIDTH 160
-#define FB_GB_DISPLAY_HEIGHT 144
+namespace FunkyBoy::Controller {
 
-#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
+    class DisplayControllerLibretro: public DisplayController {
+    private:
+        uint32_t *pixels;
+        retro_video_refresh_t videoCb;
+    public:
+        DisplayControllerLibretro();
+        ~DisplayControllerLibretro() override;
 
-namespace FunkyBoy {
+        void drawScanLine(u8 y, u8 *buffer) override;
+        void drawScreen() override;
 
-    typedef uint8_t u8;
-    typedef uint16_t u16;
-    typedef uint32_t u32;
-    typedef uint64_t u64;
-
-    typedef u32 memory_address;
-
-    typedef int8_t i8;
-    typedef int16_t i16;
-    typedef int32_t i32;
-    typedef int64_t i64;
-
-    typedef int ret_code;
+        void setVideoCallback(retro_video_refresh_t cb);
+    };
 
 }
 
-#endif //FUNKYBOY_CORE_TYPEDEFS_H
+
+#endif //FB_LIBRETRO_DISPLAY_LIBRETRO_H

@@ -14,35 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef FUNKYBOY_CORE_TYPEDEFS_H
-#define FUNKYBOY_CORE_TYPEDEFS_H
+#ifndef FB_LIBRETRO_JOYPAD_LIBRETRO_H
+#define FB_LIBRETRO_JOYPAD_LIBRETRO_H
 
-#include <cstdint>
+#include <controllers/joypad.h>
+#include <libretro.h>
 
-#define FB_NAME "FunkyBoy"
-#define FB_VERSION "0.0.1-Alpha"
+namespace FunkyBoy::Controller {
 
-#define FB_GB_DISPLAY_WIDTH 160
-#define FB_GB_DISPLAY_HEIGHT 144
+    class JoypadControllerLibretro: public JoypadController {
+    private:
+        retro_input_state_t inputStateCb;
+        unsigned controllerDevice;
+        unsigned controllerPort;
+    public:
+        JoypadControllerLibretro();
 
-#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
-
-namespace FunkyBoy {
-
-    typedef uint8_t u8;
-    typedef uint16_t u16;
-    typedef uint32_t u32;
-    typedef uint64_t u64;
-
-    typedef u32 memory_address;
-
-    typedef int8_t i8;
-    typedef int16_t i16;
-    typedef int32_t i32;
-    typedef int64_t i64;
-
-    typedef int ret_code;
+        bool isKeyPressed(JoypadKey key) override;
+        void setInputCallback(retro_input_state_t cb, unsigned port, unsigned device);
+    };
 
 }
 
-#endif //FUNKYBOY_CORE_TYPEDEFS_H
+#endif //FB_LIBRETRO_JOYPAD_LIBRETRO_H

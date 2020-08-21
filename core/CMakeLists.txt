@@ -84,6 +84,7 @@ set(HEADERS
         source/util/flags.h
         source/util/gpumode.h
         source/util/return_codes.h
+        source/palette/dmg_palette.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-#include "display_sdl.h"
-#include <util/typedefs.h>
+#include "display_libretro.h"
+
 #include <palette/dmg_palette.h>
 
 using namespace FunkyBoy::Controller;
 
-DisplayControllerSDL::DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer)
-    : renderer(renderer)
-    , frameBuffer(frameBuffer)
-    , pixels(new uint32_t[FB_GB_DISPLAY_WIDTH * FB_GB_DISPLAY_HEIGHT])
+DisplayControllerLibretro::DisplayControllerLibretro()
+    : pixels(new uint32_t[FB_GB_DISPLAY_WIDTH * FB_GB_DISPLAY_HEIGHT]{})
+    , videoCb(nullptr)
 {
 }
 
-DisplayControllerSDL::~DisplayControllerSDL() {
+DisplayControllerLibretro::~DisplayControllerLibretro() {
     delete[] pixels;
 }
 
-void DisplayControllerSDL::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
+void DisplayControllerLibretro::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     uint32_t pixel;
     for (u8 x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
         auto &color = Palette::ARGB8888::DMG[*(buffer + x)];
@@ -40,9 +39,12 @@ void DisplayControllerSDL::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     }
 }
 
-void DisplayControllerSDL::drawScreen() {
-    SDL_UpdateTexture(frameBuffer, nullptr, pixels, FB_GB_DISPLAY_WIDTH * sizeof(uint32_t));
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, frameBuffer, nullptr, nullptr);
-    SDL_RenderPresent(renderer);
+void DisplayControllerLibretro::drawScreen() {
+    if (videoCb != nullptr) {
+        videoCb(pixels, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT, FB_GB_DISPLAY_WIDTH * sizeof(uint32_t));
+    }
+}
+
+void DisplayControllerLibretro::setVideoCallback(retro_video_refresh_t cb) {
+    videoCb = cb;
 }
