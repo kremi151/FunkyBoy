@@ -23,8 +23,6 @@ namespace FunkyBoy::Controller {
 
     class DisplayController3DS: public DisplayController {
     private:
-        u8 dmgPalette[4][3]{};
-
         u8 *frameBuffer;
         u16 frameWidth, frameHeight;
 

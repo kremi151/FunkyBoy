@@ -14,30 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FB_LIBRETRO_DISPLAY_LIBRETRO_H
-#define FB_LIBRETRO_DISPLAY_LIBRETRO_H
+#ifndef FB_CORE_PALETTE_DMG_H
+#define FB_CORE_PALETTE_DMG_H
 
-#include <controllers/display.h>
+#include <util/typedefs.h>
 
-#include <libretro.h>
+namespace FunkyBoy::Palette::ARGB8888 {
 
-namespace FunkyBoy::Controller {
-
-    class DisplayControllerLibretro: public DisplayController {
-    private:
-        uint32_t *pixels;
-        retro_video_refresh_t videoCb;
-    public:
-        DisplayControllerLibretro();
-        ~DisplayControllerLibretro() override;
-
-        void drawScanLine(u8 y, u8 *buffer) override;
-        void drawScreen() override;
-
-        void setVideoCallback(retro_video_refresh_t cb);
+    const u8 DMG[4][3] = {
+            {255, 255, 255},
+            {192, 192, 192},
+            {96, 96, 96},
+            {0, 0, 0}
     };
 
 }
 
-
-#endif //FB_LIBRETRO_DISPLAY_LIBRETRO_H
+#endif //FB_CORE_PALETTE_DMG_H

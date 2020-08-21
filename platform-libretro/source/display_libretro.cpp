@@ -16,27 +16,14 @@
 
 #include "display_libretro.h"
 
+#include <palette/dmg_palette.h>
+
 using namespace FunkyBoy::Controller;
 
 DisplayControllerLibretro::DisplayControllerLibretro()
     : pixels(new uint32_t[FB_GB_DISPLAY_WIDTH * FB_GB_DISPLAY_HEIGHT]{})
     , videoCb(nullptr)
 {
-    dmgPalette[0][0] = 255;
-    dmgPalette[0][1] = 255;
-    dmgPalette[0][2] = 255;
-
-    dmgPalette[1][0] = 192;
-    dmgPalette[1][1] = 192;
-    dmgPalette[1][2] = 192;
-
-    dmgPalette[2][0] = 96;
-    dmgPalette[2][1] = 96;
-    dmgPalette[2][2] = 96;
-
-    dmgPalette[3][0] = 0;
-    dmgPalette[3][1] = 0;
-    dmgPalette[3][2] = 0;
 }
 
 DisplayControllerLibretro::~DisplayControllerLibretro() {
@@ -46,7 +33,7 @@ DisplayControllerLibretro::~DisplayControllerLibretro() {
 void DisplayControllerLibretro::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     uint32_t pixel;
     for (u8 x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
-        auto &color = dmgPalette[*(buffer + x)];
+        auto &color = Palette::ARGB8888::DMG[*(buffer + x)];
         pixel = (255u << 24u) | (color[0] << 16) | (color[1] << 8) | color[2];
         pixels[(y * FB_GB_DISPLAY_WIDTH) + x] = pixel;
     }
