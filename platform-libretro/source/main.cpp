@@ -51,6 +51,9 @@ extern "C" {
     static std::shared_ptr<Controller::DisplayController> displayController;
     static std::shared_ptr<Controller::JoypadController> joypadController;
 
+    static unsigned currentControllerDevice;
+    static unsigned currentControllerPort;
+
     void retro_init(void) {
         displayController = std::make_shared<Controller::DisplayControllerLibretro>();
         joypadController = std::make_shared<Controller::JoypadControllerLibretro>();
@@ -62,6 +65,9 @@ extern "C" {
         controllers->setDisplay(displayController);
         controllers->setJoypad(joypadController);
         emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
+
+        currentControllerDevice = RETRO_DEVICE_JOYPAD;
+        currentControllerPort = 0;
     }
 
     void retro_deinit(void) {
@@ -79,9 +85,10 @@ extern "C" {
     void retro_set_controller_port_device(unsigned port, unsigned device) {
         log_cb(RETRO_LOG_INFO, "Plugging device %u into port %u.\n", device, port);
 
-        // TODO: Filter supported devices (like JOYPAD or KEYBOARD)
-        //current_controller_port = port;
-        //current_controller_device = device;
+        currentControllerPort = port;
+        currentControllerDevice = device;
+        dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController)
+                .setInputCallback(input_state_cb, port, device);
     }
 
     void retro_get_system_info(struct retro_system_info *info) {
@@ -133,7 +140,8 @@ extern "C" {
     void retro_set_input_state(retro_input_state_t cb) {
         input_state_cb = cb;
         if (joypadController) {
-            dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController).setInputCallback(cb, 0, 0);
+            dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController)
+                .setInputCallback(cb, currentControllerPort, currentControllerDevice);
         }
     }
 

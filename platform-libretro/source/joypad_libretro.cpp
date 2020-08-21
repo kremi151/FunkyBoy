@@ -23,7 +23,6 @@ JoypadControllerLibretro::JoypadControllerLibretro()
     , controllerDevice(0)
     , controllerPort(0)
 {
-
 }
 
 bool JoypadControllerLibretro::isKeyPressed(JoypadKey key) {
