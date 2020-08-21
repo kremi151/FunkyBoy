@@ -42,12 +42,16 @@ jobs:
           buildDirectory: "${{ github.workspace }}/platform-libretro/cmake-build"
           cmakeGenerator: ${{ matrix.config.generator }}
           cmakeBuildType: Release
+      - name: Copy Windows artifact
+        if: ${{ matrix.config.os == 'windows-latest' }}
+        run: Copy-Item -Path "${{ github.workspace }}/platform-libretro/cmake-build/Release/fb_libretro.dll" -Destination "${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dll"
+        shell: powershell
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: "${{ matrix.config.artifact }}"
           path: |
-            ${{ github.workspace }}/platform-libretro/cmake-build/*/fb_libretro.dll
+            ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dll
             ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.so
             ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.dylib
             ${{ github.workspace }}/platform-libretro/cmake-build/fb_libretro.info
