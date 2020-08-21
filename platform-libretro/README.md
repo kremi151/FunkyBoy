@@ -1,5 +1,7 @@
 # FunkyBoy - Libretro (RetroArch)
 
+![Build Libretro](https://github.com/kremi151/FunkyBoy/workflows/Build%20Libretro/badge.svg)
+
 This is the implementation of FunkyBoy for RetroArch.
 
 ## Build preparations

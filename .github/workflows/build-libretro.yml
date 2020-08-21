@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build-core:
+  build-libretro:
     runs-on: ${{ matrix.config.os }}
     strategy:
         fail-fast: false

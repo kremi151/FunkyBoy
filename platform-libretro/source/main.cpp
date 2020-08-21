@@ -19,6 +19,7 @@
 #include <controllers/display.h>
 
 #include <cstdarg>
+#include <cstring>
 
 #include "display_libretro.h"
 #include "joypad_libretro.h"
