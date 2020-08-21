@@ -21,6 +21,7 @@
 #include <cstdarg>
 
 #include "display_libretro.h"
+#include "joypad_libretro.h"
 
 using namespace FunkyBoy;
 
@@ -47,13 +48,18 @@ extern "C" {
 
     static std::unique_ptr<Emulator> emulator;
     static std::shared_ptr<Controller::DisplayController> displayController;
+    static std::shared_ptr<Controller::JoypadController> joypadController;
 
     void retro_init(void) {
         displayController = std::make_shared<Controller::DisplayControllerLibretro>();
+        joypadController = std::make_shared<Controller::JoypadControllerLibretro>();
+
         dynamic_cast<Controller::DisplayControllerLibretro&>(*displayController).setVideoCallback(video_cb);
+        dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController).setInputCallback(input_state_cb, 0, 0);
 
         auto controllers = std::make_shared<Controller::Controllers>();
         controllers->setDisplay(displayController);
+        controllers->setJoypad(joypadController);
         emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
     }
 
@@ -62,6 +68,7 @@ extern "C" {
         delete ptr;
 
         displayController.reset();
+        joypadController.reset();
     }
 
     unsigned retro_api_version(void) {
@@ -123,6 +130,9 @@ extern "C" {
 
     void retro_set_input_state(retro_input_state_t cb) {
         input_state_cb = cb;
+        if (joypadController) {
+            dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController).setInputCallback(cb, 0, 0);
+        }
     }
 
     void retro_set_video_refresh(retro_video_refresh_t cb) {
