@@ -258,7 +258,7 @@ void PPU::renderScanline(u8 ly) {
                 }
                 if (!hide || !bgColorIndexes[x]) {
                     if (flipX) {
-                        colorIndex = (tileLine >> xOnObj) & 1u
+                        colorIndex = (tileLine >> (8 + xOnObj)) & 1u
                             | ((tileLine >> xOnObj) & 1u) << 1;
                     } else {
                         colorIndex = (tileLine >> (15 - xOnObj)) & 1u
