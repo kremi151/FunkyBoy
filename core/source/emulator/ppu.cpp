@@ -60,6 +60,7 @@ PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers&
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
     , scanLineBuffer(new u8[FB_GB_DISPLAY_WIDTH])
+    , bgColorIndexes(new u8[FB_GB_DISPLAY_WIDTH])
 {
     this->ppuMemory.setAccessibilityFromMMU(
             this->gpuMode != GPUMode::GPUMode_3,
@@ -69,6 +70,7 @@ PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers&
 
 PPU::~PPU() {
     delete[] scanLineBuffer;
+    delete[] bgColorIndexes;
 }
 
 // GPU Lifecycle:
@@ -201,6 +203,7 @@ void PPU::renderScanline(u8 ly) {
             colorIndex = (tileLine >> (15 - (xInTile & 7u))) & 1u;
             colorIndex |= ((tileLine >> (7 - (xInTile & 7u))) & 1u) << 1;
             scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
+            bgColorIndexes[scanLineX] = colorIndex;
             if (++xInTile >= 8) {
                 xInTile = 0;
                 tileOffsetX = (tileOffsetX + 1) & 31;
@@ -212,6 +215,7 @@ void PPU::renderScanline(u8 ly) {
         u8 &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
             scanLineBuffer[scanLineX] = 0;
+            bgColorIndexes[scanLineX] = 0;
         }
     }
     if (objEnabled) {
@@ -252,7 +256,7 @@ void PPU::renderScanline(u8 ly) {
                     // Out of display bounds
                     continue;
                 }
-                if (!hide || !scanLineBuffer[x]) {
+                if (!hide || !bgColorIndexes[x]) {
                     if (flipX) {
                         colorIndex = (tileLine >> (xOnObj & 7u)) & 1u;
                         colorIndex |= ((tileLine >> (xOnObj & 7u)) & 1u) << 1;
