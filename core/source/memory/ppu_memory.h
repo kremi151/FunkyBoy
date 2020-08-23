@@ -19,6 +19,8 @@
 
 #include <util/typedefs.h>
 
+#include <util/endianness.h>
+
 namespace FunkyBoy {
 
     class PPUMemory {
@@ -39,7 +41,9 @@ namespace FunkyBoy {
             return *(vram + vramOffset);
         }
 
-        u16 readVRAM16Bits(memory_address vramOffset);
+        inline u16 readVRAM16Bits(memory_address vramOffset) {
+            return Util::compose16Bits(*(vram + vramOffset), *(vram + vramOffset + 1));
+        }
 
         [[nodiscard]] inline bool isVRAMAccessibleFromMMU() const {
             return *vramAccessible;

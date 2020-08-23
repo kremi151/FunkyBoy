@@ -16,8 +16,6 @@
 
 #include "ppu_memory.h"
 
-#include <util/endianness.h>
-
 using namespace FunkyBoy;
 
 PPUMemory::PPUMemory()
@@ -47,10 +45,6 @@ PPUMemory::~PPUMemory() {
         delete oamAccessible;
         delete ptrCounter;
     }
-}
-
-u16 PPUMemory::readVRAM16Bits(memory_address vramOffset) {
-    return Util::compose16Bits(*(vram + vramOffset), *(vram + vramOffset + 1));
 }
 
 void PPUMemory::setAccessibilityFromMMU(bool accessVram, bool accessOam) {
