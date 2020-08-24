@@ -327,8 +327,8 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
 
         assertEquals(FunkyBoy::CPUState::HALTED, cpu.instrContext.cpuState);
 
-        assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
-        assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
+        assertEquals(0x76, cpu.instrContext.instr); // No fetch of next instruction, we stay at the HALT instruction
+        assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
         assertEquals(originalA, *cpu.regA);
     }
 
@@ -340,8 +340,8 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
     // Instead, we just continue reading the next opcodes
 
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
-    assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
+    assertEquals(0x3C, cpu.instrContext.instr & 0xffff); // Fetched next instruction already
+    assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 }
 

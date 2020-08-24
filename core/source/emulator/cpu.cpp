@@ -207,7 +207,7 @@ ret_code CPU::doCycle() {
         interruptServiced = true;
     }
 
-    if (interruptServiced || shouldFetch) {
+    if (interruptServiced || (shouldFetch && instrContext.cpuState == CPUState::RUNNING)) { // TODO: Can this be simplified to just instrContext.cpuState == CPUState::RUNNING ?
         result |= doFetchAndDecode();
         operandIndex = 0;
         return result;
