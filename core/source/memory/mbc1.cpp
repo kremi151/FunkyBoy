@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#include <cstdio>
-#include <util/debug.h>
 #include "mbc1.h"
+
+#include <util/debug.h>
+#include <exception>
+#include <algorithm>
 
 #define mbc1_print(...) debug_print_4(__VA_ARGS__)
 
@@ -25,14 +27,26 @@
 using namespace FunkyBoy;
 
 u16 getMBC1RAMBankSize(MBC1RAMSize size) {
-    switch (size) {
-        case MBC1_2KByte:
-            return static_cast<u16>(MBC1_2KByte);
-        case MBC1_8KByte:
-        case MBC1_32KByte:
-            return static_cast<u16>(MBC1_8KByte);
-        default:
-            return 0;
+    if (size == MBC1RAMSize::MBC1_NoRam) {
+        return 0;
+    } else if (size == MBC1RAMSize::MBC1_2KByte) {
+        return static_cast<u16>(MBC1_2KByte);
+    } else if (size == MBC1RAMSize::MBC1_8KByte || size == MBC1RAMSize::MBC1_32KByte) {
+        return static_cast<u16>(MBC1_8KByte);
+    } else {
+        throw std::exception("Invalid MBC1 RAM size");
+    }
+}
+
+u8 getMBC1RAMBankCount(MBC1RAMSize size) {
+    if (size == MBC1RAMSize::MBC1_NoRam) {
+        return 0;
+    } else if (size == MBC1RAMSize::MBC1_2KByte || size == MBC1RAMSize::MBC1_8KByte) {
+        return 1;
+    } else if (size == MBC1RAMSize::MBC1_32KByte) {
+        return 4;
+    } else {
+        throw std::exception("Invalid MBC1 RAM size");
     }
 }
 
@@ -63,6 +77,7 @@ u8 getROMBankBitMask(ROMSize romSize) {
 MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
     : preliminaryRomBank(1)
     , ramBankSize(getMBC1RAMBankSize(ramSize))
+    , ramBankCount(getMBC1RAMBankCount(ramSize))
     , ramBankingMode(false)
     , romSize(romSize)
     , ramSize(ramSize)
@@ -78,6 +93,9 @@ void MBC1::updateBanks() {
     if (ramBankingMode) {
         romBank &= 0b11111;
         romBank |= (ramBank & 0b11) << 5;
+    }
+    if (ramBank >= ramBankCount) {
+        ramBank = std::max(0, ramBankCount - 1);
     }
 
     u8 romBankMask = getROMBankBitMask(romSize);

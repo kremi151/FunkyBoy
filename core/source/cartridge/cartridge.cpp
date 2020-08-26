@@ -119,7 +119,7 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
 #ifdef FB_DEBUG
     std::cout << "ROM title: " << header->title << std::endl;
     std::cout << "ROM size type: " << romSizeType << std::endl;
-    std::cout << "RAM size: " << ramSizeBytes << " bytes" << std::endl;
+    std::cout << "RAM size: " << ramSizeBytes << " bytes (" << (header->ramSize % 0xff) << ")" << std::endl;
 #endif
 
     size_t romFlagInBytes = romSizeInBytes(romSizeType);

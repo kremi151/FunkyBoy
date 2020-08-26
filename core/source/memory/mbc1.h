@@ -35,6 +35,7 @@ namespace FunkyBoy {
         const ROMSize romSize;
         const MBC1RAMSize ramSize;
         const u16 ramBankSize;
+        const u8 ramBankCount;
         u32 romBankOffsetLower{};
         u32 romBankOffset{};
         u32 ramBankOffset{};
