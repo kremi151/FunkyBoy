@@ -17,7 +17,7 @@
 #include "mbc1.h"
 
 #include <util/debug.h>
-#include <exception>
+#include <exception/state_exception.h>
 #include <algorithm>
 
 #define mbc1_print(...) debug_print_4(__VA_ARGS__)
@@ -34,7 +34,7 @@ u16 getMBC1RAMBankSize(MBC1RAMSize size) {
     } else if (size == MBC1RAMSize::MBC1_8KByte || size == MBC1RAMSize::MBC1_32KByte) {
         return static_cast<u16>(MBC1_8KByte);
     } else {
-        throw std::exception("Invalid MBC1 RAM size");
+        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(size));
     }
 }
 
@@ -46,7 +46,7 @@ u8 getMBC1RAMBankCount(MBC1RAMSize size) {
     } else if (size == MBC1RAMSize::MBC1_32KByte) {
         return 4;
     } else {
-        throw std::exception("Invalid MBC1 RAM size");
+        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(size));
     }
 }
 

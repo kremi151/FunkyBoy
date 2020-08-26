@@ -39,6 +39,7 @@ set(SOURCES
         source/instructions/decoder.cpp
         source/util/registers.cpp
         source/util/flags.cpp
+        source/exception/state_exception.cpp
         )
 
 set(HEADERS
@@ -85,6 +86,7 @@ set(HEADERS
         source/util/gpumode.h
         source/util/return_codes.h
         source/palette/dmg_palette.h
+        source/exception/state_exception.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
