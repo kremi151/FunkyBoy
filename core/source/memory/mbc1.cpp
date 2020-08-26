@@ -100,7 +100,7 @@ MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
 }
 
 void MBC1::updateBanks() {
-    mbc1_print("[MBC1] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", !romBankingMode, romBank, ramBank);
+    mbc1_print("[MBC1] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", ramBankingMode, romBank, ramBank);
 
     romBank = preliminaryRomBank & 0b1111111u;
     if (ramBankingMode) {
@@ -166,7 +166,7 @@ bool MBC1::interceptWrite(memory_address offset, u8 val) {
         return true;
     } else if (offset <= 0x7FFF) {
         ramBankingMode = val & 0b1;
-        mbc1_print("[MBC1] Set banking mode to %d\n", !romBankingMode);
+        mbc1_print("[MBC1] Set banking mode to %d\n", ramBankingMode);
         updateBanks();
         return true;
     }
