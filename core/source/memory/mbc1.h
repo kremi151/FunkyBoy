@@ -42,7 +42,7 @@ namespace FunkyBoy {
     test_public:
         u8 preliminaryRomBank, romBank{};
         u8 preliminaryRamBank, ramBank{};
-        bool romBankingMode;
+        bool ramBankingMode;
         bool ramEnabled;
     public:
         MBC1(ROMSize romSize, MBC1RAMSize ramSize);

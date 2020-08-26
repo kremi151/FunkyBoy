@@ -64,7 +64,7 @@ MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
     : preliminaryRomBank(1)
     , preliminaryRamBank(0)
     , ramBankSize(getMBC1RAMBankSize(ramSize))
-    , romBankingMode(true)
+    , ramBankingMode(false)
     , romSize(romSize)
     , ramSize(ramSize)
     , ramEnabled(false)
@@ -75,8 +75,8 @@ MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
 void MBC1::updateBanks() {
     mbc1_print("[MBC1] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", !romBankingMode, romBank, ramBank);
 
-    romBank = romBankingMode ? (preliminaryRomBank & 0b1111111u) : (preliminaryRomBank & 0b11111u);
-    ramBank = romBankingMode ? 0 : (preliminaryRamBank & 0b11u);
+    romBank = ramBankingMode ? (preliminaryRomBank & 0b11111u) : (preliminaryRomBank & 0b1111111u);
+    ramBank = ramBankingMode ? (preliminaryRamBank & 0b11u) : 0;
 
     u8 romBankMask = getROMBankBitMask(romSize);
     romBank &= romBankMask;
@@ -91,11 +91,11 @@ void MBC1::updateBanks() {
 
 u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
     if (offset <= 0x3FFF) {
-        if (romBankingMode) {
-            return rom + offset;
-        } else {
+        if (ramBankingMode) {
             // TODO: Is this correct? Apparently it should be done like this according to https://gekkio.fi/files/gb-docs/gbctr.pdf
             return rom + romBankOffsetLower + offset;
+        } else {
+            return rom + offset;
         }
     } else if (offset <= 0x7FFF) {
         return rom + romBankOffset + (offset - 0x4000);
@@ -142,7 +142,7 @@ bool MBC1::interceptWrite(memory_address offset, u8 val) {
         updateBanks();
         return true;
     } else if (offset <= 0x7FFF) {
-        romBankingMode = (val & 0b1) == 0;
+        ramBankingMode = val & 0b1;
         mbc1_print("[MBC1] Set banking mode to %d\n", !romBankingMode);
         updateBanks();
         return true;
