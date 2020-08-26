@@ -50,6 +50,18 @@ u8 getMBC1RAMBankCount(MBC1RAMSize size) {
     }
 }
 
+memory_address getMaxRAMOffset(MBC1RAMSize ramSize) {
+    if (ramSize == MBC1RAMSize::MBC1_NoRam) {
+        return 0x0000;
+    } else if (ramSize == MBC1RAMSize::MBC1_2KByte) {
+        return 0x07FF;
+    } else if (ramSize == MBC1RAMSize::MBC1_8KByte || ramSize == MBC1RAMSize::MBC1_32KByte) {
+        return 0x1FFF;
+    } else {
+        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(ramSize));
+    }
+}
+
 u8 getROMBankBitMask(ROMSize romSize) {
     switch (romSize) {
         case ROMSize::ROM_SIZE_32K:
@@ -78,6 +90,7 @@ MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
     : preliminaryRomBank(1)
     , ramBankSize(getMBC1RAMBankSize(ramSize))
     , ramBankCount(getMBC1RAMBankCount(ramSize))
+    , maxRamOffset(getMaxRAMOffset(ramSize))
     , ramBankingMode(false)
     , romSize(romSize)
     , ramSize(ramSize)
@@ -125,17 +138,7 @@ u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
 }
 
 u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
-    if (!ramEnabled || ramSize == MBC1RAMSize::MBC1_NoRam) {
-        return nullptr;
-    } else if (ramSize == MBC1RAMSize::MBC1_2KByte) {
-        if (offset > 0x07FF) {
-            return nullptr;
-        }
-    } else if (ramSize == MBC1RAMSize::MBC1_8KByte || ramSize == MBC1RAMSize::MBC1_32KByte) {
-        if (offset > 0x1FFF) {
-            return nullptr;
-        }
-    } else {
+    if (!ramEnabled || offset > maxRamOffset) {
         return nullptr;
     }
     return ram + ramBankOffset + offset;
