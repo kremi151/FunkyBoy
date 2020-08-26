@@ -26,8 +26,13 @@
 
 using namespace FunkyBoy;
 
-Cartridge::Cartridge(): rom(nullptr), romSize(0), status(CartridgeStatus::NoROMLoaded), mbc(new MBCNone()) {
-    ram = new u8[8 * 1924];
+Cartridge::Cartridge()
+    : rom(nullptr)
+    , ram(nullptr)
+    , romSize(0)
+    , status(CartridgeStatus::NoROMLoaded)
+    , mbc(new MBCNone())
+{
 }
 
 Cartridge::~Cartridge() {
@@ -109,10 +114,12 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
 
     auto romSizeType = static_cast<ROMSize>(header->romSize);
 
+    size_t ramSizeBytes = getCartridgeRamSize(header->ramSize);
+
 #ifdef FB_DEBUG
     std::cout << "ROM title: " << header->title << std::endl;
     std::cout << "ROM size type: " << romSizeType << std::endl;
-    std::cout << "RAM size: " << getCartridgeRamSize(header->ramSize) << " KB" << std::endl;
+    std::cout << "RAM size: " << ramSizeBytes << " bytes" << std::endl;
 #endif
 
     size_t romFlagInBytes = romSizeInBytes(romSizeType);
@@ -175,6 +182,8 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
 
     rom = romBytes.release();
     romSize = length;
+
+    ram = new u8[ramSizeBytes];
 
     status = CartridgeStatus::Loaded;
 }
