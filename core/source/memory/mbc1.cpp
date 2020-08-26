@@ -106,9 +106,12 @@ void MBC1::updateBanks() {
     if (ramBankingMode) {
         romBank &= 0b11111;
         romBank |= (ramBank & 0b11) << 5;
-    }
-    if (ramBank >= ramBankCount) {
-        ramBank = std::max(0, ramBankCount - 1);
+
+        if (ramBank >= ramBankCount) {
+            ramBank = std::max(0, ramBankCount - 1);
+        }
+    } else {
+        ramBank = 0;
     }
 
     u8 romBankMask = getROMBankBitMask(romSize);
