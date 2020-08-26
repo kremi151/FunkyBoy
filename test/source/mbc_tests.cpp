@@ -39,7 +39,7 @@ TEST(mbc1RomBankingExample1Test) {
     assertEquals(1, mbc1.romBank);
 
     assertFalse(mbc1.ramEnabled);
-    assertTrue(mbc1.romBankingMode);
+    assertFalse(mbc1.ramBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK1, 0x12);
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b01);
@@ -56,10 +56,10 @@ TEST(mbc1RomBankingExample1Test) {
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
     assertTrue(mbc1.ramEnabled);
-    assertTrue(mbc1.romBankingMode);
+    assertFalse(mbc1.ramBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_MODE, 0b1);
-    assertFalse(mbc1.romBankingMode);
+    assertTrue(mbc1.ramBankingMode);
 
     addr = mbc1.getROMMemoryAddress(0x1000, dummyRomPtr);
     assertPointerAddrEquals(dummyRomPtr, (0x5000 - 0x4000) + (0x20 * FB_TEST_MBC1_ROM_BANK_SIZE), addr);
@@ -71,7 +71,7 @@ TEST(mbc1RomBankingExample2Test) {
     assertEquals(1, mbc1.romBank);
 
     assertFalse(mbc1.ramEnabled);
-    assertTrue(mbc1.romBankingMode);
+    assertFalse(mbc1.ramBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK1, 0b00100);
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
@@ -91,18 +91,18 @@ TEST(mbc1RamBankingExample1Test) {
     assertEquals(0, mbc1.ramBank);
 
     assertFalse(mbc1.ramEnabled);
-    assertTrue(mbc1.romBankingMode);
+    assertFalse(mbc1.ramBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
     assertTrue(mbc1.ramEnabled);
-    assertTrue(mbc1.romBankingMode);
+    assertFalse(mbc1.ramBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_MODE, 0b1);
-    assertFalse(mbc1.romBankingMode);
+    assertTrue(mbc1.ramBankingMode);
 
     mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
 
-    assertEquals(0b1, mbc1.romBank);
+    assertEquals(0x41, mbc1.romBank);
     assertEquals(0b10, mbc1.ramBank);
 
     auto *dummyRamPtr = reinterpret_cast<FunkyBoy::u8*>(0);
