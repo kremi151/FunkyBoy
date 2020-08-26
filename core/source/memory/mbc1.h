@@ -41,7 +41,7 @@ namespace FunkyBoy {
         void updateBanks();
     test_public:
         u8 preliminaryRomBank, romBank{};
-        u8 preliminaryRamBank, ramBank{};
+        u8 ramBank{};
         bool ramBankingMode;
         bool ramEnabled;
     public:

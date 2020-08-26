@@ -62,7 +62,6 @@ u8 getROMBankBitMask(ROMSize romSize) {
 
 MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
     : preliminaryRomBank(1)
-    , preliminaryRamBank(0)
     , ramBankSize(getMBC1RAMBankSize(ramSize))
     , ramBankingMode(false)
     , romSize(romSize)
@@ -75,8 +74,11 @@ MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
 void MBC1::updateBanks() {
     mbc1_print("[MBC1] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", !romBankingMode, romBank, ramBank);
 
-    romBank = ramBankingMode ? (preliminaryRomBank & 0b11111u) : (preliminaryRomBank & 0b1111111u);
-    ramBank = ramBankingMode ? (preliminaryRamBank & 0b11u) : 0;
+    romBank = preliminaryRomBank & 0b1111111u;
+    if (ramBankingMode) {
+        romBank &= 0b11111;
+        romBank |= (ramBank & 0b11) << 5;
+    }
 
     u8 romBankMask = getROMBankBitMask(romSize);
     romBank &= romBankMask;
@@ -138,7 +140,7 @@ bool MBC1::interceptWrite(memory_address offset, u8 val) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
         mbc1_print("[MBC1] about to update ROM/RAM bank with value %d\n", val);
         preliminaryRomBank = ((val & 0b11u) << 5) | (preliminaryRomBank & 0b0011111u);
-        preliminaryRamBank = val & 0b11u;
+        ramBank = val & 0b11u;
         updateBanks();
         return true;
     } else if (offset <= 0x7FFF) {
