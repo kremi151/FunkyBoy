@@ -18,14 +18,18 @@
 
 using namespace FunkyBoy;
 
-u8 * MBCNone::getROMMemoryAddress(memory_address offset, u8 *rom) {
-    return rom + offset;
+u8 MBCNone::readFromROMAt(memory_address offset, u8 *rom) {
+    return *(rom + offset);
 }
 
-u8 * MBCNone::getRAMMemoryAddress(FunkyBoy::memory_address offset, FunkyBoy::u8 *ram) {
-    return ram + offset;
+void MBCNone::interceptROMWrite(memory_address, FunkyBoy::u8) {
+    // Do nothing
 }
 
-bool MBCNone::interceptWrite(memory_address offset, FunkyBoy::u8 val) {
-    return true;
+u8 MBCNone::readFromRAMAt(memory_address offset, u8 *ram) {
+    return *(ram + offset);
+}
+
+void MBCNone::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
+    *(ram + offset) = val;
 }

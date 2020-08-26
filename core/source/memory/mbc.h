@@ -25,9 +25,11 @@ namespace FunkyBoy {
     public:
         virtual ~MBC() = default;
 
-        virtual u8 *getROMMemoryAddress(memory_address offset, u8 *rom) = 0;
-        virtual u8 *getRAMMemoryAddress(memory_address offset, u8 *ram) = 0;
-        virtual bool interceptWrite(memory_address offset, u8 val) = 0;
+        virtual u8 readFromROMAt(memory_address offset, u8 *rom) = 0;
+        virtual void interceptROMWrite(memory_address offset, u8 val) = 0;
+
+        virtual u8 readFromRAMAt(memory_address offset, u8 *ram) = 0;
+        virtual void writeToRAMAt(memory_address offset, u8 val, u8 *ram) = 0;
     };
 
 }

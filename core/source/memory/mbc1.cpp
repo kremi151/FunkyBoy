@@ -122,33 +122,26 @@ void MBC1::updateBanks() {
     mbc1_print(" [rom=0x%02X,ram=0x%02X]\n", romBank, ramBank);
 }
 
-u8 * MBC1::getROMMemoryAddress(memory_address offset, u8 *rom) {
+u8 MBC1::readFromROMAt(memory_address offset, u8 *rom) {
     if (offset <= 0x3FFF) {
         if (ramBankingMode) {
             // TODO: Is this correct? Apparently it should be done like this according to https://gekkio.fi/files/gb-docs/gbctr.pdf
-            return rom + romBankOffsetLower + offset;
+            return *(rom + romBankOffsetLower + offset);
         } else {
-            return rom + offset;
+            return *(rom + offset);
         }
     } else if (offset <= 0x7FFF) {
-        return rom + romBankOffset + (offset - 0x4000);
+        return *(rom + romBankOffset + (offset - 0x4000));
     } else {
-        return nullptr;
+        // Not readable
+        return 0xff;
     }
 }
 
-u8 * MBC1::getRAMMemoryAddress(memory_address offset, u8 *ram) {
-    if (!ramEnabled || offset > maxRamOffset) {
-        return nullptr;
-    }
-    return ram + ramBankOffset + offset;
-}
-
-bool MBC1::interceptWrite(memory_address offset, u8 val) {
+void MBC1::interceptROMWrite(memory_address offset, u8 val) {
     if (offset <= 0x1FFF) {
         ramEnabled = ((val & 0xfu) == 0xA);
         mbc1_print("[MBC1] Enable RAM? %d\n", ramEnabled);
-        return true;
     } else if (offset <= 0x3FFF) {
         // Set ROM Bank number (lower 5 bits)
         val &= 0b0011111u;
@@ -156,19 +149,29 @@ bool MBC1::interceptWrite(memory_address offset, u8 val) {
         mbc1_print("[MBC1] about to update ROM bank with value %d\n", val);
         preliminaryRomBank = (preliminaryRomBank & 0b1100000u) | val;
         updateBanks();
-        return true;
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
         mbc1_print("[MBC1] about to update ROM/RAM bank with value %d\n", val);
         preliminaryRomBank = ((val & 0b11u) << 5) | (preliminaryRomBank & 0b0011111u);
         ramBank = val & 0b11u;
         updateBanks();
-        return true;
     } else if (offset <= 0x7FFF) {
         ramBankingMode = val & 0b1;
         mbc1_print("[MBC1] Set banking mode to %d\n", ramBankingMode);
         updateBanks();
-        return true;
     }
-    return false;
+}
+
+u8 MBC1::readFromRAMAt(memory_address offset, u8 *ram) {
+    if (!ramEnabled || offset > maxRamOffset) {
+        // Not readable
+        return 0xff;
+    }
+    return *(ram + ramBankOffset + offset);
+}
+
+void MBC1::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
+    if (ramEnabled && offset <= maxRamOffset) {
+        *(ram + ramBankOffset + offset) = val;
+    }
 }

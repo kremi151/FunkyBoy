@@ -23,9 +23,11 @@ namespace FunkyBoy {
 
     class MBCNone: public MBC {
     public:
-        u8 *getROMMemoryAddress(memory_address offset, u8 *rom) override;
-        u8 *getRAMMemoryAddress(memory_address offset, u8 *ram) override;
-        bool interceptWrite(memory_address offset, u8 val) override;
+        u8 readFromROMAt(memory_address offset, u8 *rom) override;
+        void interceptROMWrite(memory_address offset, u8 val) override;
+
+        u8 readFromRAMAt(memory_address offset, u8 *ram) override;
+        void writeToRAMAt(memory_address offset, u8 val, u8 *ram) override;
     };
 
 }

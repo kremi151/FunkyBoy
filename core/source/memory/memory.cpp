@@ -89,15 +89,13 @@ case 0xFF
 u8 Memory::read8BitsAt(memory_address offset) {
     switch ((offset >> 8) & 0xff) {
         FB_MEMORY_CARTRIDGE:
-            return *cartridge->mbc->getROMMemoryAddress(offset, cartridge->rom);
+            return cartridge->mbc->readFromROMAt(offset, cartridge->rom);
         FB_MEMORY_VRAM:
             return ppuMemory.isVRAMAccessibleFromMMU()
                    ? ppuMemory.getVRAMByte(offset - 0x8000)
                    : 0xFF;
-        FB_MEMORY_CARTRIDGE_RAM: {
-            u8 *ptr = cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
-            return (ptr == nullptr) ? 0x00 : *ptr;
-        };
+        FB_MEMORY_CARTRIDGE_RAM:
+            return cartridge->mbc->readFromRAMAt(offset - 0xA000, cartridge->ram);
         FB_MEMORY_INTERNAL_RAM:
             return *(internalRam + (offset - 0xC000));
         FB_MEMORY_INTERNAL_RAM_DYNAMIC:
@@ -145,7 +143,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
     switch ((offset >> 8) & 0xff) {
         FB_MEMORY_CARTRIDGE:
             // Writing to read-only area, so we let it intercept by the MBC
-            cartridge->mbc->interceptWrite(offset, val);
+            cartridge->mbc->interceptROMWrite(offset, val);
             break;
         FB_MEMORY_VRAM: {
             if (ppuMemory.isVRAMAccessibleFromMMU()) {
@@ -153,13 +151,9 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
             }
             break;
         }
-        FB_MEMORY_CARTRIDGE_RAM: {
-            u8 *ptr = cartridge->mbc->getRAMMemoryAddress(offset - 0xA000, cartridge->ram);
-            if (ptr != nullptr) {
-                *ptr = val;
-            }
+        FB_MEMORY_CARTRIDGE_RAM:
+            cartridge->mbc->writeToRAMAt(offset - 0xA000, val, cartridge->ram);
             break;
-        };
         FB_MEMORY_INTERNAL_RAM:
             *(internalRam + (offset - 0xC000)) = val;
             break;
