@@ -19,13 +19,25 @@
 #include "unit_tests.h"
 #include "rom_cpu_instrs_tests.h"
 #include "mbc_tests.h"
+#include "rom_mooneye_mbc1.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+    bool runMooneye = false;
+    for (int i = 1 ; i < argc ; i++) {
+        if (strcmp(argv[i], "--mooneye") == 0) {
+            runMooneye = true;
+        }
+    }
+
     acacia::Report report;
 
     report += __fbTests_runUnitTests();
     report += __fbTests_runMbcTests();
     report += __fbTests_runRomTests();
+
+    if (runMooneye) {
+        report += __fbTests_runMooneyeMBC1RomTests();
+    }
 
     std::ofstream reportFile("acacia-report.txt");
     acacia::generateAcaciaReport(report, reportFile);

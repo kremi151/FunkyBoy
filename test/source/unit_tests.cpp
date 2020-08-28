@@ -16,7 +16,7 @@
 
 #include "unit_tests.h"
 
-#include "commons.h"
+#include "util/commons.h"
 
 #include <acacia.h>
 #include <util/fs.h>
