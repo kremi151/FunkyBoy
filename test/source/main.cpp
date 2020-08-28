@@ -21,10 +21,12 @@
 #include "mbc_tests.h"
 #include "rom_mooneye_mbc1.h"
 
+#include <cstring>
+
 int main(int argc, char *argv[]) {
     bool runMooneye = false;
     for (int i = 1 ; i < argc ; i++) {
-        if (strcmp(argv[i], "--mooneye") == 0) {
+        if (std::strcmp(argv[i], "--mooneye") == 0) {
             runMooneye = true;
         }
     }
