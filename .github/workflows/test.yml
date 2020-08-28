@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, mooneye_tests ]
   pull_request:
     branches: [ master ]
 
@@ -24,6 +24,17 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Download Mooneye ROM tests (Windows)
+        if: ${{ matrix.config.os == 'windows-latest' }}
+        run: |
+          Invoke-WebRequest 'https://gekkio.fi/files/mooneye-gb/latest/mooneye-gb_hwtests.zip' -OutFile "${{ github.workspace }}\mooneye.zip"
+          expand-archive -path "${{ github.workspace }}\mooneye.zip" -destinationpath "${{ github.workspace }}\test\mooneye-test-roms"
+        shell: powershell
+      - name: Download Mooneye ROM tests (Linux + macOS)
+        if: ${{ matrix.config.os != 'windows-latest' }}
+        run: |
+          wget https://gekkio.fi/files/mooneye-gb/latest/mooneye-gb_hwtests.zip -O "${{ github.workspace }}/test/mooneye-test-roms/mooneye.zip"
+          cd "${{ github.workspace }}/test/mooneye-test-roms/mooneye.zip" && unzip -q mooneye.zip
       - name: run-cmake
         uses: lukka/run-cmake@v2.5
         with:
@@ -32,9 +43,9 @@ jobs:
           cmakeGenerator: ${{ matrix.config.generator }}
       - name: Perform tests (Windows)
         if: ${{ matrix.config.os == 'windows-latest' }}
-        run: ".\\Debug\\fb_tests.exe"
+        run: ".\\Debug\\fb_tests.exe --mooneye"
         working-directory: "${{ github.workspace }}/test/_fb_tests"
       - name: Perform tests (Linux + macOS)
         if: ${{ matrix.config.os != 'windows-latest' }}
-        run: "./fb_tests"
+        run: "./fb_tests --mooneye"
         working-directory: "${{ github.workspace }}/test/_fb_tests"
