@@ -72,14 +72,14 @@ extern "C" {
         return true;
     }
 
-    void loadSave(FunkyBoy::Emulator &emulator, const fs::path &savePath) {
-        if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0 && fs::exists(savePath)) {
+    void loadSave(FunkyBoy::Emulator &emulator, const FunkyBoy::fs::path &savePath) {
+        if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0 && FunkyBoy::fs::exists(savePath)) {
             std::ifstream file(savePath);
             emulator.loadCartridgeRam(file);
         }
     }
 
-    void writeSave(FunkyBoy::Emulator &emulator, const fs::path &savePath) {
+    void writeSave(FunkyBoy::Emulator &emulator, const FunkyBoy::fs::path &savePath) {
         if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0) {
             std::ofstream file(savePath);
             emulator.writeCartridgeRam(file);
