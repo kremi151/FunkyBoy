@@ -127,7 +127,7 @@ extern "C" {
             return 0;
         }
 
-        fs::path savePath = FB_3DS_ROM_PATH;
+        FunkyBoy::fs::path savePath = FB_3DS_ROM_PATH;
         savePath.replace_extension(".sav");
         loadSave(emulator, savePath);
 
