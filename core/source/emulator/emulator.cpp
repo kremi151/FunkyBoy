@@ -44,14 +44,7 @@ Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     std::ifstream romFile(romPath.c_str(), std::ios::binary);
-    auto status = loadGame(romFile);
-#ifndef __ANDROID__
-    if (status == CartridgeStatus::Loaded) {
-        savePath = romPath;
-        savePath.replace_extension(".sav");
-    }
-#endif
-    return status;
+    return loadGame(romFile);
 }
 
 CartridgeStatus Emulator::loadGame(std::istream &stream) {
@@ -84,23 +77,13 @@ CartridgeStatus Emulator::loadGame(std::istream &stream) {
     return cartridge->getStatus();
 }
 
-#ifndef __ANDROID__
-
-void Emulator::loadCartridgeRamFromFS() {
-    if (!savePath.empty() && fs::exists(savePath)) {
-        std::ifstream file(savePath.c_str(), std::ios::binary);
-        cartridge->loadRamFromFS(file);
-    }
+void Emulator::loadCartridgeRam(std::istream &stream) {
+    cartridge->loadRam(stream);
 }
 
-void Emulator::writeCartridgeRamToFS() {
-    if (!savePath.empty()) {
-        std::ofstream file(savePath.c_str(), std::ios::binary);
-        cartridge->writeRamToFS(file);
-    }
+void Emulator::writeCartridgeRam(std::ostream &stream) {
+    cartridge->writeRam(stream);
 }
-
-#endif
 
 ret_code Emulator::doTick() {
     auto result = cpu->doMachineCycle();

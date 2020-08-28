@@ -20,6 +20,7 @@
 
 #include <cstdarg>
 #include <cstring>
+#include <fstream>
 
 #include "display_libretro.h"
 #include "joypad_libretro.h"
@@ -50,6 +51,8 @@ extern "C" {
     static std::unique_ptr<Emulator> emulator;
     static std::shared_ptr<Controller::DisplayController> displayController;
     static std::shared_ptr<Controller::JoypadController> joypadController;
+
+    static fs::path savePath;
 
     static unsigned currentControllerDevice;
     static unsigned currentControllerPort;
@@ -169,6 +172,20 @@ extern "C" {
         input_poll_cb();
     }
 
+    void fb_loadSave() {
+        if (!savePath.empty() && emulator->getCartridge().getRamSize() > 0 && fs::exists(savePath)) {
+            std::ifstream file(savePath);
+            emulator->loadCartridgeRam(file);
+        }
+    }
+
+    void fb_writeSave() {
+        if (!savePath.empty() && emulator->getCartridge().getRamSize() > 0) {
+            std::ofstream file(savePath);
+            emulator->writeCartridgeRam(file);
+        }
+    }
+
     bool retro_load_game(const struct retro_game_info *info) {
         auto pixel_fmt = RETRO_PIXEL_FORMAT_XRGB8888;
         if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixel_fmt)) {
@@ -199,8 +216,9 @@ extern "C" {
                 return false;
             }
             case CartridgeStatus::Loaded: {
-                // Load save game
-                emulator->loadCartridgeRamFromFS();
+                savePath = info->path;
+                savePath.replace_extension(".sav");
+                fb_loadSave();
                 return true;
             }
             default: {
@@ -211,8 +229,8 @@ extern "C" {
     }
 
     void retro_unload_game(void) {
-        // Write save game
-        emulator->writeCartridgeRamToFS();
+        fb_writeSave();
+        savePath.clear();
 
         auto ptr = emulator.release();
         delete ptr;

@@ -18,10 +18,12 @@
 #include <string.h>
 #include <3ds.h>
 #include <memory>
+#include <fstream>
 
 #include <emulator/emulator.h>
 #include <controllers/display_3ds.h>
 #include <controllers/joypad_3ds.h>
+#include <util/fs.h>
 
 #define FB_3DS_ROM_PATH "funkyboy3DS/game.gb"
 
@@ -70,6 +72,20 @@ extern "C" {
         return true;
     }
 
+    void loadSave(FunkyBoy::Emulator &emulator, const fs::path &savePath) {
+        if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0 && fs::exists(savePath)) {
+            std::ifstream file(savePath);
+            emulator.loadCartridgeRam(file);
+        }
+    }
+
+    void writeSave(FunkyBoy::Emulator &emulator, const fs::path &savePath) {
+        if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0) {
+            std::ofstream file(savePath);
+            emulator.writeCartridgeRam(file);
+        }
+    }
+
     int main(int argc, char* argv[])
     {
         gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, false);
@@ -111,7 +127,9 @@ extern "C" {
             return 0;
         }
 
-        emulator.loadCartridgeRamFromFS();
+        fs::path savePath = FB_3DS_ROM_PATH;
+        savePath.replace_extension(".sav");
+        loadSave(emulator, savePath);
 
         std::cout << "Press X to quit" << std::endl;
 
@@ -132,7 +150,7 @@ extern "C" {
                 break; // break in order to return to hbmenu
         }
 
-        emulator.writeCartridgeRamToFS();
+        writeSave(emulator, savePath);
 
         gfxExit();
         return 0;

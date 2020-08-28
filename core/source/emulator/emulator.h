@@ -30,15 +30,11 @@
 #include <memory/memory.h>
 #include <memory/ppu_memory.h>
 #include <memory>
-#include <istream>
+#include <iostream>
 
 namespace FunkyBoy {
 
     class Emulator {
-    private:
-#ifndef __ANDROID__
-        fs::path savePath;
-#endif
     test_public:
         CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
@@ -55,10 +51,8 @@ namespace FunkyBoy {
         CartridgeStatus loadGame(const fs::path &romPath);
         CartridgeStatus loadGame(std::istream &stream);
 
-#ifndef __ANDROID__
-        void loadCartridgeRamFromFS();
-        void writeCartridgeRamToFS();
-#endif
+        void loadCartridgeRam(std::istream &stream);
+        void writeCartridgeRam(std::ostream &stream);
 
         Cartridge &getCartridge();
 

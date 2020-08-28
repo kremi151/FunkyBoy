@@ -20,6 +20,7 @@
 #include <controllers/serial_sdl.h>
 #include <controllers/joypad_sdl.h>
 #include <controllers/display_sdl.h>
+#include <fstream>
 
 using namespace FunkyBoy::SDL;
 
@@ -40,11 +41,14 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     }
     char *romPath = argv[1];
     std::cout << "Loading ROM from " << romPath << "..." << std::endl;
-    auto status = emulator.loadGame(fs::path(argv[1]));
+    auto status = emulator.loadGame(fs::path(romPath));
     if (status == CartridgeStatus::Loaded) {
         std::cout << "Loaded ROM at " << romPath << std::endl;
 
-        emulator.loadCartridgeRamFromFS();
+        savePath = romPath;
+        savePath.replace_extension(".sav");
+
+        loadSave();
 
         std::string title = reinterpret_cast<const char*>(emulator.getCartridge().getHeader()->title);
         title += " - " FB_NAME;
@@ -63,6 +67,20 @@ void Window::update(SDL_Window *window) {
     }
 }
 
+void Window::loadSave() {
+    if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0 && fs::exists(savePath)) {
+        std::ifstream file(savePath);
+        emulator.loadCartridgeRam(file);
+    }
+}
+
+void Window::writeSave() {
+    if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0) {
+        std::ofstream file(savePath);
+        emulator.writeCartridgeRam(file);
+    }
+}
+
 void Window::deinit() {
-    emulator.writeCartridgeRamToFS();
+    writeSave();
 }

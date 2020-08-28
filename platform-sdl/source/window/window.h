@@ -20,6 +20,7 @@
 #include <SDL.h>
 #include <util/typedefs.h>
 #include <emulator/emulator.h>
+#include <util/fs.h>
 
 namespace FunkyBoy::SDL {
 
@@ -31,6 +32,11 @@ namespace FunkyBoy::SDL {
 
         Controller::ControllersPtr controllers;
         Emulator emulator;
+
+        fs::path savePath;
+
+        void loadSave();
+        void writeSave();
     public:
         explicit Window(GameBoyType gbType);
 

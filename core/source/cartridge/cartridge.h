@@ -69,8 +69,10 @@ namespace FunkyBoy {
         void loadROM(std::istream &stream);
         void loadROM(std::istream &stream, bool strictSizeCheck);
 
-        void loadRamFromFS(std::ifstream &file);
-        void writeRamToFS(std::ofstream &file);
+        void loadRam(std::istream &stream);
+        void writeRam(std::ostream &stream);
+
+        size_t getRamSize();
 
         const ROMHeader *getHeader();
         CartridgeStatus getStatus();

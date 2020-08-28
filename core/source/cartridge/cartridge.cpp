@@ -188,20 +188,20 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
     status = CartridgeStatus::Loaded;
 }
 
-void Cartridge::loadRamFromFS(std::ifstream &file) {
+void Cartridge::loadRam(std::istream &stream) {
     auto ramSize = getCartridgeRamSize(getHeader()->ramSize);
     if (ramSize == 0) {
         return;
     }
-    file.read(static_cast<char*>(static_cast<void*>(ram)), ramSize);
+    stream.read(static_cast<char*>(static_cast<void*>(ram)), ramSize);
 }
 
-void Cartridge::writeRamToFS(std::ofstream &file) {
+void Cartridge::writeRam(std::ostream &stream) {
     auto ramSize = getCartridgeRamSize(getHeader()->ramSize);
     if (ramSize == 0) {
         return;
     }
-    file.write(static_cast<char*>(static_cast<void*>(ram)), ramSize);
+    stream.write(static_cast<char*>(static_cast<void*>(ram)), ramSize);
 }
 
 const ROMHeader * Cartridge::getHeader() {
@@ -210,4 +210,8 @@ const ROMHeader * Cartridge::getHeader() {
 
 CartridgeStatus Cartridge::getStatus() {
     return status;
+}
+
+size_t Cartridge::getRamSize() {
+    return getCartridgeRamSize(getHeader()->ramSize);
 }
