@@ -74,19 +74,19 @@ size_t getCartridgeRamSize(u8 ramSizeType) {
     }
 }
 
-void Cartridge::loadROM(std::ifstream &file) {
-    loadROM(file, false);
+void Cartridge::loadROM(std::istream &stream) {
+    loadROM(stream, false);
 }
 
-void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
-    if (!file.good()) {
+void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
+    if (!stream.good()) {
         status = CartridgeStatus::ROMFileNotReadable;
         return;
     }
 
-    file.seekg(0, std::ios::end);
-    size_t length = file.tellg();
-    file.seekg(0, std::ios::beg);
+    stream.seekg(0, std::ios::end);
+    size_t length = stream.tellg();
+    stream.seekg(0, std::ios::beg);
 
 #ifdef FB_DEBUG
     std::cout << "Seeked a length of " << length << std::endl;
@@ -108,7 +108,7 @@ void Cartridge::loadROM(std::ifstream &file, bool strictSizeCheck) {
     // TODO: Improve this so that I don't have to do this ugly to-char conversion
     auto voidPtr = static_cast<void*>(romBytes.get());
     auto romPtr = static_cast<char*>(voidPtr);
-    file.read(romPtr, length);
+    stream.read(romPtr, length);
 
     auto *header = reinterpret_cast<ROMHeader*>(romBytes.get());
 

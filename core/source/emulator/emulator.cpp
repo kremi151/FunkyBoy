@@ -44,11 +44,21 @@ Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     std::ifstream romFile(romPath.c_str(), std::ios::binary);
+    auto status = loadGame(romFile);
+#ifndef __ANDROID__
+    if (status == CartridgeStatus::Loaded) {
+        savePath = romPath;
+        savePath.replace_extension(".sav");
+    }
+#endif
+    return status;
+}
 
-    cartridge->loadROM(romFile);
+CartridgeStatus Emulator::loadGame(std::istream &stream) {
+    cartridge->loadROM(stream);
 
     if (cartridge->getStatus() != CartridgeStatus::Loaded) {
-        std::cerr << "ROM could not be loaded from " << romPath.string() << std::endl;
+        std::cerr << "ROM could not be loaded, status " << cartridge->getStatus() << std::endl;
         return cartridge->getStatus();
     }
 
@@ -71,26 +81,23 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     std::cout << ss.str() << std::endl;
 #endif
 
-#ifndef __ANDROID__
-    savePath = romPath;
-    savePath.replace_extension(".sav");
-#endif
-
     return cartridge->getStatus();
 }
 
 #ifndef __ANDROID__
 
 void Emulator::loadCartridgeRamFromFS() {
-    if (fs::exists(savePath)) {
+    if (!savePath.empty() && fs::exists(savePath)) {
         std::ifstream file(savePath.c_str(), std::ios::binary);
         cartridge->loadRamFromFS(file);
     }
 }
 
 void Emulator::writeCartridgeRamToFS() {
-    std::ofstream file(savePath.c_str(), std::ios::binary);
-    cartridge->writeRamToFS(file);
+    if (!savePath.empty()) {
+        std::ofstream file(savePath.c_str(), std::ios::binary);
+        cartridge->writeRamToFS(file);
+    }
 }
 
 #endif

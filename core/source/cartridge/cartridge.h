@@ -66,8 +66,8 @@ namespace FunkyBoy {
         Cartridge();
         ~Cartridge();
 
-        void loadROM(std::ifstream &file);
-        void loadROM(std::ifstream &file, bool strictSizeCheck);
+        void loadROM(std::istream &stream);
+        void loadROM(std::istream &stream, bool strictSizeCheck);
 
         void loadRamFromFS(std::ifstream &file);
         void writeRamToFS(std::ofstream &file);

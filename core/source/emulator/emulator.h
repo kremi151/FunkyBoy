@@ -30,6 +30,7 @@
 #include <memory/memory.h>
 #include <memory/ppu_memory.h>
 #include <memory>
+#include <istream>
 
 namespace FunkyBoy {
 
@@ -52,6 +53,7 @@ namespace FunkyBoy {
         Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);
 
         CartridgeStatus loadGame(const fs::path &romPath);
+        CartridgeStatus loadGame(std::istream &stream);
 
 #ifndef __ANDROID__
         void loadCartridgeRamFromFS();
