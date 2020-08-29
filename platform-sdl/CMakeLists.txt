@@ -10,6 +10,7 @@ set(SOURCES
         source/controllers/serial_sdl.cpp
         source/controllers/joypad_sdl.cpp
         source/controllers/display_sdl.cpp
+        source/ui/file_picker_windows.cpp
         source/window/window.cpp
         )
 
