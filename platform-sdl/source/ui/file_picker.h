@@ -17,6 +17,7 @@
 #ifndef FB_SDL_UI_FILE_PICKER_H
 #define FB_SDL_UI_FILE_PICKER_H
 
+#include <SDL.h>
 #include <cstdlib>
 #include <vector>
 #include <string>
@@ -24,7 +25,7 @@
 
 namespace FunkyBoy::SDL::FilePicker {
 
-    void selectFiles(const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles);
+    void selectFiles(SDL_Window *window, const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles);
 
 }
 

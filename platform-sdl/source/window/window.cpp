@@ -46,7 +46,7 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
 
         std::vector<fs::path> selectedPaths;
 
-        FilePicker::selectFiles("Select a Gameboy ROM", romExtensions, false, selectedPaths);
+        FilePicker::selectFiles(window, "Select a Gameboy ROM", romExtensions, false, selectedPaths);
 
         if (selectedPaths.size() > 0) {
             romPath = selectedPaths[0];

@@ -19,21 +19,27 @@
 #include "file_picker.h"
 
 #include <windows.h>
+#include <SDL_syswm.h>
+
 #include <string>
 #include <memory>
 #include <cstring>
 
 using namespace FunkyBoy::SDL;
 
-void FilePicker::selectFiles(const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
+void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     OPENFILENAME ofn;       // common dialog box structure
     char szFile[512];       // buffer for file name
 
-    const std::string typeName = "Gameboy ROM";
+    std::vector<std::string> typeDescriptions;
+
     size_t bufferSize = 1; // One additional NUL character
 
     for (const std::string &type : types) {
-        bufferSize += typeName.size();
+        std::string description = type + (allowMultiple ? " files" : " file");
+        typeDescriptions.emplace_back(description);
+
+        bufferSize += description.size();
         bufferSize++; // NUL character
         bufferSize += type.size();
         bufferSize += 2 + 1; // '*.' and NUL character
@@ -42,17 +48,22 @@ void FilePicker::selectFiles(const char *title, const std::vector<std::string> &
     std::unique_ptr<char[]> filterStr(new char[bufferSize]{});
 
     size_t pos = 0;
-    for (const std::string &type : types) {
-        std::strcat(filterStr.get() + pos, typeName.c_str());
-        pos += typeName.size() + 1; // Additional NUL character
+    for (size_t i = 0 ; i < types.size() ; i++) {
+        const std::string &type = types[i];
+        const std::string &description = typeDescriptions[i];
+        std::strcat(filterStr.get() + pos, description.c_str());
+        pos += description.size() + 1; // Additional NUL character
         std::strcat(filterStr.get() + pos, "*.");
         std::strcat(filterStr.get() + pos, type.c_str());
         pos += type.size() + 2 + 1; // '*.' and Additional NUL character
     }
 
+    SDL_SysWMinfo wmi = {0};
+    SDL_GetWindowWMInfo(window, &wmi);
+
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = NULL;
+    ofn.hwndOwner = wmi.info.win.window;
     ofn.lpstrFile = szFile;
     ofn.lpstrFile[0] = '\0';
     ofn.nMaxFile = sizeof(szFile);
@@ -64,7 +75,6 @@ void FilePicker::selectFiles(const char *title, const std::vector<std::string> &
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
     if (GetOpenFileName(&ofn)) {
-        fprintf(stdout, "WIN selected file: %s\n", ofn.lpstrFile);
         outFiles.emplace_back(ofn.lpstrFile);
     }
 }
