@@ -23,8 +23,8 @@
 // Magic number sequences to check whether a test was successful or a failure
 // See https://github.com/Gekkio/mooneye-gb/blob/master/tests/common/lib/quit.s
 
-const char __fb_mooneye_success[6] = { 3, 5, 8, 13, 21, 34 };
-const char __fb_mooneye_failure[6] = { 66, 66, 66, 66, 66, 66 };
+const char __fb_mooneye_success[7] = { 3, 5, 8, 13, 21, 34, 0 };
+const char __fb_mooneye_failure[7] = { 66, 66, 66, 66, 66, 66, 0 };
 
 inline void testUsingMooneyeROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks) {
     testUsingROM(romPath, expectedTicks, __fb_mooneye_success, __fb_mooneye_failure);
