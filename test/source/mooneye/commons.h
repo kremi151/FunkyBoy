@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_UTIL_MOONEYE_COMMON_H
-#define FB_TESTS_UTIL_MOONEYE_COMMON_H
+#ifndef FB_TESTS_MOONEYE_COMMONS_H
+#define FB_TESTS_MOONEYE_COMMONS_H
 
 #include <util/fs.h>
-#include "commons.h"
+#include "../util/rom_commons.h"
 
 // Magic number sequences to check whether a test was successful or a failure
 // See https://github.com/Gekkio/mooneye-gb/blob/master/tests/common/lib/quit.s
@@ -30,4 +30,4 @@ inline void testUsingMooneyeROM(const FunkyBoy::fs::path &romPath, unsigned int 
     testUsingROM(romPath, expectedTicks, __fb_mooneye_success, __fb_mooneye_failure);
 }
 
-#endif //FB_TESTS_UTIL_MOONEYE_COMMON_H
+#endif //FB_TESTS_MOONEYE_COMMONS_H

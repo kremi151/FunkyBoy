@@ -16,7 +16,7 @@
 
 #include "unit_tests.h"
 
-#include "util/commons.h"
+#include "util/rom_commons.h"
 
 #include <acacia.h>
 #include <util/fs.h>

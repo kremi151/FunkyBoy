@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_COMMONS_H
-#define FB_TESTS_COMMONS_H
+#ifndef FB_TESTS_MOONEYE_TESTS_H
+#define FB_TESTS_MOONEYE_TESTS_H
 
-#include <emulator/gb_type.h>
-#include <util/fs.h>
+#include <acacia.h>
 
-#define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
+#include "rom_mooneye_mbc1.h"
 
-void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks, const char *successWord, const char *failureWord);
+inline acacia::Report __fbTests_runMooneyeTests() {
+    acacia::Report report;
 
-#endif //FB_TESTS_COMMONS_H
+    report += __fbTests_runMooneyeMBC1RomTests();
+
+    return report;
+}
+
+#endif //FB_TESTS_MOONEYE_TESTS_H

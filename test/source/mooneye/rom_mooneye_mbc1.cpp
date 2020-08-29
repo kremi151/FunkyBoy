@@ -16,7 +16,7 @@
 
 #include "rom_mooneye_mbc1.h"
 
-#include "util/mooneye_common.h"
+#include "commons.h"
 #include <util/fs.h>
 
 TEST(testMooneyeMBC1Rom512Kb) {

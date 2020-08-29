@@ -16,7 +16,7 @@
 
 #include "rom_cpu_instrs_tests.h"
 
-#include "util/blargg_commons.h"
+#include "commons.h"
 #include <util/fs.h>
 
 TEST(testCPUInstructionsSpecial) {
@@ -80,6 +80,6 @@ TEST(testCPUInstructionsOpAHL) {
     testUsingBlarggROM(romPath, 40000000);
 }*/
 
-acacia::Report __fbTests_runRomTests() {
+acacia::Report __fbTests_runBlarggCpuInstrsRomTests() {
     return runAcaciaFileTests();
 }

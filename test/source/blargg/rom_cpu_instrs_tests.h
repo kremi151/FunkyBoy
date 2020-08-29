@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_UTIL_BLARGG_COMMONS_H
-#define FB_TESTS_UTIL_BLARGG_COMMONS_H
+#ifndef FB_TESTS_ROM_CPU_INSTRS_TESTS_H
+#define FB_TESTS_ROM_CPU_INSTRS_TESTS_H
 
-#include "commons.h"
+#include <acacia.h>
 
-inline void testUsingBlarggROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks) {
-    testUsingROM(romPath, expectedTicks, "Passed", "Failed");
-}
+acacia::Report __fbTests_runBlarggCpuInstrsRomTests();
 
-#endif //FB_TESTS_UTIL_BLARGG_COMMONS_H
+#endif //FB_TESTS_ROM_CPU_INSTRS_TESTS_H

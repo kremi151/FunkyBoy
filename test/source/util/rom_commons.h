@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_ROM_CPU_INSTRS_TESTS_H
-#define FB_TESTS_ROM_CPU_INSTRS_TESTS_H
+#ifndef FB_TESTS_ROM_COMMONS_H
+#define FB_TESTS_ROM_COMMONS_H
 
-#include <acacia.h>
+#include <emulator/gb_type.h>
+#include <util/fs.h>
 
-acacia::Report __fbTests_runRomTests();
+#define TEST_GB_TYPE FunkyBoy::GameBoyType::GameBoyDMG
 
-#endif //FB_TESTS_ROM_CPU_INSTRS_TESTS_H
+void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks, const char *successWord, const char *failureWord);
+
+#endif //FB_TESTS_ROM_COMMONS_H

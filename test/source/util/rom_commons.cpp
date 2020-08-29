@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "commons.h"
+#include "rom_commons.h"
 #include "../controllers/serial_test.h"
 
 #include <acacia.h>

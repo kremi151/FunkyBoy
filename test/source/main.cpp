@@ -17,9 +17,9 @@
 #include <acacia.h>
 
 #include "unit_tests.h"
-#include "rom_cpu_instrs_tests.h"
 #include "mbc_tests.h"
-#include "rom_mooneye_mbc1.h"
+#include "blargg/blargg_tests.h"
+#include "mooneye/mooneye_tests.h"
 
 #include <cstring>
 
@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
 
     report += __fbTests_runUnitTests();
     report += __fbTests_runMbcTests();
-    report += __fbTests_runRomTests();
+    report += __fbTests_runBlarggTests();
 
     if (runMooneye) {
-        report += __fbTests_runMooneyeMBC1RomTests();
+        report += __fbTests_runMooneyeTests();
     }
 
     std::ofstream reportFile("acacia-report.txt");
