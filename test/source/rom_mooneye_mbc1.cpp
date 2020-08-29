@@ -50,12 +50,12 @@ TEST(testMooneyeMBC1Rom16MB) {
 }
 
 TEST(testMooneyeMBC1Ram64Kb) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc1" / "ram_64Kb.gb";
+    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc1" / "ram_64kb.gb";
     testUsingMooneyeROM(romPath, 5120000);
 }
 
 TEST(testMooneyeMBC1Ram256Kb) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc1" / "ram_256Kb.gb";
+    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc1" / "ram_256kb.gb";
     testUsingMooneyeROM(romPath, 5120000);
 }
 
