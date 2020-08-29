@@ -72,7 +72,7 @@ void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::v
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
 
     if (GetOpenFileName(&ofn)) {
         outFiles.emplace_back(ofn.lpstrFile);
