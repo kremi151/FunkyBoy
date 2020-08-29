@@ -34,7 +34,7 @@ jobs:
         if: ${{ matrix.config.os != 'windows-latest' }}
         run: |
           wget https://gekkio.fi/files/mooneye-gb/latest/mooneye-gb_hwtests.zip -O "${{ github.workspace }}/test/mooneye-test-roms/mooneye.zip"
-          cd "${{ github.workspace }}/test/mooneye-test-roms" && unzip -q mooneye.zip
+          cd "${{ github.workspace }}/test/mooneye-test-roms" && unzip mooneye.zip
       - name: run-cmake
         uses: lukka/run-cmake@v2.5
         with:
