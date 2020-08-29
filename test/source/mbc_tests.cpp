@@ -17,6 +17,7 @@
 #include "mbc_tests.h"
 
 #include <memory/mbc1.h>
+#include <memory>
 
 // Unit tests in this file are based on ROM/RAM banking examples of the following document:
 // https://gekkio.fi/files/gb-docs/gbctr.pdf
@@ -30,8 +31,8 @@
 
 #define FB_TEST_CARTRIDGE_RAM_OFFSET 0xA000
 
-#define assertPointerAddrEquals(expectedPtr, expectedOffset, actualPtr) \
-assertEquals(reinterpret_cast<unsigned long>(expectedPtr) + expectedOffset, reinterpret_cast<unsigned long>(actualPtr))
+//#define assertPointerAddrEquals(expectedPtr, expectedOffset, actualPtr) \
+//assertEquals(reinterpret_cast<unsigned long>(expectedPtr) + expectedOffset, reinterpret_cast<unsigned long>(actualPtr))
 
 TEST(mbc1RomBankingExample1Test) {
     FunkyBoy::MBC1 mbc1(FunkyBoy::ROMSize::ROM_SIZE_4096K, FunkyBoy::MBC1RAMSize::MBC1_32KByte);
@@ -41,28 +42,33 @@ TEST(mbc1RomBankingExample1Test) {
     assertFalse(mbc1.ramEnabled);
     assertFalse(mbc1.ramBankingMode);
 
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK1, 0x12);
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b01);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_BANK1, 0x12);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_BANK2, 0b01);
 
     assertEquals(0x32, mbc1.romBank);
 
-    auto dummyRomPtr = reinterpret_cast<FunkyBoy::u8*>(0);
-    FunkyBoy::u8 *addr = mbc1.getROMMemoryAddress(0x5000, dummyRomPtr);
+    std::unique_ptr<FunkyBoy::u8[]> rom(new FunkyBoy::u8[(0x32 + 1) * FB_TEST_MBC1_ROM_BANK_SIZE]{});
 
-    assertPointerAddrEquals(dummyRomPtr, (0x5000 - 0x4000) + (0x32 * FB_TEST_MBC1_ROM_BANK_SIZE), addr);
+    // Place some specific magic numbers in the ROM so that we can check if we're at the correct address
+    *(rom.get() + (0x5000 - FB_REG_TEST_MBC1_BANK2) + (0x32 * FB_TEST_MBC1_ROM_BANK_SIZE)) = 42;
+    *(rom.get() + (0x5000 - FB_REG_TEST_MBC1_BANK2) + (0x20 * FB_TEST_MBC1_ROM_BANK_SIZE)) = 69;
+    *(rom.get() + 0x1000) = 18;
 
-    addr = mbc1.getROMMemoryAddress(0x1000, dummyRomPtr);
-    assertPointerAddrEquals(dummyRomPtr, 0x1000, addr);
+    FunkyBoy::u8 val = mbc1.readFromROMAt(0x5000, rom.get());
+    assertEquals(42, val);
 
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
+    val = mbc1.readFromROMAt(0x1000, rom.get());
+    assertEquals(18, val);
+
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
     assertTrue(mbc1.ramEnabled);
     assertFalse(mbc1.ramBankingMode);
 
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_MODE, 0b1);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_MODE, 0b1);
     assertTrue(mbc1.ramBankingMode);
 
-    addr = mbc1.getROMMemoryAddress(0x1000, dummyRomPtr);
-    assertPointerAddrEquals(dummyRomPtr, (0x5000 - 0x4000) + (0x20 * FB_TEST_MBC1_ROM_BANK_SIZE), addr);
+    val = mbc1.readFromROMAt(0x1000, rom.get());
+    assertEquals(69, val);
 }
 
 TEST(mbc1RomBankingExample2Test) {
@@ -73,15 +79,18 @@ TEST(mbc1RomBankingExample2Test) {
     assertFalse(mbc1.ramEnabled);
     assertFalse(mbc1.ramBankingMode);
 
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK1, 0b00100);
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_BANK1, 0b00100);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
 
     assertEquals(0x44, mbc1.romBank);
 
-    auto dummyRomPtr = reinterpret_cast<FunkyBoy::u8*>(0);
-    FunkyBoy::u8 *addr = mbc1.getROMMemoryAddress(0x72A7, dummyRomPtr);
+    std::unique_ptr<FunkyBoy::u8[]> rom(new FunkyBoy::u8[0x1132A7]{});
 
-    assertPointerAddrEquals(dummyRomPtr, 0x1132A7, addr);
+    // Place some specific magic numbers in the ROM so that we can check if we're at the correct address
+    *(rom.get() + 0x1132A7) = 11;
+
+    FunkyBoy::u8 val = mbc1.readFromROMAt(0x72A7, rom.get());
+    assertEquals(11, val);
 }
 
 TEST(mbc1RamBankingExample1Test) {
@@ -93,22 +102,25 @@ TEST(mbc1RamBankingExample1Test) {
     assertFalse(mbc1.ramEnabled);
     assertFalse(mbc1.ramBankingMode);
 
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_RAMG, 0b1010);
     assertTrue(mbc1.ramEnabled);
     assertFalse(mbc1.ramBankingMode);
 
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_MODE, 0b1);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_MODE, 0b1);
     assertTrue(mbc1.ramBankingMode);
 
-    mbc1.interceptWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
+    mbc1.interceptROMWrite(FB_REG_TEST_MBC1_BANK2, 0b10);
 
     assertEquals(0x41, mbc1.romBank);
     assertEquals(0b10, mbc1.ramBank);
 
-    auto *dummyRamPtr = reinterpret_cast<FunkyBoy::u8*>(0);
-    FunkyBoy::u8 *addr = mbc1.getRAMMemoryAddress(0xB123 - FB_TEST_CARTRIDGE_RAM_OFFSET, dummyRamPtr);
+    std::unique_ptr<FunkyBoy::u8[]> ram(new FunkyBoy::u8[0x5123]{});
 
-    assertPointerAddrEquals(dummyRamPtr, 0x5123, addr);
+    // Place some specific magic numbers in the RAM so that we can check if we're at the correct address
+    *(ram.get() + 0x5123) = 99;
+
+    FunkyBoy::u8 val = mbc1.readFromRAMAt(0xB123 - FB_TEST_CARTRIDGE_RAM_OFFSET, ram.get());
+    assertEquals(99, val);
 }
 
 acacia::Report __fbTests_runMbcTests() {
