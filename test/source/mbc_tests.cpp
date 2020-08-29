@@ -31,12 +31,6 @@
 
 #define FB_TEST_CARTRIDGE_RAM_OFFSET 0xA000
 
-//#define assertPointerAddrEquals(expectedPtr, expectedOffset, actualPtr) \
-//assertEquals(reinterpret_cast<unsigned long>(expectedPtr) + expectedOffset, reinterpret_cast<unsigned long>(actualPtr))
-
-// Is this still needed? (Mooneye tests are now included)
-// TODO: Check if still needed. If yes, fix compiling issues
-/*
 TEST(mbc1RomBankingExample1Test) {
     FunkyBoy::MBC1 mbc1(FunkyBoy::ROMSize::ROM_SIZE_4096K, FunkyBoy::MBC1RAMSize::MBC1_32KByte);
 
@@ -125,7 +119,6 @@ TEST(mbc1RamBankingExample1Test) {
     FunkyBoy::u8 val = mbc1.readFromRAMAt(0xB123 - FB_TEST_CARTRIDGE_RAM_OFFSET, ram.get());
     assertEquals(99, val);
 }
-*/
 
 acacia::Report __fbTests_runMbcTests() {
     return runAcaciaFileTests();
