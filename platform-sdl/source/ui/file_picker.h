@@ -17,13 +17,14 @@
 #ifndef FB_SDL_UI_FILE_PICKER_H
 #define FB_SDL_UI_FILE_PICKER_H
 
+#include <cstdlib>
+#include <vector>
+#include <string>
 #include <util/fs.h>
 
 namespace FunkyBoy::SDL::FilePicker {
 
-    typedef void (*FilePathCallback)(FunkyBoy::fs::path);
-
-    FunkyBoy::fs::path selectROM();
+    void selectFiles(const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles);
 
 }
 

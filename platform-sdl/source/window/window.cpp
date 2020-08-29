@@ -39,7 +39,18 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     fs::path romPath;
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
-        romPath = FilePicker::selectROM();
+
+        std::vector<std::string> romExtensions;
+        romExtensions.push_back("gb");
+        romExtensions.push_back("bin");
+
+        std::vector<fs::path> selectedPaths;
+
+        FilePicker::selectFiles("Select a Gameboy ROM", romExtensions, false, selectedPaths);
+
+        if (selectedPaths.size() > 0) {
+            romPath = selectedPaths[0];
+        }
     } else {
         romPath = argv[1];
     }

@@ -21,20 +21,25 @@
 
 using namespace FunkyBoy::SDL;
 
-FunkyBoy::fs::path FilePicker::selectROM() {
+void FilePicker::selectFiles(const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     NSOpenPanel *openDlg = [NSOpenPanel openPanel];
-    NSArray<NSString*> *fileTypeFilter = @[@"gb", @"bin"];
+
+    NSMutableArray<NSString*> *fileTypeFilter = [[NSMutableArray alloc] init];
+    for (const std::string &typestr : types) {
+        [fileTypeFilter addObject:[NSString stringWithUTF8String:typestr.c_str()]];
+    }
 
     [openDlg setCanChooseFiles:YES];
     [openDlg setAllowedFileTypes:fileTypeFilter];
-    [openDlg setAllowsMultipleSelection:NO];
+    [openDlg setAllowsMultipleSelection:allowMultiple];
 
-    if ([openDlg runModal] == NSModalResponseOK) {
-        NSArray<NSURL*> *files = [openDlg URLs];
-        if ([files count] > 0) {
-            NSString *path = [[files objectAtIndex:0] path];
-            return [path UTF8String];
-        }
+    if ([openDlg runModal] != NSModalResponseOK) {
+        return;
     }
-    return "";
+
+    NSArray<NSURL*> *files = [openDlg URLs];
+    for (id url in files) {
+        NSString *path = [url path];
+        outFiles.push_back([path UTF8String]);
+    }
 }
