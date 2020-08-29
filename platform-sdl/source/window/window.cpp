@@ -20,6 +20,7 @@
 #include <controllers/serial_sdl.h>
 #include <controllers/joypad_sdl.h>
 #include <controllers/display_sdl.h>
+#include <ui/file_picker.h>
 #include <fstream>
 
 using namespace FunkyBoy::SDL;
@@ -35,11 +36,17 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
     controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
 
+    fs::path romPath;
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
+        romPath = FilePicker::selectROM();
+    } else {
+        romPath = argv[1];
+    }
+    if (romPath.empty()) {
+        std::cerr << "Empty ROM path specified" << std::endl;
         return false;
     }
-    char *romPath = argv[1];
     std::cout << "Loading ROM from " << romPath << "..." << std::endl;
     auto status = emulator.loadGame(fs::path(romPath));
     if (status == CartridgeStatus::Loaded) {

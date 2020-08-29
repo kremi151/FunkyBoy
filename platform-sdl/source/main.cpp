@@ -50,6 +50,10 @@ int main(int argc, char **argv) {
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
     bool romLoaded = fbWindow.init(window, renderer, frameBuffer, argc, argv);
 
+    if (!romLoaded) {
+        goto fb_exit;
+    }
+
     while (true) {
         next_frame += std::chrono::nanoseconds(fb_clock_frequency);
 
@@ -63,6 +67,7 @@ int main(int argc, char **argv) {
         std::this_thread::sleep_until(next_frame);
     }
 
+fb_exit:
     fbWindow.deinit();
 
     SDL_DestroyWindow(window);

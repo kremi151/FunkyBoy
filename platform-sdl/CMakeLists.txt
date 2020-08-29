@@ -17,8 +17,17 @@ set(HEADERS
         source/controllers/serial_sdl.h
         source/controllers/joypad_sdl.h
         source/controllers/display_sdl.h
+        source/ui/file_picker.h
         source/window/window.h
         )
+
+set(DARWIN_SOURCES
+        source/ui/file_picker_cocoa.mm
+        )
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(SOURCES ${SOURCES} ${DARWIN_SOURCES})
+endif()
 
 find_package(SDL2 REQUIRED)
 
@@ -33,6 +42,10 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core" fb_core_build)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
 include_directories(${SDL2_INCLUDE_DIRS})
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set_source_files_properties(${DARWIN_SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
+endif()
 
 target_link_libraries(fb_sdl fb_core ${SDL2_LIBRARIES})
 add_definitions(-DSDL_MAIN_HANDLED)

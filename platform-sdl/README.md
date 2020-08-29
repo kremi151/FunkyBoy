@@ -37,6 +37,13 @@ mkdir -p cmake-build && cd cmake-build
 cmake .. && make
 ```
 
+To work in Xcode, generate Xcode project files:
+
+```
+mkdir -p xcode && cd xcode
+cmake -G xcode ..
+```
+
 ## Build on Windows
 
 1. Download SDL2:
