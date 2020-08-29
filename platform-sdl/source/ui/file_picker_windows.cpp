@@ -24,6 +24,7 @@
 #include <string>
 #include <memory>
 #include <cstring>
+#include <util/fs.h>
 
 using namespace FunkyBoy::SDL;
 
@@ -73,9 +74,29 @@ void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::v
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
+    if (allowMultiple) {
+        ofn.Flags |= OFN_ALLOWMULTISELECT;
+    }
 
-    if (GetOpenFileName(&ofn)) {
-        outFiles.emplace_back(ofn.lpstrFile);
+    if (!GetOpenFileName(&ofn)) {
+        return;
+    }
+
+    std::string mainToken = ofn.lpstrFile;
+    if (!fs::is_directory(mainToken)) {
+        outFiles.emplace_back(mainToken);
+        return;
+    }
+
+    fs::path rootDirectory = mainToken;
+
+    std::string fileName;
+    char *resultPtr = ofn.lpstrFile + mainToken.size() + 1;
+    while (*resultPtr != '\0') {
+        fileName = resultPtr;
+        fs::path filePath = rootDirectory / fileName;
+        outFiles.emplace_back(filePath);
+        resultPtr += fileName.size() + 1;
     }
 }
 
