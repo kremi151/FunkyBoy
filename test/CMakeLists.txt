@@ -12,6 +12,8 @@ set(SOURCES
         source/unit_tests.cpp
         source/mbc_tests.cpp
         source/mooneye/rom_mooneye_mbc1.cpp
+        source/mooneye/rom_acceptance_bits.cpp
+        source/mooneye/rom_acceptance_instr.cpp
         source/main.cpp
         )
 
@@ -26,6 +28,8 @@ set(HEADERS
         source/blargg/commons.h
         source/blargg/blargg_tests.h
         source/mooneye/mooneye_tests.h
+        source/mooneye/rom_acceptance_bits.h
+        source/mooneye/rom_acceptance_instr.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

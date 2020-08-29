@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_MOONEYE_TESTS_H
-#define FB_TESTS_MOONEYE_TESTS_H
-
-#include <acacia.h>
-
-#include "rom_mooneye_mbc1.h"
-#include "rom_acceptance_bits.h"
 #include "rom_acceptance_instr.h"
 
-inline acacia::Report __fbTests_runMooneyeTests() {
-    acacia::Report report;
+#include "commons.h"
 
-    report += __fbTests_runMooneyeMBC1RomTests();
-    report += __fbTests_runMooneyeAcceptanceBitsRomTests();
-    report += __fbTests_runMooneyeAcceptanceInstrRomTests();
-
-    return report;
+TEST(testMooneyeAcceptanceInstrDaa) {
+    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "acceptance" / "instr" / "daa.gb";
+    testUsingMooneyeROM(romPath, 5120000);
 }
 
-#endif //FB_TESTS_MOONEYE_TESTS_H
+acacia::Report __fbTests_runMooneyeAcceptanceInstrRomTests() {
+    return runAcaciaFileTests();
+}

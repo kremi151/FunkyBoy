@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_MOONEYE_TESTS_H
-#define FB_TESTS_MOONEYE_TESTS_H
+#ifndef FB_TESTS_ROM_ACCEPTANCE_INSTR_H
+#define FB_TESTS_ROM_ACCEPTANCE_INSTR_H
 
 #include <acacia.h>
 
-#include "rom_mooneye_mbc1.h"
-#include "rom_acceptance_bits.h"
-#include "rom_acceptance_instr.h"
+acacia::Report __fbTests_runMooneyeAcceptanceInstrRomTests();
 
-inline acacia::Report __fbTests_runMooneyeTests() {
-    acacia::Report report;
-
-    report += __fbTests_runMooneyeMBC1RomTests();
-    report += __fbTests_runMooneyeAcceptanceBitsRomTests();
-    report += __fbTests_runMooneyeAcceptanceInstrRomTests();
-
-    return report;
-}
-
-#endif //FB_TESTS_MOONEYE_TESTS_H
+#endif //FB_TESTS_ROM_ACCEPTANCE_INSTR_H
