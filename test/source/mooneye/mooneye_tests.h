@@ -20,15 +20,13 @@
 #include <acacia.h>
 
 #include "rom_mooneye_mbc1.h"
-#include "rom_acceptance_bits.h"
-#include "rom_acceptance_instr.h"
+#include "rom_acceptance.h"
 
 inline acacia::Report __fbTests_runMooneyeTests() {
     acacia::Report report;
 
     report += __fbTests_runMooneyeMBC1RomTests();
-    report += __fbTests_runMooneyeAcceptanceBitsRomTests();
-    report += __fbTests_runMooneyeAcceptanceInstrRomTests();
+    report += __fbTests_runMooneyeAcceptanceRomTests();
 
     return report;
 }

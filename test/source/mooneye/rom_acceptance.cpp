@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "rom_acceptance_bits.h"
+#include "rom_acceptance.h"
 
 #include "commons.h"
 
@@ -34,6 +34,11 @@ TEST(testMooneyeAcceptanceBitsRegF) {
     testUsingMooneyeROM(romPath, 5120000);
 }*/
 
-acacia::Report __fbTests_runMooneyeAcceptanceBitsRomTests() {
+TEST(testMooneyeAcceptanceInstrDaa) {
+    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "acceptance" / "instr" / "daa.gb";
+    testUsingMooneyeROM(romPath, 5120000);
+}
+
+acacia::Report __fbTests_runMooneyeAcceptanceRomTests() {
     return runAcaciaFileTests();
 }
