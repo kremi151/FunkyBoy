@@ -22,24 +22,26 @@
 using namespace FunkyBoy::SDL;
 
 void FilePicker::selectFiles(const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
-    NSOpenPanel *openDlg = [NSOpenPanel openPanel];
+    @autoreleasepool {
+        NSOpenPanel *openDlg = [NSOpenPanel openPanel];
 
-    NSMutableArray<NSString*> *fileTypeFilter = [[NSMutableArray alloc] init];
-    for (const std::string &typestr : types) {
-        [fileTypeFilter addObject:[NSString stringWithUTF8String:typestr.c_str()]];
-    }
+        NSMutableArray<NSString*> *fileTypeFilter = [[NSMutableArray alloc] init];
+        for (const std::string &typestr : types) {
+            [fileTypeFilter addObject:[NSString stringWithUTF8String:typestr.c_str()]];
+        }
 
-    [openDlg setCanChooseFiles:YES];
-    [openDlg setAllowedFileTypes:fileTypeFilter];
-    [openDlg setAllowsMultipleSelection:allowMultiple];
+        [openDlg setCanChooseFiles:YES];
+        [openDlg setAllowedFileTypes:fileTypeFilter];
+        [openDlg setAllowsMultipleSelection:allowMultiple];
 
-    if ([openDlg runModal] != NSModalResponseOK) {
-        return;
-    }
+        if ([openDlg runModal] != NSModalResponseOK) {
+            return;
+        }
 
-    NSArray<NSURL*> *files = [openDlg URLs];
-    for (id url in files) {
-        NSString *path = [url path];
-        outFiles.push_back([path UTF8String]);
+        NSArray<NSURL*> *files = [openDlg URLs];
+        for (id url in files) {
+            NSString *path = [url path];
+            outFiles.push_back([path UTF8String]);
+        }
     }
 }
