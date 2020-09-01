@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
+include(DetectOS)
+
 set(SOURCES
         source/main.cpp
         source/controllers/serial_sdl.cpp
@@ -26,15 +28,18 @@ set(DARWIN_SOURCES
         source/ui/file_picker_cocoa.mm
         )
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (OS_MACOS)
         set(SOURCES ${SOURCES} ${DARWIN_SOURCES})
 endif()
 
 find_package(SDL2 REQUIRED)
 
-IF (NOT SDL2_FOUND)
+if (SDL2_FOUND)
+    set(FB_EXTERNAL_LIBS ${FB_EXTERNAL_LIBS} ${SDL2_LIBRARIES})
+    set(FB_EXTERNAL_INCLUDE_DIRS ${FB_EXTERNAL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
+else()
     message(FATAL_ERROR "SDL2 was not found")
-ENDIF()
+endif()
 
 add_executable(fb_sdl ${SOURCES} ${HEADERS})
 
@@ -42,11 +47,11 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core" fb_core_build)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
-include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${FB_EXTERNAL_INCLUDE_DIRS})
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (OS_MACOS)
         set_source_files_properties(${DARWIN_SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
-target_link_libraries(fb_sdl fb_core ${SDL2_LIBRARIES})
+target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
 add_definitions(-DSDL_MAIN_HANDLED)
