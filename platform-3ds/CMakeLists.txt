@@ -5,7 +5,7 @@ project(fb_3ds CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common ${CMAKE_SOURCE_DIR}/cmake_modules)
 
 if(NOT CMAKE_BUILD_TYPE)
     message("Setting CMAKE_BUILD_TYPE to Release")
