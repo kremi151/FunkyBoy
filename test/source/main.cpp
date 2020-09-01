@@ -17,7 +17,6 @@
 #include <acacia.h>
 
 #include "unit_tests.h"
-#include "mbc_tests.h"
 #include "blargg/blargg_tests.h"
 #include "mooneye/mooneye_tests.h"
 
@@ -34,7 +33,6 @@ int main(int argc, char *argv[]) {
     acacia::Report report;
 
     report += __fbTests_runUnitTests();
-    report += __fbTests_runMbcTests();
     report += __fbTests_runBlarggTests();
 
     if (runMooneye) {
