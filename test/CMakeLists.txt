@@ -10,7 +10,6 @@ set(SOURCES
         source/commons.cpp
         source/rom_cpu_instrs_tests.cpp
         source/unit_tests.cpp
-        source/mbc_tests.cpp
         source/main.cpp
         )
 
@@ -19,7 +18,6 @@ set(HEADERS
         source/commons.h
         source/rom_cpu_instrs_tests.h
         source/unit_tests.h
-        source/mbc_tests.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

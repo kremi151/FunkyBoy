@@ -18,13 +18,11 @@
 
 #include "unit_tests.h"
 #include "rom_cpu_instrs_tests.h"
-#include "mbc_tests.h"
 
 int main() {
     acacia::Report report;
 
     report += __fbTests_runUnitTests();
-    report += __fbTests_runMbcTests();
     report += __fbTests_runRomTests();
 
     std::ofstream reportFile("acacia-report.txt");
