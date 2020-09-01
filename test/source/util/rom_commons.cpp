@@ -33,7 +33,7 @@ void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks,
     );
     auto status = emulator.loadGame(romPath);
     if (status != FunkyBoy::CartridgeStatus::Loaded) {
-      std::cout << "Loading test ROM at " << romPath.c_str() << " failed" << std::endl;
+      std::cout << "Loading test ROM at " << romPath << " failed" << std::endl;
     }
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 
