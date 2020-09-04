@@ -17,6 +17,7 @@
 #include <SDL.h>
 #include <util/typedefs.h>
 #include <window/window.h>
+#include <ui/file_picker.h>
 
 #include <chrono>
 #include <thread>
@@ -25,6 +26,8 @@
 #define fb_clock_frequency (1000000000/1048576)
 
 int main(int argc, char **argv) {
+    FunkyBoy::SDL::FilePicker::init(argc, argv);
+
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = SDL_CreateWindow(
             FB_NAME,
@@ -75,5 +78,7 @@ fb_exit:
     SDL_DestroyTexture(frameBuffer);
 
     SDL_Quit();
+
+    FunkyBoy::SDL::FilePicker::deinit();
     return 0;
 }

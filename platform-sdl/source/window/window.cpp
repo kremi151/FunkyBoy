@@ -40,9 +40,9 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
 
-        std::vector<std::string> romExtensions;
-        romExtensions.push_back("gb");
-        romExtensions.push_back("bin");
+        std::vector<FilePicker::file_type> romExtensions;
+        romExtensions.push_back({ "gb", "GameBoy ROM" });
+        romExtensions.push_back({ "bin", "GameBoy ROM" });
 
         std::vector<fs::path> selectedPaths;
 

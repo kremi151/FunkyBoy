@@ -21,6 +21,12 @@
 
 using namespace FunkyBoy::SDL;
 
+void FilePicker::init(int argc, char **argv) {
+}
+
+void FilePicker::deinit() {
+}
+
 void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     @autoreleasepool {
         NSOpenPanel *openDlg = [NSOpenPanel openPanel];

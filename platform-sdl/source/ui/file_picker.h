@@ -25,7 +25,15 @@
 
 namespace FunkyBoy::SDL::FilePicker {
 
-    void selectFiles(SDL_Window *window, const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles);
+    typedef struct {
+        std::string extension;
+        std::string description;
+    } file_type;
+
+    void init(int argc, char **argv);
+    void deinit();
+
+    void selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles);
 
 }
 
