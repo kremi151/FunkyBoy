@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_SDL_UI_FILE_PICKER_H
-#define FB_SDL_UI_FILE_PICKER_H
+#ifndef FB_SDL_UI_NATIVE_UI_H
+#define FB_SDL_UI_NATIVE_UI_H
 
 #include <SDL.h>
 #include <cstdlib>
@@ -37,4 +37,4 @@ namespace FunkyBoy::SDL::NativeUI {
 
 }
 
-#endif // FB_SDL_UI_FILE_PICKER_H
+#endif // FB_SDL_UI_NATIVE_UI_H
