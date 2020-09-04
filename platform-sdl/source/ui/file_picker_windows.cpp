@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef _WIN32
+#ifdef OS_WINDOWS
 
 #include "file_picker.h"
 
@@ -34,7 +34,7 @@ void FilePicker::init(int argc, char **argv) {
 void FilePicker::deinit() {
 }
 
-void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
+void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     OPENFILENAME ofn;       // common dialog box structure
     char szFile[512];       // buffer for file name
 
@@ -42,13 +42,12 @@ void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::v
 
     size_t bufferSize = 1; // One additional NUL character
 
-    for (const std::string &type : types) {
-        std::string description = type + (allowMultiple ? " files" : " file");
-        typeDescriptions.emplace_back(description);
+    for (const file_type &type : types) {
+        typeDescriptions.emplace_back(type.description);
 
-        bufferSize += description.size();
+        bufferSize += type.description.size();
         bufferSize++; // NUL character
-        bufferSize += type.size();
+        bufferSize += type.extension.size();
         bufferSize += 2 + 1; // '*.' and NUL character
     }
 
@@ -56,13 +55,13 @@ void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::v
 
     size_t pos = 0;
     for (size_t i = 0 ; i < types.size() ; i++) {
-        const std::string &type = types[i];
+        const file_type &type = types[i];
         const std::string &description = typeDescriptions[i];
         std::strcat(filterStr.get() + pos, description.c_str());
         pos += description.size() + 1; // Additional NUL character
         std::strcat(filterStr.get() + pos, "*.");
-        std::strcat(filterStr.get() + pos, type.c_str());
-        pos += type.size() + 2 + 1; // '*.' and Additional NUL character
+        std::strcat(filterStr.get() + pos, type.extension.c_str());
+        pos += type.extension.size() + 2 + 1; // '*.' and Additional NUL character
     }
 
     SDL_SysWMinfo wmi = {0};
