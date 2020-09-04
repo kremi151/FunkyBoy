@@ -12,8 +12,8 @@ set(SOURCES
         source/controllers/serial_sdl.cpp
         source/controllers/joypad_sdl.cpp
         source/controllers/display_sdl.cpp
-        source/ui/file_picker_windows.cpp
-        source/ui/file_picker_qt.cpp
+        source/ui/native_ui_windows.cpp
+        source/ui/native_ui_qt.cpp
         source/window/window.cpp
         )
 
@@ -26,7 +26,7 @@ set(HEADERS
         )
 
 set(DARWIN_SOURCES
-        source/ui/file_picker_cocoa.mm
+        source/ui/native_ui_cocoa.mm
         )
 
 if (OS_MACOS)
