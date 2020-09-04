@@ -17,17 +17,17 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 
-#include <ui/file_picker.h>
+#include <ui/native_ui.h>
 
 using namespace FunkyBoy::SDL;
 
-void FilePicker::init(int argc, char **argv) {
+void NativeUI::init(int argc, char **argv) {
 }
 
-void FilePicker::deinit() {
+void NativeUI::deinit() {
 }
 
-void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
+void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     @autoreleasepool {
         NSOpenPanel *openDlg = [NSOpenPanel openPanel];
 

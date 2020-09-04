@@ -23,7 +23,7 @@
 #include <string>
 #include <util/fs.h>
 
-namespace FunkyBoy::SDL::FilePicker {
+namespace FunkyBoy::SDL::NativeUI {
 
     typedef struct {
         std::string extension;

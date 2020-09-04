@@ -16,7 +16,7 @@
 
 #ifdef OS_WINDOWS
 
-#include "file_picker.h"
+#include "native_ui.h"
 
 #include <windows.h>
 #include <SDL_syswm.h>
@@ -28,13 +28,13 @@
 
 using namespace FunkyBoy::SDL;
 
-void FilePicker::init(int argc, char **argv) {
+void NativeUI::init(int argc, char **argv) {
 }
 
-void FilePicker::deinit() {
+void NativeUI::deinit() {
 }
 
-void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
+void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     OPENFILENAME ofn;       // common dialog box structure
     char szFile[512];       // buffer for file name
 

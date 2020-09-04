@@ -16,7 +16,7 @@
 
 #ifdef OS_LINUX
 
-#include "file_picker.h"
+#include "native_ui.h"
 #include <QApplication>
 #include <QFileDialog>
 #include <QWindow>
@@ -29,17 +29,17 @@ using namespace FunkyBoy::SDL;
 static int __fb_qApplication_argc;
 static std::unique_ptr<QApplication> __fb_qApplication;
 
-void FilePicker::init(int argc, char **argv) {
+void NativeUI::init(int argc, char **argv) {
     // Qt reads argc as a reference and expects it to be valid for the lifetime of the application
     __fb_qApplication_argc = argc;
     __fb_qApplication = std::make_unique<QApplication>(__fb_qApplication_argc, argv);
 }
 
-void FilePicker::deinit() {
+void NativeUI::deinit() {
     __fb_qApplication.release();
 }
 
-void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types,
+void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types,
                              bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     std::stringstream typeStrBuilder;
     bool first = true;

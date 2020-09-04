@@ -20,7 +20,7 @@
 #include <controllers/serial_sdl.h>
 #include <controllers/joypad_sdl.h>
 #include <controllers/display_sdl.h>
-#include <ui/file_picker.h>
+#include <ui/native_ui.h>
 #include <fstream>
 
 using namespace FunkyBoy::SDL;
@@ -40,13 +40,13 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
 
-        std::vector<FilePicker::file_type> romExtensions;
+        std::vector<NativeUI::file_type> romExtensions;
         romExtensions.push_back({ "gb", "GameBoy ROM" });
         romExtensions.push_back({ "bin", "GameBoy ROM" });
 
         std::vector<fs::path> selectedPaths;
 
-        FilePicker::selectFiles(window, "Select a Gameboy ROM", romExtensions, false, selectedPaths);
+        NativeUI::selectFiles(window, "Select a Gameboy ROM", romExtensions, false, selectedPaths);
 
         if (selectedPaths.size() > 0) {
             romPath = selectedPaths[0];
