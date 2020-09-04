@@ -17,6 +17,7 @@
 #include <SDL.h>
 #include <util/typedefs.h>
 #include <window/window.h>
+#include <ui/native_ui.h>
 
 #include <chrono>
 #include <thread>
@@ -25,6 +26,8 @@
 #define fb_clock_frequency (1000000000/1048576)
 
 int main(int argc, char **argv) {
+    FunkyBoy::SDL::NativeUI::init(argc, argv);
+
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = SDL_CreateWindow(
             FB_NAME,
@@ -50,6 +53,10 @@ int main(int argc, char **argv) {
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
     bool romLoaded = fbWindow.init(window, renderer, frameBuffer, argc, argv);
 
+    if (!romLoaded) {
+        goto fb_exit;
+    }
+
     while (true) {
         next_frame += std::chrono::nanoseconds(fb_clock_frequency);
 
@@ -63,6 +70,7 @@ int main(int argc, char **argv) {
         std::this_thread::sleep_until(next_frame);
     }
 
+fb_exit:
     fbWindow.deinit();
 
     SDL_DestroyWindow(window);
@@ -70,5 +78,7 @@ int main(int argc, char **argv) {
     SDL_DestroyTexture(frameBuffer);
 
     SDL_Quit();
+
+    FunkyBoy::SDL::NativeUI::deinit();
     return 0;
 }

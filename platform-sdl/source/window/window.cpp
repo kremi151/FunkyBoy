@@ -20,6 +20,7 @@
 #include <controllers/serial_sdl.h>
 #include <controllers/joypad_sdl.h>
 #include <controllers/display_sdl.h>
+#include <ui/native_ui.h>
 #include <fstream>
 
 using namespace FunkyBoy::SDL;
@@ -35,11 +36,28 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
     controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
 
+    fs::path romPath;
     if (argc <= 1) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
+
+        std::vector<NativeUI::file_type> romExtensions;
+        romExtensions.push_back({ "gb", "GameBoy ROM" });
+        romExtensions.push_back({ "bin", "GameBoy ROM" });
+
+        std::vector<fs::path> selectedPaths;
+
+        NativeUI::selectFiles(window, "Select a Gameboy ROM", romExtensions, false, selectedPaths);
+
+        if (selectedPaths.size() > 0) {
+            romPath = selectedPaths[0];
+        }
+    } else {
+        romPath = argv[1];
+    }
+    if (romPath.empty()) {
+        std::cerr << "Empty ROM path specified" << std::endl;
         return false;
     }
-    char *romPath = argv[1];
     std::cout << "Loading ROM from " << romPath << "..." << std::endl;
     auto status = emulator.loadGame(fs::path(romPath));
     if (status == CartridgeStatus::Loaded) {
