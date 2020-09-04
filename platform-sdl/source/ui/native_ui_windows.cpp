@@ -65,6 +65,7 @@ void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vec
     }
 
     SDL_SysWMinfo wmi = {0};
+    SDL_VERSION(&wmi.version);
     SDL_GetWindowWMInfo(window, &wmi);
 
     ZeroMemory(&ofn, sizeof(ofn));
