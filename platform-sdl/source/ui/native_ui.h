@@ -30,7 +30,7 @@ namespace FunkyBoy::SDL::NativeUI {
         std::string description;
     } file_type;
 
-    void init(int argc, char **argv);
+    void init(int &argc, char **argv);
     void deinit();
 
     void selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles);

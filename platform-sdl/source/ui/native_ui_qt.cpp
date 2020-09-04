@@ -26,13 +26,11 @@
 
 using namespace FunkyBoy::SDL;
 
-static int __fb_qApplication_argc;
 static std::unique_ptr<QApplication> __fb_qApplication;
 
-void NativeUI::init(int argc, char **argv) {
-    // Qt reads argc as a reference and expects it to be valid for the lifetime of the application
-    __fb_qApplication_argc = argc;
-    __fb_qApplication = std::make_unique<QApplication>(__fb_qApplication_argc, argv);
+// Qt reads argc as a reference and expects it to be valid for the lifetime of the application
+void NativeUI::init(int &argc, char **argv) {
+    __fb_qApplication = std::make_unique<QApplication>(argc, argv);
 }
 
 void NativeUI::deinit() {

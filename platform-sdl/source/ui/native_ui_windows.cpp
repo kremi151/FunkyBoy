@@ -28,7 +28,7 @@
 
 using namespace FunkyBoy::SDL;
 
-void NativeUI::init(int argc, char **argv) {
+void NativeUI::init(int &argc, char **argv) {
 }
 
 void NativeUI::deinit() {
