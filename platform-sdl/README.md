@@ -4,6 +4,15 @@
 
 This is the implementation of FunkyBoy for Windows, Linux and macOS
 
+## Platform support
+
+| Platform            | Support            | Additional required libraries |
+|---------------------|--------------------|-------------------------------|
+| Windows             | :heavy_check_mark: | SDL2                          |
+| macOS               | :heavy_check_mark: | SDL2                          |
+| Ubuntu              | :heavy_check_mark: | SDL2, Qt5                     |
+| Other Linux distros | :question:         | SDL2, Qt5                     |
+
 ## Build on Ubuntu
 
 1. Install SDL2, Qt5 and CMake:
