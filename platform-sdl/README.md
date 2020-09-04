@@ -41,7 +41,7 @@ To work in Xcode, generate Xcode project files:
 
 ```
 mkdir -p xcode && cd xcode
-cmake -G xcode ..
+cmake -G Xcode ..
 ```
 
 ## Build on Windows

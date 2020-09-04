@@ -27,13 +27,13 @@ void FilePicker::init(int argc, char **argv) {
 void FilePicker::deinit() {
 }
 
-void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<std::string> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
+void FilePicker::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles) {
     @autoreleasepool {
         NSOpenPanel *openDlg = [NSOpenPanel openPanel];
 
         NSMutableArray<NSString*> *fileTypeFilter = [[NSMutableArray alloc] init];
-        for (const std::string &typestr : types) {
-            [fileTypeFilter addObject:[NSString stringWithUTF8String:typestr.c_str()]];
+        for (const file_type &type : types) {
+            [fileTypeFilter addObject:[NSString stringWithUTF8String:type.extension.c_str()]];
         }
 
         [openDlg setCanChooseFiles:YES];
