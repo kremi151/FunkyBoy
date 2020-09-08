@@ -23,6 +23,7 @@
 #include <util/romsizes.h>
 #include <memory/mbc_none.h>
 #include <memory/mbc1.h>
+#include <memory/mbc2.h>
 
 using namespace FunkyBoy;
 
@@ -173,6 +174,12 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
                     return;
             }
             mbc = std::make_unique<MBC1>(romSizeType, mbc1RamSize);
+            break;
+        }
+        case 0x05:
+        case 0x06: {
+            // TODO: Battery
+            mbc = std::make_unique<MBC2>();
             break;
         }
         default:

@@ -23,6 +23,7 @@ set(SOURCES
         source/cartridge/cartridge.cpp
         source/memory/memory.cpp
         source/memory/mbc1.cpp
+        source/memory/mbc2.cpp
         source/memory/mbc_none.cpp
         source/memory/ppu_memory.cpp
         source/instructions/instruction_context.cpp
@@ -65,6 +66,7 @@ set(HEADERS
         source/util/testing.h
         source/memory/mbc.h
         source/memory/mbc1.h
+        source/memory/mbc2.h
         source/memory/mbc_none.h
         source/memory/ppu_memory.h
         source/instructions/instruction_context.h
