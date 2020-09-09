@@ -25,12 +25,13 @@ namespace FunkyBoy {
 
     class MBC2: public MBC {
     private:
+        const ROMSize romSize;
         u32 romBankOffset;
     test_public:
         u8 romBank;
         bool ramEnabled;
     public:
-        MBC2();
+        explicit MBC2(ROMSize romSize);
 
         u8 readFromROMAt(memory_address offset, u8 *rom) override;
         void interceptROMWrite(memory_address offset, u8 val) override;

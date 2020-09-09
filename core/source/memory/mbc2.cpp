@@ -17,6 +17,7 @@
 #include "mbc2.h"
 
 #include <util/debug.h>
+#include <exception/state_exception.h>
 
 #define mbc2_print(...) fprintf(stdout, __VA_ARGS__)
 
@@ -25,8 +26,29 @@
 
 using namespace FunkyBoy;
 
-MBC2::MBC2()
-    : ramEnabled(false)
+u8 __fb_mbc2_getROMBankBitMask(ROMSize romSize) {
+    switch (romSize) {
+        case ROMSize::ROM_SIZE_32K:
+            return 0b1u;
+        case ROMSize::ROM_SIZE_64K:
+            return 0b11u;
+        case ROMSize::ROM_SIZE_128K:
+            return 0b111u;
+        case ROMSize::ROM_SIZE_256K:
+        case ROMSize::ROM_SIZE_512K:
+        case ROMSize::ROM_SIZE_1024K:
+        case ROMSize::ROM_SIZE_2048K:
+        case ROMSize::ROM_SIZE_4096K:
+            return 0b1111u;
+        default:
+            mbc2_print("Invalid ROM size for MBC2 chip: %d\n", romSize);
+            throw Exception::WrongStateException(&"Invalid ROM size for MBC2 chip: " [ romSize]);
+    }
+}
+
+MBC2::MBC2(ROMSize romSize)
+    : romSize(romSize)
+    , ramEnabled(false)
     , romBank(1)
     , romBankOffset(1 * FB_MBC2_ROM_BANK_SIZE)
 {
@@ -51,7 +73,7 @@ void MBC2::interceptROMWrite(memory_address offset, u8 val) {
         // Set ROM Bank number
         val &= 0b1111u;
         if (val == 0) val = 1;
-        romBank = val;
+        romBank = val & __fb_mbc2_getROMBankBitMask(romSize);
         romBankOffset = romBank * FB_MBC2_ROM_BANK_SIZE;
         mbc2_print("[MBC2] Select ROM bank 0x%02X\n", romBank);
     }

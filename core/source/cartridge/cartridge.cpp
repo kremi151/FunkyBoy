@@ -179,7 +179,7 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
         case 0x05:
         case 0x06: {
             // TODO: Battery
-            mbc = std::make_unique<MBC2>();
+            mbc = std::make_unique<MBC2>(romSizeType);
             break;
         }
         default:
