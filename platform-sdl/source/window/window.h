@@ -22,9 +22,21 @@
 #include <emulator/emulator.h>
 #include <util/fs.h>
 
+#ifdef FB_USE_QT
+#include <QMainWindow>
+#include <QWidget>
+#endif
+
 namespace FunkyBoy::SDL {
 
-    class Window {
+    class Window
+#ifdef FB_USE_QT
+        : public QMainWindow
+#endif
+    {
+#ifdef FB_USE_QT
+      //Q_OBJECT
+#endif
     private:
         const GameBoyType gbType;
 
@@ -35,13 +47,24 @@ namespace FunkyBoy::SDL {
 
         fs::path savePath;
 
+        const size_t baseWidth, baseHeight;
+
+        SDL_Window *window;
+        SDL_Renderer *renderer;
+        SDL_Texture *frameBuffer;
+
+#ifdef FB_USE_QT
+        QWidget *mainWidget;
+#endif
+
         void loadSave();
         void writeSave();
     public:
-        explicit Window(GameBoyType gbType);
+        Window(GameBoyType gbType, size_t width, size_t height);
+        ~Window() override;
 
-        bool init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv);
-        void update(SDL_Window *window);
+        bool init(int argc, char **argv);
+        void update();
         void deinit();
 
         [[nodiscard]] inline bool hasUserRequestedExit() const {

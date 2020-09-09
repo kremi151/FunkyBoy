@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-#ifdef OS_LINUX
+#ifdef FB_USE_QT
 
 #include "native_ui.h"
-#include <QApplication>
 #include <QFileDialog>
 #include <QWindow>
-#include <memory>
 #include <sstream>
 #include <SDL_syswm.h>
 
 using namespace FunkyBoy::SDL;
 
-static std::unique_ptr<QApplication> __fb_qApplication;
-
-// Qt reads argc as a reference and expects it to be valid for the lifetime of the application
 void NativeUI::init(int &argc, char **argv) {
-    __fb_qApplication = std::make_unique<QApplication>(argc, argv);
 }
 
 void NativeUI::deinit() {
-    __fb_qApplication.release();
 }
 
 void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types,
