@@ -25,6 +25,9 @@
 #ifdef FB_USE_QT
 #include <QMainWindow>
 #include <QWidget>
+#define __fb_window_override override
+#else
+#define __fb_window_override
 #endif
 
 namespace FunkyBoy::SDL {
@@ -61,7 +64,7 @@ namespace FunkyBoy::SDL {
         void writeSave();
     public:
         Window(GameBoyType gbType, size_t width, size_t height);
-        ~Window() override;
+        ~Window() __fb_window_override;
 
         bool init(int argc, char **argv);
         void update();
