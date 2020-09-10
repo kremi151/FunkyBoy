@@ -43,6 +43,7 @@ namespace FunkyBoy {
     class Cartridge {
     private:
         u8 *ram;
+        size_t ramSizeInBytes;
         size_t romSize;
         CartridgeStatus status;
 
