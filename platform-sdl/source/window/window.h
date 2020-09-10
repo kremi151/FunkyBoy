@@ -42,16 +42,16 @@ namespace FunkyBoy::SDL {
 
         SDL_Event sdlEvents{};
 
+        SDL_Window *window;
+        SDL_Renderer *renderer;
+        SDL_Texture *frameBuffer;
+
         Controller::ControllersPtr controllers;
         Emulator emulator;
 
         fs::path savePath;
 
         const size_t baseWidth, baseHeight;
-
-        SDL_Window *window;
-        SDL_Renderer *renderer;
-        SDL_Texture *frameBuffer;
 
 #ifdef FB_USE_QT
         QWidget *mainWidget;
