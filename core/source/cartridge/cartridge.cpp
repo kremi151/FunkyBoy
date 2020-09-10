@@ -21,6 +21,7 @@
 #include <cstring>
 
 #include <util/romsizes.h>
+#include <util/ramsizes.h>
 #include <memory/mbc_none.h>
 #include <memory/mbc1.h>
 #include <memory/mbc2.h>
@@ -58,17 +59,17 @@ bool hasCartridgeRam(u8 cartridgeType) {
 }
 
 size_t getCartridgeRamSize(u8 ramSizeType) {
-    auto type = static_cast<CartridgeRAMSize>(ramSizeType);
+    auto type = static_cast<RAMSize>(ramSizeType);
     switch (type) {
-        case CartridgeRAMSize::CRAM_2KB:
+        case RAMSize::RAM_SIZE_2KB:
             return 2048;
-        case CartridgeRAMSize::CRAM_8KB:
+        case RAMSize::RAM_SIZE_8KB:
             return 8192;
-        case CartridgeRAMSize::CRAM_32KB:
+        case RAMSize::RAM_SIZE_32KB:
             return 32768;
-        case CartridgeRAMSize::CRAM_64KB:
+        case RAMSize::RAM_SIZE_64KB:
             return 65536;
-        case CartridgeRAMSize::CRAM_128KB:
+        case RAMSize::RAM_SIZE_128KB:
             return 131072;
         default:
             return 0;
@@ -134,7 +135,7 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
         return;
     }
 
-    CartridgeRAMSize ramSizeType;
+    RAMSize ramSizeType;
     if (header->ramSize > 0x5) {
         status = CartridgeStatus::RAMSizeUnsupported;
         return;
@@ -143,7 +144,7 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
     if (ramSize == 0 && hasCartridgeRam(header->cartridgeType)) {
         ramSize = 1;
     }
-    ramSizeType = static_cast<CartridgeRAMSize>(ramSize);
+    ramSizeType = static_cast<RAMSize>(ramSize);
 
     switch (header->cartridgeType) {
         case 0x00:
@@ -157,16 +158,16 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
             // TODO: Battery
             MBC1RAMSize mbc1RamSize;
             switch (ramSizeType) {
-                case CRAM_None:
+                case RAMSize::RAM_SIZE_None:
                     mbc1RamSize = MBC1RAMSize::MBC1_NoRam;
                     break;
-                case CRAM_2KB:
+                case RAMSize::RAM_SIZE_2KB:
                     mbc1RamSize = MBC1RAMSize::MBC1_2KByte;
                     break;
-                case CRAM_8KB:
+                case RAMSize::RAM_SIZE_8KB:
                     mbc1RamSize = MBC1RAMSize::MBC1_8KByte;
                     break;
-                case CRAM_32KB:
+                case RAMSize::RAM_SIZE_32KB:
                     mbc1RamSize = MBC1RAMSize::MBC1_32KByte;
                     break;
                 default:

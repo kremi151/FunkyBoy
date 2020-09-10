@@ -59,6 +59,7 @@ set(HEADERS
         source/util/typedefs.h
         source/cartridge/header.h
         source/util/romsizes.h
+        source/util/ramsizes.h
         source/util/fs.h
         source/cartridge/cartridge.h
         source/memory/memory.h

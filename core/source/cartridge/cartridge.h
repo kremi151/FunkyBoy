@@ -40,15 +40,6 @@ namespace FunkyBoy {
         Loaded
     };
 
-    enum CartridgeRAMSize {
-        CRAM_None = 0x0,
-        CRAM_2KB = 0x1,
-        CRAM_8KB = 0x2,
-        CRAM_32KB = 0x3,
-        CRAM_128KB = 0x4,
-        CRAM_64KB = 0x5
-    };
-
     class Cartridge {
     private:
         u8 *ram;
