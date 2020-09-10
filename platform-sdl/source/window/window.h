@@ -30,6 +30,10 @@ namespace FunkyBoy::SDL {
 
         SDL_Event sdlEvents{};
 
+        SDL_Window *window;
+        SDL_Renderer *renderer;
+        SDL_Texture *frameBuffer;
+
         Controller::ControllersPtr controllers;
         Emulator emulator;
 
@@ -39,9 +43,10 @@ namespace FunkyBoy::SDL {
         void writeSave();
     public:
         explicit Window(GameBoyType gbType);
+        ~Window();
 
-        bool init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv);
-        void update(SDL_Window *window);
+        bool init(int argc, char **argv);
+        void update();
         void deinit();
 
         [[nodiscard]] inline bool hasUserRequestedExit() const {
