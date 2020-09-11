@@ -15,7 +15,6 @@
  */
 
 #include <SDL.h>
-#include <util/typedefs.h>
 #include <window/window.h>
 #include <ui/native_ui.h>
 
@@ -29,29 +28,12 @@ int main(int argc, char **argv) {
     FunkyBoy::SDL::NativeUI::init(argc, argv);
 
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window *window = SDL_CreateWindow(
-            FB_NAME,
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            FB_GB_DISPLAY_WIDTH * 3,
-            FB_GB_DISPLAY_HEIGHT * 3,
-            0
-    );
-
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    SDL_Texture *frameBuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
-
-    SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
 
     using clock = std::chrono::high_resolution_clock;
     auto next_frame = clock::now();
 
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
-    bool romLoaded = fbWindow.init(window, renderer, frameBuffer, argc, argv);
+    bool romLoaded = fbWindow.init(argc, argv);
 
     if (!romLoaded) {
         goto fb_exit;
@@ -61,7 +43,7 @@ int main(int argc, char **argv) {
         next_frame += std::chrono::nanoseconds(fb_clock_frequency);
 
         if (romLoaded) {
-            fbWindow.update(window);
+            fbWindow.update();
         }
         if (fbWindow.hasUserRequestedExit()) {
             break;
@@ -72,10 +54,6 @@ int main(int argc, char **argv) {
 
 fb_exit:
     fbWindow.deinit();
-
-    SDL_DestroyWindow(window);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyTexture(frameBuffer);
 
     SDL_Quit();
 

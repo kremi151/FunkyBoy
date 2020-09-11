@@ -14,33 +14,21 @@
  * limitations under the License.
  */
 
+#ifndef FB_TESTS_MOONEYE_TESTS_H
+#define FB_TESTS_MOONEYE_TESTS_H
+
 #include <acacia.h>
 
-#include "unit_tests.h"
-#include "blargg/blargg_tests.h"
-#include "mooneye/mooneye_tests.h"
+#include "rom_mooneye_mbc1.h"
+#include "rom_acceptance.h"
 
-#include <cstring>
-
-int main(int argc, char *argv[]) {
-    bool runMooneye = false;
-    for (int i = 1 ; i < argc ; i++) {
-        if (std::strcmp(argv[i], "--mooneye") == 0) {
-            runMooneye = true;
-        }
-    }
-
+inline acacia::Report __fbTests_runMooneyeTests() {
     acacia::Report report;
 
-    report += __fbTests_runUnitTests();
-    report += __fbTests_runBlarggTests();
+    report += __fbTests_runMooneyeMBC1RomTests();
+    report += __fbTests_runMooneyeAcceptanceRomTests();
 
-    if (runMooneye) {
-        report += __fbTests_runMooneyeTests();
-    }
-
-    std::ofstream reportFile("acacia-report.txt");
-    acacia::generateAcaciaReport(report, reportFile);
-
-    return report ? 0 : 1;
+    return report;
 }
+
+#endif //FB_TESTS_MOONEYE_TESTS_H

@@ -28,10 +28,43 @@ using namespace FunkyBoy::SDL;
 Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
     , controllers(new Controller::Controllers)
     , emulator(GameBoyType::GameBoyDMG, controllers)
+    , window(nullptr)
+    , renderer(nullptr)
+    , frameBuffer(nullptr)
 {
 }
 
-bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frameBuffer, int argc, char **argv) {
+Window::~Window() {
+    if (window != nullptr) {
+        SDL_DestroyWindow(window);
+    }
+    if (renderer != nullptr) {
+        SDL_DestroyRenderer(renderer);
+    }
+    if (frameBuffer != nullptr) {
+        SDL_DestroyTexture(frameBuffer);
+    }
+}
+
+bool Window::init(int argc, char **argv) {
+    window = SDL_CreateWindow(
+            FB_NAME,
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            FB_GB_DISPLAY_WIDTH * 3,
+            FB_GB_DISPLAY_HEIGHT * 3,
+            0
+    );
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    frameBuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+
+    SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
+
     controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
     controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
     controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
@@ -78,7 +111,7 @@ bool Window::init(SDL_Window *window, SDL_Renderer *renderer, SDL_Texture *frame
     }
 }
 
-void Window::update(SDL_Window *window) {
+void Window::update() {
     if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
         // Poll keyboard inputs once per frame
         SDL_PollEvent(&sdlEvents);
