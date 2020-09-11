@@ -80,11 +80,12 @@ void MBC2::interceptROMWrite(memory_address offset, u8 val) {
 }
 
 u8 MBC2::readFromRAMAt(memory_address offset, u8 *ram) {
-    if (!ramEnabled || offset > FB_MBC2_MAX_RAM_OFFSET) {
+    if (!ramEnabled) {
         // Not readable
         return 0xff;
     }
-    return (*(ram + offset) & 0b1111u) | 0b11110000u;
+    // When going higher than 0xA1FF, the RAM just wraps around (i.e. starts reading again from 0xA000)
+    return (*(ram + (offset % (FB_MBC2_MAX_RAM_OFFSET + 1))) & 0b1111u) | 0b11110000u;
 }
 
 void MBC2::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
