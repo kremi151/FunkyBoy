@@ -11,6 +11,7 @@ set(SOURCES
         source/blargg/rom_cpu_instrs_tests.cpp
         source/unit_tests.cpp
         source/mooneye/rom_mooneye_mbc1.cpp
+        source/mooneye/rom_mooneye_mbc2.cpp
         source/mooneye/rom_acceptance.cpp
         source/main.cpp
         )
@@ -21,6 +22,7 @@ set(HEADERS
         source/blargg/rom_cpu_instrs_tests.h
         source/unit_tests.h
         source/mooneye/rom_mooneye_mbc1.h
+        source/mooneye/rom_mooneye_mbc2.h
         source/mooneye/commons.h
         source/blargg/commons.h
         source/blargg/blargg_tests.h
