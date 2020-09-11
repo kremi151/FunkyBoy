@@ -70,16 +70,16 @@ void MBC2::interceptROMWrite(memory_address offset, u8 val) {
         if (!(offset & 0x0100u)) {
             ramEnabled = (val & 0x0fu) == 0x0au;
             mbc2_print("[MBC2] Enable RAM? %d (val=%d, offset=0x%04X)\n", ramEnabled, val, offset);
-        } else {
-            mbc2_print("[MBC2] Enable RAM remains on %d (val=%d, offset=0x%04X)\n", ramEnabled, val, offset);
         }
     } else if (offset <= 0x3FFF) {
-        // Set ROM Bank number
-        val &= 0b1111u;
-        if (val == 0) val = 1;
-        romBank = val & __fb_mbc2_getROMBankBitMask(romSize);
-        romBankOffset = romBank * FB_MBC2_ROM_BANK_SIZE;
-        mbc2_print("[MBC2] Select ROM bank 0x%02X (val=%d, offset=0x%04X)\n", romBank, val, offset);
+        if (offset & 0x0100u) {
+            // Set ROM Bank number
+            val &= 0b1111u;
+            if (val == 0) val = 1;
+            romBank = val & __fb_mbc2_getROMBankBitMask(romSize);
+            romBankOffset = romBank * FB_MBC2_ROM_BANK_SIZE;
+            mbc2_print("[MBC2] Select ROM bank 0x%02X (val=%d, offset=0x%04X)\n", romBank, val, offset);
+        }
     }
 }
 
