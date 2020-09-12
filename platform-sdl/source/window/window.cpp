@@ -31,6 +31,8 @@ Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
     , window(nullptr)
     , renderer(nullptr)
     , frameBuffer(nullptr)
+    , keyboardState(SDL_GetKeyboardState(nullptr))
+    , fullscreenRequestedPreviously(false)
 {
 }
 
@@ -115,6 +117,16 @@ void Window::update() {
     if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
         // Poll keyboard inputs once per frame
         SDL_PollEvent(&sdlEvents);
+
+        // Toggle fullscreen mode
+        if (keyboardState[SDL_SCANCODE_F]) {
+            if (!fullscreenRequestedPreviously) {
+                toggleFullscreen();
+            }
+            fullscreenRequestedPreviously = true;
+        } else {
+            fullscreenRequestedPreviously = false;
+        }
     }
 }
 
@@ -129,6 +141,15 @@ void Window::writeSave() {
     if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0) {
         std::ofstream file(savePath);
         emulator.writeCartridgeRam(file);
+    }
+}
+
+void Window::toggleFullscreen() {
+    auto flags = SDL_GetWindowFlags(window);
+    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+        SDL_SetWindowFullscreen(window, 0);
+    } else {
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
 }
 
