@@ -40,11 +40,12 @@ int main(int argc, char **argv) {
     using clock = std::chrono::high_resolution_clock;
     auto next_frame = clock::now();
 
-    FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG, FB_GB_DISPLAY_WIDTH * 3, FB_GB_DISPLAY_HEIGHT * 3);
-    bool romLoaded = fbWindow.init(argc, argv);
+    FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
 #ifdef FB_USE_QT
     fbWindow.show();
 #endif
+    bool romLoaded = fbWindow.init(argc, argv, FB_GB_DISPLAY_WIDTH * 3, FB_GB_DISPLAY_HEIGHT * 3);
+    int retCode = 0;
 
     if (!romLoaded) {
         goto fb_exit;
@@ -52,6 +53,10 @@ int main(int argc, char **argv) {
 
     while (true) {
         next_frame += std::chrono::nanoseconds(fb_clock_frequency);
+
+#ifdef FB_USE_QT
+        //QApplication::processEvents();
+#endif
 
         if (romLoaded) {
             fbWindow.update();
@@ -62,6 +67,9 @@ int main(int argc, char **argv) {
 
         std::this_thread::sleep_until(next_frame);
     }
+#ifdef FB_USE_QT
+    retCode = qtApp.exec();
+#endif
 
 fb_exit:
     fbWindow.deinit();
@@ -69,5 +77,5 @@ fb_exit:
     SDL_Quit();
 
     FunkyBoy::SDL::NativeUI::deinit();
-    return 0;
+    return retCode;
 }

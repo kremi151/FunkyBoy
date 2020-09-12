@@ -25,12 +25,10 @@
 
 using namespace FunkyBoy::SDL;
 
-Window::Window(FunkyBoy::GameBoyType gbType, size_t width, size_t height)
+Window::Window(FunkyBoy::GameBoyType gbType)
     : gbType(gbType)
     , controllers(new Controller::Controllers)
     , emulator(GameBoyType::GameBoyDMG, controllers)
-    , baseWidth(width)
-    , baseHeight(height)
     , window(nullptr)
     , renderer(nullptr)
     , frameBuffer(nullptr)
@@ -41,7 +39,6 @@ Window::Window(FunkyBoy::GameBoyType gbType, size_t width, size_t height)
 #ifdef FB_USE_QT
     setWindowTitle(FB_NAME " Qt-ified (Test)");
     setCentralWidget(mainWidget);
-    setBaseSize(width, height);
 #endif
 }
 
@@ -57,15 +54,22 @@ Window::~Window() {
     }
 }
 
-bool Window::init(int argc, char **argv) {
+bool Window::init(int argc, char **argv, size_t width, size_t height) {
+#ifdef FB_USE_QT
+    window = SDL_CreateWindowFrom((void*) centralWidget()->winId());
+    setBaseSize(width, height);
+    setFixedSize(width, height);
+    SDL_SetWindowSize(window, width, height);
+#else
     window = SDL_CreateWindow(
             FB_NAME,
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            baseWidth,
-            baseHeight,
+            width,
+            height,
             0
     );
+#endif
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     frameBuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);

@@ -54,8 +54,6 @@ namespace FunkyBoy::SDL {
 
         fs::path savePath;
 
-        const size_t baseWidth, baseHeight;
-
 #ifdef FB_USE_QT
         QWidget *mainWidget;
 #endif
@@ -63,10 +61,10 @@ namespace FunkyBoy::SDL {
         void loadSave();
         void writeSave();
     public:
-        Window(GameBoyType gbType, size_t width, size_t height);
+        explicit Window(GameBoyType gbType);
         ~Window() __fb_window_override;
 
-        bool init(int argc, char **argv);
+        bool init(int argc, char **argv, size_t width, size_t height);
         void update();
         void deinit();
 
