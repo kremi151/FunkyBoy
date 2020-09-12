@@ -53,7 +53,7 @@ bool Window::init(int argc, char **argv) {
             SDL_WINDOWPOS_UNDEFINED,
             FB_GB_DISPLAY_WIDTH * 3,
             FB_GB_DISPLAY_HEIGHT * 3,
-            0
+            SDL_WINDOW_RESIZABLE
     );
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
