@@ -39,6 +39,7 @@ set(SOURCES
         source/instructions/decoder.cpp
         source/util/registers.cpp
         source/util/flags.cpp
+        source/palette/palette.cpp
         source/exception/state_exception.cpp
         )
 
@@ -86,6 +87,7 @@ set(HEADERS
         source/util/gpumode.h
         source/util/return_codes.h
         source/palette/dmg_palette.h
+        source/palette/palette.h
         source/exception/state_exception.h
         )
 

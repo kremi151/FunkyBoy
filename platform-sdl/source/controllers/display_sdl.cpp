@@ -16,14 +16,14 @@
 
 #include "display_sdl.h"
 #include <util/typedefs.h>
-#include <palette/dmg_palette.h>
 
 using namespace FunkyBoy::Controller;
 
-DisplayControllerSDL::DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer)
+DisplayControllerSDL::DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer, const FunkyBoy::Palette::palette &palette)
     : renderer(renderer)
     , frameBuffer(frameBuffer)
     , pixels(new uint32_t[FB_GB_DISPLAY_WIDTH * FB_GB_DISPLAY_HEIGHT])
+    , palette(palette)
 {
 }
 
@@ -34,8 +34,8 @@ DisplayControllerSDL::~DisplayControllerSDL() {
 void DisplayControllerSDL::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     uint32_t pixel;
     for (u8 x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
-        auto &color = Palette::ARGB8888::DMG[*(buffer + x)];
-        pixel = (255u << 24u) | (color[0] << 16) | (color[1] << 8) | color[2];
+        auto &color = palette[*(buffer + x)];
+        pixel = (255u << 24u) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
         pixels[(y * FB_GB_DISPLAY_WIDTH) + x] = pixel;
     }
 }

@@ -21,6 +21,7 @@
 #include <util/typedefs.h>
 #include <emulator/emulator.h>
 #include <util/fs.h>
+#include <palette/palette.h>
 
 namespace FunkyBoy::SDL {
 
@@ -45,6 +46,8 @@ namespace FunkyBoy::SDL {
 
         void loadSave();
         void writeSave();
+
+        void readConfigJson(Palette::palette &palette);
     public:
         explicit Window(GameBoyType gbType);
         ~Window();
