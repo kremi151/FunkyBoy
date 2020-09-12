@@ -19,7 +19,7 @@
 #include <util/debug.h>
 #include <exception/state_exception.h>
 
-#define mbc2_print(...) fprintf(stdout, __VA_ARGS__)
+#define mbc2_print(...) debug_print_4(__VA_ARGS__)
 
 #define FB_MBC2_ROM_BANK_SIZE (16 * 1024)
 #define FB_MBC2_MAX_RAM_OFFSET (0xA1FF - 0xA000)
