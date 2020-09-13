@@ -18,6 +18,7 @@
 #define FB_LIBRETRO_DISPLAY_LIBRETRO_H
 
 #include <controllers/display.h>
+#include <palette/palette.h>
 
 #include <libretro.h>
 
@@ -27,6 +28,7 @@ namespace FunkyBoy::Controller {
     private:
         uint32_t *pixels;
         retro_video_refresh_t videoCb;
+        Palette::palette palette;
     public:
         DisplayControllerLibretro();
         ~DisplayControllerLibretro() override;
