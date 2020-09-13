@@ -25,7 +25,8 @@
 
 using namespace FunkyBoy::SDL;
 
-Window::Window(FunkyBoy::GameBoyType gbType): gbType(gbType)
+Window::Window(FunkyBoy::GameBoyType gbType)
+    : gbType(gbType)
     , controllers(new Controller::Controllers)
     , emulator(GameBoyType::GameBoyDMG, controllers)
     , window(nullptr)
@@ -48,13 +49,13 @@ Window::~Window() {
     }
 }
 
-bool Window::init(int argc, char **argv) {
+bool Window::init(int argc, char **argv, size_t width, size_t height) {
     window = SDL_CreateWindow(
             FB_NAME,
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            FB_GB_DISPLAY_WIDTH * 3,
-            FB_GB_DISPLAY_HEIGHT * 3,
+            width,
+            height,
             SDL_WINDOW_RESIZABLE
     );
 

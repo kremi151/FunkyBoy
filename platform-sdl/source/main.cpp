@@ -17,7 +17,6 @@
 #include <SDL.h>
 #include <window/window.h>
 #include <ui/native_ui.h>
-
 #include <chrono>
 #include <thread>
 
@@ -33,7 +32,8 @@ int main(int argc, char **argv) {
     auto next_frame = clock::now();
 
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
-    bool romLoaded = fbWindow.init(argc, argv);
+    bool romLoaded = fbWindow.init(argc, argv, FB_GB_DISPLAY_WIDTH * 3, FB_GB_DISPLAY_HEIGHT * 3);
+    int retCode = 0;
 
     if (!romLoaded) {
         goto fb_exit;
@@ -58,5 +58,5 @@ fb_exit:
     SDL_Quit();
 
     FunkyBoy::SDL::NativeUI::deinit();
-    return 0;
+    return retCode;
 }
