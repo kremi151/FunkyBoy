@@ -2,14 +2,22 @@
 
 ![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)
 
-## Initialize dependencies
+## Run the tests manually
+
+1. Checkout submodules:
 
 ```
-git submodule update --init --recursive
+git submodule update [--init] --recursive
 ```
 
-## Update dependencies
+2. Download latest [Mooneye ROM tests](https://gekkio.fi/files/mooneye-gb/latest/mooneye-gb_hwtests.zip)
+
+3. Extract the ZIP content to `test/mooneye-test-roms`
+
+4. Compile and run:
 
 ```
-git submodule update --recursive
+mkdir -p cmake-test && cd cmake-test
+cmake .. && make
+./fb_tests --mooneye
 ```

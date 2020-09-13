@@ -49,6 +49,10 @@ namespace FunkyBoy::SDL {
         SDL_Renderer *renderer;
         SDL_Texture *frameBuffer;
 
+        // Memory is managed by SDL, so we do not free it
+        const Uint8 *keyboardState;
+        bool fullscreenRequestedPreviously;
+
         Controller::ControllersPtr controllers;
         Emulator emulator;
 
@@ -67,6 +71,8 @@ namespace FunkyBoy::SDL {
         bool init(int argc, char **argv, size_t width, size_t height);
         void update();
         void deinit();
+
+        void toggleFullscreen();
 
         [[nodiscard]] inline bool hasUserRequestedExit() const {
             return sdlEvents.type == SDL_QUIT;

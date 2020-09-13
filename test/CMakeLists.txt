@@ -7,17 +7,25 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 set(SOURCES
         source/controllers/serial_test.cpp
-        source/commons.cpp
-        source/rom_cpu_instrs_tests.cpp
+        source/util/rom_commons.cpp
+        source/blargg/rom_cpu_instrs_tests.cpp
         source/unit_tests.cpp
+        source/mooneye/rom_mooneye_mbc1.cpp
+        source/mooneye/rom_acceptance.cpp
         source/main.cpp
         )
 
 set(HEADERS
         source/controllers/serial_test.h
-        source/commons.h
-        source/rom_cpu_instrs_tests.h
+        source/util/rom_commons.h
+        source/blargg/rom_cpu_instrs_tests.h
         source/unit_tests.h
+        source/mooneye/rom_mooneye_mbc1.h
+        source/mooneye/commons.h
+        source/blargg/commons.h
+        source/blargg/blargg_tests.h
+        source/mooneye/mooneye_tests.h
+        source/mooneye/rom_acceptance.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

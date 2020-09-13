@@ -19,6 +19,6 @@
 
 #include <acacia.h>
 
-acacia::Report __fbTests_runRomTests();
+acacia::Report __fbTests_runBlarggCpuInstrsRomTests();
 
 #endif //FB_TESTS_ROM_CPU_INSTRS_TESTS_H
