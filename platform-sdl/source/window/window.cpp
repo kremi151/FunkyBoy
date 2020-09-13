@@ -34,14 +34,7 @@ Window::Window(FunkyBoy::GameBoyType gbType)
     , frameBuffer(nullptr)
     , keyboardState(SDL_GetKeyboardState(nullptr))
     , fullscreenRequestedPreviously(false)
-#ifdef FB_USE_QT
-    , mainWidget(new QWidget)
-#endif
 {
-#ifdef FB_USE_QT
-    setWindowTitle(FB_NAME " Qt-ified (Test)");
-    setCentralWidget(mainWidget);
-#endif
 }
 
 Window::~Window() {
@@ -57,12 +50,6 @@ Window::~Window() {
 }
 
 bool Window::init(int argc, char **argv, size_t width, size_t height) {
-#ifdef FB_USE_QT
-    window = SDL_CreateWindowFrom((void*) centralWidget()->winId());
-    setBaseSize(width, height);
-    setFixedSize(width, height);
-    SDL_SetWindowSize(window, width, height);
-#else
     window = SDL_CreateWindow(
             FB_NAME,
             SDL_WINDOWPOS_UNDEFINED,
@@ -71,7 +58,6 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
             height,
             SDL_WINDOW_RESIZABLE
     );
-#endif
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     frameBuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);

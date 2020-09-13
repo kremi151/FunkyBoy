@@ -22,24 +22,10 @@
 #include <emulator/emulator.h>
 #include <util/fs.h>
 
-#ifdef FB_USE_QT
-#include <QMainWindow>
-#include <QWidget>
-#define __fb_window_override override
-#else
-#define __fb_window_override
-#endif
-
 namespace FunkyBoy::SDL {
 
     class Window
-#ifdef FB_USE_QT
-        : public QMainWindow
-#endif
     {
-#ifdef FB_USE_QT
-      //Q_OBJECT
-#endif
     private:
         const GameBoyType gbType;
 
@@ -58,15 +44,11 @@ namespace FunkyBoy::SDL {
 
         fs::path savePath;
 
-#ifdef FB_USE_QT
-        QWidget *mainWidget;
-#endif
-
         void loadSave();
         void writeSave();
     public:
         explicit Window(GameBoyType gbType);
-        ~Window() __fb_window_override;
+        ~Window();
 
         bool init(int argc, char **argv, size_t width, size_t height);
         void update();

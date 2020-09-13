@@ -13,7 +13,7 @@ set(SOURCES
         source/controllers/joypad_sdl.cpp
         source/controllers/display_sdl.cpp
         source/ui/native_ui_windows.cpp
-        source/ui/native_ui_qt.cpp
+        source/ui/native_ui_gtk.cpp
         source/window/window.cpp
         )
 
@@ -36,16 +36,9 @@ endif()
 find_package(SDL2 REQUIRED)
 
 if (OS_LINUX)
-    if (NOT QT_QMAKE_EXECUTABLE)
-        # As we use QT only on Linux, we manually set QT_QMAKE_EXECUTABLE by executing "which qmake".
-        # The FindQt5 script relies on setting some environment variables first to find the executable.
-        execute_process(COMMAND which qmake OUTPUT_VARIABLE WHICH_QMAKE_OUT)
-        string(REGEX REPLACE "\n$" "" WHICH_QMAKE_OUT "${WHICH_QMAKE_OUT}") # Trim output
-        if (NOT "${WHICH_QMAKE_OUT}" STREQUAL "")
-            SET(QT_QMAKE_EXECUTABLE ${WHICH_QMAKE_OUT} CACHE PATH "Qt qmake program." FORCE)
-        endif()
-    endif()
-    find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GTK REQUIRED gtk+-3.0)
+    find_package(X11 REQUIRED)
 endif()
 
 if (SDL2_FOUND)
@@ -55,12 +48,20 @@ else()
     message(FATAL_ERROR "SDL2 was not found")
 endif()
 
-if (QT5_FOUND)
-    set(FB_EXTERNAL_LIBS ${FB_EXTERNAL_LIBS} ${QT_LIBRARIES})
-    set(FB_EXTERNAL_INCLUDE_DIRS ${FB_EXTERNAL_INCLUDE_DIRS} ${QT_INCLUDES})
-    add_compile_definitions(FB_USE_QT)
+if (GTK_FOUND)
+    set(FB_EXTERNAL_LIBS ${FB_EXTERNAL_LIBS} ${GTK_LIBRARIES})
+    set(FB_EXTERNAL_INCLUDE_DIRS ${FB_EXTERNAL_INCLUDE_DIRS} ${GTK_INCLUDE_DIRS})
+
+    add_compile_definitions(FB_USE_GTK)
 elseif(OS_LINUX)
-    message(FATAL_ERROR "Qt5 was not found")
+    message(FATAL_ERROR "GTK was not found")
+endif()
+
+if (X11_FOUND)
+    set(FB_EXTERNAL_LIBS ${FB_EXTERNAL_LIBS} ${X11_LIBRARIES})
+    set(FB_EXTERNAL_INCLUDE_DIRS ${FB_EXTERNAL_INCLUDE_DIRS} ${X11_INCLUDE_DIR})
+elseif(OS_LINUX)
+    message(FATAL_ERROR "X11 was not found")
 endif()
 
 add_executable(fb_sdl ${SOURCES} ${HEADERS})
