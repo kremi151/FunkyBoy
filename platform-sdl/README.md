@@ -10,17 +10,17 @@ This is the implementation of FunkyBoy for Windows, Linux and macOS
 |---------------------|--------------------|-------------------------------|
 | Windows             | :heavy_check_mark: | SDL2                          |
 | macOS               | :heavy_check_mark: | SDL2                          |
-| Ubuntu              | :heavy_check_mark: | SDL2, Qt5                     |
-| Other Linux distros | :question:         | SDL2, Qt5                     |
+| Ubuntu              | :heavy_check_mark: | SDL2, GTK3                     |
+| Other Linux distros | :question:         | SDL2, GTK3                     |
 
 ## Build on Ubuntu
 
-1. Install SDL2, Qt5 and CMake:
+1. Install SDL2, GTK3 and CMake:
 
 ```
 sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
 sudo apt-get update -y -qq
-sudo apt-get install libsdl2-dev qtbase5-dev qt5-default cmake
+sudo apt-get install libsdl2-dev libgtk-3-dev libx11-dev cmake
 ```
 2. Compile:
 

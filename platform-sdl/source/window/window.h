@@ -25,7 +25,8 @@
 
 namespace FunkyBoy::SDL {
 
-    class Window {
+    class Window
+    {
     private:
         const GameBoyType gbType;
 
@@ -52,7 +53,7 @@ namespace FunkyBoy::SDL {
         explicit Window(GameBoyType gbType);
         ~Window();
 
-        bool init(int argc, char **argv);
+        bool init(int argc, char **argv, size_t width, size_t height);
         void update();
         void deinit();
 
