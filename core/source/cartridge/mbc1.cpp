@@ -26,7 +26,7 @@
 
 using namespace FunkyBoy;
 
-u16 getMBC1RAMBankSize(RAMSize size) {
+size_t MBC1::getRAMBankSize(RAMSize size) {
     if (size == RAMSize::RAM_SIZE_None) {
         return 0;
     } else if (size == RAMSize::RAM_SIZE_2KB) {
@@ -38,7 +38,7 @@ u16 getMBC1RAMBankSize(RAMSize size) {
     }
 }
 
-u8 getMBC1RAMBankCount(RAMSize size) {
+u8 MBC1::getRAMBankCount(RAMSize size) {
     if (size == RAMSize::RAM_SIZE_None) {
         return 0;
     } else if (size == RAMSize::RAM_SIZE_2KB || size == RAMSize::RAM_SIZE_8KB) {
@@ -50,7 +50,7 @@ u8 getMBC1RAMBankCount(RAMSize size) {
     }
 }
 
-memory_address getMaxRAMOffset(RAMSize ramSize) {
+memory_address MBC1::getMaxRAMOffset(RAMSize ramSize) {
     if (ramSize == RAMSize::RAM_SIZE_None) {
         return 0x0000;
     } else if (ramSize == RAMSize::RAM_SIZE_2KB) {
@@ -88,8 +88,8 @@ u8 getROMBankBitMask(ROMSize romSize) {
 
 MBC1::MBC1(ROMSize romSize, RAMSize ramSize)
     : preliminaryRomBank(1)
-    , ramBankSize(getMBC1RAMBankSize(ramSize))
-    , ramBankCount(getMBC1RAMBankCount(ramSize))
+    , ramBankSize(getRAMBankSize(ramSize))
+    , ramBankCount(getRAMBankCount(ramSize))
     , maxRamOffset(getMaxRAMOffset(ramSize))
     , ramBankingMode(false)
     , romSize(romSize)

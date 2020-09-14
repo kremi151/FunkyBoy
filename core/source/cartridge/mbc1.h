@@ -21,13 +21,14 @@
 #include <util/testing.h>
 #include <util/romsizes.h>
 #include <util/ramsizes.h>
+#include <cstddef>
 
 namespace FunkyBoy {
 
     class MBC1: public MBC {
     private:
         const ROMSize romSize;
-        const u16 ramBankSize;
+        const size_t ramBankSize;
         const u8 ramBankCount;
         const memory_address maxRamOffset;
         u32 romBankOffsetLower{};
@@ -47,6 +48,10 @@ namespace FunkyBoy {
 
         u8 readFromRAMAt(memory_address offset, u8 *ram) override;
         void writeToRAMAt(memory_address offset, u8 val, u8 *ram) override;
+
+        static size_t getRAMBankSize(RAMSize size);
+        static u8 getRAMBankCount(RAMSize size);
+        static memory_address getMaxRAMOffset(RAMSize ramSize);
     };
 
 }
