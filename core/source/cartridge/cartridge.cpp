@@ -22,9 +22,9 @@
 
 #include <util/romsizes.h>
 #include <util/ramsizes.h>
-#include <memory/mbc_none.h>
-#include <memory/mbc1.h>
-#include <memory/mbc2.h>
+#include <cartridge/mbc_none.h>
+#include <cartridge/mbc1.h>
+#include <cartridge/mbc2.h>
 
 using namespace FunkyBoy;
 

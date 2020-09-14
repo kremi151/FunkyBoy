@@ -20,7 +20,7 @@
 #include <util/typedefs.h>
 #include <util/testing.h>
 #include <cartridge/header.h>
-#include <memory/mbc.h>
+#include <cartridge/mbc.h>
 
 #include <iostream>
 #include <memory>

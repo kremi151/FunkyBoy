@@ -22,9 +22,9 @@ set(SOURCES
         source/util/romsizes.cpp
         source/cartridge/cartridge.cpp
         source/memory/memory.cpp
-        source/memory/mbc1.cpp
-        source/memory/mbc2.cpp
-        source/memory/mbc_none.cpp
+        source/cartridge/mbc1.cpp
+        source/cartridge/mbc2.cpp
+        source/cartridge/mbc_none.cpp
         source/memory/ppu_memory.cpp
         source/instructions/instruction_context.cpp
         source/instructions/alu.cpp
@@ -65,10 +65,10 @@ set(HEADERS
         source/memory/memory.h
         source/util/debug.h
         source/util/testing.h
-        source/memory/mbc.h
-        source/memory/mbc1.h
-        source/memory/mbc2.h
-        source/memory/mbc_none.h
+        source/cartridge/mbc.h
+        source/cartridge/mbc1.h
+        source/cartridge/mbc2.h
+        source/cartridge/mbc_none.h
         source/memory/ppu_memory.h
         source/instructions/instruction_context.h
         source/instructions/alu.h

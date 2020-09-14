@@ -14,15 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_MBC_NONE_H
-#define FB_CORE_MBC_NONE_H
+#ifndef FB_CORE_MBC1_H
+#define FB_CORE_MBC1_H
 
-#include <memory/mbc.h>
+#include <cartridge/mbc.h>
+#include <util/testing.h>
+#include <util/romsizes.h>
+#include <util/ramsizes.h>
 
 namespace FunkyBoy {
 
-    class MBCNone: public MBC {
+    class MBC1: public MBC {
+    private:
+        const ROMSize romSize;
+        const u16 ramBankSize;
+        const u8 ramBankCount;
+        const memory_address maxRamOffset;
+        u32 romBankOffsetLower{};
+        u32 romBankOffset{};
+        u32 ramBankOffset{};
+        void updateBanks();
+    test_public:
+        u8 preliminaryRomBank, romBank{};
+        u8 ramBank{};
+        bool ramBankingMode;
+        bool ramEnabled;
     public:
+        MBC1(ROMSize romSize, RAMSize ramSize);
+
         u8 readFromROMAt(memory_address offset, u8 *rom) override;
         void interceptROMWrite(memory_address offset, u8 val) override;
 
@@ -32,4 +51,4 @@ namespace FunkyBoy {
 
 }
 
-#endif //FB_CORE_MBC_NONE_H
+#endif //FB_CORE_MBC1_H
