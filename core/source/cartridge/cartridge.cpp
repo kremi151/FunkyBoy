@@ -148,30 +148,19 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
             mbc = std::make_unique<MBCNone>();
             break;
         case 0x01:
-            mbc = std::make_unique<MBC1>(romSizeType, MBC1RAMSize::MBC1_NoRam);
+            mbc = std::make_unique<MBC1>(romSizeType, RAMSize::RAM_SIZE_None);
             break;
         case 0x02:
         case 0x03: {
             // TODO: Battery
-            MBC1RAMSize mbc1RamSize;
-            switch (ramSizeType) {
-                case RAMSize::RAM_SIZE_None:
-                    mbc1RamSize = MBC1RAMSize::MBC1_NoRam;
-                    break;
-                case RAMSize::RAM_SIZE_2KB:
-                    mbc1RamSize = MBC1RAMSize::MBC1_2KByte;
-                    break;
-                case RAMSize::RAM_SIZE_8KB:
-                    mbc1RamSize = MBC1RAMSize::MBC1_8KByte;
-                    break;
-                case RAMSize::RAM_SIZE_32KB:
-                    mbc1RamSize = MBC1RAMSize::MBC1_32KByte;
-                    break;
-                default:
-                    status = CartridgeStatus::ROMUnsupportedMBC;
-                    return;
+            if (ramSizeType != RAMSize::RAM_SIZE_None
+                && ramSizeType != RAMSize::RAM_SIZE_2KB
+                && ramSizeType != RAMSize::RAM_SIZE_8KB
+                && ramSizeType != RAMSize::RAM_SIZE_32KB) {
+                status = CartridgeStatus::ROMUnsupportedMBC;
+                return;
             }
-            mbc = std::make_unique<MBC1>(romSizeType, mbc1RamSize);
+            mbc = std::make_unique<MBC1>(romSizeType, ramSizeType);
             break;
         }
         case 0x05:

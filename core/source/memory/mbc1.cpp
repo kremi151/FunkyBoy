@@ -26,36 +26,36 @@
 
 using namespace FunkyBoy;
 
-u16 getMBC1RAMBankSize(MBC1RAMSize size) {
-    if (size == MBC1RAMSize::MBC1_NoRam) {
+u16 getMBC1RAMBankSize(RAMSize size) {
+    if (size == RAMSize::RAM_SIZE_None) {
         return 0;
-    } else if (size == MBC1RAMSize::MBC1_2KByte) {
-        return static_cast<u16>(MBC1_2KByte);
-    } else if (size == MBC1RAMSize::MBC1_8KByte || size == MBC1RAMSize::MBC1_32KByte) {
-        return static_cast<u16>(MBC1_8KByte);
+    } else if (size == RAMSize::RAM_SIZE_2KB) {
+        return getRAMSizeInBytes(RAMSize::RAM_SIZE_2KB);
+    } else if (size == RAMSize::RAM_SIZE_8KB || size == RAMSize::RAM_SIZE_32KB) {
+        return getRAMSizeInBytes(RAMSize::RAM_SIZE_8KB);
     } else {
         throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(size));
     }
 }
 
-u8 getMBC1RAMBankCount(MBC1RAMSize size) {
-    if (size == MBC1RAMSize::MBC1_NoRam) {
+u8 getMBC1RAMBankCount(RAMSize size) {
+    if (size == RAMSize::RAM_SIZE_None) {
         return 0;
-    } else if (size == MBC1RAMSize::MBC1_2KByte || size == MBC1RAMSize::MBC1_8KByte) {
+    } else if (size == RAMSize::RAM_SIZE_2KB || size == RAMSize::RAM_SIZE_8KB) {
         return 1;
-    } else if (size == MBC1RAMSize::MBC1_32KByte) {
+    } else if (size == RAMSize::RAM_SIZE_32KB) {
         return 4;
     } else {
         throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(size));
     }
 }
 
-memory_address getMaxRAMOffset(MBC1RAMSize ramSize) {
-    if (ramSize == MBC1RAMSize::MBC1_NoRam) {
+memory_address getMaxRAMOffset(RAMSize ramSize) {
+    if (ramSize == RAMSize::RAM_SIZE_None) {
         return 0x0000;
-    } else if (ramSize == MBC1RAMSize::MBC1_2KByte) {
+    } else if (ramSize == RAMSize::RAM_SIZE_2KB) {
         return 0x07FF;
-    } else if (ramSize == MBC1RAMSize::MBC1_8KByte || ramSize == MBC1RAMSize::MBC1_32KByte) {
+    } else if (ramSize == RAMSize::RAM_SIZE_8KB || ramSize == RAMSize::RAM_SIZE_32KB) {
         return 0x1FFF;
     } else {
         throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(ramSize));
@@ -86,14 +86,13 @@ u8 getROMBankBitMask(ROMSize romSize) {
     }
 }
 
-MBC1::MBC1(ROMSize romSize, MBC1RAMSize ramSize)
+MBC1::MBC1(ROMSize romSize, RAMSize ramSize)
     : preliminaryRomBank(1)
     , ramBankSize(getMBC1RAMBankSize(ramSize))
     , ramBankCount(getMBC1RAMBankCount(ramSize))
     , maxRamOffset(getMaxRAMOffset(ramSize))
     , ramBankingMode(false)
     , romSize(romSize)
-    , ramSize(ramSize)
     , ramEnabled(false)
 {
     updateBanks();

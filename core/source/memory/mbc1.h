@@ -20,20 +20,13 @@
 #include <memory/mbc.h>
 #include <util/testing.h>
 #include <util/romsizes.h>
+#include <util/ramsizes.h>
 
 namespace FunkyBoy {
-
-    enum MBC1RAMSize {
-        MBC1_NoRam = 0,
-        MBC1_2KByte = 2048,
-        MBC1_8KByte = 8192,
-        MBC1_32KByte = 32768
-    };
 
     class MBC1: public MBC {
     private:
         const ROMSize romSize;
-        const MBC1RAMSize ramSize;
         const u16 ramBankSize;
         const u8 ramBankCount;
         const memory_address maxRamOffset;
@@ -47,7 +40,7 @@ namespace FunkyBoy {
         bool ramBankingMode;
         bool ramEnabled;
     public:
-        MBC1(ROMSize romSize, MBC1RAMSize ramSize);
+        MBC1(ROMSize romSize, RAMSize ramSize);
 
         u8 readFromROMAt(memory_address offset, u8 *rom) override;
         void interceptROMWrite(memory_address offset, u8 val) override;

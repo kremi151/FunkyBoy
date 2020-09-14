@@ -28,6 +28,23 @@ namespace FunkyBoy {
         RAM_SIZE_64KB = 0x5
     };
 
+    inline size_t getRAMSizeInBytes(RAMSize ramSize) {
+        switch (ramSize) {
+            case RAMSize::RAM_SIZE_None:
+                return 0;
+            case RAMSize::RAM_SIZE_2KB:
+                return 2048;
+            case RAMSize::RAM_SIZE_8KB:
+                return 8192;
+            case RAMSize::RAM_SIZE_32KB:
+                return 32768;
+            case RAMSize::RAM_SIZE_64KB:
+                return 65536;
+            case RAMSize::RAM_SIZE_128KB:
+                return 131072;
+        }
+    }
+
 }
 
 #endif //FUNKYBOY_CORE_RAMSIZES_H
