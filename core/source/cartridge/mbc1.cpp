@@ -62,7 +62,7 @@ memory_address MBC1::getMaxRAMOffset(RAMSize ramSize) {
     }
 }
 
-u8 getROMBankBitMask(ROMSize romSize) {
+u8 MBC1::getROMBankBitMask(ROMSize romSize) {
     switch (romSize) {
         case ROMSize::ROM_SIZE_32K:
             // 32K ROMs have in theory no banking, as bank 0 is mapped to 0x0000-0x3FFF

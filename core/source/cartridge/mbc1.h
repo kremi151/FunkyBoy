@@ -52,6 +52,7 @@ namespace FunkyBoy {
         static size_t getRAMBankSize(RAMSize size);
         static u8 getRAMBankCount(RAMSize size);
         static memory_address getMaxRAMOffset(RAMSize ramSize);
+        static u8 getROMBankBitMask(ROMSize romSize);
     };
 
 }
