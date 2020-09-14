@@ -21,14 +21,17 @@
 #include <cstring>
 
 #include <util/romsizes.h>
+#include <util/ramsizes.h>
 #include <memory/mbc_none.h>
 #include <memory/mbc1.h>
+#include <memory/mbc2.h>
 
 using namespace FunkyBoy;
 
 Cartridge::Cartridge()
     : rom(nullptr)
     , ram(nullptr)
+    , ramSizeInBytes(0)
     , romSize(0)
     , status(CartridgeStatus::NoROMLoaded)
     , mbc(new MBCNone())
@@ -53,24 +56,6 @@ bool hasCartridgeRam(u8 cartridgeType) {
             return true;
         default:
             return false;
-    }
-}
-
-size_t getCartridgeRamSize(u8 ramSizeType) {
-    auto type = static_cast<CartridgeRAMSize>(ramSizeType);
-    switch (type) {
-        case CartridgeRAMSize::CRAM_2KB:
-            return 2048;
-        case CartridgeRAMSize::CRAM_8KB:
-            return 8192;
-        case CartridgeRAMSize::CRAM_32KB:
-            return 32768;
-        case CartridgeRAMSize::CRAM_64KB:
-            return 65536;
-        case CartridgeRAMSize::CRAM_128KB:
-            return 131072;
-        default:
-            return 0;
     }
 }
 
@@ -114,13 +99,27 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
 
     auto romSizeType = static_cast<ROMSize>(header->romSize);
 
-    size_t ramSizeBytes = getCartridgeRamSize(header->ramSize);
-
-#ifdef FB_DEBUG
-    std::cout << "ROM title: " << header->title << std::endl;
-    std::cout << "ROM size type: " << romSizeType << std::endl;
-    std::cout << "RAM size: " << ramSizeBytes << " bytes (" << (header->ramSize % 0xff) << ")" << std::endl;
-#endif
+    auto type = static_cast<RAMSize>(header->ramSize);
+    switch (type) {
+        case RAMSize::RAM_SIZE_2KB:
+            ramSizeInBytes = 2048;
+            break;
+        case RAMSize::RAM_SIZE_8KB:
+            ramSizeInBytes = 8192;
+            break;
+        case RAMSize::RAM_SIZE_32KB:
+            ramSizeInBytes = 32768;
+            break;
+        case RAMSize::RAM_SIZE_64KB:
+            ramSizeInBytes = 65536;
+            break;
+        case RAMSize::RAM_SIZE_128KB:
+            ramSizeInBytes = 131072;
+            break;
+        default:
+            ramSizeInBytes = 0;
+            break;
+    }
 
     size_t romFlagInBytes = romSizeInBytes(romSizeType);
     if (romFlagInBytes == 0) {
@@ -133,7 +132,7 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
         return;
     }
 
-    CartridgeRAMSize ramSizeType;
+    RAMSize ramSizeType;
     if (header->ramSize > 0x5) {
         status = CartridgeStatus::RAMSizeUnsupported;
         return;
@@ -142,7 +141,7 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
     if (ramSize == 0 && hasCartridgeRam(header->cartridgeType)) {
         ramSize = 1;
     }
-    ramSizeType = static_cast<CartridgeRAMSize>(ramSize);
+    ramSizeType = static_cast<RAMSize>(ramSize);
 
     switch (header->cartridgeType) {
         case 0x00:
@@ -156,16 +155,16 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
             // TODO: Battery
             MBC1RAMSize mbc1RamSize;
             switch (ramSizeType) {
-                case CRAM_None:
+                case RAMSize::RAM_SIZE_None:
                     mbc1RamSize = MBC1RAMSize::MBC1_NoRam;
                     break;
-                case CRAM_2KB:
+                case RAMSize::RAM_SIZE_2KB:
                     mbc1RamSize = MBC1RAMSize::MBC1_2KByte;
                     break;
-                case CRAM_8KB:
+                case RAMSize::RAM_SIZE_8KB:
                     mbc1RamSize = MBC1RAMSize::MBC1_8KByte;
                     break;
-                case CRAM_32KB:
+                case RAMSize::RAM_SIZE_32KB:
                     mbc1RamSize = MBC1RAMSize::MBC1_32KByte;
                     break;
                 default:
@@ -175,33 +174,44 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
             mbc = std::make_unique<MBC1>(romSizeType, mbc1RamSize);
             break;
         }
+        case 0x05:
+        case 0x06: {
+            // TODO: Battery
+            mbc = std::make_unique<MBC2>(romSizeType);
+            ramSizeInBytes = 0x200; // MBC2 always uses a fixed RAM size of 512 bytes (4 bits per byte usable)
+            break;
+        }
         default:
             status = CartridgeStatus::ROMUnsupportedMBC;
             return;
     }
 
+#ifdef FB_DEBUG
+    std::cout << "ROM title: " << header->title << std::endl;
+    std::cout << "ROM size type: " << romSizeType << std::endl;
+    std::cout << "RAM size: " << ramSizeInBytes << " bytes (headerValue=" << (header->ramSize % 0xff) << ")" << std::endl;
+#endif
+
     rom = romBytes.release();
     romSize = length;
 
-    ram = new u8[ramSizeBytes];
+    ram = new u8[ramSizeInBytes];
 
     status = CartridgeStatus::Loaded;
 }
 
 void Cartridge::loadRam(std::istream &stream) {
-    auto ramSize = getCartridgeRamSize(getHeader()->ramSize);
-    if (ramSize == 0) {
+    if (ramSizeInBytes == 0) {
         return;
     }
-    stream.read(static_cast<char*>(static_cast<void*>(ram)), ramSize);
+    stream.read(static_cast<char*>(static_cast<void*>(ram)), ramSizeInBytes);
 }
 
 void Cartridge::writeRam(std::ostream &stream) {
-    auto ramSize = getCartridgeRamSize(getHeader()->ramSize);
-    if (ramSize == 0) {
+    if (ramSizeInBytes == 0) {
         return;
     }
-    stream.write(static_cast<char*>(static_cast<void*>(ram)), ramSize);
+    stream.write(static_cast<char*>(static_cast<void*>(ram)), ramSizeInBytes);
 }
 
 const ROMHeader * Cartridge::getHeader() {
@@ -213,5 +223,5 @@ CartridgeStatus Cartridge::getStatus() {
 }
 
 size_t Cartridge::getRamSize() {
-    return getCartridgeRamSize(getHeader()->ramSize);
+    return ramSizeInBytes;
 }

@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_MOONEYE_TESTS_H
-#define FB_TESTS_MOONEYE_TESTS_H
+#ifndef FUNKYBOY_CORE_RAMSIZES_H
+#define FUNKYBOY_CORE_RAMSIZES_H
 
-#include <acacia.h>
+namespace FunkyBoy {
 
-#include "rom_mooneye_mbc1.h"
-#include "rom_mooneye_mbc2.h"
-#include "rom_acceptance.h"
+    enum RAMSize {
+        RAM_SIZE_None = 0x0,
+        RAM_SIZE_2KB = 0x1,
+        RAM_SIZE_8KB = 0x2,
+        RAM_SIZE_32KB = 0x3,
+        RAM_SIZE_128KB = 0x4,
+        RAM_SIZE_64KB = 0x5
+    };
 
-inline acacia::Report __fbTests_runMooneyeTests() {
-    acacia::Report report;
-
-    report += __fbTests_runMooneyeMBC1RomTests();
-    report += __fbTests_runMooneyeMBC2RomTests();
-    report += __fbTests_runMooneyeAcceptanceRomTests();
-
-    return report;
 }
 
-#endif //FB_TESTS_MOONEYE_TESTS_H
+#endif //FUNKYBOY_CORE_RAMSIZES_H
