@@ -25,6 +25,7 @@
 #include <cartridge/mbc_none.h>
 #include <cartridge/mbc1.h>
 #include <cartridge/mbc2.h>
+#include <cartridge/mbc3.h>
 
 using namespace FunkyBoy;
 
@@ -168,6 +169,22 @@ void Cartridge::loadROM(std::istream &stream, bool strictSizeCheck) {
             // TODO: Battery
             mbc = std::make_unique<MBC2>(romSizeType);
             ramSizeInBytes = 0x200; // MBC2 always uses a fixed RAM size of 512 bytes (4 bits per byte usable)
+            break;
+        }
+        case 0x0f:
+        case 0x10:
+        case 0x11:
+        case 0x12:
+        case 0x13: {
+            // TODO: Battery
+            if (ramSizeType != RAMSize::RAM_SIZE_None
+                && ramSizeType != RAMSize::RAM_SIZE_2KB
+                && ramSizeType != RAMSize::RAM_SIZE_8KB
+                && ramSizeType != RAMSize::RAM_SIZE_32KB) {
+                status = CartridgeStatus::ROMUnsupportedMBC;
+                return;
+            }
+            mbc = std::make_unique<MBC3>(romSizeType, ramSizeType);
             break;
         }
         default:
