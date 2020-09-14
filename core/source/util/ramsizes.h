@@ -17,6 +17,8 @@
 #ifndef FUNKYBOY_CORE_RAMSIZES_H
 #define FUNKYBOY_CORE_RAMSIZES_H
 
+#include <cstddef>
+
 namespace FunkyBoy {
 
     enum RAMSize {
