@@ -136,7 +136,7 @@ void RTC::endLatch() {
     latchTimestamp = 0;
 }
 
-time_t RTC::currentTimestamp() {
+time_t RTC::currentTimestamp() const {
     if (latchTimestamp) {
         return (latchTimestamp - startTimestamp) + timestampOffset;
     } else {
