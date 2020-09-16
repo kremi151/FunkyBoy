@@ -25,6 +25,10 @@
 
 #define FB_IS_MBC3
 
+#ifdef FB_IS_MBC3
+#include <cartridge/rtc.h>
+#endif
+
 namespace FunkyBoy {
 
     class MBC3: public MBC {
@@ -36,6 +40,9 @@ namespace FunkyBoy {
         u32 romBankOffsetLower{};
         u32 romBankOffset{};
         u32 ramBankOffset{};
+#ifdef FB_IS_MBC3
+        RTC rtc;
+#endif
         void updateBanks();
     test_public:
         u8 preliminaryRomBank, romBank{};

@@ -116,8 +116,10 @@ void MBC3::interceptROMWrite(memory_address offset, u8 val) {
         mbc3_print("[MBC3] about to update ROM/RAM bank with value %d\n", val);
 #ifndef FB_IS_MBC3
         preliminaryRomBank = ((val & 0b11u) << 5) | (preliminaryRomBank & 0b0011111u);
-#endif
         ramBank = val & 0b11u;
+#else
+        ramBank = val & 0b1111u;
+#endif
         updateBanks();
 #ifndef FB_IS_MBC3
     } else if (offset <= 0x7FFF) {
@@ -133,11 +135,68 @@ u8 MBC3::readFromRAMAt(memory_address offset, u8 *ram) {
         // Not readable
         return 0xff;
     }
-    return *(ram + ramBankOffset + offset);
+#ifdef FB_IS_MBC3
+    switch (ramBank) {
+        case 0x0: case 0x1: case 0x2: case 0x3: {
+            return *(ram + ramBankOffset + offset);
+        }
+        case 0x8: {
+            return rtc.getSeconds();
+        }
+        case 0x9: {
+            return rtc.getMinutes();
+        }
+        case 0xA: {
+            return rtc.getHours();
+        }
+        case 0xB: {
+            return rtc.getDL();
+        }
+        case 0xC: {
+            return rtc.getDH();
+        }
+        default: {
+            // Not readable
+            return 0xff;
+        }
+    }
+#endif
 }
 
 void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
+#ifndef FB_IS_MBC3
     if (ramEnabled && offset <= maxRamOffset) {
         *(ram + ramBankOffset + offset) = val;
     }
+#else
+    if (!ramEnabled || offset > maxRamOffset) {
+        // Not writable
+        return;
+    }
+    switch (ramBank) {
+        case 0x0: case 0x1: case 0x2: case 0x3: {
+            *(ram + ramBankOffset + offset) = val;
+        }
+        case 0x8: {
+            rtc.setSeconds(val);
+            break;
+        }
+        case 0x9: {
+            rtc.setMinutes(val);
+            break;
+        }
+        case 0xA: {
+            rtc.setHours(val);
+            break;
+        }
+        case 0xB: {
+            rtc.setDL(val);
+            break;
+        }
+        case 0xC: {
+            rtc.setDH(val);
+            break;
+        }
+    }
+#endif
 }
