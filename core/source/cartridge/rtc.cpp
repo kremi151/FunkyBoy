@@ -24,7 +24,11 @@ using namespace FunkyBoy;
 size_t RTC::determineTimeConstant() {
     time_t time1 = time(nullptr);
     tm timeBuffer{};
+#ifdef OS_WINDOWS
     localtime_s(&timeBuffer, &time1);
+#else
+    localtime_r(&time1, &timeBuffer);
+#endif
     timeBuffer.tm_sec++;
     time_t time2 = mktime(&timeBuffer);
     return std::max<size_t>(1, time2 - time1);
@@ -132,7 +136,7 @@ void RTC::endLatch() {
     latchTimestamp = 0;
 }
 
-time_t RTC::currentTimestamp() {
+time_t RTC::currentTimestamp() const {
     if (latchTimestamp) {
         return (latchTimestamp - startTimestamp) + timestampOffset;
     } else {

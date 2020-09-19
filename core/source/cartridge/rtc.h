@@ -38,7 +38,7 @@ namespace FunkyBoy {
         u8 haltedHours, haltedMinutes, haltedSeconds;
         bool halted;
 
-        time_t currentTimestamp();
+        time_t currentTimestamp() const;
 
         void startLatch();
         void endLatch();
