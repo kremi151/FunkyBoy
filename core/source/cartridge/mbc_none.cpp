@@ -41,3 +41,7 @@ void MBCNone::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
 void MBCNone::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     // Do nothing
 }
+
+bool MBCNone::hasBattery() {
+    return false;
+}

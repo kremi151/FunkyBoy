@@ -34,6 +34,8 @@ namespace FunkyBoy {
 
         virtual void saveBattery(std::ostream &stream, u8 *ram, size_t l) = 0;
         virtual void loadBattery(std::istream &stream, u8 *ram, size_t l) = 0;
+
+        virtual bool hasBattery() = 0;
     };
 
 }

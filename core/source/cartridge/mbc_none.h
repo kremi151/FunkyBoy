@@ -31,6 +31,8 @@ namespace FunkyBoy {
 
         void saveBattery(std::ostream &stream, u8 *ram, size_t l) override;
         void loadBattery(std::istream &stream, u8 *ram, size_t l) override;
+
+        bool hasBattery() override;
     };
 
 }

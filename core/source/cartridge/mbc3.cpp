@@ -27,7 +27,7 @@
 
 using namespace FunkyBoy;
 
-MBC3::MBC3(ROMSize romSize, RAMSize ramSize)
+MBC3::MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc)
     : preliminaryRomBank(1)
     , ramBankSize(MBC1::getRAMBankSize(ramSize))
     , ramBankCount(MBC1::getRAMBankCount(ramSize))
@@ -37,6 +37,8 @@ MBC3::MBC3(ROMSize romSize, RAMSize ramSize)
 #endif
     , romSize(romSize)
     , ramEnabled(false)
+    , useBattery(battery)
+    , useRtc(rtc)
 {
     updateBanks();
 }
@@ -141,19 +143,39 @@ u8 MBC3::readFromRAMAt(memory_address offset, u8 *ram) {
             return *(ram + ramBankOffset + offset);
         }
         case 0x8: {
-            return rtc.getSeconds();
+            if (useRtc) {
+                return rtc.getSeconds();
+            } else {
+                return 0xff;
+            }
         }
         case 0x9: {
-            return rtc.getMinutes();
+            if (useRtc) {
+                return rtc.getMinutes();
+            } else {
+                return 0xff;
+            }
         }
         case 0xA: {
-            return rtc.getHours();
+            if (useRtc) {
+                return rtc.getHours();
+            } else {
+                return 0xff;
+            }
         }
         case 0xB: {
-            return rtc.getDL();
+            if (useRtc) {
+                return rtc.getDL();
+            } else {
+                return 0xff;
+            }
         }
         case 0xC: {
-            return rtc.getDH();
+            if (useRtc) {
+                return rtc.getDH();
+            } else {
+                return 0xff;
+            }
         }
         default: {
             // Not readable
@@ -178,23 +200,33 @@ void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
             *(ram + ramBankOffset + offset) = val;
         }
         case 0x8: {
-            rtc.setSeconds(val);
+            if (useRtc) {
+                rtc.setSeconds(val);
+            }
             break;
         }
         case 0x9: {
-            rtc.setMinutes(val);
+            if (useRtc) {
+                rtc.setMinutes(val);
+            }
             break;
         }
         case 0xA: {
-            rtc.setHours(val);
+            if (useRtc) {
+                rtc.setHours(val);
+            }
             break;
         }
         case 0xB: {
-            rtc.setDL(val);
+            if (useRtc) {
+                rtc.setDL(val);
+            }
             break;
         }
         case 0xC: {
-            rtc.setDH(val);
+            if (useRtc) {
+                rtc.setDH(val);
+            }
             break;
         }
     }
@@ -203,10 +235,18 @@ void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
 
 void MBC3::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
     stream.write(static_cast<char*>(static_cast<void*>(ram)), l);
-    rtc.write(stream);
+    if (useRtc) {
+        rtc.write(stream);
+    }
 }
 
 void MBC3::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     stream.read(static_cast<char*>(static_cast<void*>(ram)), l);
-    rtc.load(stream);
+    if (useRtc) {
+        rtc.load(stream);
+    }
+}
+
+bool MBC3::hasBattery() {
+    return useBattery;
 }
