@@ -210,14 +210,14 @@ void Cartridge::loadRam(std::istream &stream) {
     if (ramSizeInBytes == 0) {
         return;
     }
-    stream.read(static_cast<char*>(static_cast<void*>(ram)), ramSizeInBytes);
+    mbc->loadBattery(stream, ram, ramSizeInBytes);
 }
 
 void Cartridge::writeRam(std::ostream &stream) {
     if (ramSizeInBytes == 0) {
         return;
     }
-    stream.write(static_cast<char*>(static_cast<void*>(ram)), ramSizeInBytes);
+    mbc->saveBattery(stream, ram, ramSizeInBytes);
 }
 
 const ROMHeader * Cartridge::getHeader() {

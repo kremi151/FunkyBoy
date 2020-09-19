@@ -177,3 +177,11 @@ void MBC1::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
         *(ram + ramBankOffset + offset) = val;
     }
 }
+
+void MBC1::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
+    stream.write(static_cast<char*>(static_cast<void*>(ram)), l);
+}
+
+void MBC1::loadBattery(std::istream &stream, u8 *ram, size_t l) {
+    stream.read(static_cast<char*>(static_cast<void*>(ram)), l);
+}

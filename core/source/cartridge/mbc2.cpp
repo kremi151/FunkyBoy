@@ -98,3 +98,11 @@ void MBC2::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
         *(ram + (offset % (FB_MBC2_MAX_RAM_OFFSET + 1))) = val & 0b1111u;
     }
 }
+
+void MBC2::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
+    stream.write(static_cast<char*>(static_cast<void*>(ram)), l);
+}
+
+void MBC2::loadBattery(std::istream &stream, u8 *ram, size_t l) {
+    stream.read(static_cast<char*>(static_cast<void*>(ram)), l);
+}

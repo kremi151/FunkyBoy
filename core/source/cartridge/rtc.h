@@ -20,6 +20,7 @@
 #include <util/typedefs.h>
 #include <ctime>
 #include <memory>
+#include <iostream>
 
 namespace FunkyBoy {
 
@@ -62,6 +63,8 @@ namespace FunkyBoy {
         void setDL(u8 val);
         void setDH(u8 val);
 
+        void write(std::ostream &stream);
+        void load(std::istream &stream);
     };
 
     typedef std::shared_ptr<RTC> RTCPtr;

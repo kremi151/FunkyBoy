@@ -34,6 +34,8 @@ namespace FunkyBoy {
     typedef uint32_t u32;
     typedef uint64_t u64;
 
+    typedef uint_least16_t ul16;
+
     typedef u32 memory_address;
 
     typedef int8_t i8;

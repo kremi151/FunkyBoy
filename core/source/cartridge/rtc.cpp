@@ -139,3 +139,34 @@ time_t RTC::currentTimestamp() {
         return (time(nullptr) - startTimestamp) + timestampOffset;
     }
 }
+
+void RTC::write(std::ostream &stream) {
+    u8 buffer[48]{};
+    startLatch();
+    buffer[0] = buffer[20] = getSeconds();
+    buffer[4] = buffer[24] = getMinutes();
+    buffer[8] = buffer[28] = getHours();
+    ul16 days = getDays();
+    buffer[12] = buffer[32] = days & 0xffu;
+    buffer[16] = buffer[36] = (days >> 8) & 0xffu;
+    size_t latch = latchTimestamp / secondFactor;
+    buffer[40] = latch & 0xff;
+    buffer[41] = (latch >> 8) & 0xff;
+    buffer[42] = (latch >> 16) & 0xff;
+    buffer[43] = (latch >> 24) & 0xff;
+    endLatch();
+    stream.write(static_cast<char*>(static_cast<void*>(buffer)), 48);
+}
+
+void RTC::load(std::istream &stream) {
+    u8 buffer[44]{};
+    stream.read(static_cast<char*>(static_cast<void*>(buffer)), 44);
+    u8 &seconds = buffer[0];
+    u8 &minutes = buffer[4];
+    u8 &hours = buffer[8];
+    u8 &daysLsb = buffer[12];
+    u8 &daysMsb = buffer[16];
+    ul16 days = (daysMsb << 8) | daysLsb;
+    timestampOffset = (days * dayFactor) + (hours * hourFactor) + (minutes * minuteFactor) + (seconds * secondFactor);
+    startTimestamp = ((buffer[43] << 24) | (buffer[42] << 16) | (buffer[41] << 8) | buffer[40]) * secondFactor;
+}

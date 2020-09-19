@@ -59,6 +59,9 @@ namespace FunkyBoy {
 
         u8 readFromRAMAt(memory_address offset, u8 *ram) override;
         void writeToRAMAt(memory_address offset, u8 val, u8 *ram) override;
+
+        void saveBattery(std::ostream &stream, u8 *ram, size_t l) override;
+        void loadBattery(std::istream &stream, u8 *ram, size_t l) override;
     };
 
 }
