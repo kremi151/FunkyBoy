@@ -3,6 +3,9 @@ name: Build SDL platform
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'core/**'
+      - 'platform-sdl/**'
   pull_request:
     branches: [ master ]
 
