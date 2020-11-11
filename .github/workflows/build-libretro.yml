@@ -3,6 +3,9 @@ name: Build Libretro
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'core/**'
+      - 'platform-libretro/**'
   pull_request:
     branches: [ master ]
 
