@@ -3,6 +3,9 @@ name: Test
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'core/**'
+      - 'test/**'
   pull_request:
     branches: [ master ]
 
