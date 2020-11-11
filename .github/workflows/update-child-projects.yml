@@ -2,7 +2,10 @@ name: Update child projects
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - 'core/**'
 
 jobs:
   update-android:
