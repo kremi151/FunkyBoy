@@ -22,6 +22,7 @@
 #include <controllers/display_sdl.h>
 #include <ui/native_ui.h>
 #include <fstream>
+#include <palette/dmg_palette.h>
 
 using namespace FunkyBoy::SDL;
 
@@ -49,7 +50,14 @@ Window::~Window() {
     }
 }
 
+void Window::readConfigJson(FunkyBoy::Palette::palette &palette) {
+    // TODO: Implement
+}
+
 bool Window::init(int argc, char **argv, size_t width, size_t height) {
+    Palette::palette palette = Palette::createDMGPalette();
+    readConfigJson(palette);
+
     window = SDL_CreateWindow(
             FB_NAME,
             SDL_WINDOWPOS_UNDEFINED,
@@ -70,7 +78,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
     controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
     controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
-    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
+    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer, palette));
 
     fs::path romPath;
     if (argc <= 1) {

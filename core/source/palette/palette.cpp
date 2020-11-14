@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_PALETTE_DMG_H
-#define FB_CORE_PALETTE_DMG_H
-
 #include "palette.h"
 
-namespace FunkyBoy::Palette {
+using namespace FunkyBoy::Palette;
 
-    inline palette createDMGPalette() {
-        palette palette;
-        palette.setColor(0, 255, 255, 255);
-        palette.setColor(1, 192, 192, 192);
-        palette.setColor(2, 96, 96, 96);
-        palette.setColor(3, 0, 0, 0);
-        return palette;
-    }
-
+color::color(): red(0), green(0), blue(0) {
 }
 
-#endif //FB_CORE_PALETTE_DMG_H
+color::color(FunkyBoy::u8 red, FunkyBoy::u8 green, FunkyBoy::u8 blue): red(red), green(green), blue(blue) {
+}
+
+void palette::setColor(int index, FunkyBoy::u8 red, FunkyBoy::u8 green, FunkyBoy::u8 blue) {
+    colors[index] = color(red, green, blue);
+}
+
+const color& palette::operator[](int index) const {
+    return colors[index];
+}

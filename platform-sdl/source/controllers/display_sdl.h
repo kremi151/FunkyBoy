@@ -19,6 +19,7 @@
 
 #include <SDL.h>
 #include <controllers/display.h>
+#include <palette/palette.h>
 
 namespace FunkyBoy::Controller {
 
@@ -27,8 +28,9 @@ namespace FunkyBoy::Controller {
         SDL_Renderer *renderer;
         SDL_Texture *frameBuffer;
         uint32_t *pixels;
+        Palette::palette palette;
     public:
-        explicit DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer);
+        DisplayControllerSDL(SDL_Renderer *renderer, SDL_Texture *frameBuffer, const Palette::palette &palette);
         ~DisplayControllerSDL() override;
 
         void drawScanLine(u8 y, u8 *buffer) override;
