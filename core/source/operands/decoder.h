@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_DECODER_H
-#define FB_CORE_INSTRUCTIONS_DECODER_H
+#ifndef FB_CORE_OPERANDS_DECODER_H
+#define FB_CORE_OPERANDS_DECODER_H
 
 #include <operands/instructions.h>
 
@@ -27,4 +27,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_DECODER_H
+#endif //FB_CORE_OPERANDS_DECODER_H

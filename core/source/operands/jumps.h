@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_JUMPS_H
-#define FB_CORE_INSTRUCTIONS_JUMPS_H
+#ifndef FB_CORE_OPERANDS_JUMPS_H
+#define FB_CORE_OPERANDS_JUMPS_H
 
 #include <operands/instruction_context.h>
 
@@ -34,4 +34,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_JUMPS_H
+#endif //FB_CORE_OPERANDS_JUMPS_H

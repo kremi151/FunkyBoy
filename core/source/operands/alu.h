@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_ALU_H
-#define FB_CORE_INSTRUCTIONS_ALU_H
+#ifndef FB_CORE_OPERANDS_ALU_H
+#define FB_CORE_OPERANDS_ALU_H
 
 #include <operands/instruction_context.h>
 
@@ -233,4 +233,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_ALU_H
+#endif //FB_CORE_OPERANDS_ALU_H

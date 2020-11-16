@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_WRITES_H
-#define FB_CORE_INSTRUCTIONS_WRITES_H
+#ifndef FB_CORE_OPERANDS_WRITES_H
+#define FB_CORE_OPERANDS_WRITES_H
 
 #include <operands/instruction_context.h>
 
@@ -45,4 +45,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_WRITES_H
+#endif //FB_CORE_OPERANDS_WRITES_H

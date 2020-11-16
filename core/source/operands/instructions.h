@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_H
-#define FB_CORE_INSTRUCTIONS_H
+#ifndef FB_CORE_OPERANDS_H
+#define FB_CORE_OPERANDS_H
 
 #include <operands/instruction_context.h>
 #include <operands/misc.h>
@@ -28,4 +28,4 @@
 #include <operands/rot_shifts.h>
 #include <operands/conditions.h>
 
-#endif //FB_CORE_INSTRUCTIONS_H
+#endif //FB_CORE_OPERANDS_H

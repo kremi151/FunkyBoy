@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_ROT_SHIFTS_H
-#define FB_CORE_INSTRUCTIONS_ROT_SHIFTS_H
+#ifndef FB_CORE_OPERANDS_ROT_SHIFTS_H
+#define FB_CORE_OPERANDS_ROT_SHIFTS_H
 
 #include <operands/instruction_context.h>
 
@@ -51,4 +51,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_ROT_SHIFTS_H
+#endif //FB_CORE_OPERANDS_ROT_SHIFTS_H
