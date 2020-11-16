@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_DEBUG_H
-#define FB_CORE_INSTRUCTIONS_DEBUG_H
+#ifndef FB_CORE_OPERANDS_DEBUG_H
+#define FB_CORE_OPERANDS_DEBUG_H
 
 // Uncomment to enable printing current opcode and register values to a file
 // #define FB_DEBUG_WRITE_EXECUTION_LOG
@@ -37,4 +37,4 @@ namespace FunkyBoy::Debug {
 
 #endif
 
-#endif //FB_CORE_INSTRUCTIONS_DEBUG_H
+#endif //FB_CORE_OPERANDS_DEBUG_H

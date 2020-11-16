@@ -19,10 +19,10 @@
 #include <util/debug.h>
 #include <util/flags.h>
 
-#include <instructions/reads.h>
-#include <instructions/writes.h>
-#include <instructions/misc.h>
-#include <instructions/debug.h>
+#include <operands/reads.h>
+#include <operands/writes.h>
+#include <operands/misc.h>
+#include <operands/debug.h>
 
 using namespace FunkyBoy;
 

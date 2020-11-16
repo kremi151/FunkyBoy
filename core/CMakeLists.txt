@@ -26,18 +26,18 @@ set(SOURCES
         source/cartridge/mbc2.cpp
         source/cartridge/mbc_none.cpp
         source/memory/ppu_memory.cpp
-        source/instructions/instruction_context.cpp
-        source/instructions/alu.cpp
-        source/instructions/loads.cpp
-        source/instructions/misc.cpp
-        source/instructions/prefix.cpp
-        source/instructions/reads.cpp
-        source/instructions/writes.cpp
-        source/instructions/jumps.cpp
-        source/instructions/rot_shifts.cpp
-        source/instructions/conditions.cpp
-        source/instructions/debug.cpp
-        source/instructions/decoder.cpp
+        source/operands/instruction_context.cpp
+        source/operands/alu.cpp
+        source/operands/loads.cpp
+        source/operands/misc.cpp
+        source/operands/prefix.cpp
+        source/operands/reads.cpp
+        source/operands/writes.cpp
+        source/operands/jumps.cpp
+        source/operands/rot_shifts.cpp
+        source/operands/conditions.cpp
+        source/operands/debug.cpp
+        source/operands/decoder.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
@@ -70,19 +70,19 @@ set(HEADERS
         source/cartridge/mbc2.h
         source/cartridge/mbc_none.h
         source/memory/ppu_memory.h
-        source/instructions/instruction_context.h
-        source/instructions/alu.h
-        source/instructions/loads.h
-        source/instructions/instructions.h
-        source/instructions/misc.h
-        source/instructions/prefix.h
-        source/instructions/reads.h
-        source/instructions/writes.h
-        source/instructions/jumps.h
-        source/instructions/rot_shifts.h
-        source/instructions/conditions.h
-        source/instructions/debug.h
-        source/instructions/decoder.h
+        source/operands/instruction_context.h
+        source/operands/alu.h
+        source/operands/loads.h
+        source/operands/instructions.h
+        source/operands/misc.h
+        source/operands/prefix.h
+        source/operands/reads.h
+        source/operands/writes.h
+        source/operands/jumps.h
+        source/operands/rot_shifts.h
+        source/operands/conditions.h
+        source/operands/debug.h
+        source/operands/decoder.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h

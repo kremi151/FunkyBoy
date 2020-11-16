@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_CONDITIONS_H
-#define FB_CORE_INSTRUCTIONS_CONDITIONS_H
+#ifndef FB_CORE_OPERANDS_CONDITIONS_H
+#define FB_CORE_OPERANDS_CONDITIONS_H
 
-#include <instructions/instruction_context.h>
+#include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands {
 
@@ -51,4 +51,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_CONDITIONS_H
+#endif //FB_CORE_OPERANDS_CONDITIONS_H

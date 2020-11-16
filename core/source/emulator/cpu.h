@@ -23,8 +23,8 @@
 #include <memory>
 #include <util/testing.h>
 #include <util/debug.h>
-#include <instructions/decoder.h>
-#include <instructions/debug.h>
+#include <operands/decoder.h>
+#include <operands/debug.h>
 #include <emulator/gb_type.h>
 #include <emulator/io_registers.h>
 

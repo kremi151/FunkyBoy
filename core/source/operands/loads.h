@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_LOADS_H
-#define FB_CORE_INSTRUCTIONS_LOADS_H
+#ifndef FB_CORE_OPERANDS_LOADS_H
+#define FB_CORE_OPERANDS_LOADS_H
 
 #include "instruction_context.h"
 
@@ -136,4 +136,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_LOADS_H
+#endif //FB_CORE_OPERANDS_LOADS_H

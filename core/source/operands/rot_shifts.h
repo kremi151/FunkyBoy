@@ -14,17 +14,41 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_DECODER_H
-#define FB_CORE_INSTRUCTIONS_DECODER_H
+#ifndef FB_CORE_OPERANDS_ROT_SHIFTS_H
+#define FB_CORE_OPERANDS_ROT_SHIFTS_H
 
-#include <instructions/instructions.h>
+#include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands {
 
-    using operand_buffer = Operand[25];
+    /**
+     * RRCA
+     * @param context
+     * @return
+     */
+    bool rrca(InstrContext &context, Memory &memory);
 
-    bool decodeOpcode(u8 opcode, operand_buffer operands);
+    /**
+     * RLCA
+     * @param context
+     * @return
+     */
+    bool rlca(InstrContext &context, Memory &memory);
+
+    /**
+     * RRA
+     * @param context
+     * @return
+     */
+    bool rra(InstrContext &context, Memory &memory);
+
+    /**
+     * RLA
+     * @param context
+     * @return
+     */
+    bool rla(InstrContext &context, Memory &memory);
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_DECODER_H
+#endif //FB_CORE_OPERANDS_ROT_SHIFTS_H

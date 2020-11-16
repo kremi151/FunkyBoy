@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_INSTRUCTIONS_PREFIX_PREFIX_H
-#define FB_INSTRUCTIONS_PREFIX_PREFIX_H
+#ifndef FB_CORE_OPERANDS_PREFIX_PREFIX_H
+#define FB_CORE_OPERANDS_PREFIX_PREFIX_H
 
 #include "instruction_context.h"
 
@@ -30,4 +30,4 @@ namespace FunkyBoy::Operands {
 
 }
 
-#endif //FB_INSTRUCTIONS_PREFIX_PREFIX_H
+#endif //FB_CORE_OPERANDS_PREFIX_PREFIX_H

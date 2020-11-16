@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTION_CONTEXT_H
-#define FB_CORE_INSTRUCTION_CONTEXT_H
+#ifndef FB_CORE_OPERANDS_CONTEXT_H
+#define FB_CORE_OPERANDS_CONTEXT_H
 
 #include <util/typedefs.h>
 #include <memory/memory.h>
 #include <emulator/gb_type.h>
-#include <instructions/debug.h>
+#include <operands/debug.h>
 
 namespace FunkyBoy {
 
@@ -92,4 +92,4 @@ namespace FunkyBoy {
 
 }
 
-#endif //FB_CORE_INSTRUCTION_CONTEXT_H
+#endif //FB_CORE_OPERANDS_CONTEXT_H
