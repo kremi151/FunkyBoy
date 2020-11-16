@@ -16,7 +16,7 @@
 
 #include "debug.h"
 
-#include <instructions/instruction_context.h>
+#include <operands/instruction_context.h>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 

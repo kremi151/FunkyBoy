@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_DECODER_H
-#define FB_CORE_INSTRUCTIONS_DECODER_H
+#ifndef FB_CORE_INSTRUCTIONS_H
+#define FB_CORE_INSTRUCTIONS_H
 
-#include <instructions/instructions.h>
+#include <operands/instruction_context.h>
+#include <operands/misc.h>
+#include <operands/prefix.h>
+#include <operands/alu.h>
+#include <operands/loads.h>
+#include <operands/reads.h>
+#include <operands/writes.h>
+#include <operands/jumps.h>
+#include <operands/rot_shifts.h>
+#include <operands/conditions.h>
 
-namespace FunkyBoy::Operands {
-
-    using operand_buffer = Operand[25];
-
-    bool decodeOpcode(u8 opcode, operand_buffer operands);
-
-}
-
-#endif //FB_CORE_INSTRUCTIONS_DECODER_H
+#endif //FB_CORE_INSTRUCTIONS_H

@@ -17,7 +17,7 @@
 #ifndef FB_CORE_INSTRUCTIONS_WRITES_H
 #define FB_CORE_INSTRUCTIONS_WRITES_H
 
-#include <instructions/instruction_context.h>
+#include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands {
 

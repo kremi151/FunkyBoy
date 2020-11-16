@@ -17,7 +17,7 @@
 #ifndef FB_CORE_INSTRUCTIONS_JUMPS_H
 #define FB_CORE_INSTRUCTIONS_JUMPS_H
 
-#include <instructions/instruction_context.h>
+#include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands {
 

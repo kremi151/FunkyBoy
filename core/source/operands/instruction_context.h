@@ -20,7 +20,7 @@
 #include <util/typedefs.h>
 #include <memory/memory.h>
 #include <emulator/gb_type.h>
-#include <instructions/debug.h>
+#include <operands/debug.h>
 
 namespace FunkyBoy {
 
