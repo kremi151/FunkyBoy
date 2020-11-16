@@ -21,13 +21,6 @@
 
 using namespace FunkyBoy;
 
-bool Operands::load_r_r(InstrContext &context, Memory &memory) {
-    u8 &dst = context.registers[context.instr >> 3u & 7u];
-    u8 src = context.registers[context.instr & 7u];
-    dst = src;
-    return true;
-}
-
 bool Operands::load_mem_dd_A(InstrContext &context, Memory &memory) {
     memory.write8BitsTo(Util::compose16Bits(context.lsb, context.msb), *context.regA);
     return true;

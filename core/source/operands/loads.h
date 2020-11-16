@@ -22,12 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * LD r,r
-     * @param context
-     */
-    bool load_r_r(InstrContext &context, Memory &memory);
-
-    /**
      * LD (dd),A
      * @param context
      */
