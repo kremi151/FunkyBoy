@@ -88,6 +88,26 @@ namespace FunkyBoy::Instructions::Loads {
      */
     void ld_A_ss(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * LD (HL+),A
+     */
+    void ld_HLI_A(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LD (HL-),A
+     */
+    void ld_HLD_A(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LD A,(HL+)
+     */
+    void ld_A_HLI(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LD A,(HL-)
+     */
+    void ld_A_HLD(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_LOADS_H

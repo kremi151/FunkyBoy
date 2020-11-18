@@ -102,6 +102,26 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_A_ss(opcode, memory, context);
             return 8;
         }
+        /* ld (HLI),A */ case 0x22: {
+            debug_print_4("ld (HLI),A\n");
+            Loads::ld_HLI_A(memory, context);
+            return 8;
+        }
+        /* ld (HLD),A */ case 0x32: {
+            debug_print_4("ld (HLD),A\n");
+            Loads::ld_HLD_A(memory, context);
+            return 8;
+        }
+        /* ld A,(HLI) */ case 0x2A: {
+            debug_print_4("ld A,(HLI)\n");
+            Loads::ld_A_HLI(memory, context);
+            return 8;
+        }
+        /* ld A,(HLD) */ case 0x3A: {
+            debug_print_4("ld A,(HLD)\n");
+            Loads::ld_A_HLD(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }
