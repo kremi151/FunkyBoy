@@ -45,11 +45,12 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
         /* ld (a16),A */ case 0xEA: {
             debug_print_4("ld (a16),A\n");
             Loads::ld_a16_A(memory, context);
-            return 4;
+            return 16;
         }
         /* ld A,(a16) */ case 0xFA: {
             debug_print_4("ld A,(a16)\n");
             Loads::ld_A_a16(memory, context);
+            return 16;
         }
         default:
             return 0;
