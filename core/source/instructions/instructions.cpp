@@ -72,6 +72,21 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_ss_d16(opcode, memory, context);
             return 12;
         }
+        /* ld SP,d16 */ case 0x31: {
+            debug_print_4("ld SP,d16\n");
+            Loads::ld_SP_d16(memory, context);
+            return 12;
+        }
+        /* ld (a16),SP */ case 0x08: {
+            debug_print_4("ld (a16),SP\n");
+            Loads::ld_a16_SP(memory, context);
+            return 20;
+        }
+        /* ld r,d8 */ case 0x06: case 0x0E: case 0x16: case 0x1E: case 0x26: case 0x2E: {
+            debug_print_4("ld r,d8\n");
+            Loads::ld_r_d8(opcode, memory, context);
+            return 8;
+        }
         default:
             return 0;
     }
