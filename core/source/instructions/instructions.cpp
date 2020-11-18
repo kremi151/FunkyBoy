@@ -52,6 +52,16 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_A_a16(memory, context);
             return 16;
         }
+        /* ld (C),A */ case 0xE2: {
+            debug_print_4("ld (C),A\n");
+            Loads::ld_C_A(memory, context);
+            return 8;
+        }
+        /* ld A,(C) */ case 0xF2: {
+            debug_print_4("ld A,(C)\n");
+            Loads::ld_A_C(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

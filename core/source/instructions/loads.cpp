@@ -35,3 +35,11 @@ void Loads::ld_A_a16(FunkyBoy::Memory &memory, context &context) {
     u8_fast msb = memory.read8BitsAt(context.progCounter++);
     *context.regA = memory.read8BitsAt(Util::compose16Bits(lsb, msb));
 }
+
+void Loads::ld_C_A(FunkyBoy::Memory &memory, context &context) {
+    memory.write8BitsTo(Util::compose16Bits(*context.regC, 0xFF), *context.regA);
+}
+
+void Loads::ld_A_C(FunkyBoy::Memory &memory, context &context) {
+    *context.regA = memory.read8BitsAt(Util::compose16Bits(*context.regC, 0xFF));
+}
