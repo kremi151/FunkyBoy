@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <memory/memory.h>
 #include "loads.h"
 
 using namespace FunkyBoy::Instructions;
@@ -21,4 +22,10 @@ using namespace FunkyBoy::Instructions;
 void Loads::ld_reg_reg(opcode_t opcode, context &context) {
     u8_fast &dst = context.registers[(opcode >> 3u) & 7u];
     dst = context.registers[opcode & 7u];
+}
+
+void Loads::ld_a16_A(FunkyBoy::Memory &memory, context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    u8_fast msb = memory.read8BitsAt(context.progCounter++);
+    memory.write8BitsTo(Util::compose16Bits(lsb, msb), *context.regA);
 }

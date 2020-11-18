@@ -42,5 +42,10 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_reg_reg(opcode, context);
             return 4;
         }
+        /* ld (a16),A */ case 0xEA: {
+            debug_print_4("ld (a16),A\n");
+            Loads::ld_a16_A(context);
+            return 4;
+        }
     }
 }

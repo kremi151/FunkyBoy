@@ -18,6 +18,7 @@
 #define FB_CORE_INSTRUCTIONS_LOADS_H
 
 #include <instructions/context.h>
+#include <memory/memory.h>
 
 namespace FunkyBoy::Instructions::Loads {
 
@@ -26,6 +27,11 @@ namespace FunkyBoy::Instructions::Loads {
      * @param context
      */
     void ld_reg_reg(opcode_t opcode, Instructions::context &context);
+
+    /**
+     * LD (a16),A
+     */
+    void ld_a16_A(FunkyBoy::Memory &memory, Instructions::context &context);
 
 }
 
