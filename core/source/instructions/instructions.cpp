@@ -47,5 +47,7 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_a16_A(context);
             return 4;
         }
+        default:
+            return 0;
     }
 }
