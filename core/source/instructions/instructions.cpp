@@ -87,6 +87,21 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_r_d8(opcode, memory, context);
             return 8;
         }
+        /* ld (HL),d8 */ case 0x36: {
+            debug_print_4("ld (HL),d8\n");
+            Loads::ld_HL_d8(memory, context);
+            return 12;
+        }
+        /* ld (ss),A */ case 0x02: case 0x12: {
+            debug_print_4("ld (ss),A\n");
+            Loads::ld_ss_A(opcode, memory, context);
+            return 8;
+        }
+        /* ld A,(ss) */ case 0x0A: case 0x1A: {
+            debug_print_4("ld A,(ss)\n");
+            Loads::ld_A_ss(opcode, memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

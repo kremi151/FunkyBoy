@@ -28,3 +28,8 @@ FunkyBoy::u16_fast context::read16BitRegister(FunkyBoy::u8_fast position) {
     u8_fast *reg = registers + (position * 2);
     return (*reg << 8u) | (*(reg + 1u) & 0xffu);
 }
+
+void context::writeHL(FunkyBoy::u16_fast val) {
+    *regL = val & 0xffu;
+    *regH = (val >> 8u) & 0xffu;
+}

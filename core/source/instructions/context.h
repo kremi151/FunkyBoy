@@ -36,6 +36,12 @@ namespace FunkyBoy::Instructions {
         u16 progCounter;
         u16 stackPointer;
 
+        inline u16_fast readHL() {
+            return (*regL & 0xffu) | (*regH << 8u);
+        }
+
+        void writeHL(u16_fast val);
+
         void write16BitRegister(u8_fast position, u16_fast val);
         u16_fast read16BitRegister(u8_fast position);
     };

@@ -71,3 +71,15 @@ void Loads::ld_a16_SP(FunkyBoy::Memory &memory, context &context) {
 void Loads::ld_r_d8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     context.registers[(opcode >> 3) & 0b111u] = memory.read8BitsAt(context.progCounter++);
 }
+
+void Loads::ld_HL_d8(FunkyBoy::Memory &memory, context &context) {
+    memory.write8BitsTo(context.readHL() & 0xffffu, memory.read8BitsAt(context.progCounter++));
+}
+
+void Loads::ld_ss_A(opcode_t opcode, FunkyBoy::Memory &memory, context &context) {
+    memory.write8BitsTo(context.read16BitRegister((opcode >> 4) & 1), *context.regA);
+}
+
+void Loads::ld_A_ss(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    *context.regA = memory.read8BitsAt(context.read16BitRegister((opcode >> 4) & 1));
+}
