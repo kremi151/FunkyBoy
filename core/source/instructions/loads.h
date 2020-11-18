@@ -33,6 +33,11 @@ namespace FunkyBoy::Instructions::Loads {
      */
     void ld_a16_A(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * LD A,(a16)
+     */
+    void ld_A_a16(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_LOADS_H
