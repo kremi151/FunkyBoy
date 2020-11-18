@@ -14,32 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_CONTEXT_H
-#define FB_CORE_INSTRUCTIONS_CONTEXT_H
+#include "context.h"
 
-#include <util/typedefs.h>
+using namespace FunkyBoy::Instructions;
 
-namespace FunkyBoy::Instructions {
-
-    class context {
-    public:
-        u8_fast *registers;
-        u8_fast *regB;
-        u8_fast *regC;
-        u8_fast *regD;
-        u8_fast *regE;
-        u8_fast *regH;
-        u8_fast *regL;
-        u8_fast *regF;
-        u8_fast *regA;
-
-        u16 progCounter;
-        u16 stackPointer;
-
-        void write16BitRegister(u8_fast position, u16_fast val);
-        u16_fast read16BitRegister(u8_fast position);
-    };
-
+void context::write16BitRegister(FunkyBoy::u8_fast position, FunkyBoy::u16_fast val) {
+    u8_fast *reg = registers + (position * 2);
+    *reg = (val >> 8u) & 0xffu;
+    *(reg + 1) = val & 0xffu;
 }
 
-#endif //FB_CORE_INSTRUCTIONS_CONTEXT_H
+FunkyBoy::u16_fast context::read16BitRegister(FunkyBoy::u8_fast position) {
+    u8_fast *reg = registers + (position * 2);
+    return (*reg << 8u) | (*(reg + 1u) & 0xffu);
+}

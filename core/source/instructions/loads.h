@@ -53,6 +53,11 @@ namespace FunkyBoy::Instructions::Loads {
      */
     void ld_A_d8(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * LD (ss),d16
+     */
+    void ld_ss_d16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_LOADS_H

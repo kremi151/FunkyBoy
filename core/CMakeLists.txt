@@ -39,6 +39,7 @@ set(SOURCES
         source/operands/debug.cpp
         source/operands/decoder.cpp
         source/instructions/instructions.cpp
+        source/instructions/context.cpp
         source/instructions/loads.cpp
         source/util/registers.cpp
         source/util/flags.cpp

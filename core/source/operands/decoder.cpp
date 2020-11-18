@@ -22,15 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // ld (ss),d16
-        case 0x01: case 0x11: case 0x21: {
-            debug_print_4("ld (ss),d16\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::readMSB;
-            operands[2] = Operands::load_dd_nn;
-            operands[3] = nullptr;
-            return true;
-        }
         // ld SP,d16
         case 0x31: {
             debug_print_4("ld SP,d16\n");
