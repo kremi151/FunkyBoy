@@ -62,6 +62,11 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_A_C(memory, context);
             return 8;
         }
+        /* ld A,d8 */ case 0x3E: {
+            debug_print_4("ld A,d8\n");
+            Loads::ld_A_d8(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

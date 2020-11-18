@@ -43,3 +43,7 @@ void Loads::ld_C_A(FunkyBoy::Memory &memory, context &context) {
 void Loads::ld_A_C(FunkyBoy::Memory &memory, context &context) {
     *context.regA = memory.read8BitsAt(Util::compose16Bits(*context.regC, 0xFF));
 }
+
+void Loads::ld_A_d8(FunkyBoy::Memory &memory, context &context) {
+    *context.regA = memory.read8BitsAt(context.progCounter++);
+}
