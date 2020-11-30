@@ -15,6 +15,7 @@
  */
 
 #include <memory/memory.h>
+#include <util/registers.h>
 #include "loads.h"
 
 using namespace FunkyBoy::Instructions;
@@ -106,4 +107,49 @@ void Loads::ld_A_HLD(FunkyBoy::Memory &memory, Instructions::context &context) {
     u16 hl = context.readHL();
     *context.regA = memory.read8BitsAt(hl);
     context.writeHL(hl - 1);
+}
+
+void Loads::ld_HL_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    // 0x70 -> 1110 000 -> B
+    // 0x70 -> 1110 001 -> C
+    // 0x70 -> 1110 010 -> D
+    // 0x70 -> 1110 011 -> E
+    // 0x70 -> 1110 100 -> H
+    // 0x70 -> 1110 101 -> L
+    // --- Skip F ---
+    // 0x70 -> 1110 110 -> A
+    u16_fast hl = context.readHL();
+    memory.write8BitsTo(hl, context.registers[opcode & 0b111u]);
+}
+
+void Loads::ld_r_HL(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    // 0x46 -> 1 000 110 -> B
+    // 0x4E -> 1 001 110 -> C
+    // 0x56 -> 1 010 110 -> D
+    // 0x5E -> 1 011 110 -> E
+    // 0x66 -> 1 100 110 -> H
+    // 0x6E -> 1 101 110 -> L
+    // --- Skip F ---
+    // 0x7E -> 1 111 110 -> A
+    u16 hl = context.readHL();
+    context.registers[(opcode >> 3u) & 0b111u] = memory.read8BitsAt(hl);
+}
+
+void Loads::ld_SP_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    context.stackPointer = context.readHL();
+}
+
+void Loads::ld_HL_SP_plus_e8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
+    context.writeHL(Util::addToSP(context.regF, context.stackPointer, signedByte));
+}
+
+void Loads::ldh_a8_A(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    memory.write8BitsTo(Util::compose16Bits(lsb, 0xFF), *context.regA);
+}
+
+void Loads::ldh_A_a8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    *context.regA = memory.read8BitsAt(Util::compose16Bits(lsb, 0xFF));
 }

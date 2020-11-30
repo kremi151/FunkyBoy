@@ -47,6 +47,11 @@ namespace FunkyBoy {
     typedef int32_t i32;
     typedef int64_t i64;
 
+    typedef int_fast8_t i8_fast;
+    typedef int_fast16_t i16_fast;
+    typedef int_fast32_t i32_fast;
+    typedef int_fast64_t i64_fast;
+
     typedef int ret_code;
 
 }

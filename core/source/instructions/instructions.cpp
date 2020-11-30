@@ -122,6 +122,36 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Loads::ld_A_HLD(memory, context);
             return 8;
         }
+        /* ld (HL),r */ case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77: {
+            debug_print_4("ld (HL),r\n");
+            Loads::ld_HL_r(opcode, memory, context);
+            return 8;
+        }
+        /* ld r,(HL) */ case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x7E: {
+            debug_print_4("ld r,(HL)\n");
+            Loads::ld_r_HL(opcode, memory, context);
+            return 8;
+        }
+        /* ld SP,HL */ case 0xF9: {
+            debug_print_4("ld SP,HL\n");
+            Loads::ld_SP_HL(memory, context);
+            return 8;
+        }
+        /* ld HL,SP+e8 */ case 0xF8: {
+            debug_print_4("ld HL,SP+e8\n");
+            Loads::ld_HL_SP_plus_e8(memory, context);
+            return 12;
+        }
+        /* ldh (a8),A */ case 0xE0: {
+            debug_print_4("ldh (a8),A\n");
+            Loads::ldh_a8_A(memory, context);
+            return 12;
+        }
+        /* ldh A,(a8) */ case 0xF0: {
+            debug_print_4("ldh A,(a8)\n");
+            Loads::ldh_A_a8(memory, context);
+            return 12;
+        }
         default:
             return 0;
     }

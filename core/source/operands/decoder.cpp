@@ -22,48 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // ld (HL),r
-        case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77: {
-            debug_print_4("ld (HL),r\n");
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::load_HL_r;
-            operands[2] = nullptr;
-            return true;
-        }
-        // ld r,(HL)
-        case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x7E: {
-            debug_print_4("ld r,(HL)\n");
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::load_r_HL;
-            operands[2] = nullptr;
-            return true;
-        }
-        // ld SP,HL
-        case 0xF9: {
-            debug_print_4("ld SP,HL\n");
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::load_SP_HL;
-            operands[2] = nullptr;
-            return true;
-        }
-        // ld HL,SP+e8
-        case 0xF8: {
-            debug_print_4("ld HL,SP+e8\n");
-            operands[0] = Operands::readSigned;
-            operands[1] = Operands::_pad_; // TODO: do something useful here
-            operands[2] = Operands::load_HL_SPe;
-            operands[3] = nullptr;
-            return true;
-        }
-        // ldh (a8),A
-        case 0xE0: {
-            debug_print_4("ldh (a8),A\n");
-            operands[0] = Operands::readMemAsLSB;
-            operands[1] = Operands::_pad_; // TODO: do something useful here
-            operands[2] = Operands::load_mem_dd_A;
-            operands[3] = nullptr;
-            return true;
-        }
         // ldh A,(a8)
         case 0xF0: {
             debug_print_4("ldh A,(a8)\n");

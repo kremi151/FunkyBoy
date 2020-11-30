@@ -108,6 +108,44 @@ namespace FunkyBoy::Instructions::Loads {
      */
     void ld_A_HLD(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * LD (HL),r
+     */
+    void ld_HL_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LD r,(HL)
+     */
+    void ld_r_HL(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LD SP,HL
+     * @param memory
+     * @param context
+     */
+    void ld_SP_HL(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LD HL,SP+e8
+     * @param memory
+     * @param context
+     */
+    void ld_HL_SP_plus_e8(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LDH (a8),A
+     * @param memory
+     * @param context
+     */
+    void ldh_a8_A(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * LDH A,(a8)
+     * @param memory
+     * @param context
+     */
+    void ldh_A_a8(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_LOADS_H
