@@ -28,7 +28,6 @@ set(SOURCES
         source/memory/ppu_memory.cpp
         source/operands/instruction_context.cpp
         source/operands/alu.cpp
-        source/operands/loads.cpp
         source/operands/misc.cpp
         source/operands/prefix.cpp
         source/operands/reads.cpp
@@ -75,7 +74,6 @@ set(HEADERS
         source/memory/ppu_memory.h
         source/operands/instruction_context.h
         source/operands/alu.h
-        source/operands/loads.h
         source/operands/instructions.h
         source/operands/misc.h
         source/operands/prefix.h

@@ -21,7 +21,6 @@
 #include <operands/misc.h>
 #include <operands/prefix.h>
 #include <operands/alu.h>
-#include <operands/loads.h>
 #include <operands/reads.h>
 #include <operands/writes.h>
 #include <operands/jumps.h>
