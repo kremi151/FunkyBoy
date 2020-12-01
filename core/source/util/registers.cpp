@@ -28,3 +28,12 @@ u16 Util::addToSP(u8 *flags, u16 stackPointer, i8 val) {
 
     return newVal;
 }
+
+u16_fast Util::addToSPFast(u8_fast &flags, u16_fast stackPointer, i8_fast val) {
+    u16_fast newVal = stackPointer + val;
+
+    // Note: Z flag is explicitly reset
+    Flags::setFlagsFast(flags, false, false, ((stackPointer & 0xfu) + (val & 0xfu)) > 0xfu, (stackPointer & 0xffu) + (val & 0xffu) > 0xffu);
+
+    return newVal;
+}

@@ -22,60 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * ADD A,r
-     * @param context
-     */
-    bool add_A_r(InstrContext &context, Memory &memory);
-
-    /**
-     * ADD A,d
-     * @param context
-     */
-    bool add_A_d(InstrContext &context, Memory &memory);
-
-    /**
-     * ADC A,r
-     * @param context
-     */
-    bool adc_A_r(InstrContext &context, Memory &memory);
-
-    /**
-     * ADC A,d
-     * @param context
-     */
-    bool adc_A_d(InstrContext &context, Memory &memory);
-
-    /**
-     * ADD HL,ss
-     * @param context
-     */
-    bool add_HL_ss(InstrContext &context, Memory &memory);
-
-    /**
-     * ADD HL,SP
-     * @param context
-     */
-    bool add_HL_SP(InstrContext &context, Memory &memory);
-
-    /**
-     * ADD SP,e
-     * @param context
-     */
-    bool add_SP_e(InstrContext &context, Memory &memory);
-
-    /**
-     * ADD A,(HL)
-     * @param context
-     */
-    bool add_A_HL(InstrContext &context, Memory &memory);
-
-    /**
-     * ADC A,(HL)
-     * @param context
-     */
-    bool adc_A_HL(InstrContext &context, Memory &memory);
-
-    /**
      * SUB A,r
      * @param context
      */

@@ -22,7 +22,10 @@
 
 namespace FunkyBoy::Util {
 
+    [[deprecated]]
     u16 addToSP(u8 *flags, u16 stackPointer, i8 val);
+
+    u16_fast addToSPFast(u8_fast &flags, u16_fast stackPointer, i8_fast val);
 
     inline u8 *decodeRRAddressFromOpcode(u8 *registers, u8 opcode) {
         // Rightshift 4 seems to be universal when referencing 16bit registers in opcodes

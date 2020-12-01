@@ -40,6 +40,7 @@ set(SOURCES
         source/instructions/instructions.cpp
         source/instructions/context.cpp
         source/instructions/loads.cpp
+        source/instructions/alu.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
@@ -87,6 +88,7 @@ set(HEADERS
         source/instructions/instructions.h
         source/instructions/context.h
         source/instructions/loads.h
+        source/instructions/alu.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h

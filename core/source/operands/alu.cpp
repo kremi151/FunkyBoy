@@ -17,32 +17,15 @@
 #include "alu.h"
 
 #include <util/typedefs.h>
-#include <util/registers.h>
 #include <util/flags.h>
 
 using namespace FunkyBoy;
-
-inline void __alu_adc(u8 *flags, u8 *regA, u8 val, bool carry) {
-    u8 carryVal = carry ? 1 : 0;
-    u8 newVal = *regA + val + carryVal;
-    Flags::setFlags(flags, newVal == 0, false, ((*regA & 0xf) + (val & 0xf) + carryVal) > 0xf, (*regA & 0xff) + (val & 0xff) + carryVal > 0xff);
-    *regA = newVal;
-}
 
 inline void __alu_sbc(u8 *flags, u8 *regA, u8 val, bool carry) {
     u8 carryVal = carry ? 1 : 0;
     u8 newVal = *regA - val - carryVal;
     Flags::setFlags(flags, newVal == 0, true, (*regA & 0xf) - (val & 0xf) - carryVal < 0, *regA < (val + carryVal));
     *regA = newVal;
-}
-
-inline void __alu_addToHL(InstrContext &context, u16 val) {
-    u16 oldVal = context.readHL();
-    u16 newVal = oldVal + val;
-
-    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, ((oldVal & 0xfff) + (val & 0xfff)) > 0xfff, (oldVal & 0xffff) + (val & 0xffff) > 0xffff);
-
-    context.writeHL(newVal);
 }
 
 inline void __alu_cp(u8 *flags, const u8 *regA, u8 val) {
@@ -64,54 +47,6 @@ inline void __alu_and(u8 *flags, u8 *regA, u8 val) {
 inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     *regA ^= val;
     Flags::setFlags(flags, *regA == 0, false, false, false);
-}
-
-bool Operands::add_A_r(InstrContext &context, Memory &memory) {
-    __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], false);
-    return true;
-}
-
-bool Operands::add_A_d(InstrContext &context, Memory &memory) {
-    __alu_adc(context.regF, context.regA, context.lsb, false);
-    return true;
-}
-
-bool Operands::adc_A_r(InstrContext &context, Memory &memory) {
-    __alu_adc(context.regF, context.regA, context.registers[context.instr & 7u], Flags::isCarry(context.regF));
-    return true;
-}
-
-bool Operands::adc_A_d(InstrContext &context, Memory &memory) {
-    __alu_adc(context.regF, context.regA, context.lsb, Flags::isCarry(context.regF));
-    return true;
-}
-
-bool Operands::add_HL_ss(InstrContext &context, Memory &memory) {
-    // 0x09 -> 00 1001 -> BC
-    // 0x19 -> 01 1001 -> DE
-    // 0x29 -> 10 1001 -> HL
-    __alu_addToHL(context, context.read16BitRegister((context.instr >> 4) & 0b11u));
-    return true;
-}
-
-bool Operands::add_HL_SP(InstrContext &context, Memory &memory) {
-    __alu_addToHL(context, context.stackPointer);
-    return true;
-}
-
-bool Operands::add_SP_e(InstrContext &context, Memory &memory) {
-    context.stackPointer = Util::addToSP(context.regF, context.stackPointer, context.signedByte);
-    return true;
-}
-
-bool Operands::add_A_HL(InstrContext &context, Memory &memory) {
-    __alu_adc(context.regF, context.regA, memory.read8BitsAt(context.readHL()), false);
-    return true;
-}
-
-bool Operands::adc_A_HL(InstrContext &context, Memory &memory) {
-    __alu_adc(context.regF, context.regA, memory.read8BitsAt(context.readHL()), Flags::isCarry(context.regF));
-    return true;
 }
 
 bool Operands::sub_A_r(InstrContext &context, Memory &memory) {

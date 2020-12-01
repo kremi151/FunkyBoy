@@ -17,6 +17,7 @@
 #include "instructions.h"
 
 #include <instructions/loads.h>
+#include <instructions/alu.h>
 
 #include <util/debug.h>
 
@@ -151,6 +152,51 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             debug_print_4("ldh A,(a8)\n");
             Loads::ldh_A_a8(memory, context);
             return 12;
+        }
+        /* add a,reg */ case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: {
+            debug_print_4("add A,r\n");
+            ALU::add_A_r(opcode, memory, context);
+            return 4;
+        }
+        /* adc a,reg */ case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: {
+            debug_print_4("adc A,r\n");
+            ALU::adc_A_r(opcode, memory, context);
+            return 4;
+        }
+        /* add A,d8 */ case 0xC6: {
+            debug_print_4("add A,d8\n");
+            ALU::add_A_d8(memory, context);
+            return 8;
+        }
+        /* adc A,d8 */ case 0xCE: {
+            debug_print_4("adc A,d8\n");
+            ALU::adc_A_d8(memory, context);
+            return 8;
+        }
+        /* add HL,ss */ case 0x09: case 0x19: case 0x29: {
+            debug_print_4("add HL,ss\n");
+            ALU::add_HL_ss(opcode, memory, context);
+            return 8;
+        }
+        /* add HL,SP */ case 0x39: {
+            debug_print_4("add HL,SP\n");
+            ALU::add_HL_SP(memory, context);
+            return 8;
+        }
+        /* add SP,r8 */ case 0xE8: {
+            debug_print_4("add SP,e8\n");
+            ALU::add_SP_e8(memory, context);
+            return 16;
+        }
+        /* add A,(HL) */ case 0x86: {
+            debug_print_4("add A,(HL)\n");
+            ALU::add_A_HL(memory, context);
+            return 8;
+        }
+        /* adc A,(HL) */ case 0x8E: {
+            debug_print_4("adc A,(HL)\n");
+            ALU::adc_A_HL(memory, context);
+            return 8;
         }
         default:
             return 0;

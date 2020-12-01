@@ -41,6 +41,29 @@ void Flags::setFlags(u8 *flags, bool zero, bool subtraction, bool halfCarry, boo
     }
 }
 
+void Flags::setFlagsFast(u8_fast &flags, bool zero, bool subtraction, bool halfCarry, bool carry) {
+    if (zero) {
+        flags |= 0b10000000u;
+    } else {
+        flags &= 0b01110000u;
+    }
+    if (subtraction) {
+        flags |= 0b01000000u;
+    } else {
+        flags &= 0b10110000u;
+    }
+    if (halfCarry) {
+        flags |= 0b00100000u;
+    } else {
+        flags &= 0b11010000u;
+    }
+    if (carry) {
+        flags |= 0b00010000u;
+    } else {
+        flags &= 0b11100000u;
+    }
+}
+
 void Flags::setCarry(u8 *flags, bool carry) {
     if (carry) {
         *flags |= 0b00010000u;
