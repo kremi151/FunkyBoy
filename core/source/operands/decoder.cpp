@@ -22,45 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // jp (N)Z,a16
-        case 0xC2: case 0xCA: {
-            debug_print_4("jp (N)Z,a16\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::readMSB;
-            operands[2] = (opcode == 0xC2) ? Operands::checkIsNotZero : Operands::checkIsZero;
-            operands[3] = Operands::jp;
-            operands[4] = nullptr;
-            return true;
-        }
-        // jp (N)C,a16
-        case 0xD2: case 0xDA: {
-            debug_print_4("jp (N)C,a16\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::readMSB;
-            operands[2] = (opcode == 0xD2) ? Operands::checkIsNotCarry : Operands::checkIsCarry;
-            operands[3] = Operands::jp;
-            operands[4] = nullptr;
-            return true;
-        }
-        // unconditional jp
-        case 0xC3:
-        {
-            debug_print_4("jp a16\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::readMSB;
-            operands[2] = Operands::_pad_;
-            operands[3] = Operands::jp;
-            operands[4] = nullptr;
-            return true;
-        }
-        // jp HL
-        case 0xE9:
-        {
-            debug_print_4("jp HL\n");
-            operands[0] = Operands::jp_HL;
-            operands[1] = nullptr;
-            return true;
-        }
         // jr (N)Z,r8
         case 0x20: case 0x28: {
             debug_print_4("jr (N)Z,r8\n");

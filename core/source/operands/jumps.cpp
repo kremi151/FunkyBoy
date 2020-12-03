@@ -21,20 +21,6 @@
 
 using namespace FunkyBoy;
 
-bool Operands::jp(InstrContext &context, Memory &memory) {
-    debug_print_4("JP from 0x%04X", context.progCounter);
-    context.progCounter = Util::compose16Bits(context.lsb, context.msb);
-    debug_print_4(" to 0x%04X\n", context.progCounter);
-    return true;
-}
-
-bool Operands::jp_HL(InstrContext &context, Memory &memory) {
-    debug_print_4("JP (HL) from 0x%04X", context.progCounter);
-    context.progCounter = context.readHL();
-    debug_print_4(" to 0x%04X\n", context.progCounter);
-    return true;
-}
-
 bool Operands::jr(InstrContext &context, Memory &memory) {
     debug_print_4("JR from 0x%04X + %d", context.progCounter, context.signedByte);
     context.progCounter += context.signedByte;

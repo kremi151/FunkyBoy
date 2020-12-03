@@ -22,12 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * SBC A,(HL)
-     * @param context
-     */
-    bool sbc_A_HL(InstrContext &context, Memory &memory);
-
-    /**
      * CP r
      * @param context
      */

@@ -42,11 +42,6 @@ inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     Flags::setFlags(flags, *regA == 0, false, false, false);
 }
 
-bool Operands::sbc_A_HL(InstrContext &context, Memory &memory) {
-    __alu_sbc(context.regF, context.regA, memory.read8BitsAt(context.readHL()), Flags::isCarry(context.regF));
-    return true;
-}
-
 bool Operands::cp_r(InstrContext &context, Memory &memory) {
     __alu_cp(context.regF, context.regA, context.registers[context.instr & 0b00000111u]);
     return true;

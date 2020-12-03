@@ -18,6 +18,7 @@
 
 #include <instructions/loads.h>
 #include <instructions/alu.h>
+#include <instructions/jumps.h>
 
 #include <util/debug.h>
 
@@ -225,6 +226,24 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
         /* sbc (HL) */ case 0x9E: {
             ALU::sbc_A_HL(memory, context);
             return 8;
+        }
+        /* jp (N)Z,a16 */ case 0xC2: case 0xCA: {
+            debug_print_4("jp (N)Z,a16\n");
+            return Jumps::jp_NZ_a16(opcode, memory, context);
+        }
+        /* jp (N)C,a16 */ case 0xD2: case 0xDA: {
+            debug_print_4("jp (N)C,a16\n");
+            return Jumps::jp_NC_a16(opcode, memory, context);
+        }
+        /* jp a16 */ case 0xC3: {
+            debug_print_4("jp a16\n");
+            Jumps::jp_a16(memory, context);
+            return 16;
+        }
+        /* jp HL */ case 0xE9: {
+            debug_print_4("jp HL\n");
+            Jumps::jp_HL(context);
+            return 4;
         }
         default:
             return 0;
