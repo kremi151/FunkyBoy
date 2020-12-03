@@ -198,6 +198,34 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             ALU::adc_A_HL(memory, context);
             return 8;
         }
+        /* sub a,reg */ case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: {
+            debug_print_4("sub A,r\n");
+            ALU::sub_A_r(opcode, memory, context);
+            return 4;
+        }
+        /* sbc a,reg */ case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: {
+            debug_print_4("sbc A,r\n");
+            ALU::sbc_A_r(opcode, memory, context);
+            return 4;
+        }
+        /* sub A,d8 */ case 0xD6: {
+            debug_print_4("sub A,d8\n");
+            ALU::sub_A_d8(memory, context);
+            return 8;
+        }
+        /* sbc A,d8 */ case 0xDE: {
+            debug_print_4("sbc A,d8\n");
+            ALU::sbc_A_d8(memory, context);
+            return 8;
+        }
+        /* sub (HL) */ case 0x96: {
+            ALU::sub_HL(memory, context);
+            return 8;
+        }
+        /* sbc (HL) */ case 0x9E: {
+            ALU::sbc_A_HL(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

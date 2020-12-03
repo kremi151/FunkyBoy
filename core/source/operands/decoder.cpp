@@ -22,50 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // sub a,reg
-        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: {
-            debug_print_4("sub A,r\n");
-            operands[0] = Operands::sub_A_r;
-            operands[1] = nullptr;
-            return true;
-        }
-        // sbc a,reg
-        case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: {
-            debug_print_4("sbc A,r\n");
-            operands[0] = Operands::sbc_A_r;
-            operands[1] = nullptr;
-            return true;
-        }
-        // sub A,d8
-        case 0xD6: {
-            debug_print_4("sub A,d8\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::sub_A_d;
-            operands[2] = nullptr;
-            return true;
-        }
-        // sbc A,d8
-        case 0xDE: {
-            debug_print_4("sbc A,d8\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::sbc_A_d;
-            operands[2] = nullptr;
-            return true;
-        }
-        // sub (HL)
-        case 0x96: {
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::sub_HL;
-            operands[2] = nullptr;
-            return true;
-        }
-        // sbc (HL)
-        case 0x9E: {
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::sbc_A_HL;
-            operands[2] = nullptr;
-            return true;
-        }
         // jp (N)Z,a16
         case 0xC2: case 0xCA: {
             debug_print_4("jp (N)Z,a16\n");

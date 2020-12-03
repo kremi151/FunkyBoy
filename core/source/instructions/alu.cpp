@@ -39,6 +39,13 @@ namespace FunkyBoy::Instructions::ALU {
         context.writeHL(newVal);
     }
 
+    inline void __alu_sbc(u8_fast &flags, u8_fast &regA, u8_fast &val, bool carry) {
+        u8_fast carryVal = carry ? 1 : 0;
+        u8_fast newVal = regA - val - carryVal;
+        Flags::setFlagsFast(flags, newVal == 0, true, (regA & 0xf) - (val & 0xf) - carryVal < 0, regA < (val + carryVal));
+        regA = newVal;
+    }
+
 }
 
 using namespace FunkyBoy::Instructions;
@@ -85,4 +92,32 @@ void ALU::add_A_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
 void ALU::adc_A_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast hl = memory.read8BitsAt(context.readHL());
     ALU::__alu_adc(*context.regF, *context.regA, hl, Flags::isCarryFast(*context.regF));
+}
+
+void ALU::sub_A_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    ALU::__alu_sbc(*context.regF, *context.regA, context.registers[opcode & 7u], false);
+}
+
+void ALU::sbc_A_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    ALU::__alu_sbc(*context.regF, *context.regA, context.registers[opcode & 7u], Flags::isCarryFast(*context.regF));
+}
+
+void ALU::sub_A_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    ALU::__alu_sbc(*context.regF, *context.regA, lsb, false);
+}
+
+void ALU::sbc_A_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    ALU::__alu_sbc(*context.regF, *context.regA, lsb, Flags::isCarryFast(*context.regF));
+}
+
+void ALU::sub_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast hl = memory.read8BitsAt(context.readHL());
+    ALU::__alu_sbc(*context.regF, *context.regA, hl, false);
+}
+
+void ALU::sbc_A_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast hl = memory.read8BitsAt(context.readHL());
+    ALU::__alu_sbc(*context.regF, *context.regA, hl, Flags::isCarryFast(*context.regF));
 }

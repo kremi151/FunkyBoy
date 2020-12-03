@@ -21,13 +21,6 @@
 
 using namespace FunkyBoy;
 
-inline void __alu_sbc(u8 *flags, u8 *regA, u8 val, bool carry) {
-    u8 carryVal = carry ? 1 : 0;
-    u8 newVal = *regA - val - carryVal;
-    Flags::setFlags(flags, newVal == 0, true, (*regA & 0xf) - (val & 0xf) - carryVal < 0, *regA < (val + carryVal));
-    *regA = newVal;
-}
-
 inline void __alu_cp(u8 *flags, const u8 *regA, u8 val) {
     // See http://z80-heaven.wikidot.com/instructions-set:cp
     Flags::setFlags(flags, *regA == val, true, (*regA & 0xf) - (val & 0xf) < 0, *regA < val);
@@ -47,31 +40,6 @@ inline void __alu_and(u8 *flags, u8 *regA, u8 val) {
 inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     *regA ^= val;
     Flags::setFlags(flags, *regA == 0, false, false, false);
-}
-
-bool Operands::sub_A_r(InstrContext &context, Memory &memory) {
-    __alu_sbc(context.regF, context.regA, context.registers[context.instr & 7u], false);
-    return true;
-}
-
-bool Operands::sub_A_d(InstrContext &context, Memory &memory) {
-    __alu_sbc(context.regF, context.regA, context.lsb, false);
-    return true;
-}
-
-bool Operands::sbc_A_r(InstrContext &context, Memory &memory) {
-    __alu_sbc(context.regF, context.regA, context.registers[context.instr & 7u], Flags::isCarry(context.regF));
-    return true;
-}
-
-bool Operands::sbc_A_d(InstrContext &context, Memory &memory) {
-    __alu_sbc(context.regF, context.regA, context.lsb, Flags::isCarry(context.regF));
-    return true;
-}
-
-bool Operands::sub_HL(InstrContext &context, Memory &memory) {
-    __alu_sbc(context.regF, context.regA, memory.read8BitsAt(context.readHL()), false);
-    return true;
 }
 
 bool Operands::sbc_A_HL(InstrContext &context, Memory &memory) {

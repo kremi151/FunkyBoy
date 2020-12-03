@@ -22,36 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * SUB A,r
-     * @param context
-     */
-    bool sub_A_r(InstrContext &context, Memory &memory);
-
-    /**
-     * SUB A,d
-     * @param context
-     */
-    bool sub_A_d(InstrContext &context, Memory &memory);
-
-    /**
-     * SBC A,r
-     * @param context
-     */
-    bool sbc_A_r(InstrContext &context, Memory &memory);
-
-    /**
-     * SBC A,d
-     * @param context
-     */
-    bool sbc_A_d(InstrContext &context, Memory &memory);
-
-    /**
-     * SUB (HL)
-     * @param context
-     */
-    bool sub_HL(InstrContext &context, Memory &memory);
-
-    /**
      * SBC A,(HL)
      * @param context
      */

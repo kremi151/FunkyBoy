@@ -67,6 +67,36 @@ namespace FunkyBoy::Instructions::ALU {
      */
     void adc_A_HL(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * SUB A,r
+     */
+    void sub_A_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * SBC A,r
+     */
+    void sbc_A_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * SUB A,d8
+     */
+    void sub_A_d8(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * SBC A,d8
+     */
+    void sbc_A_d8(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * SUB (HL)
+     */
+    void sub_HL(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * SBC A,(HL)
+     */
+    void sbc_A_HL(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H
