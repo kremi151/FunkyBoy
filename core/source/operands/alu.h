@@ -22,24 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * CP r
-     * @param context
-     */
-    bool cp_r(InstrContext &context, Memory &memory);
-
-    /**
-     * CP d
-     * @param context
-     */
-    bool cp_d(InstrContext &context, Memory &memory);
-
-    /**
-     * CP (HL)
-     * @param context
-     */
-    bool cp_HL(InstrContext &context, Memory &memory);
-
-    /**
      * INC ss
      * @param context
      */

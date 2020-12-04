@@ -21,11 +21,6 @@
 
 using namespace FunkyBoy;
 
-inline void __alu_cp(u8 *flags, const u8 *regA, u8 val) {
-    // See http://z80-heaven.wikidot.com/instructions-set:cp
-    Flags::setFlags(flags, *regA == val, true, (*regA & 0xf) - (val & 0xf) < 0, *regA < val);
-}
-
 inline void __alu_or(u8 *flags, u8 *regA, u8 val) {
     *regA |= val;
     Flags::setFlags(flags, *regA == 0, false, false, false);
@@ -40,22 +35,6 @@ inline void __alu_and(u8 *flags, u8 *regA, u8 val) {
 inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     *regA ^= val;
     Flags::setFlags(flags, *regA == 0, false, false, false);
-}
-
-bool Operands::cp_r(InstrContext &context, Memory &memory) {
-    __alu_cp(context.regF, context.regA, context.registers[context.instr & 0b00000111u]);
-    return true;
-}
-
-bool Operands::cp_d(InstrContext &context, Memory &memory) {
-    __alu_cp(context.regF, context.regA, context.lsb);
-    return true;
-}
-
-bool Operands::cp_HL(InstrContext &context, Memory &memory) {
-    u8 val = memory.read8BitsAt(context.readHL());
-    __alu_cp(context.regF, context.regA, val);
-    return true;
 }
 
 bool Operands::inc_ss(InstrContext &context, Memory &memory) {

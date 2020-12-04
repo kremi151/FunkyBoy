@@ -294,6 +294,21 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Jumps::rst(opcode, memory, context);
             return 16;
         }
+        /* cp r */ case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF: {
+            debug_print_4("cp r\n");
+            ALU::cp_r(opcode, memory, context);
+            return 4;
+        }
+        /* cp (HL) */ case 0xBE: {
+            debug_print_4("cp (HL)\n");
+            ALU::cp_HL(memory, context);
+            return 8;
+        }
+        /* cp d8 */ case 0xFE: {
+            debug_print_4("cp d8\n");
+            ALU::cp_d8(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

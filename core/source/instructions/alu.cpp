@@ -46,6 +46,11 @@ namespace FunkyBoy::Instructions::ALU {
         regA = newVal;
     }
 
+    inline void __alu_cp(u8_fast &flags, const u8_fast &regA, const u8_fast &val) {
+        // See http://z80-heaven.wikidot.com/instructions-set:cp
+        Flags::setFlagsFast(flags, regA == val, true, (regA & 0xf) - (val & 0xf) < 0, regA < val);
+    }
+
 }
 
 using namespace FunkyBoy::Instructions;
@@ -120,4 +125,18 @@ void ALU::sub_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
 void ALU::sbc_A_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast hl = memory.read8BitsAt(context.readHL());
     ALU::__alu_sbc(*context.regF, *context.regA, hl, Flags::isCarryFast(*context.regF));
+}
+
+void ALU::cp_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    ALU::__alu_cp(*context.regF, *context.regA, context.registers[opcode & 0b00000111u]);
+}
+
+void ALU::cp_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8 val = memory.read8BitsAt(context.readHL());
+    ALU::__alu_cp(*context.regF, *context.regA, val);
+}
+
+void ALU::cp_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8 val = memory.read8BitsAt(context.progCounter++);
+    ALU::__alu_cp(*context.regF, *context.regA, val);
 }

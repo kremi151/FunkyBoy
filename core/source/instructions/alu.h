@@ -97,6 +97,21 @@ namespace FunkyBoy::Instructions::ALU {
      */
     void sbc_A_HL(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * CP r
+     */
+    void cp_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * CP (HL)
+     */
+    void cp_HL(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * CP d8
+     */
+    void cp_d8(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H
