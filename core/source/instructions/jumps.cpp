@@ -77,30 +77,30 @@ int Jumps::jr_NZ_r8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::con
     i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
     if (opcode == 0x20) {
         if (Flags::isZeroFast(*context.regF)) {
-            return 12;
+            return 8;
         }
     } else {
         if (!Flags::isZeroFast(*context.regF)) {
-            return 12;
+            return 8;
         }
     }
     __fb_doJumpRelative(signedByte);
-    return 16;
+    return 12;
 }
 
 int Jumps::jr_NC_r8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
     if (opcode == 0x30) {
         if (Flags::isCarryFast(*context.regF)) {
-            return 12;
+            return 8;
         }
     } else {
         if (!Flags::isCarryFast(*context.regF)) {
-            return 12;
+            return 8;
         }
     }
     __fb_doJumpRelative(signedByte);
-    return 16;
+    return 12;
 }
 
 void Jumps::jr_r8(FunkyBoy::Memory &memory, Instructions::context &context) {
