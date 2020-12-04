@@ -21,6 +21,16 @@
 
 using namespace FunkyBoy::Instructions;
 
+#define __fb_doJumpExact(offset) \
+debug_print_4("JP from 0x%04X", context.progCounter); \
+context.progCounter = offset; \
+debug_print_4(" to 0x%04X\n", context.progCounter)
+
+#define __fb_doJumpRelative(offset) \
+debug_print_4("JR from 0x%04X + %d", context.progCounter, offset); \
+context.progCounter += offset; \
+debug_print_4(" to 0x%04X\n", context.progCounter)
+
 int Jumps::jp_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast lsb = memory.read8BitsAt(context.progCounter++);
     u8_fast msb = memory.read8BitsAt(context.progCounter++);
@@ -33,9 +43,7 @@ int Jumps::jp_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::co
             return 12;
         }
     }
-    debug_print_4("JP from 0x%04X", context.progCounter);
-    context.progCounter = Util::compose16Bits(lsb, msb);
-    debug_print_4(" to 0x%04X\n", context.progCounter);
+    __fb_doJumpExact(Util::compose16Bits(lsb, msb));
     return 16;
 }
 
@@ -51,18 +59,14 @@ int Jumps::jp_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::co
             return 12;
         }
     }
-    debug_print_4("JP from 0x%04X", context.progCounter);
-    context.progCounter = Util::compose16Bits(lsb, msb);
-    debug_print_4(" to 0x%04X\n", context.progCounter);
+    __fb_doJumpExact(Util::compose16Bits(lsb, msb));
     return 16;
 }
 
 void Jumps::jp_a16(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast lsb = memory.read8BitsAt(context.progCounter++);
     u8_fast msb = memory.read8BitsAt(context.progCounter++);
-    debug_print_4("JP from 0x%04X", context.progCounter);
-    context.progCounter = Util::compose16Bits(lsb, msb);
-    debug_print_4(" to 0x%04X\n", context.progCounter);
+    __fb_doJumpExact(Util::compose16Bits(lsb, msb));
 }
 
 void Jumps::jp_HL(Instructions::context &context) {
@@ -80,9 +84,7 @@ int Jumps::jr_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::co
             return 12;
         }
     }
-    debug_print_4("JR from 0x%04X + %d", context.progCounter, signedByte);
-    context.progCounter += signedByte;
-    debug_print_4(" to 0x%04X\n", context.progCounter);
+    __fb_doJumpRelative(signedByte);
     return 16;
 }
 
@@ -97,14 +99,11 @@ int Jumps::jr_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::co
             return 12;
         }
     }
-    debug_print_4("JR from 0x%04X + %d", context.progCounter, signedByte);
-    context.progCounter += signedByte;
-    debug_print_4(" to 0x%04X\n", context.progCounter);
+    __fb_doJumpRelative(signedByte);
     return 16;
 }
 
 void Jumps::jr_r8(FunkyBoy::Memory &memory, Instructions::context &context) {
-    debug_print_4("JR from 0x%04X + %d", context.progCounter, context.signedByte);
-    context.progCounter += memory.readSigned8BitsAt(context.progCounter++);
-    debug_print_4(" to 0x%04X\n", context.progCounter);
+    i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
+    __fb_doJumpRelative(signedByte);
 }
