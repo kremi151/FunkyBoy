@@ -92,6 +92,11 @@ namespace FunkyBoy::Instructions::Jumps {
      */
     void reti(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * RST vec
+     */
+    void rst(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_JUMPS_H

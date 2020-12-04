@@ -192,3 +192,10 @@ void Jumps::reti(FunkyBoy::Memory &memory, Instructions::context &context) {
     context.interruptMasterEnable = IMEState::ENABLED;
     context.progCounter = context.pop16Bits(memory);
 }
+
+void Jumps::rst(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast rstAddr = (opcode >> 3u & 7u) * 8u;
+    debug_print_4("rst %02XH\n", rstAddr);
+    context.push16Bits(memory, context.progCounter);
+    context.progCounter = rstAddr;
+}

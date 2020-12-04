@@ -22,18 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // rst vec
-        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
-            debug_print_4("rst vec\n");
-            // Pad artificially to 4 machine cycles TODO: do something useful here
-            operands[0] = Operands::_pad_;
-            operands[1] = Operands::_pad_;
-            operands[2] = Operands::_pad_;
-            //
-            operands[3] = Operands::rst;
-            operands[4] = nullptr;
-            return true;
-        }
         // cp r
         case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF: {
             debug_print_4("cp r\n");

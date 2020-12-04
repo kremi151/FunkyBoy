@@ -289,6 +289,11 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Jumps::reti(memory, context);
             return 16;
         }
+        /* rst vec */ case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
+            debug_print_4("rst vec\n");
+            Jumps::rst(opcode, memory, context);
+            return 16;
+        }
         default:
             return 0;
     }

@@ -32,7 +32,6 @@ set(SOURCES
         source/operands/prefix.cpp
         source/operands/reads.cpp
         source/operands/writes.cpp
-        source/operands/jumps.cpp
         source/operands/rot_shifts.cpp
         source/operands/conditions.cpp
         source/operands/debug.cpp
@@ -81,7 +80,6 @@ set(HEADERS
         source/operands/prefix.h
         source/operands/reads.h
         source/operands/writes.h
-        source/operands/jumps.h
         source/operands/rot_shifts.h
         source/operands/conditions.h
         source/operands/debug.h
