@@ -72,6 +72,26 @@ namespace FunkyBoy::Instructions::Jumps {
      */
     void call_a16(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * RET (N)Z
+     */
+    int ret_NZ(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * RET (N)C
+     */
+    int ret_NC(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * RET
+     */
+    void ret(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * RETI
+     */
+    void reti(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_JUMPS_H

@@ -22,54 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // ret (N)Z
-        case 0xC0: case 0xC8: {
-            debug_print_4("ret (N)Z\n");
-            // Pad artificially to 5 machine cycles TODO: do something useful here
-            operands[0] = Operands::_pad_; // This has to happen before the ret condition (unmet condition -> 2 M cycles)
-            operands[1] = (opcode == 0xC0) ? Operands::checkIsNotZero : Operands::checkIsZero;
-            operands[2] = Operands::_pad_;
-            operands[3] = Operands::_pad_;
-            operands[4] = Operands::ret;
-            operands[5] = nullptr;
-            return true;
-        }
-        // ret (N)C
-        case 0xD0: case 0xD8: {
-            debug_print_4("ret (N)C\n");
-            // Pad artificially to 5 machine cycles TODO: do something useful here
-            operands[0] = Operands::_pad_; // This has to happen before the ret condition (unmet condition -> 2 M cycles)
-            operands[1] = (opcode == 0xD0) ? Operands::checkIsNotCarry : Operands::checkIsCarry;
-            operands[2] = Operands::_pad_;
-            operands[3] = Operands::_pad_;
-            operands[4] = Operands::ret;
-            operands[5] = nullptr;
-            return true;
-        }
-        // ret
-        case 0xC9: {
-            debug_print_4("ret\n");
-            // Pad artificially to 4 machine cycles TODO: do something useful here
-            operands[0] = Operands::_pad_;
-            operands[1] = Operands::_pad_;
-            operands[2] = Operands::_pad_;
-            //
-            operands[3] = Operands::ret;
-            operands[4] = nullptr;
-            return true;
-        }
-        // reti
-        case 0xD9: {
-            debug_print_4("reti\n");
-            operands[0] = Operands::enableInterruptsImmediately;
-            // Pad artificially to 4 machine cycles TODO: do something useful here
-            operands[1] = Operands::_pad_;
-            operands[2] = Operands::_pad_;
-            //
-            operands[3] = Operands::ret;
-            operands[4] = nullptr;
-            return true;
-        }
         // rst vec
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
             debug_print_4("rst vec\n");

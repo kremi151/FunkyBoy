@@ -271,6 +271,24 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Jumps::call_a16(memory, context);
             return 24;
         }
+        /* ret (N)Z */ case 0xC0: case 0xC8: {
+            debug_print_4("ret (N)Z\n");
+            return Jumps::ret_NZ(opcode, memory, context);
+        }
+        /* ret (N)C */ case 0xD0: case 0xD8: {
+            debug_print_4("ret (N)C\n");
+            return Jumps::ret_NC(opcode, memory, context);
+        }
+        /* ret */ case 0xC9: {
+            debug_print_4("ret\n");
+            Jumps::ret(memory, context);
+            return 16;
+        }
+        /* reti */ case 0xD9: {
+            debug_print_4("reti\n");
+            Jumps::reti(memory, context);
+            return 16;
+        }
         default:
             return 0;
     }

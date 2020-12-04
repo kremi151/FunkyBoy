@@ -21,11 +21,6 @@
 
 using namespace FunkyBoy;
 
-bool Operands::ret(InstrContext &context, Memory &memory) {
-    context.progCounter = context.pop16Bits(memory);
-    return true;
-}
-
 bool Operands::rst(InstrContext &context, Memory &memory) {
     u8 rstAddr = (context.instr >> 3u & 7u) * 8u;
     debug_print_4("rst %02XH\n", rstAddr);

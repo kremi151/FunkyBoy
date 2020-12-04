@@ -19,6 +19,7 @@
 
 #include <util/typedefs.h>
 #include <memory/memory.h>
+#include <operands/instruction_context.h>
 
 namespace FunkyBoy::Instructions {
 
@@ -36,6 +37,8 @@ namespace FunkyBoy::Instructions {
 
         u16 progCounter;
         u16 stackPointer;
+
+        IMEState interruptMasterEnable;
 
         inline u16_fast readHL() {
             return (*regL & 0xffu) | (*regH << 8u);

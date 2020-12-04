@@ -18,6 +18,7 @@
 
 #include <util/flags.h>
 #include <util/debug.h>
+#include <operands/instruction_context.h>
 
 using namespace FunkyBoy::Instructions;
 
@@ -153,4 +154,41 @@ void Jumps::call_a16(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast msb = memory.read8BitsAt(context.progCounter++);
     memory_address address = Util::compose16Bits(lsb, msb);
     __fb_doCall(address);
+}
+
+int Jumps::ret_NZ(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    if (opcode == 0xC0) {
+        if (Flags::isZeroFast(*context.regF)) {
+            return 8;
+        }
+    } else {
+        if (!Flags::isZeroFast(*context.regF)) {
+            return 8;
+        }
+    }
+    context.progCounter = context.pop16Bits(memory);
+    return 20;
+}
+
+int Jumps::ret_NC(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    if (opcode == 0xD0) {
+        if (Flags::isCarryFast(*context.regF)) {
+            return 8;
+        }
+    } else {
+        if (!Flags::isCarryFast(*context.regF)) {
+            return 8;
+        }
+    }
+    context.progCounter = context.pop16Bits(memory);
+    return 20;
+}
+
+void Jumps::ret(FunkyBoy::Memory &memory, Instructions::context &context) {
+    context.progCounter = context.pop16Bits(memory);
+}
+
+void Jumps::reti(FunkyBoy::Memory &memory, Instructions::context &context) {
+    context.interruptMasterEnable = IMEState::ENABLED;
+    context.progCounter = context.pop16Bits(memory);
 }
