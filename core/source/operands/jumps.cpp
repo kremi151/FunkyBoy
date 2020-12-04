@@ -21,13 +21,6 @@
 
 using namespace FunkyBoy;
 
-bool Operands::jr(InstrContext &context, Memory &memory) {
-    debug_print_4("JR from 0x%04X + %d", context.progCounter, context.signedByte);
-    context.progCounter += context.signedByte;
-    debug_print_4(" to 0x%04X\n", context.progCounter);
-    return true;
-}
-
 bool Operands::call(InstrContext &context, Memory &memory) {
     memory_address address = Util::compose16Bits(context.lsb, context.msb);
     debug_print_4("call from 0x%04X\n", context.progCounter);

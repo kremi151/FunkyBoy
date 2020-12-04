@@ -68,3 +68,43 @@ void Jumps::jp_a16(FunkyBoy::Memory &memory, Instructions::context &context) {
 void Jumps::jp_HL(Instructions::context &context) {
     context.progCounter = context.readHL();
 }
+
+int Jumps::jr_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
+    if (opcode == 0x20) {
+        if (Flags::isZeroFast(*context.regF)) {
+            return 12;
+        }
+    } else {
+        if (!Flags::isZeroFast(*context.regF)) {
+            return 12;
+        }
+    }
+    debug_print_4("JR from 0x%04X + %d", context.progCounter, signedByte);
+    context.progCounter += signedByte;
+    debug_print_4(" to 0x%04X\n", context.progCounter);
+    return 16;
+}
+
+int Jumps::jr_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
+    if (opcode == 0x30) {
+        if (Flags::isCarryFast(*context.regF)) {
+            return 12;
+        }
+    } else {
+        if (!Flags::isCarryFast(*context.regF)) {
+            return 12;
+        }
+    }
+    debug_print_4("JR from 0x%04X + %d", context.progCounter, signedByte);
+    context.progCounter += signedByte;
+    debug_print_4(" to 0x%04X\n", context.progCounter);
+    return 16;
+}
+
+void Jumps::jr_r8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    debug_print_4("JR from 0x%04X + %d", context.progCounter, context.signedByte);
+    context.progCounter += memory.readSigned8BitsAt(context.progCounter++);
+    debug_print_4(" to 0x%04X\n", context.progCounter);
+}

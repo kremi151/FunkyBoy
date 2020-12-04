@@ -22,33 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // jr (N)Z,r8
-        case 0x20: case 0x28: {
-            debug_print_4("jr (N)Z,r8\n");
-            operands[0] = Operands::readSigned;
-            operands[1] = (opcode == 0x20) ? Operands::checkIsNotZero : Operands::checkIsZero;
-            operands[2] = Operands::jr;
-            operands[3] = nullptr;
-            return true;
-        }
-        // jr (N)C,r8
-        case 0x30: case 0x38: {
-            debug_print_4("jr (N)C,r8\n");
-            operands[0] = Operands::readSigned;
-            operands[1] = (opcode == 0x30) ? Operands::checkIsNotCarry : Operands::checkIsCarry;
-            operands[2] = Operands::jr;
-            operands[3] = nullptr;
-            return true;
-        }
-        // unconditional jr
-        case 0x18: {
-            debug_print_4("jr r8\n");
-            operands[0] = Operands::readSigned;
-            operands[1] = Operands::_pad_;
-            operands[2] = Operands::jr;
-            operands[3] = nullptr;
-            return true;
-        }
         // call (N)Z,a16
         case 0xC4: case 0xCC: {
             debug_print_4("call (N)Z,a16\n");

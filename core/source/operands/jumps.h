@@ -21,8 +21,6 @@
 
 namespace FunkyBoy::Operands {
 
-    bool jr(InstrContext &context, Memory &memory);
-
     bool call(InstrContext &context, Memory &memory);
 
     bool ret(InstrContext &context, Memory &memory);

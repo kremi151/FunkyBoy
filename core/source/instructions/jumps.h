@@ -42,6 +42,21 @@ namespace FunkyBoy::Instructions::Jumps {
      */
      void jp_HL(Instructions::context &context);
 
+    /**
+     * JR (N)Z,a16
+     */
+    int jr_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * JR (N)C,a16
+     */
+    int jr_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * JR r8
+     */
+    void jr_r8(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_JUMPS_H
