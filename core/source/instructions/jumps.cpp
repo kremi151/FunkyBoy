@@ -73,7 +73,7 @@ void Jumps::jp_HL(Instructions::context &context) {
     context.progCounter = context.readHL();
 }
 
-int Jumps::jr_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+int Jumps::jr_NZ_r8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
     if (opcode == 0x20) {
         if (Flags::isZeroFast(*context.regF)) {
@@ -88,7 +88,7 @@ int Jumps::jr_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::co
     return 16;
 }
 
-int Jumps::jr_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+int Jumps::jr_NC_r8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
     if (opcode == 0x30) {
         if (Flags::isCarryFast(*context.regF)) {

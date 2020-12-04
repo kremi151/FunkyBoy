@@ -43,14 +43,14 @@ namespace FunkyBoy::Instructions::Jumps {
      void jp_HL(Instructions::context &context);
 
     /**
-     * JR (N)Z,a16
+     * JR (N)Z,r8
      */
-    int jr_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+    int jr_NZ_r8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
 
     /**
-     * JR (N)C,a16
+     * JR (N)C,r8
      */
-    int jr_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+    int jr_NC_r8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
 
     /**
      * JR r8
