@@ -18,6 +18,7 @@
 #define FB_CORE_INSTRUCTIONS_CONTEXT_H
 
 #include <util/typedefs.h>
+#include <memory/memory.h>
 
 namespace FunkyBoy::Instructions {
 
@@ -41,6 +42,9 @@ namespace FunkyBoy::Instructions {
         }
 
         void writeHL(u16_fast val);
+
+        void push16Bits(FunkyBoy::Memory &memory, u16_fast val);
+        u16_fast pop16Bits(FunkyBoy::Memory &memory);
 
         void write16BitRegister(u8_fast position, u16_fast val);
         u16_fast read16BitRegister(u8_fast position);

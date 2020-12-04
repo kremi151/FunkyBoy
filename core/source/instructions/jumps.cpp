@@ -31,6 +31,12 @@ debug_print_4("JR from 0x%04X + %d", context.progCounter, offset); \
 context.progCounter += offset; \
 debug_print_4(" to 0x%04X\n", context.progCounter)
 
+#define __fb_doCall(offset) \
+debug_print_4("call from 0x%04X\n", context.progCounter); \
+context.push16Bits(memory, context.progCounter); \
+context.progCounter = offset; \
+debug_print_4(" to 0x%04X\n", context.progCounter)
+
 int Jumps::jp_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast lsb = memory.read8BitsAt(context.progCounter++);
     u8_fast msb = memory.read8BitsAt(context.progCounter++);
@@ -106,4 +112,45 @@ int Jumps::jr_NC_r8(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::con
 void Jumps::jr_r8(FunkyBoy::Memory &memory, Instructions::context &context) {
     i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
     __fb_doJumpRelative(signedByte);
+}
+
+int Jumps::call_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    u8_fast msb = memory.read8BitsAt(context.progCounter++);
+    if (opcode == 0xC4) {
+        if (Flags::isZeroFast(*context.regF)) {
+            return 12;
+        }
+    } else {
+        if (!Flags::isZeroFast(*context.regF)) {
+            return 12;
+        }
+    }
+    memory_address address = Util::compose16Bits(lsb, msb);
+    __fb_doCall(address);
+    return 24;
+}
+
+int Jumps::call_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    u8_fast msb = memory.read8BitsAt(context.progCounter++);
+    if (opcode == 0xD4) {
+        if (Flags::isCarryFast(*context.regF)) {
+            return 12;
+        }
+    } else {
+        if (!Flags::isCarryFast(*context.regF)) {
+            return 12;
+        }
+    }
+    memory_address address = Util::compose16Bits(lsb, msb);
+    __fb_doCall(address);
+    return 24;
+}
+
+void Jumps::call_a16(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    u8_fast msb = memory.read8BitsAt(context.progCounter++);
+    memory_address address = Util::compose16Bits(lsb, msb);
+    __fb_doCall(address);
 }

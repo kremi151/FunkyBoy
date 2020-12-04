@@ -21,15 +21,6 @@
 
 using namespace FunkyBoy;
 
-bool Operands::call(InstrContext &context, Memory &memory) {
-    memory_address address = Util::compose16Bits(context.lsb, context.msb);
-    debug_print_4("call from 0x%04X\n", context.progCounter);
-    context.push16Bits(memory, context.progCounter);
-    context.progCounter = address;
-    debug_print_4(" to 0x%04X\n", context.progCounter);
-    return true;
-}
-
 bool Operands::ret(InstrContext &context, Memory &memory) {
     context.progCounter = context.pop16Bits(memory);
     return true;

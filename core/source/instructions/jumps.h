@@ -57,6 +57,21 @@ namespace FunkyBoy::Instructions::Jumps {
      */
     void jr_r8(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * CALL (N)Z,a16
+     */
+    int call_NZ_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * CALL (N)C,a16
+     */
+    int call_NC_a16(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * CALL a16
+     */
+    void call_a16(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_JUMPS_H

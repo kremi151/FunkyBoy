@@ -33,3 +33,15 @@ void context::writeHL(FunkyBoy::u16_fast val) {
     *regL = val & 0xffu;
     *regH = (val >> 8u) & 0xffu;
 }
+
+void context::push16Bits(FunkyBoy::Memory &memory, u16_fast val) {
+    stackPointer -= 2;
+    memory.write8BitsTo(stackPointer, val & 0xffu);
+    memory.write8BitsTo(stackPointer + 1, (val >> 8u) & 0xffu);
+}
+
+FunkyBoy::u16_fast context::pop16Bits(FunkyBoy::Memory &memory) {
+    u16_fast val = memory.read8BitsAt(stackPointer) | (memory.read8BitsAt(stackPointer + 1) << 8u);
+    stackPointer += 2;
+    return val;
+}

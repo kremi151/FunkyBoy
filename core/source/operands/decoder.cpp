@@ -22,48 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // call (N)Z,a16
-        case 0xC4: case 0xCC: {
-            debug_print_4("call (N)Z,a16\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::readMSB;
-            operands[2] = (opcode == 0xC4) ? Operands::checkIsNotZero : Operands::checkIsZero;
-            // Pad artificially to 6 machine cycles TODO: do something useful here
-            operands[3] = Operands::_pad_;
-            operands[4] = Operands::_pad_;
-            //
-            operands[5] = Operands::call;
-            operands[6] = nullptr;
-            return true;
-        }
-        // call (N)C,a16
-        case 0xD4: case 0xDC: {
-            debug_print_4("call (N)C,a16\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::readMSB;
-            operands[2] = (opcode == 0xD4) ? Operands::checkIsNotCarry : Operands::checkIsCarry;
-            // Pad artificially to 6 machine cycles TODO: do something useful here
-            operands[3] = Operands::_pad_;
-            operands[4] = Operands::_pad_;
-            //
-            operands[5] = Operands::call;
-            operands[6] = nullptr;
-            return true;
-        }
-        // call a16
-        case 0xCD: {
-            debug_print_4("call a16\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::readMSB;
-            // Pad artificially to 6 machine cycles TODO: do something useful here
-            operands[2] = Operands::_pad_;
-            operands[3] = Operands::_pad_;
-            operands[4] = Operands::_pad_;
-            //
-            operands[5] = Operands::call;
-            operands[6] = nullptr;
-            return true;
-        }
         // ret (N)Z
         case 0xC0: case 0xC8: {
             debug_print_4("ret (N)Z\n");

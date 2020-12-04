@@ -258,6 +258,19 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Jumps::jr_r8(memory, context);
             return 12;
         }
+        /* call (N)Z,a16 */ case 0xC4: case 0xCC: {
+            debug_print_4("call (N)Z,a16\n");
+            return Jumps::call_NZ_a16(opcode, memory, context);
+        }
+        /* call (N)C,a16 */ case 0xD4: case 0xDC: {
+            debug_print_4("call (N)C,a16\n");
+            return Jumps::call_NC_a16(opcode, memory, context);
+        }
+        /* call a16 */ case 0xCD: {
+            debug_print_4("call a16\n");
+            Jumps::call_a16(memory, context);
+            return 24;
+        }
         default:
             return 0;
     }
