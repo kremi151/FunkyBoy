@@ -20,6 +20,7 @@
 #include <instructions/alu.h>
 #include <instructions/jumps.h>
 #include <instructions/rot_shifts.h>
+#include <instructions/stack.h>
 
 #include <util/debug.h>
 
@@ -414,6 +415,26 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             debug_print_4("rla\n");
             RotShifts::rla(context);
             return 4;
+        }
+        /* pop rr */ case 0xC1: case 0xD1: case 0xE1: {
+            debug_print_4("pop rr\n");
+            Stack::pop_rr(opcode, memory, context);
+            return 12;
+        }
+        /* pop AF */ case 0xF1: {
+            debug_print_4("pop AF\n");
+            Stack::pop_AF(memory, context);
+            return 12;
+        }
+        /* push rr */ case 0xC5: case 0xD5: case 0xE5: {
+            debug_print_4("push rr\n");
+            Stack::push_rr(opcode, memory, context);
+            return 16;
+        }
+        /* push AF */ case 0xF5: {
+            debug_print_4("push AF\n");
+            Stack::push_AF(memory, context);
+            return 16;
         }
         default:
             return 0;

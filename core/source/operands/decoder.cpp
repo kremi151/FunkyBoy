@@ -22,44 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // pop rr
-        case 0xC1: case 0xD1: case 0xE1: {
-            debug_print_4("pop rr\n");
-            operands[0] = Operands::readStackIntoLSB;
-            operands[1] = Operands::readStackIntoMSB;
-            operands[2] = Operands::write16BitsIntoRR;
-            operands[3] = nullptr;
-            return true;
-        }
-        // pop AF
-        case 0xF1: {
-            debug_print_4("pop AF\n");
-            operands[0] = Operands::readStackIntoLSB;
-            operands[1] = Operands::readStackIntoMSB;
-            operands[2] = Operands::write16BitsIntoAF;
-            operands[3] = nullptr;
-            return true;
-        }
-        // push rr
-        case 0xC5: case 0xD5: case 0xE5: {
-            debug_print_4("push rr\n");
-            operands[0] = Operands::_pad_;
-            operands[1] = Operands::readRRMSBIntoStack;
-            operands[2] = Operands::readRRLSBIntoStack;
-            operands[3] = Operands::_pad_;
-            operands[4] = nullptr;
-            return true;
-        }
-        // push AF
-        case 0xF5: {
-            debug_print_4("push AF\n");
-            operands[0] = Operands::_pad_;
-            operands[1] = Operands::readRegAIntoStack;
-            operands[2] = Operands::readRegFIntoStack;
-            operands[3] = Operands::_pad_;
-            operands[4] = nullptr;
-            return true;
-        }
         // daa
         case 0x27: {
             debug_print_4("daa\n");

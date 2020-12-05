@@ -21,20 +21,6 @@
 
 namespace FunkyBoy::Operands {
 
-    /**
-     * Writes 16 bits composed by {@code lsb} and {@code msb} into 16bit register.
-     * The 16bit register is determined by reading bits 4 and 5 of the current {@code instr}.
-     * @param context
-     * @return
-     */
-    bool write16BitsIntoRR(InstrContext &context, Memory &memory);
-
-    /**
-     * Writes 16 bits composed by {@code lsb} and {@code msb} into AF register
-     * @param context
-     * @return
-     */
-    bool write16BitsIntoAF(InstrContext &context, Memory &memory);
 
     /**
      * Writes {@code lsb} into (HL)
