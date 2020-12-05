@@ -140,3 +140,33 @@ void ALU::cp_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8 val = memory.read8BitsAt(context.progCounter++);
     ALU::__alu_cp(*context.regF, *context.regA, val);
 }
+
+void ALU::inc_ss(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast position = opcode >> 4u & 3u;
+    u16_fast val = context.read16BitRegister(position);
+    context.write16BitRegister(position, val + 1);
+}
+
+void ALU::inc_SP(Instructions::context &context) {
+    context.stackPointer++;
+}
+
+void ALU::inc_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u16_fast hl = context.readHL();
+    u8_fast oldVal = memory.read8BitsAt(hl);
+    u8_fast newVal = oldVal + 1;
+    memory.write8BitsTo(hl, newVal);
+    Flags::setZeroFast(*context.regF, newVal == 0);
+    Flags::setHalfCarryFast(*context.regF, (newVal & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
+    Flags::setSubstractionFast(*context.regF, false);
+    // Leave carry as-is
+}
+
+void ALU::inc_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    auto &reg = *(context.registers + (opcode >> 3u & 7u));
+    reg++;
+    Flags::setZeroFast(*context.regF, reg == 0);
+    Flags::setHalfCarryFast(*context.regF, (reg & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
+    Flags::setSubstractionFast(*context.regF, false);
+    // Leave carry as-is
+}

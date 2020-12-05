@@ -80,6 +80,14 @@ void Flags::setHalfCarry(u8 *flags, bool halfCarry) {
     }
 }
 
+void Flags::setHalfCarryFast(FunkyBoy::u8_fast &flags, bool halfCarry) {
+    if (halfCarry) {
+        flags |= 0b00100000u;
+    } else {
+        flags &= 0b11010000u;
+    }
+}
+
 void Flags::setSubstraction(u8 *flags, bool substration) {
     if (substration) {
         *flags |= 0b01000000u;
@@ -88,10 +96,26 @@ void Flags::setSubstraction(u8 *flags, bool substration) {
     }
 }
 
+void Flags::setSubstractionFast(FunkyBoy::u8_fast &flags, bool substration) {
+    if (substration) {
+        flags |= 0b01000000u;
+    } else {
+        flags &= 0b10110000u;
+    }
+}
+
 void Flags::setZero(u8 *flags, bool zero) {
     if (zero) {
         *flags |= 0b10000000u;
     } else {
         *flags &= 0b01110000u;
+    }
+}
+
+void Flags::setZeroFast(FunkyBoy::u8_fast &flags, bool zero) {
+    if (zero) {
+        flags |= 0b10000000u;
+    } else {
+        flags &= 0b01110000u;
     }
 }

@@ -22,30 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * INC ss
-     * @param context
-     */
-    bool inc_ss(InstrContext &context, Memory &memory);
-
-    /**
-     * INC SP
-     * @param context
-     */
-    bool inc_SP(InstrContext &context, Memory &memory);
-
-    /**
-     * INC (HL)
-     * @param context
-     */
-    bool inc_HL(InstrContext &context, Memory &memory);
-
-    /**
-     * INC r
-     * @param context
-     */
-    bool inc_r(InstrContext &context, Memory &memory);
-
-    /**
      * DEC ss
      * @param context
      */

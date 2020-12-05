@@ -46,6 +46,8 @@ namespace FunkyBoy::Flags {
     [[deprecated]]
     void setHalfCarry(u8 *flags, bool halfCarry);
 
+    void setHalfCarryFast(u8_fast &flags, bool halfCarry);
+
     [[deprecated]]
     inline bool isSubstraction(const u8 *flags) {
         return *flags & 0b01000000u;
@@ -53,6 +55,8 @@ namespace FunkyBoy::Flags {
 
     [[deprecated]]
     void setSubstraction(u8 *flags, bool substration);
+
+    void setSubstractionFast(u8_fast &flags, bool substration);
 
     [[deprecated]]
     inline bool isZero(const u8 *flags) {
@@ -65,6 +69,8 @@ namespace FunkyBoy::Flags {
 
     [[deprecated]]
     void setZero(u8 *flags, bool zero);
+
+    void setZeroFast(u8_fast &flags, bool zero);
 
 }
 

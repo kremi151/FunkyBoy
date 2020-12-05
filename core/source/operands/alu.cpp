@@ -37,40 +37,6 @@ inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     Flags::setFlags(flags, *regA == 0, false, false, false);
 }
 
-bool Operands::inc_ss(InstrContext &context, Memory &memory) {
-    u8 position = context.instr >> 4u & 3u;
-    u16 val = context.read16BitRegister(position);
-    context.write16BitRegister(position, val + 1);
-    return true;
-}
-
-bool Operands::inc_SP(InstrContext &context, Memory &memory) {
-    context.stackPointer++;
-    return true;
-}
-
-bool Operands::inc_HL(InstrContext &context, Memory &memory) {
-    u16 hl = context.readHL();
-    u8 oldVal = memory.read8BitsAt(hl);
-    u8 newVal = oldVal + 1;
-    memory.write8BitsTo(hl, newVal);
-    Flags::setZero(context.regF, newVal == 0);
-    Flags::setHalfCarry(context.regF, (newVal & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
-    Flags::setSubstraction(context.regF, false);
-    // Leave carry as-is
-    return true;
-}
-
-bool Operands::inc_r(InstrContext &context, Memory &memory) {
-    auto reg = context.registers + (context.instr >> 3u & 7u);
-    (*reg)++;
-    Flags::setZero(context.regF, *reg == 0);
-    Flags::setHalfCarry(context.regF, (*reg & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
-    Flags::setSubstraction(context.regF, false);
-    // Leave carry as-is
-    return true;
-}
-
 bool Operands::dec_ss(InstrContext &context, Memory &memory) {
     u8 position = context.instr >> 4u & 3u;
     u16 val = context.read16BitRegister(position);

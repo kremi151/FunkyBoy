@@ -22,40 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // inc ss
-        case 0x03: case 0x13: case 0x23: {
-            debug_print_4("inc ss\n");
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::inc_ss;
-            operands[2] = nullptr;
-            return true;
-        }
-        // inc SP
-        case 0x33: {
-            debug_print_4("inc SP\n");
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::inc_SP;
-            operands[2] = nullptr;
-            return true;
-        }
-        // inc (HL)
-        case 0x34: {
-            debug_print_4("inc (HL)\n");
-            // Pad artificially to 3 machine cycles TODO: do something useful here
-            operands[0] = Operands::_pad_;
-            operands[1] = Operands::_pad_;
-            //
-            operands[2] = Operands::inc_HL;
-            operands[3] = nullptr;
-            return true;
-        }
-        // inc r
-        case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: case 0x3C: {
-            debug_print_4("inc r\n");
-            operands[0] = Operands::inc_r;
-            operands[1] = nullptr;
-            return true;
-        }
         // dec ss
         case 0x0B: case 0x1B: case 0x2B: {
             debug_print_4("dec ss\n");

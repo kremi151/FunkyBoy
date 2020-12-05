@@ -309,6 +309,26 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             ALU::cp_d8(memory, context);
             return 8;
         }
+        /* inc ss */ case 0x03: case 0x13: case 0x23: {
+            debug_print_4("inc ss\n");
+            ALU::inc_ss(opcode, memory, context);
+            return 8;
+        }
+        /* inc SP */ case 0x33: {
+            debug_print_4("inc SP\n");
+            ALU::inc_SP(context);
+            return 8;
+        }
+        /* inc (HL) */ case 0x34: {
+            debug_print_4("inc (HL)\n");
+            ALU::inc_HL(memory, context);
+            return 12;
+        }
+        /* inc r */ case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: case 0x3C: {
+            debug_print_4("inc r\n");
+            ALU::inc_r(opcode, memory, context);
+            return 4;
+        }
         default:
             return 0;
     }
