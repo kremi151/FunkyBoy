@@ -21,6 +21,7 @@
 #include <instructions/jumps.h>
 #include <instructions/rot_shifts.h>
 #include <instructions/stack.h>
+#include <instructions/misc.h>
 
 #include <util/debug.h>
 
@@ -435,6 +436,11 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             debug_print_4("push AF\n");
             Stack::push_AF(memory, context);
             return 16;
+        }
+        /* daa */ case 0x27: {
+            debug_print_4("daa\n");
+            Miscellaneous::daa(context);
+            return 4;
         }
         default:
             return 0;

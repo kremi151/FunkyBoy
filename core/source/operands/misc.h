@@ -72,13 +72,6 @@ namespace FunkyBoy::Operands {
     bool halt(InstrContext &context, Memory &memory);
 
     /**
-     * DAA
-     * @param context
-     * @return
-     */
-    bool daa(InstrContext &context, Memory &memory);
-
-    /**
      * CPL
      * @param context
      * @return

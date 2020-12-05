@@ -64,30 +64,6 @@ bool Operands::halt(InstrContext &context, Memory &memory) {
     return true;
 }
 
-bool Operands::daa(InstrContext &context, Memory &memory) {
-    u8 val = *context.regA;
-    if (Flags::isSubstraction(context.regF)) {
-        if (Flags::isCarry(context.regF)) {
-            val -= 0x60;
-        }
-        if (Flags::isHalfCarry(context.regF)) {
-            val -= 0x06;
-        }
-    } else {
-        if (Flags::isCarry(context.regF) || val > 0x99) {
-            val += 0x60;
-            Flags::setCarry(context.regF, true);
-        }
-        if (Flags::isHalfCarry(context.regF) || (val & 0xf) > 0x09) {
-            val += 0x06;
-        }
-    }
-    *context.regA = val;
-    Flags::setZero(context.regF, val == 0);
-    Flags::setHalfCarry(context.regF, false);
-    return true;
-}
-
 bool Operands::cpl(InstrContext &context, Memory &memory) {
     *context.regA = ~*context.regA;
     Flags::setSubstraction(context.regF, true);

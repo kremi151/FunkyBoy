@@ -41,6 +41,7 @@ set(SOURCES
         source/instructions/jumps.cpp
         source/instructions/rot_shifts.cpp
         source/instructions/stack.cpp
+        source/instructions/misc.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
@@ -89,6 +90,7 @@ set(HEADERS
         source/instructions/jumps.h
         source/instructions/rot_shifts.h
         source/instructions/stack.h
+        source/instructions/misc.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h

@@ -22,13 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // daa
-        case 0x27: {
-            debug_print_4("daa\n");
-            operands[0] = Operands::daa;
-            operands[1] = nullptr;
-            return true;
-        }
         // cpl
         case 0x2F: {
             debug_print_4("cpl\n");
