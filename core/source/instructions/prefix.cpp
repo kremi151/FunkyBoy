@@ -51,6 +51,54 @@ namespace FunkyBoy::Instructions::Prefix {
         memory.write8BitsTo(context.readHL(), newVal);
     }
 
+    void rl_r(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast *reg = context.registers + (opcode & 0b111u);
+        u8_fast newVal = (*reg << 1) & 0xffu;
+        if (Flags::isCarryFast(*context.regF)) {
+            newVal |= 0b1u;
+        }
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (*reg & 0b10000000u) > 0);
+        *reg = newVal;
+    }
+
+    void rl_HL(context &context, Memory &memory) {
+        u8_fast oldVal = memory.read8BitsAt(context.readHL());
+        u8_fast newVal = (oldVal << 1) & 0xffu;
+        if (Flags::isCarryFast(*context.regF)) {
+            newVal |= 0b1u;
+        }
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (oldVal & 0b10000000u) > 0);
+        memory.write8BitsTo(context.readHL(), newVal);
+    }
+
+    void rr_r(opcode_t opcode, context &context, Memory &memory) {
+        // 0x18 -> 11 000 -> B
+        // 0x19 -> 11 001 -> C
+        // 0x1A -> 11 010 -> D
+        // 0x1B -> 11 011 -> E
+        // 0x1C -> 11 100 -> H
+        // 0x1D -> 11 101 -> L
+        // --- Skip F ---
+        // 0x1F -> 11 111 -> A
+        u8_fast *reg = context.registers + (opcode & 0b111u);
+        u8_fast newVal = (*reg >> 1) & 0xffu;
+        if (Flags::isCarryFast(*context.regF)) {
+            newVal |= 0b10000000u;
+        }
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, *reg & 0b1u);
+        *reg = newVal;
+    }
+
+    void rr_HL(context &context, Memory &memory) {
+        u8_fast oldVal = memory.read8BitsAt(context.readHL());
+        u8_fast newVal = (oldVal >> 1) & 0xffu;
+        if (Flags::isCarryFast(*context.regF)) {
+            newVal |= 0b10000000u;
+        }
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, oldVal & 0b1u);
+        memory.write8BitsTo(context.readHL(), newVal);
+    }
+
 }
 
 int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
@@ -73,6 +121,26 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
         /* rrc (HL) */ case 0x0E: {
             debug_print_4("rrc (HL)\n");
             Prefix::rrc_HL(context, memory);
+            return 16;
+        }
+        /* rl reg */ case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x17: {
+            debug_print_4("rl r\n");
+            Prefix::rl_r(opcode, context, memory);
+            return 8;
+        }
+        /* rl (HL) */ case 0x16: {
+            debug_print_4("rl (HL)\n");
+            Prefix::rl_HL(context, memory);
+            return 16;
+        }
+        /* rr reg */ case 0x18: case 0x19: case 0x1A: case 0x1B: case 0x1C: case 0x1D: case 0x1F: {
+            debug_print_4("rr r\n");
+            Prefix::rr_r(opcode, context, memory);
+            return 8;
+        }
+        /* rr (HL) */ case 0x1E: {
+            debug_print_4("rr (HL)\n");
+            Prefix::rr_HL(context, memory);
             return 16;
         }
         default: {
