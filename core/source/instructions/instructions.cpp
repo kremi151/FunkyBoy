@@ -364,6 +364,21 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             ALU::or_d8(memory, context);
             return 8;
         }
+        /* and r */ case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: {
+            debug_print_4("and r\n");
+            ALU::and_r(opcode, memory, context);
+            return 4;
+        }
+        /* and (HL) */ case 0xA6: {
+            debug_print_4("and (HL)\n");
+            ALU::and_HL(memory, context);
+            return 8;
+        }
+        /* and d8 */ case 0xE6: {
+            debug_print_4("and d\n");
+            ALU::and_d8(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

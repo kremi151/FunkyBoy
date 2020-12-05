@@ -22,24 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * AND r
-     * @param context
-     */
-    bool and_r(InstrContext &context, Memory &memory);
-
-    /**
-     * AND d
-     * @param context
-     */
-    bool and_d(InstrContext &context, Memory &memory);
-
-    /**
-     * AND (HL)
-     * @param context
-     */
-    bool and_HL(InstrContext &context, Memory &memory);
-
-    /**
      * XOR r
      * @param context
      */

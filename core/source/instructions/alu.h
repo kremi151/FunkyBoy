@@ -167,6 +167,21 @@ namespace FunkyBoy::Instructions::ALU {
      */
     void or_d8(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * AND r
+     */
+    void and_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * AND (HL)
+     */
+    void and_HL(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * AND d8
+     */
+    void and_d8(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H

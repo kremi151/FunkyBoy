@@ -51,9 +51,15 @@ namespace FunkyBoy::Instructions::ALU {
         Flags::setFlagsFast(flags, regA == val, true, (regA & 0xf) - (val & 0xf) < 0, regA < val);
     }
 
-    inline void __alu_or(u8_fast &flags, u8_fast &regA, u8 val) {
+    inline void __alu_or(u8_fast &flags, u8_fast &regA, u8_fast val) {
         regA |= val;
         Flags::setFlagsFast(flags, regA == 0, false, false, false);
+    }
+
+    inline void __alu_and(u8_fast &flags, u8_fast &regA, u8_fast val) {
+        regA &= val;
+        //TODO: To be verified:
+        Flags::setFlagsFast(flags, regA == 0, false, true, false);
     }
 
 }
@@ -225,4 +231,25 @@ void ALU::or_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
 void ALU::or_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast lsb = memory.read8BitsAt(context.progCounter++);
     ALU::__alu_or(*context.regF, *context.regA, lsb);
+}
+
+void ALU::and_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    // 0xA0 -> 10100 000 -> B
+    // 0xA1 -> 10100 001 -> C
+    // 0xA2 -> 10100 010 -> D
+    // 0xA3 -> 10100 011 -> E
+    // 0xA4 -> 10100 100 -> H
+    // 0xA5 -> 10100 101 -> L
+    // -- F is skipped --
+    // 0xA7 -> 10100 111 -> A
+    ALU::__alu_and(*context.regF, *context.regA, context.registers[opcode & 0b111u]);
+}
+
+void ALU::and_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    ALU::__alu_and(*context.regF, *context.regA, memory.read8BitsAt(context.readHL()));
+}
+
+void ALU::and_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    ALU::__alu_and(*context.regF, *context.regA, lsb);
 }
