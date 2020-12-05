@@ -55,3 +55,11 @@ void Miscellaneous::scf(Instructions::context &context) {
 void Miscellaneous::ccf(Instructions::context &context) {
     Flags::setFlagsFast(*context.regF, Flags::isZeroFast(*context.regF), false, false, !Flags::isCarryFast(*context.regF));
 }
+
+void Miscellaneous::di(Instructions::context &context) {
+    context.interruptMasterEnable = IMEState::DISABLED;
+}
+
+void Miscellaneous::ei(Instructions::context &context) {
+    context.interruptMasterEnable = IMEState::REQUEST_ENABLE;
+}

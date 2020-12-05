@@ -30,21 +30,6 @@ bool Operands::_pad_(InstrContext &context, Memory &memory) {
     return true;
 }
 
-bool Operands::enableInterruptsImmediately(InstrContext &context, Memory &memory) {
-    context.interruptMasterEnable = IMEState::ENABLED;
-    return true;
-}
-
-bool Operands::enableInterruptsDelayed(InstrContext &context, Memory &memory) {
-    context.interruptMasterEnable = IMEState::REQUEST_ENABLE;
-    return true;
-}
-
-bool Operands::disableInterrupts(InstrContext &context, Memory &memory) {
-    context.interruptMasterEnable = IMEState::DISABLED;
-    return true;
-}
-
 bool Operands::stop(InstrContext &context, Memory &memory) {
     *context.regA = 0;
     *context.regB = memory.read8BitsAt(FB_REG_IE);

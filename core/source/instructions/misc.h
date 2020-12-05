@@ -42,6 +42,16 @@ namespace FunkyBoy::Instructions::Miscellaneous  {
      */
     void ccf(Instructions::context &context);
 
+    /**
+     * DI
+     */
+    void di(Instructions::context &context);
+
+    /**
+     * EI
+     */
+    void ei(Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_MISC_H

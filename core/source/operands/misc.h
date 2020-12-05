@@ -36,28 +36,6 @@ namespace FunkyBoy::Operands {
     bool _pad_(InstrContext &context, Memory &memory);
 
     /**
-     * Enables interrupts without delay
-     * @param context
-     * @return
-     */
-    bool enableInterruptsImmediately(InstrContext &context, Memory &memory);
-
-    /**
-     * Enables interrupts with delay.
-     * Interrupts will become enabled after the next opcode.
-     * @param context
-     * @return
-     */
-    bool enableInterruptsDelayed(InstrContext &context, Memory &memory);
-
-    /**
-     * Disables interrupts
-     * @param context
-     * @return
-     */
-    bool disableInterrupts(InstrContext &context, Memory &memory);
-
-    /**
      * STOP
      * @param context
      * @return
@@ -71,12 +49,6 @@ namespace FunkyBoy::Operands {
      */
     bool halt(InstrContext &context, Memory &memory);
 
-    /**
-     * CCF
-     * @param context
-     * @return
-     */
-    bool ccf(InstrContext &context, Memory &memory);
 
 }
 

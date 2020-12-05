@@ -22,20 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // di
-        case 0xF3: {
-            debug_print_4("di\n");
-            operands[0] = Operands::disableInterrupts;
-            operands[1] = nullptr;
-            return true;
-        }
-        // ei
-        case 0xFB: {
-            debug_print_4("ei\n");
-            operands[0] = Operands::enableInterruptsDelayed;
-            operands[1] = nullptr;
-            return true;
-        }
         // stop
         case 0x10: {
             debug_print_4("stop\n");

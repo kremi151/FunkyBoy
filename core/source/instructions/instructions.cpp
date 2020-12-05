@@ -457,6 +457,16 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Miscellaneous::ccf(context);
             return 4;
         }
+        /* di */ case 0xF3: {
+            debug_print_4("di\n");
+            Miscellaneous::di(context);
+            return 4;
+        }
+        /* ei */ case 0xFB: {
+            debug_print_4("ei\n");
+            Miscellaneous::ei(context);
+            return 4;
+        }
         default:
             return 0;
     }
