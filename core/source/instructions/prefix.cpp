@@ -32,21 +32,21 @@ namespace FunkyBoy::Instructions::Prefix {
 
     void rlc_HL(context &context, Memory &memory) {
         u8_fast oldVal = memory.read8BitsAt(context.readHL());
-        u8 newVal = ((oldVal << 1) | ((oldVal >> 7) & 0b1)) & 0xffu;
+        u8_fast newVal = ((oldVal << 1) | ((oldVal >> 7) & 0b1)) & 0xffu;
         Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (oldVal & 0b10000000u) > 0);
         memory.write8BitsTo(context.readHL(), newVal);
     }
 
     void rrc_r(opcode_t opcode, context &context, Memory &memory) {
         u8_fast *reg = context.registers + (opcode & 0b111u);
-        u8_fast newVal = ((*reg >> 1) | ((*reg & 0b1) << 7)) & 0xffu;
+        u8_fast newVal = ((*reg & 0xffu) >> 1) | ((*reg & 0b1) << 7);
         Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (*reg & 0b1u) > 0);
         *reg = newVal;
     }
 
     void rrc_HL(context &context, Memory &memory) {
         u8_fast oldVal = memory.read8BitsAt(context.readHL());
-        u8_fast newVal = ((oldVal >> 1) | ((oldVal & 0b1) << 7)) & 0xffu;
+        u8_fast newVal = ((oldVal & 0xffu) >> 1) | ((oldVal & 0b1u) << 7);
         Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (oldVal & 0b1u) > 0);
         memory.write8BitsTo(context.readHL(), newVal);
     }
@@ -81,7 +81,7 @@ namespace FunkyBoy::Instructions::Prefix {
         // --- Skip F ---
         // 0x1F -> 11 111 -> A
         u8_fast *reg = context.registers + (opcode & 0b111u);
-        u8_fast newVal = (*reg >> 1) & 0xffu;
+        u8_fast newVal = (*reg & 0xffu) >> 1;
         if (Flags::isCarryFast(*context.regF)) {
             newVal |= 0b10000000u;
         }
@@ -91,7 +91,7 @@ namespace FunkyBoy::Instructions::Prefix {
 
     void rr_HL(context &context, Memory &memory) {
         u8_fast oldVal = memory.read8BitsAt(context.readHL());
-        u8_fast newVal = (oldVal >> 1) & 0xffu;
+        u8_fast newVal = (oldVal & 0xffu) >> 1;
         if (Flags::isCarryFast(*context.regF)) {
             newVal |= 0b10000000u;
         }

@@ -194,7 +194,7 @@ void Jumps::reti(FunkyBoy::Memory &memory, Instructions::context &context) {
 }
 
 void Jumps::rst(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
-    u8_fast rstAddr = (opcode >> 3u & 7u) * 8u;
+    u8_fast rstAddr = ((opcode >> 3u) & 7u) * 8u;
     debug_print_4("rst %02XH\n", rstAddr);
     context.push16Bits(memory, context.progCounter);
     context.progCounter = rstAddr;
