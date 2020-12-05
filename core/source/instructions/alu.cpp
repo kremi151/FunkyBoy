@@ -24,7 +24,7 @@ namespace FunkyBoy::Instructions::ALU {
     inline void __alu_adc(u8_fast &flags, u8_fast &regA, u8_fast &val, bool carry) {
         u8_fast carryVal = carry ? 1 : 0;
         u8_fast newVal = regA + val + carryVal;
-        Flags::setFlagsFast(flags, newVal == 0, false, ((regA & 0xf) + (val & 0xf) + carryVal) > 0xf,
+        Flags::setFlagsFast(flags, (newVal & 0xffu) == 0, false, ((regA & 0xf) + (val & 0xf) + carryVal) > 0xf,
                         (regA & 0xff) + (val & 0xff) + carryVal > 0xff);
         regA = newVal;
     }
@@ -42,7 +42,7 @@ namespace FunkyBoy::Instructions::ALU {
     inline void __alu_sbc(u8_fast &flags, u8_fast &regA, u8_fast &val, bool carry) {
         u8_fast carryVal = carry ? 1 : 0;
         u8_fast newVal = regA - val - carryVal;
-        Flags::setFlagsFast(flags, newVal == 0, true, (regA & 0xf) - (val & 0xf) - carryVal < 0, (regA & 0xffu) < ((val + carryVal) & 0xffu));
+        Flags::setFlagsFast(flags, (newVal & 0xffu) == 0, true, (regA & 0xf) - (val & 0xf) - carryVal < 0, (regA & 0xffu) < ((val + carryVal) & 0xffu));
         regA = newVal;
     }
 
@@ -172,7 +172,7 @@ void ALU::inc_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast oldVal = memory.read8BitsAt(hl);
     u8_fast newVal = oldVal + 1;
     memory.write8BitsTo(hl, newVal);
-    Flags::setZeroFast(*context.regF, newVal == 0);
+    Flags::setZeroFast(*context.regF, (newVal & 0xffu) == 0);
     Flags::setHalfCarryFast(*context.regF, (newVal & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
     Flags::setSubstractionFast(*context.regF, false);
     // Leave carry as-is
@@ -181,7 +181,7 @@ void ALU::inc_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
 void ALU::inc_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     auto &reg = *(context.registers + (opcode >> 3u & 7u));
     reg++;
-    Flags::setZeroFast(*context.regF, reg == 0);
+    Flags::setZeroFast(*context.regF, (reg & 0xffu) == 0);
     Flags::setHalfCarryFast(*context.regF, (reg & 0x0fu) == 0x00); // If half-overflow, 4 least significant bits will be 0
     Flags::setSubstractionFast(*context.regF, false);
     // Leave carry as-is
@@ -202,7 +202,7 @@ void ALU::dec_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast oldVal = memory.read8BitsAt(hl);
     u8_fast newVal = oldVal - 1;
     memory.write8BitsTo(hl, newVal);
-    Flags::setZeroFast(*context.regF, newVal == 0);
+    Flags::setZeroFast(*context.regF, (newVal & 0xffu) == 0);
     Flags::setHalfCarryFast(*context.regF, (newVal & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
     Flags::setSubstractionFast(*context.regF, true);
     // Leave carry as-is
