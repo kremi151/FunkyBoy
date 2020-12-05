@@ -99,6 +99,42 @@ namespace FunkyBoy::Instructions::Prefix {
         memory.write8BitsTo(context.readHL(), newVal);
     }
 
+    void sla_r(opcode_t opcode, context &context, Memory &memory) {
+        // 0x20 -> 100 000 -> B
+        // 0x21 -> 100 001 -> C
+        // 0x22 -> 100 010 -> D
+        // 0x23 -> 100 011 -> E
+        // 0x24 -> 100 100 -> H
+        // 0x25 -> 100 101 -> L
+        // --- Skip F ---
+        // 0x27 -> 100 111 -> A
+        u8_fast *reg = context.registers + (opcode & 0b111u);
+        u8_fast newVal = (*reg << 1) & 0xffu;
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (*reg & 0b10000000u) > 0);
+        *reg = newVal;
+    }
+
+    void sla_HL(context &context, Memory &memory) {
+        u8_fast oldVal = memory.read8BitsAt(context.readHL());
+        u8_fast newVal = (oldVal << 1) & 0xffu;
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (oldVal & 0b10000000u) > 0);
+        memory.write8BitsTo(context.readHL(), newVal);
+    }
+
+    void sra_r(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast *reg = context.registers + (opcode & 0b111u);
+        u8_fast newVal = ((*reg & 0xffu) >> 1) | (*reg & 0b10000000);
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, *reg & 0b1u);
+        *reg = newVal;
+    }
+
+    void sra_HL(context &context, Memory &memory) {
+        u8_fast oldVal = memory.read8BitsAt(context.readHL()) & 0xffu;
+        u8_fast newVal = (oldVal >> 1) | (oldVal & 0b10000000);
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, oldVal & 0b1u);
+        memory.write8BitsTo(context.readHL(), newVal);
+    }
+
 }
 
 int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
@@ -141,6 +177,26 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
         /* rr (HL) */ case 0x1E: {
             debug_print_4("rr (HL)\n");
             Prefix::rr_HL(context, memory);
+            return 16;
+        }
+        /* sla reg */ case 0x20: case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x27: {
+            debug_print_4("sla r\n");
+            Prefix::sla_r(opcode, context, memory);
+            return 8;
+        }
+        /* sla (HL) */ case 0x26: {
+            debug_print_4("sla (HL)\n");
+            Prefix::sla_HL(context, memory);
+            return 16;
+        }
+        /* sra reg */ case 0x28: case 0x29: case 0x2A: case 0x2B: case 0x2C: case 0x2D: case 0x2F: {
+            debug_print_4("sra r\n");
+            Prefix::sra_r(opcode, context, memory);
+            return 8;
+        }
+        /* sra (HL) */ case 0x2E: {
+            debug_print_4("sra (HL)\n");
+            Prefix::sra_HL(context, memory);
             return 16;
         }
         default: {

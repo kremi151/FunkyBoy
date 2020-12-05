@@ -26,46 +26,6 @@
 
 using namespace FunkyBoy;
 
-bool __prefix_sla_r(InstrContext &context, Memory &memory) {
-    // 0x20 -> 100 000 -> B
-    // 0x21 -> 100 001 -> C
-    // 0x22 -> 100 010 -> D
-    // 0x23 -> 100 011 -> E
-    // 0x24 -> 100 100 -> H
-    // 0x25 -> 100 101 -> L
-    // --- Skip F ---
-    // 0x27 -> 100 111 -> A
-    u8 *reg = context.registers + (context.instr & 0b111);
-    u8 newVal = *reg << 1;
-    Flags::setFlags(context.regF, newVal == 0, false, false, (*reg & 0b10000000) > 0);
-    *reg = newVal;
-    return true;
-}
-
-bool __prefix_sla_HL(InstrContext &context, Memory &memory) {
-    u8 oldVal = context.lsb;
-    u8 newVal = oldVal << 1;
-    Flags::setFlags(context.regF, newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-    context.lsb = newVal;
-    return true;
-}
-
-bool __prefix_sra_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
-    u8 newVal = (*reg >> 1) | (*reg & 0b10000000);
-    Flags::setFlags(context.regF, newVal == 0, false, false, *reg & 0b1);
-    *reg = newVal;
-    return true;
-}
-
-bool __prefix_sra_HL(InstrContext &context, Memory &memory) {
-    u8 oldVal = context.lsb;
-    u8 newVal = (oldVal >> 1) | (oldVal & 0b10000000);
-    Flags::setFlags(context.regF, newVal == 0, false, false, oldVal & 0b1);
-    context.lsb = newVal;
-    return true;
-}
-
 bool __prefix_swap_r(InstrContext &context, Memory &memory) {
     u8 *reg = context.registers + (context.instr & 0b111);
     *reg = ((*reg >> 4) & 0b1111) | ((*reg & 0b1111) << 4);
@@ -200,38 +160,6 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
 #endif
 
     switch (context.instr) {
-        // sla reg
-        case 0x20: case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x27: {
-            debug_print_4("sla r\n");
-            context.operands[1] = __prefix_sla_r;
-            context.operands[2] = nullptr;
-            return true;
-        }
-        // sla (HL)
-        case 0x26: {
-            debug_print_4("sla (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_sla_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
-        }
-        // sra reg
-        case 0x28: case 0x29: case 0x2A: case 0x2B: case 0x2C: case 0x2D: case 0x2F: {
-            debug_print_4("sra r\n");
-            context.operands[1] = __prefix_sra_r;
-            context.operands[2] = nullptr;
-            return true;
-        }
-        // sra (HL)
-        case 0x2E: {
-            debug_print_4("sra (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_sra_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
-        }
         // swap reg
         case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x37: {
             debug_print_4("swap r\n");
