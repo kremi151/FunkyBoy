@@ -26,8 +26,16 @@ namespace FunkyBoy::Instructions::Prefix {
     void rlc_r(opcode_t opcode, context &context, Memory &memory) {
         u8_fast *reg = context.registers + (opcode & 0b111);
         u8_fast newVal = ((*reg << 1) | ((*reg >> 7) & 0b1)) & 0xffu;
-        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (*reg & 0b10000000) > 0);
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (*reg & 0b10000000u) > 0);
         *reg = newVal;
+    }
+
+    bool rlc_HL(context &context, Memory &memory) {
+        u8_fast oldVal = memory.read8BitsAt(context.readHL());
+        u8 newVal = ((oldVal << 1) | ((oldVal >> 7) & 0b1)) & 0xffu;
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (oldVal & 0b10000000u) > 0);
+        memory.write8BitsTo(context.readHL(), newVal);
+        return true;
     }
 
 }
@@ -38,6 +46,11 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
             debug_print_4("rlc r\n");
             Prefix::rlc_r(opcode, context, memory);
             return 8;
+        }
+        /* rlc (HL) */ case 0x06: {
+            debug_print_4("rlc (HL)\n");
+            Prefix::rlc_HL(context, memory);
+            return 16;
         }
         default: {
             fprintf(stderr, "Encountered not yet implemented prefix 0x%02X at 0x%04X\n", opcode, context.progCounter - 1);
