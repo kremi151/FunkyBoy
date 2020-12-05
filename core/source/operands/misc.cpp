@@ -64,19 +64,3 @@ bool Operands::halt(InstrContext &context, Memory &memory) {
     return true;
 }
 
-bool Operands::cpl(InstrContext &context, Memory &memory) {
-    *context.regA = ~*context.regA;
-    Flags::setSubstraction(context.regF, true);
-    Flags::setHalfCarry(context.regF, true);
-    return true;
-}
-
-bool Operands::scf(InstrContext &context, Memory &memory) {
-    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, true);
-    return true;
-}
-
-bool Operands::ccf(InstrContext &context, Memory &memory) {
-    Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, !Flags::isCarry(context.regF));
-    return true;
-}

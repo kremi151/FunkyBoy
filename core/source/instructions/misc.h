@@ -27,6 +27,21 @@ namespace FunkyBoy::Instructions::Miscellaneous  {
      */
     void daa(Instructions::context &context);
 
+    /**
+     * CPL
+     */
+    void cpl(Instructions::context &context);
+
+    /**
+     * SCF
+     */
+    void scf(Instructions::context &context);
+
+    /**
+     * CCF
+     */
+    void ccf(Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_MISC_H

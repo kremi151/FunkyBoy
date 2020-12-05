@@ -442,6 +442,21 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Miscellaneous::daa(context);
             return 4;
         }
+        /* cpl */ case 0x2F: {
+            debug_print_4("cpl\n");
+            Miscellaneous::cpl(context);
+            return 4;
+        }
+        /* scf */ case 0x37: {
+            debug_print_4("scf\n");
+            Miscellaneous::scf(context);
+            return 4;
+        }
+        /* ccf */ case 0x3F: {
+            debug_print_4("ccf\n");
+            Miscellaneous::ccf(context);
+            return 4;
+        }
         default:
             return 0;
     }

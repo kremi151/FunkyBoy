@@ -41,3 +41,17 @@ void Miscellaneous::daa(Instructions::context &context) {
     Flags::setZeroFast(*context.regF, (val & 0xffu) == 0);
     Flags::setHalfCarryFast(*context.regF, false);
 }
+
+void Miscellaneous::cpl(Instructions::context &context) {
+    *context.regA = ~*context.regA;
+    Flags::setSubstractionFast(*context.regF, true);
+    Flags::setHalfCarryFast(*context.regF, true);
+}
+
+void Miscellaneous::scf(Instructions::context &context) {
+    Flags::setFlagsFast(*context.regF, Flags::isZeroFast(*context.regF), false, false, true);
+}
+
+void Miscellaneous::ccf(Instructions::context &context) {
+    Flags::setFlagsFast(*context.regF, Flags::isZeroFast(*context.regF), false, false, !Flags::isCarryFast(*context.regF));
+}

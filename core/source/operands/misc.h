@@ -72,20 +72,6 @@ namespace FunkyBoy::Operands {
     bool halt(InstrContext &context, Memory &memory);
 
     /**
-     * CPL
-     * @param context
-     * @return
-     */
-    bool cpl(InstrContext &context, Memory &memory);
-
-    /**
-     * SCF
-     * @param context
-     * @return
-     */
-    bool scf(InstrContext &context, Memory &memory);
-
-    /**
      * CCF
      * @param context
      * @return
