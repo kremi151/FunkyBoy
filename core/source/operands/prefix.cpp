@@ -26,13 +26,7 @@
 
 using namespace FunkyBoy;
 
-bool __prefix__rlc_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
-    u8 newVal = (*reg << 1) | ((*reg >> 7) & 0b1);
-    Flags::setFlags(context.regF, newVal == 0, false, false, (*reg & 0b10000000) > 0);
-    *reg = newVal;
-    return true;
-}
+
 
 bool __prefix__rlc_lsb(InstrContext &context, Memory &memory) {
     u8 oldVal = context.lsb;
@@ -284,13 +278,6 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
 #endif
 
     switch (context.instr) {
-        // rlc reg
-        case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {
-            debug_print_4("rlc r\n");
-            context.operands[1] = __prefix__rlc_r;
-            context.operands[2] = nullptr;
-            return true;
-        }
         // rlc (HL)
         case 0x06: {
             debug_print_4("rlc (HL)\n");
