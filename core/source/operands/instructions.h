@@ -20,7 +20,6 @@
 #include <operands/instruction_context.h>
 #include <operands/misc.h>
 #include <operands/prefix.h>
-#include <operands/alu.h>
 #include <operands/reads.h>
 #include <operands/writes.h>
 #include <operands/rot_shifts.h>

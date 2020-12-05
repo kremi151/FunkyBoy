@@ -379,6 +379,21 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             ALU::and_d8(memory, context);
             return 8;
         }
+        /* xor r */ case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
+            debug_print_4("xor r\n");
+            ALU::xor_r(opcode, memory, context);
+            return 4;
+        }
+        /* xor (HL) */ case 0xAE: {
+            debug_print_4("xor (HL)\n");
+            ALU::xor_HL(memory, context);
+            return 8;
+        }
+        /* xor d8 */ case 0xEE: {
+            debug_print_4("xor d\n");
+            ALU::xor_d8(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

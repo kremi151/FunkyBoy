@@ -62,6 +62,11 @@ namespace FunkyBoy::Instructions::ALU {
         Flags::setFlagsFast(flags, regA == 0, false, true, false);
     }
 
+    inline void __alu_xor(u8_fast &flags, u8_fast &regA, u8_fast val) {
+        regA ^= val;
+        Flags::setFlagsFast(flags, regA == 0, false, false, false);
+    }
+
 }
 
 using namespace FunkyBoy::Instructions;
@@ -252,4 +257,17 @@ void ALU::and_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
 void ALU::and_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
     u8_fast lsb = memory.read8BitsAt(context.progCounter++);
     ALU::__alu_and(*context.regF, *context.regA, lsb);
+}
+
+void ALU::xor_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    ALU::__alu_xor(*context.regF, *context.regA, context.registers[opcode & 0b111u]);
+}
+
+void ALU::xor_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    ALU::__alu_xor(*context.regF, *context.regA, memory.read8BitsAt(context.readHL()));
+}
+
+void ALU::xor_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    ALU::__alu_xor(*context.regF, *context.regA, lsb);
 }

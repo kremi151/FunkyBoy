@@ -27,7 +27,6 @@ set(SOURCES
         source/cartridge/mbc_none.cpp
         source/memory/ppu_memory.cpp
         source/operands/instruction_context.cpp
-        source/operands/alu.cpp
         source/operands/misc.cpp
         source/operands/prefix.cpp
         source/operands/reads.cpp
@@ -74,7 +73,6 @@ set(HEADERS
         source/cartridge/mbc_none.h
         source/memory/ppu_memory.h
         source/operands/instruction_context.h
-        source/operands/alu.h
         source/operands/instructions.h
         source/operands/misc.h
         source/operands/prefix.h

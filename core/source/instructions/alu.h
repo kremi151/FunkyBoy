@@ -182,6 +182,21 @@ namespace FunkyBoy::Instructions::ALU {
      */
     void and_d8(FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * XOR r
+     */
+    void xor_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * XOR (HL)
+     */
+    void xor_HL(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * XOR d8
+     */
+    void xor_d8(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H
