@@ -24,18 +24,31 @@ using namespace FunkyBoy::Instructions;
 namespace FunkyBoy::Instructions::Prefix {
 
     void rlc_r(opcode_t opcode, context &context, Memory &memory) {
-        u8_fast *reg = context.registers + (opcode & 0b111);
+        u8_fast *reg = context.registers + (opcode & 0b111u);
         u8_fast newVal = ((*reg << 1) | ((*reg >> 7) & 0b1)) & 0xffu;
         Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (*reg & 0b10000000u) > 0);
         *reg = newVal;
     }
 
-    bool rlc_HL(context &context, Memory &memory) {
+    void rlc_HL(context &context, Memory &memory) {
         u8_fast oldVal = memory.read8BitsAt(context.readHL());
         u8 newVal = ((oldVal << 1) | ((oldVal >> 7) & 0b1)) & 0xffu;
         Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (oldVal & 0b10000000u) > 0);
         memory.write8BitsTo(context.readHL(), newVal);
-        return true;
+    }
+
+    void rrc_r(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast *reg = context.registers + (opcode & 0b111u);
+        u8_fast newVal = ((*reg >> 1) | ((*reg & 0b1) << 7)) & 0xffu;
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (*reg & 0b1u) > 0);
+        *reg = newVal;
+    }
+
+    void rrc_HL(context &context, Memory &memory) {
+        u8_fast oldVal = memory.read8BitsAt(context.readHL());
+        u8_fast newVal = ((oldVal >> 1) | ((oldVal & 0b1) << 7)) & 0xffu;
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, (oldVal & 0b1u) > 0);
+        memory.write8BitsTo(context.readHL(), newVal);
     }
 
 }
@@ -50,6 +63,16 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
         /* rlc (HL) */ case 0x06: {
             debug_print_4("rlc (HL)\n");
             Prefix::rlc_HL(context, memory);
+            return 16;
+        }
+        /* rrc reg */ case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0F: {
+            debug_print_4("rrc r\n");
+            Prefix::rrc_r(opcode, context, memory);
+            return 8;
+        }
+        /* rrc (HL) */ case 0x0E: {
+            debug_print_4("rrc (HL)\n");
+            Prefix::rrc_HL(context, memory);
             return 16;
         }
         default: {
