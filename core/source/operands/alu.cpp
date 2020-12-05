@@ -37,40 +37,6 @@ inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     Flags::setFlags(flags, *regA == 0, false, false, false);
 }
 
-bool Operands::dec_ss(InstrContext &context, Memory &memory) {
-    u8 position = context.instr >> 4u & 3u;
-    u16 val = context.read16BitRegister(position);
-    context.write16BitRegister(position, val - 1);
-    return true;
-}
-
-bool Operands::dec_SP(InstrContext &context, Memory &memory) {
-    context.stackPointer--;
-    return true;
-}
-
-bool Operands::dec_HL(InstrContext &context, Memory &memory) {
-    u16 hl = context.readHL();
-    u8 oldVal = memory.read8BitsAt(hl);
-    u8 newVal = oldVal - 1;
-    memory.write8BitsTo(hl, newVal);
-    Flags::setZero(context.regF, newVal == 0);
-    Flags::setHalfCarry(context.regF, (newVal & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
-    Flags::setSubstraction(context.regF, true);
-    // Leave carry as-is
-    return true;
-}
-
-bool Operands::dec_r(InstrContext &context, Memory &memory) {
-    auto reg = context.registers + (context.instr >> 3 & 7);
-    (*reg)--;
-    Flags::setZero(context.regF, *reg == 0);
-    Flags::setHalfCarry(context.regF, (*reg & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
-    Flags::setSubstraction(context.regF, true);
-    // Leave carry as-is
-    return true;
-}
-
 bool Operands::or_r(InstrContext &context, Memory &memory) {
     // 0xB0 -> 10110 000 -> B
     // 0xB1 -> 10110 001 -> C

@@ -132,6 +132,26 @@ namespace FunkyBoy::Instructions::ALU {
      */
     void inc_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
 
+    /**
+     * DEC ss
+     */
+    void dec_ss(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * DEC SP
+     */
+    void dec_SP(Instructions::context &context);
+
+    /**
+     * DEC HL
+     */
+    void dec_HL(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * DEC r
+     */
+    void dec_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_ALU_H

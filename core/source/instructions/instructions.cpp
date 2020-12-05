@@ -329,6 +329,26 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             ALU::inc_r(opcode, memory, context);
             return 4;
         }
+        /* dec ss */ case 0x0B: case 0x1B: case 0x2B: {
+            debug_print_4("dec ss\n");
+            ALU::dec_ss(opcode, memory, context);
+            return 8;
+        }
+        /* dec SP */ case 0x3B: {
+            debug_print_4("dec SP\n");
+            ALU::dec_SP(context);
+            return 8;
+        }
+        /* dec (HL) */ case 0x35: {
+            debug_print_4("dec (HL)\n");
+            ALU::dec_HL(memory, context);
+            return 12;
+        }
+        /* dec r */ case 0x05: case 0x0D: case 0x15: case 0x1D: case 0x25: case 0x2D: case 0x3D: {
+            debug_print_4("dec r\n");
+            ALU::dec_r(opcode, memory, context);
+            return 4;
+        }
         default:
             return 0;
     }

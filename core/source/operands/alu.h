@@ -22,30 +22,6 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * DEC ss
-     * @param context
-     */
-    bool dec_ss(InstrContext &context, Memory &memory);
-
-    /**
-     * DEC SP
-     * @param context
-     */
-    bool dec_SP(InstrContext &context, Memory &memory);
-
-    /**
-     * DEC HL
-     * @param context
-     */
-    bool dec_HL(InstrContext &context, Memory &memory);
-
-    /**
-     * DEC r
-     * @param context
-     */
-    bool dec_r(InstrContext &context, Memory &memory);
-
-    /**
      * OR r
      * @param context
      */

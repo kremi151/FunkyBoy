@@ -170,3 +170,33 @@ void ALU::inc_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context
     Flags::setSubstractionFast(*context.regF, false);
     // Leave carry as-is
 }
+
+void ALU::dec_ss(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast position = opcode >> 4u & 3u;
+    u16_fast val = context.read16BitRegister(position);
+    context.write16BitRegister(position, val - 1);
+}
+
+void ALU::dec_SP(Instructions::context &context) {
+    context.stackPointer--;
+}
+
+void ALU::dec_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u16_fast hl = context.readHL();
+    u8_fast oldVal = memory.read8BitsAt(hl);
+    u8_fast newVal = oldVal - 1;
+    memory.write8BitsTo(hl, newVal);
+    Flags::setZeroFast(*context.regF, newVal == 0);
+    Flags::setHalfCarryFast(*context.regF, (newVal & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
+    Flags::setSubstractionFast(*context.regF, true);
+    // Leave carry as-is
+}
+
+void ALU::dec_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    auto &reg = *(context.registers + (opcode >> 3 & 7));
+    reg--;
+    Flags::setZero(context.regF, reg == 0);
+    Flags::setHalfCarry(context.regF, (reg & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
+    Flags::setSubstraction(context.regF, true);
+    // Leave carry as-is
+}
