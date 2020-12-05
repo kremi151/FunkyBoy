@@ -18,38 +18,34 @@
 
 #include <util/flags.h>
 
-using namespace FunkyBoy;
+using namespace FunkyBoy::Instructions;
 
-bool Operands::rrca(InstrContext &context, Memory &memory) {
-    u8 a = *context.regA;
+void RotShifts::rrca(Instructions::context &context) {
+    u8_fast a = *context.regA & 0xffu;
     *context.regA = (a >> 1) | ((a & 1) << 7);
-    Flags::setFlags(context.regF, false, false, false, a & 1u);
-    return true;
+    Flags::setFlagsFast(*context.regF, false, false, false, a & 1u);
 }
 
-bool Operands::rlca(InstrContext &context, Memory &memory) {
-    u8 a = *context.regA;
+void RotShifts::rlca(Instructions::context &context) {
+    u8_fast a = *context.regA & 0xffu;
     *context.regA = (a << 1) | ((a & 128) >> 7);
-    Flags::setFlags(context.regF, false, false, false, (a & 128u) != 0);
-    return true;
+    Flags::setFlagsFast(*context.regF, false, false, false, (a & 128u) != 0);
 }
 
-bool Operands::rra(InstrContext &context, Memory &memory) {
-    u8 a = *context.regA;
+void RotShifts::rra(Instructions::context &context) {
+    u8_fast a = *context.regA & 0xffu;
     *context.regA = a >> 1;
-    if (Flags::isCarry(context.regF)) {
+    if (Flags::isCarryFast(*context.regF)) {
         *context.regA |= 128u; // (bit 7 set to 1)
     }
-    Flags::setFlags(context.regF, false, false, false, a & 1u);
-    return true;
+    Flags::setFlagsFast(*context.regF, false, false, false, a & 1u);
 }
 
-bool Operands::rla(InstrContext &context, Memory &memory) {
-    u8 a = *context.regA;
-    *context.regA = a << 1;
-    if (Flags::isCarry(context.regF)) {
+void RotShifts::rla(Instructions::context &context) {
+    u8_fast a = *context.regA;
+    *context.regA = (a << 1) & 0xffu;
+    if (Flags::isCarryFast(*context.regF)) {
         *context.regA |= 1u; // (bit 0 set to 1)
     }
-    Flags::setFlags(context.regF, false, false, false, (a & 128u) != 0);
-    return true;
+    Flags::setFlagsFast(*context.regF, false, false, false, (a & 128u) != 0);
 }

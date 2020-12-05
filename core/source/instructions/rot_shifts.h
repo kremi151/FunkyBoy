@@ -14,41 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_OPERANDS_ROT_SHIFTS_H
-#define FB_CORE_OPERANDS_ROT_SHIFTS_H
+#ifndef FB_CORE_INSTRUCTIONS_ROT_SHIFTS_H
+#define FB_CORE_INSTRUCTIONS_ROT_SHIFTS_H
 
-#include <operands/instruction_context.h>
+#include <instructions/context.h>
+#include <memory/memory.h>
 
-namespace FunkyBoy::Operands {
+namespace FunkyBoy::Instructions::RotShifts {
 
     /**
      * RRCA
-     * @param context
-     * @return
      */
-    bool rrca(InstrContext &context, Memory &memory);
+    void rrca(Instructions::context &context);
 
     /**
      * RLCA
-     * @param context
-     * @return
      */
-    bool rlca(InstrContext &context, Memory &memory);
+    void rlca(Instructions::context &context);
 
     /**
      * RRA
-     * @param context
-     * @return
      */
-    bool rra(InstrContext &context, Memory &memory);
+    void rra(Instructions::context &context);
 
     /**
      * RLA
-     * @param context
-     * @return
      */
-    bool rla(InstrContext &context, Memory &memory);
+    void rla(Instructions::context &context);
 
 }
 
-#endif //FB_CORE_OPERANDS_ROT_SHIFTS_H
+#endif //FB_CORE_INSTRUCTIONS_ROT_SHIFTS_H

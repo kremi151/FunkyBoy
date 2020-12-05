@@ -42,29 +42,29 @@ namespace FunkyBoy::Instructions::ALU {
     inline void __alu_sbc(u8_fast &flags, u8_fast &regA, u8_fast &val, bool carry) {
         u8_fast carryVal = carry ? 1 : 0;
         u8_fast newVal = regA - val - carryVal;
-        Flags::setFlagsFast(flags, newVal == 0, true, (regA & 0xf) - (val & 0xf) - carryVal < 0, regA < (val + carryVal));
+        Flags::setFlagsFast(flags, newVal == 0, true, (regA & 0xf) - (val & 0xf) - carryVal < 0, (regA & 0xffu) < ((val + carryVal) & 0xffu));
         regA = newVal;
     }
 
     inline void __alu_cp(u8_fast &flags, const u8_fast &regA, const u8_fast &val) {
         // See http://z80-heaven.wikidot.com/instructions-set:cp
-        Flags::setFlagsFast(flags, regA == val, true, (regA & 0xf) - (val & 0xf) < 0, regA < val);
+        Flags::setFlagsFast(flags, (regA & 0xffu) == (val & 0xffu), true, (regA & 0xf) - (val & 0xf) < 0, (regA & 0xffu) < (val & 0xffu));
     }
 
     inline void __alu_or(u8_fast &flags, u8_fast &regA, u8_fast val) {
         regA |= val;
-        Flags::setFlagsFast(flags, regA == 0, false, false, false);
+        Flags::setFlagsFast(flags, (regA & 0xffu) == 0, false, false, false);
     }
 
     inline void __alu_and(u8_fast &flags, u8_fast &regA, u8_fast val) {
         regA &= val;
         //TODO: To be verified:
-        Flags::setFlagsFast(flags, regA == 0, false, true, false);
+        Flags::setFlagsFast(flags, (regA & 0xffu) == 0, false, true, false);
     }
 
     inline void __alu_xor(u8_fast &flags, u8_fast &regA, u8_fast val) {
         regA ^= val;
-        Flags::setFlagsFast(flags, regA == 0, false, false, false);
+        Flags::setFlagsFast(flags, (regA & 0xffu) == 0, false, false, false);
     }
 
 }

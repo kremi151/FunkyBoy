@@ -22,7 +22,6 @@
 #include <operands/prefix.h>
 #include <operands/reads.h>
 #include <operands/writes.h>
-#include <operands/rot_shifts.h>
 #include <operands/conditions.h>
 
 #endif //FB_CORE_OPERANDS_H

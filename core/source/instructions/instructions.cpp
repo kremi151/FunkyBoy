@@ -19,6 +19,7 @@
 #include <instructions/loads.h>
 #include <instructions/alu.h>
 #include <instructions/jumps.h>
+#include <instructions/rot_shifts.h>
 
 #include <util/debug.h>
 
@@ -393,6 +394,26 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             debug_print_4("xor d\n");
             ALU::xor_d8(memory, context);
             return 8;
+        }
+        /* rrca */ case 0x0F: {
+            debug_print_4("rrca\n");
+            RotShifts::rrca(context);
+            return 4;
+        }
+        /* rlca */ case 0x07: {
+            debug_print_4("rlca\n");
+            RotShifts::rlca(context);
+            return 4;
+        }
+        /* rra */ case 0x1F: {
+            debug_print_4("rra\n");
+            RotShifts::rra(context);
+            return 4;
+        }
+        /* rla */ case 0x17: {
+            debug_print_4("rla\n");
+            RotShifts::rla(context);
+            return 4;
         }
         default:
             return 0;
