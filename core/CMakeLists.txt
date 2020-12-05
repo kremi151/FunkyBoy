@@ -32,7 +32,6 @@ set(SOURCES
         source/operands/writes.cpp
         source/operands/conditions.cpp
         source/operands/debug.cpp
-        source/operands/decoder.cpp
         source/instructions/instructions.cpp
         source/instructions/context.cpp
         source/instructions/loads.cpp
@@ -41,6 +40,7 @@ set(SOURCES
         source/instructions/rot_shifts.cpp
         source/instructions/stack.cpp
         source/instructions/misc.cpp
+        source/instructions/prefix.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
@@ -80,7 +80,6 @@ set(HEADERS
         source/operands/writes.h
         source/operands/conditions.h
         source/operands/debug.h
-        source/operands/decoder.h
         source/instructions/instructions.h
         source/instructions/context.h
         source/instructions/loads.h
@@ -89,6 +88,7 @@ set(HEADERS
         source/instructions/rot_shifts.h
         source/instructions/stack.h
         source/instructions/misc.h
+        source/instructions/prefix.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h

@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_OPERANDS_DECODER_H
-#define FB_CORE_OPERANDS_DECODER_H
+#ifndef FB_CORE_INSTRUCTIONS_PREFIX_H
+#define FB_CORE_INSTRUCTIONS_PREFIX_H
 
-#include <operands/instructions.h>
+#include <instructions/context.h>
+#include <memory/memory.h>
 
-namespace FunkyBoy::Operands {
+namespace FunkyBoy::Instructions::Prefix {
 
-    using operand_buffer = Operand[25];
-
-    bool decodeOpcode(u8 opcode, operand_buffer operands);
+    int execute(opcode_t opcode, context &context, Memory &memory);
 
 }
 
-#endif //FB_CORE_OPERANDS_DECODER_H
+#endif //FB_CORE_INSTRUCTIONS_PREFIX_H

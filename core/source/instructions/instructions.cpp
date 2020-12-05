@@ -22,6 +22,7 @@
 #include <instructions/rot_shifts.h>
 #include <instructions/stack.h>
 #include <instructions/misc.h>
+#include <instructions/prefix.h>
 
 #include <util/debug.h>
 
@@ -476,6 +477,10 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             debug_print_4("halt\n");
             Miscellaneous::halt(memory, context);
             return 4;
+        }
+        /* prefix */ case 0xCB: {
+            debug_print_4("prefix (CB)\n");
+            return Prefix::execute(memory.read8BitsAt(context.progCounter++), context, memory);
         }
         default:
             return 0;
