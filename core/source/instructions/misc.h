@@ -52,6 +52,16 @@ namespace FunkyBoy::Instructions::Miscellaneous  {
      */
     void ei(Instructions::context &context);
 
+    /**
+     * STOP
+     */
+    void stop(FunkyBoy::Memory &memory, Instructions::context &context);
+
+    /**
+     * HALT
+     */
+    void halt(FunkyBoy::Memory &memory, Instructions::context &context);
+
 }
 
 #endif //FB_CORE_INSTRUCTIONS_MISC_H

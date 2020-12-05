@@ -25,6 +25,8 @@ namespace FunkyBoy::Instructions {
 
     class context {
     public:
+        explicit context(GameBoyType gbType);
+
         u8_fast *registers;
         u8_fast *regB;
         u8_fast *regC;
@@ -38,7 +40,12 @@ namespace FunkyBoy::Instructions {
         u16 progCounter;
         u16 stackPointer;
 
+        CPUState cpuState;
         IMEState interruptMasterEnable;
+
+        bool haltBugRequested;
+
+        const GameBoyType gbType;
 
         inline u16_fast readHL() {
             return (*regL & 0xffu) | (*regH << 8u);

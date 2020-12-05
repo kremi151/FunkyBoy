@@ -467,6 +467,16 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             Miscellaneous::ei(context);
             return 4;
         }
+        /* stop */ case 0x10: {
+            debug_print_4("stop\n");
+            Miscellaneous::stop(memory, context);
+            return 4;
+        }
+        /* halt */ case 0x76: {
+            debug_print_4("halt\n");
+            Miscellaneous::halt(memory, context);
+            return 4;
+        }
         default:
             return 0;
     }

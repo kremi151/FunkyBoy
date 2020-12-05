@@ -18,6 +18,11 @@
 
 using namespace FunkyBoy::Instructions;
 
+context::context(GameBoyType gbType)
+    : gbType(gbType)
+{
+}
+
 void context::write16BitRegister(FunkyBoy::u8_fast position, FunkyBoy::u16_fast val) {
     u8_fast *reg = registers + (position * 2);
     *reg = (val >> 8u) & 0xffu;

@@ -22,20 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // stop
-        case 0x10: {
-            debug_print_4("stop\n");
-            operands[0] = Operands::stop;
-            operands[1] = nullptr;
-            return true;
-        }
-        // halt
-        case 0x76: {
-            debug_print_4("halt\n");
-            operands[0] = Operands::halt;
-            operands[1] = nullptr;
-            return true;
-        }
         // prefix
         case 0xCB: {
             debug_print_4("prefix (CB)\n");

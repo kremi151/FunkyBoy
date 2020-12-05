@@ -63,3 +63,20 @@ void Miscellaneous::di(Instructions::context &context) {
 void Miscellaneous::ei(Instructions::context &context) {
     context.interruptMasterEnable = IMEState::REQUEST_ENABLE;
 }
+
+void Miscellaneous::stop(FunkyBoy::Memory &memory, Instructions::context &context) {
+    *context.regA = 0;
+    *context.regB = memory.read8BitsAt(FB_REG_IE);
+    memory.write8BitsTo(FB_REG_IE, 0);
+    memory.write8BitsTo(FB_REG_P1, 0);
+    context.cpuState = CPUState::STOPPED;
+}
+
+void Miscellaneous::halt(FunkyBoy::Memory &memory, Instructions::context &context) {
+    if (context.interruptMasterEnable == IMEState::ENABLED || (memory.read8BitsAt(FB_REG_IE) & memory.read8BitsAt(FB_REG_IF) & 0x1f) == 0) {
+        context.cpuState = CPUState::HALTED;
+    } else if (context.gbType != GameBoyType::GameBoyCGB) {
+        // On non-GBC devices, the next instruction is skipped if HALT was requested with IME being disabled
+        context.haltBugRequested = true;
+    }
+}
