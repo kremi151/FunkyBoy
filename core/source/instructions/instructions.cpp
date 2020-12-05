@@ -349,6 +349,21 @@ int Instructions::execute(opcode_t opcode, Instructions::context &context, Memor
             ALU::dec_r(opcode, memory, context);
             return 4;
         }
+        /* or r */ case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: {
+            debug_print_4("or r\n");
+            ALU::or_r(opcode, memory, context);
+            return 4;
+        }
+        /* or (HL) */ case 0xB6: {
+            debug_print_4("or (HL)\n");
+            ALU::or_HL(memory, context);
+            return 8;
+        }
+        /* or d8 */ case 0xF6: {
+            debug_print_4("or d\n");
+            ALU::or_d8(memory, context);
+            return 8;
+        }
         default:
             return 0;
     }

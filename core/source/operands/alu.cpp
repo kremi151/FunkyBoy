@@ -21,11 +21,6 @@
 
 using namespace FunkyBoy;
 
-inline void __alu_or(u8 *flags, u8 *regA, u8 val) {
-    *regA |= val;
-    Flags::setFlags(flags, *regA == 0, false, false, false);
-}
-
 inline void __alu_and(u8 *flags, u8 *regA, u8 val) {
     *regA &= val;
     //TODO: To be verified:
@@ -35,29 +30,6 @@ inline void __alu_and(u8 *flags, u8 *regA, u8 val) {
 inline void __alu_xor(u8 *flags, u8 *regA, u8 val) {
     *regA ^= val;
     Flags::setFlags(flags, *regA == 0, false, false, false);
-}
-
-bool Operands::or_r(InstrContext &context, Memory &memory) {
-    // 0xB0 -> 10110 000 -> B
-    // 0xB1 -> 10110 001 -> C
-    // 0xB2 -> 10110 010 -> D
-    // 0xB3 -> 10110 011 -> E
-    // 0xB4 -> 10110 100 -> H
-    // 0xB5 -> 10110 101 -> L
-    // -- F is skipped --
-    // 0xB7 -> 10110 111 -> A
-    __alu_or(context.regF, context.regA, context.registers[context.instr & 0b111u]);
-    return true;
-}
-
-bool Operands::or_d(InstrContext &context, Memory &memory) {
-    __alu_or(context.regF, context.regA, context.lsb);
-    return true;
-}
-
-bool Operands::or_HL(InstrContext &context, Memory &memory) {
-    __alu_or(context.regF, context.regA, memory.read8BitsAt(context.readHL()));
-    return true;
 }
 
 bool Operands::and_r(InstrContext &context, Memory &memory) {

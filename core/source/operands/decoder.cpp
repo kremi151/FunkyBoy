@@ -22,29 +22,6 @@ using namespace FunkyBoy;
 
 bool Operands::decodeOpcode(u8 opcode, Operands::operand_buffer operands) {
     switch (opcode) {
-        // or r
-        case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: {
-            debug_print_4("or r\n");
-            operands[0] = Operands::or_r;
-            operands[1] = nullptr;
-            return true;
-        }
-        // or (HL)
-        case 0xB6: {
-            debug_print_4("or (HL)\n");
-            operands[0] = Operands::_pad_; // TODO: do something useful here
-            operands[1] = Operands::or_HL;
-            operands[2] = nullptr;
-            return true;
-        }
-        // or d8
-        case 0xF6: {
-            debug_print_4("or d\n");
-            operands[0] = Operands::readLSB;
-            operands[1] = Operands::or_d;
-            operands[2] = nullptr;
-            return true;
-        }
         // and r
         case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: {
             debug_print_4("and r\n");

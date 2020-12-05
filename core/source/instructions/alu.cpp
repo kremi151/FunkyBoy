@@ -51,6 +51,11 @@ namespace FunkyBoy::Instructions::ALU {
         Flags::setFlagsFast(flags, regA == val, true, (regA & 0xf) - (val & 0xf) < 0, regA < val);
     }
 
+    inline void __alu_or(u8_fast &flags, u8_fast &regA, u8 val) {
+        regA |= val;
+        Flags::setFlagsFast(flags, regA == 0, false, false, false);
+    }
+
 }
 
 using namespace FunkyBoy::Instructions;
@@ -199,4 +204,25 @@ void ALU::dec_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context
     Flags::setHalfCarry(context.regF, (reg & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
     Flags::setSubstraction(context.regF, true);
     // Leave carry as-is
+}
+
+void ALU::or_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
+    // 0xB0 -> 10110 000 -> B
+    // 0xB1 -> 10110 001 -> C
+    // 0xB2 -> 10110 010 -> D
+    // 0xB3 -> 10110 011 -> E
+    // 0xB4 -> 10110 100 -> H
+    // 0xB5 -> 10110 101 -> L
+    // -- F is skipped --
+    // 0xB7 -> 10110 111 -> A
+    ALU::__alu_or(*context.regF, *context.regA, context.registers[opcode & 0b111u]);
+}
+
+void ALU::or_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
+    ALU::__alu_or(*context.regF, *context.regA, memory.read8BitsAt(context.readHL()));
+}
+
+void ALU::or_d8(FunkyBoy::Memory &memory, Instructions::context &context) {
+    u8_fast lsb = memory.read8BitsAt(context.progCounter++);
+    ALU::__alu_or(*context.regF, *context.regA, lsb);
 }
