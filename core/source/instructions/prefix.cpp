@@ -234,6 +234,18 @@ namespace FunkyBoy::Instructions::Prefix {
         memory.write8BitsTo(context.readHL(), val);
     }
 
+    void set_r(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast bitMask = (opcode >> 3) & 0b111u;
+        u8_fast regPos = opcode & 0b111u;
+        *(context.registers + regPos) |= (1u << bitMask);
+    }
+
+    void set_HL(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast bitMask = (opcode >> 3) & 0b111u;
+        u8_fast val = memory.read8BitsAt(context.readHL()) | (1u << bitMask);
+        memory.write8BitsTo(context.readHL(), val);
+    }
+
 }
 
 int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
@@ -352,6 +364,24 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
         /* res n,(HL) */ case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
             debug_print_4("res (HL)\n");
             Prefix::res_HL(opcode, context, memory);
+            return 16;
+        }
+        /* set 0,reg */ case 0xC0: case 0xC1: case 0xC2: case 0xC3: case 0xC4: case 0xC5: case 0xC7:
+        /* set 1,reg */ case 0xC8: case 0xC9: case 0xCA: case 0xCB: case 0xCC: case 0xCD: case 0xCF:
+        /* set 2,reg */ case 0xD0: case 0xD1: case 0xD2: case 0xD3: case 0xD4: case 0xD5: case 0xD7:
+        /* set 3,reg */ case 0xD8: case 0xD9: case 0xDA: case 0xDB: case 0xDC: case 0xDD: case 0xDF:
+        /* set 4,reg */ case 0xE0: case 0xE1: case 0xE2: case 0xE3: case 0xE4: case 0xE5: case 0xE7:
+        /* set 5,reg */ case 0xE8: case 0xE9: case 0xEA: case 0xEB: case 0xEC: case 0xED: case 0xEF:
+        /* set 6,reg */ case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5: case 0xF7:
+        /* set 7,reg */ case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD: case 0xFF:
+        {
+            debug_print_4("set r\n");
+            Prefix::set_r(opcode, context, memory);
+            return 8;
+        }
+        /* set n,(HL) */ case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE: {
+            debug_print_4("set (HL)\n");
+            Prefix::set_HL(opcode, context, memory);
             return 16;
         }
         default: {
