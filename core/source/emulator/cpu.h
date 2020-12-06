@@ -24,7 +24,7 @@
 #include <util/testing.h>
 #include <util/debug.h>
 #include <operands/decoder.h>
-#include <operands/debug.h>
+#include <instructions/debug.h>
 #include <emulator/gb_type.h>
 #include <emulator/io_registers.h>
 

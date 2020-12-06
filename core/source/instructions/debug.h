@@ -25,13 +25,14 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <util/typedefs.h>
 
-namespace FunkyBoy {
-    class InstrContext;
+namespace FunkyBoy::Instructions {
+    class context;
 }
 
 namespace FunkyBoy::Debug {
-    void writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::InstrContext &instrContext);
+    void writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::Instructions::context &context, opcode_t opcode);
     void writeInterruptToLog(uint16_t interrupt, std::ofstream &file);
 }
 

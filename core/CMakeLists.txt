@@ -26,11 +26,7 @@ set(SOURCES
         source/cartridge/mbc2.cpp
         source/cartridge/mbc_none.cpp
         source/memory/ppu_memory.cpp
-        source/operands/instruction_context.cpp
-        source/operands/reads.cpp
-        source/operands/writes.cpp
-        source/operands/conditions.cpp
-        source/operands/debug.cpp
+        source/instructions/debug.cpp
         source/instructions/instructions.cpp
         source/instructions/context.cpp
         source/instructions/loads.cpp
@@ -72,12 +68,7 @@ set(HEADERS
         source/cartridge/mbc2.h
         source/cartridge/mbc_none.h
         source/memory/ppu_memory.h
-        source/operands/instruction_context.h
-        source/operands/instructions.h
-        source/operands/reads.h
-        source/operands/writes.h
-        source/operands/conditions.h
-        source/operands/debug.h
+        source/instructions/debug.h
         source/instructions/instructions.h
         source/instructions/context.h
         source/instructions/loads.h
