@@ -18,7 +18,6 @@
 
 #include <util/flags.h>
 #include <util/debug.h>
-#include <operands/instruction_context.h>
 
 using namespace FunkyBoy::Instructions;
 
