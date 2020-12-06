@@ -19,7 +19,8 @@
 
 #include <util/typedefs.h>
 #include <memory/memory.h>
-#include <operands/instruction_context.h>
+#include <emulator/gb_type.h>
+#include <emulator/state_types.h>
 
 namespace FunkyBoy::Instructions {
 
@@ -27,15 +28,15 @@ namespace FunkyBoy::Instructions {
     public:
         explicit context(GameBoyType gbType);
 
-        u8_fast *registers;
-        u8_fast *regB;
-        u8_fast *regC;
-        u8_fast *regD;
-        u8_fast *regE;
-        u8_fast *regH;
-        u8_fast *regL;
-        u8_fast *regF;
-        u8_fast *regA;
+        register_t *registers;
+        register_t *regB;
+        register_t *regC;
+        register_t *regD;
+        register_t *regE;
+        register_t *regH;
+        register_t *regL;
+        register_t *regF;
+        register_t *regA;
 
         u16 progCounter;
         u16 stackPointer;

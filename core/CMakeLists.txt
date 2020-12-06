@@ -47,6 +47,7 @@ set(HEADERS
         source/emulator/io_registers.h
         source/emulator/cpu.h
         source/emulator/ppu.h
+        source/emulator/state_types.h
         source/controllers/controllers.h
         source/controllers/serial.h
         source/controllers/serial_null.h
