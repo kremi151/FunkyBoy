@@ -87,9 +87,9 @@ TEST(testPopPushStackPointer) {
     auto val = cpu.instrContext.pop16Bits(*memory);
     assertEquals(0x1806, val);
 
-    cpu.instrContext.push16Bits(*memory, 0x28, 0x09);
+    cpu.instrContext.push16Bits(*memory, 0x2809);
     cpu.instrContext.push16Bits(*memory, 0x1223);
-    cpu.instrContext.push16Bits(*memory, 0x42, 0x69);
+    cpu.instrContext.push16Bits(*memory, 0x4269);
 
     val = cpu.instrContext.pop16Bits(*memory);
     assertEquals(0x4269, val);
@@ -271,22 +271,22 @@ TEST(testHALTBugSkipping) {
 
     // Initial fetch without executing anything
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x76, cpu.instrContext.instr);
+    assertEquals(0x76, cpu.currentOpcode);
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
+    assertEquals(0x3C, cpu.currentOpcode); // Fetched next instruction already
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x3C, cpu.instrContext.instr);
+    assertEquals(0x3C, cpu.currentOpcode);
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(originalA + 1, *cpu.regA);
 
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
+    assertEquals(0x00, cpu.currentOpcode); // Fetched next instruction already
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(originalA + 2, *cpu.regA);
 }
@@ -317,7 +317,7 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
 
     // Initial fetch without executing anything
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x76, cpu.instrContext.instr);
+    assertEquals(0x76, cpu.currentOpcode);
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
@@ -327,7 +327,7 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
 
         assertEquals(FunkyBoy::CPUState::HALTED, cpu.instrContext.cpuState);
 
-        assertEquals(0x76, cpu.instrContext.instr); // No fetch of next instruction, we stay at the HALT instruction
+        assertEquals(0x76, cpu.currentOpcode); // No fetch of next instruction, we stay at the HALT instruction
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
         assertEquals(originalA, *cpu.regA);
     }
@@ -340,7 +340,7 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
     // Instead, we just continue reading the next opcodes
 
     assertDoFullMachineCycle(cpu);
-    assertEquals(0x3C, cpu.instrContext.instr & 0xffff); // Fetched next instruction already
+    assertEquals(0x3C, cpu.currentOpcode & 0xffff); // Fetched next instruction already
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 }
@@ -372,7 +372,7 @@ TEST(testHALTBugHanging) {
     // Maybe a bit excessive, but iterating 100 times without advancing the PC should demonstrate the HALT bug correctly
     for (int i = 0 ; i < 100 ; i++) {
         assertDoFullMachineCycle(cpu);
-        assertEquals(0x76, cpu.instrContext.instr);
+        assertEquals(0x76, cpu.currentOpcode);
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
         assertEquals(originalA, *cpu.regA);
     }
