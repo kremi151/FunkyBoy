@@ -141,7 +141,7 @@ void Loads::ld_SP_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
 
 void Loads::ld_HL_SP_plus_e8(FunkyBoy::Memory &memory, Instructions::context &context) {
     i8_fast signedByte = memory.readSigned8BitsAt(context.progCounter++);
-    context.writeHL(Util::addToSP(context.regF, context.stackPointer, signedByte));
+    context.writeHL(Util::addToSPFast(*context.regF, context.stackPointer, signedByte));
 }
 
 void Loads::ldh_a8_A(FunkyBoy::Memory &memory, Instructions::context &context) {
