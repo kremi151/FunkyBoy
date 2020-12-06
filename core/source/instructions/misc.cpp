@@ -31,7 +31,7 @@ void Miscellaneous::daa(Instructions::context &context) {
     } else {
         if (Flags::isCarryFast(*context.regF) || val > 0x99) {
             val += 0x60;
-            Flags::setHalfCarryFast(*context.regF, true);
+            Flags::setCarryFast(*context.regF, true);
         }
         if (Flags::isHalfCarryFast(*context.regF) || (val & 0xf) > 0x09) {
             val += 0x06;

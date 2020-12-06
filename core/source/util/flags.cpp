@@ -72,6 +72,14 @@ void Flags::setCarry(u8 *flags, bool carry) {
     }
 }
 
+void Flags::setCarryFast(u8_fast &flags, bool carry) {
+    if (carry) {
+        flags |= 0b00010000u;
+    } else {
+        flags &= 0b11100000u;
+    }
+}
+
 void Flags::setHalfCarry(u8 *flags, bool halfCarry) {
     if (halfCarry) {
         *flags |= 0b00100000u;

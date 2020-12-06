@@ -38,6 +38,8 @@ namespace FunkyBoy::Flags {
     [[deprecated]]
     void setCarry(u8 *flags, bool carry);
 
+    void setCarryFast(u8_fast &flags, bool carry);
+
     [[deprecated]]
     inline bool isHalfCarry(const u8 *flags) {
         return *flags & 0b00100000u;
