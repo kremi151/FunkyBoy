@@ -23,7 +23,7 @@
 #include <memory>
 #include <util/testing.h>
 #include <util/debug.h>
-#include <operands/decoder.h>
+#include <instructions/instructions.h>
 #include <instructions/debug.h>
 #include <emulator/gb_type.h>
 #include <emulator/io_registers.h>
@@ -53,10 +53,7 @@ namespace FunkyBoy {
         std::ofstream file;
 #endif
 
-        u8 registers[8]{};
-
-        u8 operandIndex;
-        Operand operands[25]{};
+        register_t registers[8]{};
 
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
@@ -66,7 +63,6 @@ namespace FunkyBoy {
         void powerUpInit();
 
         ret_code doCycle();
-        ret_code doFetchAndDecode();
 
         void doJoypad();
         bool doInterrupts();
@@ -74,7 +70,8 @@ namespace FunkyBoy {
 
     test_public:
 
-        InstrContext instrContext;
+        Instructions::context instrContext;
+        opcode_t currentOpcode;
 
         u16 readAF();
         void writeAF(u16 val);

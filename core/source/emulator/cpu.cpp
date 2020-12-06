@@ -21,6 +21,7 @@
 #include <util/registers.h>
 #include <util/return_codes.h>
 #include <emulator/io_registers.h>
+#include <instructions/instructions.h>
 
 using namespace FunkyBoy;
 
@@ -31,7 +32,7 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
     , instrContext(gbType)
     , timerOverflowingCycles(-1)
     , delayedTIMAIncrease(false)
-    , operandIndex(0)
+    , currentOpcode(0)
     , joypadWasNotPressed(true)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt")
@@ -61,7 +62,6 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
     instrContext.regA = regA;
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
-    instrContext.operands = operands;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
     instrContext.haltBugRequested = false;
     instrContext.cpuState = CPUState::RUNNING;
@@ -69,11 +69,6 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     instrContext.executionLog = &file;
 #endif
-
-    // Fetch/Execute overlapping -> initial fetch is performed without executing any other instruction
-    // To simulate this, we set a NOP as the first instruction, which does nothing
-    operands[0] = Operands::nop;
-    operands[1] = nullptr;
 
     // Initialize registers
     powerUpInit();
@@ -182,16 +177,15 @@ ret_code CPU::doCycle() {
     if (instrContext.cpuState == CPUState::RUNNING) {
         memory->doDMA(); // TODO: Implement delay of 2 clocks
 
-        auto op = operands[operandIndex++];
-
-        if (operands[operandIndex] == nullptr) {
-            shouldFetch = true;
-            result |= FB_RET_INSTRUCTION_DONE;
+        int clocks = Instructions::execute(currentOpcode, instrContext, *memory);
+        if (clocks <= 0) {
+            fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", currentOpcode, instrContext.progCounter - 1);
+            return 0;
         }
 
-        if (!op(instrContext, *memory)) {
-            shouldFetch = true;
-        }
+        shouldFetch = true;
+        result |= FB_RET_INSTRUCTION_DONE;
+
         shouldDoInterrupts = shouldFetch;
     }
 
@@ -208,32 +202,21 @@ ret_code CPU::doCycle() {
     }
 
     if (interruptServiced || (shouldFetch && instrContext.cpuState == CPUState::RUNNING)) { // TODO: Can this be simplified to just instrContext.cpuState == CPUState::RUNNING ?
-        result |= doFetchAndDecode();
-        operandIndex = 0;
-        return result;
+        // Fetch next opcode
+        if (!instrContext.haltBugRequested) {
+            currentOpcode = memory->read8BitsAt(instrContext.progCounter++);
+        } else {
+            currentOpcode = memory->read8BitsAt(instrContext.progCounter);
+            instrContext.haltBugRequested = false;
+        }
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+        FunkyBoy::Debug::writeExecutionToLog('I', file, instrContext);
+        instr++;
+#endif
+        return result | FB_RET_SUCCESS;
     }
 
     return result;
-}
-
-ret_code CPU::doFetchAndDecode() {
-    if (!instrContext.haltBugRequested) {
-        instrContext.instr = memory->read8BitsAt(instrContext.progCounter++);
-    } else {
-        instrContext.instr = memory->read8BitsAt(instrContext.progCounter);
-        instrContext.haltBugRequested = false;
-    }
-
-#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    FunkyBoy::Debug::writeExecutionToLog('I', file, instrContext);
-    instr++;
-#endif
-
-    if (!Operands::decodeOpcode(instrContext.instr, operands)) {
-        fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
-        return 0;
-    }
-    return FB_RET_SUCCESS;
 }
 
 inline memory_address getInterruptStartAddress(InterruptType type) {
