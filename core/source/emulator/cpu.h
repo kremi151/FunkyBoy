@@ -82,14 +82,14 @@ namespace FunkyBoy {
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
 
-        u8 *regB;
-        u8 *regC;
-        u8 *regD;
-        u8 *regE;
-        u8 *regH;
-        u8 *regL;
-        u8 *regF_do_not_use_directly;
-        u8 *regA;
+        register_t *regB;
+        register_t *regC;
+        register_t *regD;
+        register_t *regE;
+        register_t *regH;
+        register_t *regL;
+        register_t *regF_do_not_use_directly;
+        register_t *regA;
 
     public:
         CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters);
