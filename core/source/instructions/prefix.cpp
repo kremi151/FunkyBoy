@@ -170,6 +170,58 @@ namespace FunkyBoy::Instructions::Prefix {
         memory.write8BitsTo(context.readHL(), newVal);
     }
 
+    void bit_r(opcode_t opcode, context &context, Memory &memory) {
+        // 0x40 -> 1 000 000 -> 0,B
+        // 0x41 -> 1 000 001 -> 0,C
+        // 0x42 -> 1 000 010 -> 0,D
+        // 0x43 -> 1 000 011 -> 0,E
+        // 0x44 -> 1 000 100 -> 0,H
+        // 0x45 -> 1 000 101 -> 0,L
+        // --- Skip F ---
+        // 0x47 -> 1 000 111 -> 0,A
+
+        // 0x48 -> 1 001 000 -> 1,B
+        // 0x49 -> 1 001 001 -> 1,C
+        // 0x4A -> 1 001 010 -> 1,D
+        // 0x4B -> 1 001 011 -> 1,E
+        // 0x4C -> 1 001 100 -> 1,H
+        // 0x4D -> 1 001 101 -> 1,L
+        // --- Skip F ---
+        // 0x4F -> 1 001 111 -> 1,A
+
+        // 0x50 -> 1 010 000 -> 2,B
+        // 0x51 -> 1 010 001 -> 2,C
+        // 0x52 -> 1 010 010 -> 2,D
+        // 0x53 -> 1 010 011 -> 2,E
+        // 0x54 -> 1 010 100 -> 2,H
+        // 0x55 -> 1 010 101 -> 2,L
+        // --- Skip F ---
+        // 0x57 -> 1 010 111 -> 2,A
+
+        // etc...
+
+        u8_fast bitShift = (opcode >> 3) & 0b111u;
+        u8_fast bitMask = 1u << bitShift;
+        u8_fast regPos = opcode & 0b111u;
+        // Note: We write the opposite of the Nth bit into the Z flag
+        Flags::setFlagsFast(*context.regF, !(*(context.registers + regPos) & bitMask), false, true, Flags::isCarryFast(*context.regF));
+    }
+
+    void bit_HL(opcode_t opcode, context &context, Memory &memory) {
+        // 0x46 -> 1 000 110 -> 0
+        // 0x4E -> 1 001 110 -> 1
+        // 0x56 -> 1 010 110 -> 2
+        // 0x5E -> 1 011 110 -> 3
+        // 0x66 -> 1 100 110 -> 4
+        // 0x6E -> 1 101 110 -> 5
+        // 0x76 -> 1 110 110 -> 6
+        // 0x7E -> 1 111 110 -> 6
+        u8_fast bitShift = (opcode >> 3) & 0b111u;
+        u8_fast bitMask = 1u << bitShift;
+        // Note: We write the opposite of the Nth bit into the Z flag
+        Flags::setFlagsFast(*context.regF, !(memory.read8BitsAt(context.readHL()) & bitMask), false, true, Flags::isCarryFast(*context.regF));
+    }
+
 }
 
 int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
@@ -252,6 +304,24 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
         /* srl (HL) */ case 0x3E: {
             debug_print_4("srl (HL)\n");
             Prefix::srl_HL(context, memory);
+            return 16;
+        }
+        /* bit 0,reg */ case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47:
+        /* bit 1,reg */ case 0x48: case 0x49: case 0x4A: case 0x4B: case 0x4C: case 0x4D: case 0x4F:
+        /* bit 2,reg */ case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x57:
+        /* bit 3,reg */ case 0x58: case 0x59: case 0x5A: case 0x5B: case 0x5C: case 0x5D: case 0x5F:
+        /* bit 4,reg */ case 0x60: case 0x61: case 0x62: case 0x63: case 0x64: case 0x65: case 0x67:
+        /* bit 5,reg */ case 0x68: case 0x69: case 0x6A: case 0x6B: case 0x6C: case 0x6D: case 0x6F:
+        /* bit 6,reg */ case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77:
+        /* bit 7,reg */ case 0x78: case 0x79: case 0x7A: case 0x7B: case 0x7C: case 0x7D: case 0x7F:
+        {
+            debug_print_4("bit n,r\n");
+            Prefix::bit_r(opcode, context, memory);
+            return 8;
+        }
+        /* bit n,(HL) */ case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x76: case 0x7E: {
+            debug_print_4("bit n,(HL)\n");
+            Prefix::bit_HL(opcode, context, memory);
             return 16;
         }
         default: {
