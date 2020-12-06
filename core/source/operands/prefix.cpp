@@ -26,21 +26,6 @@
 
 using namespace FunkyBoy;
 
-bool __prefix_swap_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
-    *reg = ((*reg >> 4) & 0b1111) | ((*reg & 0b1111) << 4);
-    Flags::setFlags(context.regF, *reg == 0, false, false, false);
-    return true;
-}
-
-bool __prefix_swap_HL(InstrContext &context, Memory &memory) {
-    u8 val = context.lsb;
-    val = ((val >> 4) & 0b1111) | ((val & 0b1111) << 4);
-    context.lsb = val;
-    Flags::setFlags(context.regF, val == 0, false, false, false);
-    return true;
-}
-
 bool __prefix_srl_r(InstrContext &context, Memory &memory) {
     // 0x38 -> 111 000 -> B
     // 0x39 -> 111 001 -> C
@@ -160,22 +145,6 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
 #endif
 
     switch (context.instr) {
-        // swap reg
-        case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x37: {
-            debug_print_4("swap r\n");
-            context.operands[1] = __prefix_swap_r;
-            context.operands[2] = nullptr;
-            return true;
-        }
-        // swap (HL)
-        case 0x36: {
-            debug_print_4("swap (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_swap_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
-        }
         // srl reg
         case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
             debug_print_4("srl r\n");

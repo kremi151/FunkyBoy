@@ -135,6 +135,19 @@ namespace FunkyBoy::Instructions::Prefix {
         memory.write8BitsTo(context.readHL(), newVal);
     }
 
+    void swap_r(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast &reg = *(context.registers + (opcode & 0b111u));
+        reg = ((reg >> 4) & 0b1111u) | ((reg & 0b1111u) << 4);
+        Flags::setFlagsFast(*context.regF, reg == 0, false, false, false);
+    }
+
+    void swap_HL(context &context, Memory &memory) {
+        u8_fast val = memory.read8BitsAt(context.readHL());
+        val = ((val >> 4) & 0b1111u) | ((val & 0b1111u) << 4);
+        memory.write8BitsTo(context.readHL(), val);
+        Flags::setFlagsFast(*context.regF, val == 0, false, false, false);
+    }
+
 }
 
 int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
@@ -197,6 +210,16 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
         /* sra (HL) */ case 0x2E: {
             debug_print_4("sra (HL)\n");
             Prefix::sra_HL(context, memory);
+            return 16;
+        }
+        /* swap reg */ case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x37: {
+            debug_print_4("swap r\n");
+            Prefix::swap_r(opcode, context, memory);
+            return 8;
+        }
+        /*swap (HL) */ case 0x36: {
+            debug_print_4("swap (HL)\n");
+            Prefix::swap_HL(context, memory);
             return 16;
         }
         default: {
