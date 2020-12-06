@@ -211,9 +211,9 @@ void ALU::dec_HL(FunkyBoy::Memory &memory, Instructions::context &context) {
 void ALU::dec_r(opcode_t opcode, FunkyBoy::Memory &memory, Instructions::context &context) {
     auto &reg = *(context.registers + ((opcode >> 3) & 7));
     reg--;
-    Flags::setZero(context.regF, reg == 0);
-    Flags::setHalfCarry(context.regF, (reg & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
-    Flags::setSubstraction(context.regF, true);
+    Flags::setZeroFast(*context.regF, (reg & 0xffu) == 0);
+    Flags::setHalfCarryFast(*context.regF, (reg & 0x0fu) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
+    Flags::setSubstractionFast(*context.regF, true);
     // Leave carry as-is
 }
 
