@@ -26,30 +26,6 @@
 
 using namespace FunkyBoy;
 
-bool __prefix_srl_r(InstrContext &context, Memory &memory) {
-    // 0x38 -> 111 000 -> B
-    // 0x39 -> 111 001 -> C
-    // 0x3A -> 111 010 -> D
-    // 0x3B -> 111 011 -> E
-    // 0x3C -> 111 100 -> H
-    // 0x3D -> 111 101 -> L
-    // --- Skip F ---
-    // 0x3F -> 111 111 -> A
-    u8 *reg = context.registers + (context.instr & 0b111);
-    u8 newVal = *reg >> 1;
-    Flags::setFlags(context.regF, newVal == 0, false, false, *reg & 0b1);
-    *reg = newVal;
-    return true;
-}
-
-bool __prefix_srl_HL(InstrContext &context, Memory &memory) {
-    u8 oldVal = context.lsb;
-    u8 newVal = oldVal >> 1;
-    Flags::setFlags(context.regF, newVal == 0, false, false, oldVal & 0b1);
-    context.lsb = newVal;
-    return true;
-}
-
 bool __prefix_bit_r(InstrContext &context, Memory &memory) {
     // 0x40 -> 1 000 000 -> 0,B
     // 0x41 -> 1 000 001 -> 0,C
@@ -145,22 +121,6 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
 #endif
 
     switch (context.instr) {
-        // srl reg
-        case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
-            debug_print_4("srl r\n");
-            context.operands[1] = __prefix_srl_r;
-            context.operands[2] = nullptr;
-            return true;
-        }
-        // srl (HL)
-        case 0x3E: {
-            debug_print_4("srl (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_srl_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
-        }
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // bit 0,reg
         case 0x48: case 0x49: case 0x4A: case 0x4B: case 0x4C: case 0x4D: case 0x4F: // bit 1,reg
         case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x57: // bit 2,reg

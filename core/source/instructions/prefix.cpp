@@ -148,6 +148,28 @@ namespace FunkyBoy::Instructions::Prefix {
         Flags::setFlagsFast(*context.regF, val == 0, false, false, false);
     }
 
+    void srl_r(opcode_t opcode, context &context, Memory &memory) {
+        // 0x38 -> 111 000 -> B
+        // 0x39 -> 111 001 -> C
+        // 0x3A -> 111 010 -> D
+        // 0x3B -> 111 011 -> E
+        // 0x3C -> 111 100 -> H
+        // 0x3D -> 111 101 -> L
+        // --- Skip F ---
+        // 0x3F -> 111 111 -> A
+        u8_fast *reg = context.registers + (opcode & 0b111u);
+        u8_fast newVal = (*reg & 0xffu) >> 1;
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, *reg & 0b1u);
+        *reg = newVal;
+    }
+
+    void srl_HL(context &context, Memory &memory) {
+        u8_fast oldVal = memory.read8BitsAt(context.readHL());
+        u8_fast newVal = (oldVal >> 1) & 0xffu;
+        Flags::setFlagsFast(*context.regF, newVal == 0, false, false, oldVal & 0b1);
+        memory.write8BitsTo(context.readHL(), newVal);
+    }
+
 }
 
 int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
@@ -217,9 +239,19 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
             Prefix::swap_r(opcode, context, memory);
             return 8;
         }
-        /*swap (HL) */ case 0x36: {
+        /* swap (HL) */ case 0x36: {
             debug_print_4("swap (HL)\n");
             Prefix::swap_HL(context, memory);
+            return 16;
+        }
+        /* srl reg */ case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
+            debug_print_4("srl r\n");
+            Prefix::srl_r(opcode, context, memory);
+            return 8;
+        }
+        /* srl (HL) */ case 0x3E: {
+            debug_print_4("srl (HL)\n");
+            Prefix::srl_HL(context, memory);
             return 16;
         }
         default: {
