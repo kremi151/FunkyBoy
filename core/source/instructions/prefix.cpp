@@ -222,6 +222,18 @@ namespace FunkyBoy::Instructions::Prefix {
         Flags::setFlagsFast(*context.regF, !(memory.read8BitsAt(context.readHL()) & bitMask), false, true, Flags::isCarryFast(*context.regF));
     }
 
+    void res_r(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast bitShift = (opcode >> 3) & 0b111u;
+        u8_fast regPos = opcode & 0b111u;
+        *(context.registers + regPos) &= ~(1u << bitShift);
+    }
+
+    void res_HL(opcode_t opcode, context &context, Memory &memory) {
+        u8_fast bitShift = (opcode >> 3) & 0b111u;
+        u8_fast val = memory.read8BitsAt(context.readHL()) & ~(1u << bitShift);
+        memory.write8BitsTo(context.readHL(), val);
+    }
+
 }
 
 int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
@@ -322,6 +334,24 @@ int Prefix::execute(opcode_t opcode, context &context, Memory &memory) {
         /* bit n,(HL) */ case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x76: case 0x7E: {
             debug_print_4("bit n,(HL)\n");
             Prefix::bit_HL(opcode, context, memory);
+            return 16;
+        }
+        /* res 0,reg */ case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87:
+        /* res 1,reg */ case 0x88: case 0x89: case 0x8A: case 0x8B: case 0x8C: case 0x8D: case 0x8F:
+        /* res 2,reg */ case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97:
+        /* res 3,reg */ case 0x98: case 0x99: case 0x9A: case 0x9B: case 0x9C: case 0x9D: case 0x9F:
+        /* res 4,reg */ case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7:
+        /* res 5,reg */ case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF:
+        /* res 6,reg */ case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7:
+        /* res 7,reg */ case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF:
+        {
+            debug_print_4("res r\n");
+            Prefix::res_r(opcode, context, memory);
+            return 8;
+        }
+        /* res n,(HL) */ case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
+            debug_print_4("res (HL)\n");
+            Prefix::res_HL(opcode, context, memory);
             return 16;
         }
         default: {
