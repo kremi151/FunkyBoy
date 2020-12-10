@@ -16,7 +16,6 @@
 
 #include "cpu.h"
 
-#include <utility>
 #include <util/typedefs.h>
 #include <util/registers.h>
 #include <util/return_codes.h>
@@ -24,9 +23,8 @@
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
-    : memory(std::move(memory))
-    , gbType(gbType)
+CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
+    : gbType(gbType)
     , ioRegisters(ioRegisters)
     , instrContext(gbType)
     , timerOverflowingCycles(-1)
@@ -74,12 +72,9 @@ CPU::CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters)
     // To simulate this, we set a NOP as the first instruction, which does nothing
     operands[0] = Operands::nop;
     operands[1] = nullptr;
-
-    // Initialize registers
-    powerUpInit();
 }
 
-void CPU::powerUpInit() {
+void CPU::powerUpInit(Memory &memory) {
     // Ref: https://gbdev.io/pandocs/#power-up-sequence
 
     // AF -> 0x01b0
@@ -104,53 +99,53 @@ void CPU::powerUpInit() {
 
     instrContext.stackPointer = 0xFFFE;
 
-    memory->write8BitsTo(0xff05, 0x00);
-    memory->write8BitsTo(0xff06, 0x00);
-    memory->write8BitsTo(0xff07, 0x00);
-    memory->write8BitsTo(0xff10, 0x80);
-    memory->write8BitsTo(0xff11, 0xbf);
-    memory->write8BitsTo(0xff12, 0xf3);
-    memory->write8BitsTo(0xff14, 0xbf);
-    memory->write8BitsTo(0xff16, 0x3f);
-    memory->write8BitsTo(0xff17, 0x00);
-    memory->write8BitsTo(0xff19, 0xbf);
-    memory->write8BitsTo(0xff1a, 0x7f);
-    memory->write8BitsTo(0xff1b, 0xff);
-    memory->write8BitsTo(0xff1c, 0x9f);
-    memory->write8BitsTo(0xff1e, 0xbf);
-    memory->write8BitsTo(0xff20, 0xff);
-    memory->write8BitsTo(0xff21, 0x00);
-    memory->write8BitsTo(0xff22, 0x00);
-    memory->write8BitsTo(0xff23, 0xbf);
-    memory->write8BitsTo(0xff24, 0x77);
-    memory->write8BitsTo(0xff25, 0xf3);
+    memory.write8BitsTo(0xff05, 0x00);
+    memory.write8BitsTo(0xff06, 0x00);
+    memory.write8BitsTo(0xff07, 0x00);
+    memory.write8BitsTo(0xff10, 0x80);
+    memory.write8BitsTo(0xff11, 0xbf);
+    memory.write8BitsTo(0xff12, 0xf3);
+    memory.write8BitsTo(0xff14, 0xbf);
+    memory.write8BitsTo(0xff16, 0x3f);
+    memory.write8BitsTo(0xff17, 0x00);
+    memory.write8BitsTo(0xff19, 0xbf);
+    memory.write8BitsTo(0xff1a, 0x7f);
+    memory.write8BitsTo(0xff1b, 0xff);
+    memory.write8BitsTo(0xff1c, 0x9f);
+    memory.write8BitsTo(0xff1e, 0xbf);
+    memory.write8BitsTo(0xff20, 0xff);
+    memory.write8BitsTo(0xff21, 0x00);
+    memory.write8BitsTo(0xff22, 0x00);
+    memory.write8BitsTo(0xff23, 0xbf);
+    memory.write8BitsTo(0xff24, 0x77);
+    memory.write8BitsTo(0xff25, 0xf3);
     if (gbType == GameBoyDMG) {
-        memory->write8BitsTo(0xff26, 0xf1);
+        memory.write8BitsTo(0xff26, 0xf1);
     } else {
         // TODO: This is for SGB, does this also apply for CGB?
-        memory->write8BitsTo(0xff26, 0xf0);
+        memory.write8BitsTo(0xff26, 0xf0);
     }
-    memory->write8BitsTo(0xff40, 0x91);
-    memory->write8BitsTo(0xff42, 0x00);
-    memory->write8BitsTo(0xff43, 0x00);
-    memory->write8BitsTo(0xff45, 0x00);
-    memory->write8BitsTo(0xff47, 0xfc);
-    memory->write8BitsTo(0xff48, 0xff);
-    memory->write8BitsTo(0xff49, 0xff);
-    memory->write8BitsTo(0xff4a, 0x00);
-    memory->write8BitsTo(0xff4b, 0x00);
-    memory->write8BitsTo(0xffff, 0x00);
+    memory.write8BitsTo(0xff40, 0x91);
+    memory.write8BitsTo(0xff42, 0x00);
+    memory.write8BitsTo(0xff43, 0x00);
+    memory.write8BitsTo(0xff45, 0x00);
+    memory.write8BitsTo(0xff47, 0xfc);
+    memory.write8BitsTo(0xff48, 0xff);
+    memory.write8BitsTo(0xff49, 0xff);
+    memory.write8BitsTo(0xff4a, 0x00);
+    memory.write8BitsTo(0xff4b, 0x00);
+    memory.write8BitsTo(0xffff, 0x00);
 
     // Initialize Joypad
     ioRegisters.updateJoypad();
 }
 
-ret_code CPU::doMachineCycle() {
+ret_code CPU::doMachineCycle(Memory &memory) {
     doJoypad();
-    auto result = doCycle();
+    auto result = doCycle(memory);
 
     // TODO: Handle timer here or earlier?
-    doTimers(4);
+    doTimers(memory, 4);
 
     // Due to a hardware quirk, enabling interrupts becomes active after the instruction following an EI,
     // so we simulate this behaviour here
@@ -168,7 +163,7 @@ ret_code CPU::doMachineCycle() {
     return result;
 }
 
-ret_code CPU::doCycle() {
+ret_code CPU::doCycle(Memory &memory) {
     if (instrContext.cpuState == CPUState::STOPPED) {
         return FB_RET_SUCCESS | FB_RET_SKIPPED;
     }
@@ -180,7 +175,7 @@ ret_code CPU::doCycle() {
     ret_code result = FB_RET_SUCCESS;
 
     if (instrContext.cpuState == CPUState::RUNNING) {
-        memory->doDMA(); // TODO: Implement delay of 2 clocks
+        memory.doDMA(); // TODO: Implement delay of 2 clocks
 
         auto op = operands[operandIndex++];
 
@@ -189,7 +184,7 @@ ret_code CPU::doCycle() {
             result |= FB_RET_INSTRUCTION_DONE;
         }
 
-        if (!op(instrContext, *memory)) {
+        if (!op(instrContext, memory)) {
             shouldFetch = true;
         }
         shouldDoInterrupts = shouldFetch;
@@ -201,14 +196,14 @@ ret_code CPU::doCycle() {
     }
 #endif
 
-    if (shouldDoInterrupts && (instrContext.cpuState == CPUState::RUNNING || instrContext.cpuState == CPUState::HALTED) && doInterrupts()) {
+    if (shouldDoInterrupts && (instrContext.cpuState == CPUState::RUNNING || instrContext.cpuState == CPUState::HALTED) && doInterrupts(memory)) {
         // An interrupt has started (or IME=false && (IF & IE) != 0), so we set the state to RUNNING (again)
         instrContext.cpuState = CPUState::RUNNING;
         interruptServiced = true;
     }
 
     if (interruptServiced || (shouldFetch && instrContext.cpuState == CPUState::RUNNING)) { // TODO: Can this be simplified to just instrContext.cpuState == CPUState::RUNNING ?
-        result |= doFetchAndDecode();
+        result |= doFetchAndDecode(memory);
         operandIndex = 0;
         return result;
     }
@@ -216,11 +211,11 @@ ret_code CPU::doCycle() {
     return result;
 }
 
-ret_code CPU::doFetchAndDecode() {
+ret_code CPU::doFetchAndDecode(Memory &memory) {
     if (!instrContext.haltBugRequested) {
-        instrContext.instr = memory->read8BitsAt(instrContext.progCounter++);
+        instrContext.instr = memory.read8BitsAt(instrContext.progCounter++);
     } else {
-        instrContext.instr = memory->read8BitsAt(instrContext.progCounter);
+        instrContext.instr = memory.read8BitsAt(instrContext.progCounter);
         instrContext.haltBugRequested = false;
     }
 
@@ -262,13 +257,13 @@ void CPU::doJoypad() {
     joypadWasNotPressed = isNotPressed;
 }
 
-bool CPU::doInterrupts() {
+bool CPU::doInterrupts(Memory &memory) {
     if (instrContext.cpuState == CPUState::STOPPED) {
         return false;
     }
     u8 &_if = ioRegisters.getIF();
     _if %= 0x1fu;
-    u8 _ie = memory->read8BitsAt(FB_REG_IE) & 0x1fu;
+    u8 _ie = memory.read8BitsAt(FB_REG_IE) & 0x1fu;
     u8 _intr = _if & _ie & 0x1f;
     if (!_intr) {
         return false;
@@ -286,7 +281,7 @@ bool CPU::doInterrupts() {
         memory_address addr = getInterruptStartAddress(interruptType);
         instrContext.interruptMasterEnable = IMEState::DISABLED;
         // TODO: do 2 NOP cycles (when implementing cycle accuracy)
-        instrContext.push16Bits(*memory, instrContext.progCounter);
+        instrContext.push16Bits(memory, instrContext.progCounter);
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         FunkyBoy::Debug::writeInterruptToLog(addr, file);
@@ -339,32 +334,32 @@ bool doTimerObscureCheck(u8 clocks, u16 sysCounter, u8 tac) {
     return false;
 }
 
-void CPU::doTimers(u8 clocks) {
+void CPU::doTimers(Memory &memory, u8 clocks) {
     u16 sysCounter = ioRegisters.getSysCounter();
     ioRegisters.setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
     if (timerOverflowingCycles != -1) {
         timerOverflowingCycles -= clocks;
         if (timerOverflowingCycles <= 0) {
             //fprintf(stdout, "# Request Timer interrupt\n");
-            memory->write8BitsTo(FB_REG_TIMA, memory->read8BitsAt(FB_REG_TMA));
+            memory.write8BitsTo(FB_REG_TIMA, memory.read8BitsAt(FB_REG_TMA));
             requestInterrupt(InterruptType::TIMER);
             timerOverflowingCycles = -1;
         }
     }
-    u8 tac = memory->read8BitsAt(FB_REG_TAC);
+    u8 tac = memory.read8BitsAt(FB_REG_TAC);
     bool comp1 = (tac & 0b100u) != 0;
     comp1 &= doTimerObscureCheck(clocks, sysCounter, tac);
     // Falling edge detector
     if (delayedTIMAIncrease && !comp1) {
-        u8 tima = memory->read8BitsAt(FB_REG_TIMA);
+        u8 tima = memory.read8BitsAt(FB_REG_TIMA);
         if (tima == 0xff) {
             //fprintf(stdout, "# TIMA has overflown\n");
             // Delay TIMA load by 1 m-cycle
             timerOverflowingCycles = 4;
             // In the meantime, set TIMA to 0
-            memory->write8BitsTo(FB_REG_TIMA, 0x00);
+            memory.write8BitsTo(FB_REG_TIMA, 0x00);
         } else if (timerOverflowingCycles == -1) { // TIME has to be 0 for one full m-cycle, so we do not increase here in that case
-            memory->write8BitsTo(FB_REG_TIMA, tima + 1);
+            memory.write8BitsTo(FB_REG_TIMA, tima + 1);
         }
     }
     delayedTIMAIncrease = comp1;

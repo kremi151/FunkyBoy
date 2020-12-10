@@ -60,8 +60,6 @@ namespace FunkyBoy {
 #endif
     };
 
-    typedef std::shared_ptr<Memory> MemoryPtr;
-
 }
 
 #endif //FUNKYBOY_CORE_MEMORY_H

@@ -41,7 +41,7 @@ namespace FunkyBoy {
 
         io_registers ioRegisters;
         PPUMemory ppuMemory;
-        MemoryPtr memory;
+        Memory memory;
         CPUPtr cpu;
         PPU ppu;
     public:
