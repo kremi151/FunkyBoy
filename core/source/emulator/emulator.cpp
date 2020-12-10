@@ -32,9 +32,11 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , ioRegisters(controllers)
     , ppuMemory()
     , memory(new Memory(cartridge, controllers, ioRegisters, ppuMemory))
-    , cpu(std::make_shared<CPU>(gbType, memory, ioRegisters))
+    , cpu(std::make_shared<CPU>(gbType, ioRegisters))
     , ppu(cpu, controllers, ioRegisters, ppuMemory)
 {
+    // Initialize registers
+    cpu->powerUpInit(*memory);
 }
 
 Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
@@ -86,7 +88,7 @@ void Emulator::writeCartridgeRam(std::ostream &stream) {
 }
 
 ret_code Emulator::doTick() {
-    auto result = cpu->doMachineCycle();
+    auto result = cpu->doMachineCycle(*memory);
     if (!result) {
         return 0;
     }

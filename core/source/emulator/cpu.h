@@ -45,7 +45,6 @@ namespace FunkyBoy {
     class CPU {
     private:
         io_registers ioRegisters;
-        MemoryPtr memory;
         const GameBoyType gbType;
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
@@ -63,14 +62,12 @@ namespace FunkyBoy {
 
         bool joypadWasNotPressed;
 
-        void powerUpInit();
-
-        ret_code doCycle();
-        ret_code doFetchAndDecode();
+        ret_code doCycle(Memory &memory);
+        ret_code doFetchAndDecode(Memory &memory);
 
         void doJoypad();
-        bool doInterrupts();
-        void doTimers(u8 clocks);
+        bool doInterrupts(Memory &memory);
+        void doTimers(Memory &memory, u8 clocks);
 
     test_public:
 
@@ -95,12 +92,14 @@ namespace FunkyBoy {
         u8 *regA;
 
     public:
-        CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters);
+        CPU(GameBoyType gbType, const io_registers& ioRegisters);
+
+        void powerUpInit(Memory &memory);
 
         void setProgramCounter(u16 offset);
         void requestInterrupt(InterruptType type);
 
-        ret_code doMachineCycle();
+        ret_code doMachineCycle(Memory &memory);
     };
 
     typedef std::shared_ptr<CPU> CPUPtr;
