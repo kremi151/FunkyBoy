@@ -68,7 +68,6 @@ namespace FunkyBoy {
     private:
         u16 *ptrCounter;
         u8 *hwIO;
-        Controller::ControllersPtr controllers;
         void setSysCounter(u16 counter);
         void resetSysCounter();
     test_public:
@@ -76,7 +75,7 @@ namespace FunkyBoy {
         u8 *sys_counter_msb;
     public:
         io_registers(const io_registers &registers);
-        explicit io_registers(Controller::ControllersPtr controllers);
+        io_registers();
         ~io_registers();
 
         inline u16 getSysCounter() {
@@ -86,7 +85,7 @@ namespace FunkyBoy {
         void handleMemoryWrite(u8 offset, u8 value);
         u8 handleMemoryRead(u8 offset);
 
-        u8 updateJoypad();
+        u8 updateJoypad(Controller::Controllers &controllers);
 
         inline u8 &getP1() {
             return *(hwIO + __FB_REG_OFFSET_P1);

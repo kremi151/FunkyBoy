@@ -74,7 +74,7 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     operands[1] = nullptr;
 }
 
-void CPU::powerUpInit(Memory &memory) {
+void CPU::powerUpInit(Memory &memory, Controller::Controllers &controllers) {
     // Ref: https://gbdev.io/pandocs/#power-up-sequence
 
     // AF -> 0x01b0
@@ -137,11 +137,11 @@ void CPU::powerUpInit(Memory &memory) {
     memory.write8BitsTo(0xffff, 0x00);
 
     // Initialize Joypad
-    ioRegisters.updateJoypad();
+    ioRegisters.updateJoypad(controllers);
 }
 
-ret_code CPU::doMachineCycle(Memory &memory) {
-    doJoypad();
+ret_code CPU::doMachineCycle(Memory &memory, Controller::Controllers &controllers) {
+    doJoypad(controllers);
     auto result = doCycle(memory);
 
     // TODO: Handle timer here or earlier?
@@ -244,9 +244,9 @@ inline u8 getInterruptBitMask(InterruptType type) {
     return 1u << static_cast<u8>(type);
 }
 
-void CPU::doJoypad() {
+void CPU::doJoypad(Controller::Controllers &controllers) {
     u8 oldP1 = ioRegisters.getP1() & 0b00001111u;
-    u8 newP1 = ioRegisters.updateJoypad() & 0b00001111u;
+    u8 newP1 = ioRegisters.updateJoypad(controllers) & 0b00001111u;
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
         requestInterrupt(InterruptType::JOYPAD);

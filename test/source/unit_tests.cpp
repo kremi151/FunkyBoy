@@ -25,32 +25,32 @@
 #include <emulator/emulator.h>
 #include <controllers/controllers.h>
 
-bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
+bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory, FunkyBoy::Controller::Controllers &controllers) {
     cpu.instructionCompleted = false;
     do {
-        if (!cpu.doMachineCycle(memory)) {
+        if (!cpu.doMachineCycle(memory, controllers)) {
             return false;
         }
     } while (!cpu.instructionCompleted);
     return true;
 }
 
-void assertDoFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
-    if (!doFullMachineCycle(cpu, memory)) {
+void assertDoFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory, FunkyBoy::Controller::Controllers &controllers) {
+    if (!doFullMachineCycle(cpu, memory, controllers)) {
         testFailure("Emulation tick failed");
     }
 }
 
-inline FunkyBoy::Memory createMemory() {
-    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+inline FunkyBoy::Memory createMemory(FunkyBoy::Controller::ControllersPtr &controllers) {
     FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers io(controllers);
+    FunkyBoy::io_registers io;
     FunkyBoy::PPUMemory ppuMemory;
     return FunkyBoy::Memory(cartridge, controllers, io, ppuMemory);
 }
 
 TEST(testEchoRAM) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
 
     // Write to beginning of internal RAM bank 0
     memory.write8BitsTo(0xC000, 42);
@@ -80,9 +80,10 @@ TEST(testReadROMTitle) {
 }
 
 TEST(testPopPushStackPointer) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
-    cpu.powerUpInit(memory);
+    cpu.powerUpInit(memory, *controllers);
 
     cpu.instrContext.push16Bits(memory, 0x1806);
     auto val = cpu.instrContext.pop16Bits(memory);
@@ -101,9 +102,10 @@ TEST(testPopPushStackPointer) {
 }
 
 TEST(testReadWriteHLAndAF) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
-    cpu.powerUpInit(memory);
+    cpu.powerUpInit(memory, *controllers);
 
     // In this test, we check for enforcing little-endianness
 
@@ -123,9 +125,10 @@ TEST(testReadWriteHLAndAF) {
 }
 
 TEST(testReadWrite16BitRegisters) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
-    cpu.powerUpInit(memory);
+    cpu.powerUpInit(memory, *controllers);
 
     // In this test, we check for enforcing little-endianness
 
@@ -152,10 +155,11 @@ TEST(testReadWrite16BitRegisters) {
 }
 
 TEST(test16BitLoads) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
     auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
-    cpu.powerUpInit(memory);
+    cpu.powerUpInit(memory, *controllers);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -168,8 +172,8 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x01 (LD BC,d16)
     cartridge->rom[initialProgCounter] = 0x01;
-    assertDoFullMachineCycle(cpu, memory); // Initial fetch
-    assertDoFullMachineCycle(cpu, memory); // Actual execution
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -179,8 +183,8 @@ TEST(test16BitLoads) {
     // Set opcode 0x11 (LD DE,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x11;
-    assertDoFullMachineCycle(cpu, memory); // Initial fetch
-    assertDoFullMachineCycle(cpu, memory); // Actual execution
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -190,8 +194,8 @@ TEST(test16BitLoads) {
     // Set opcode 0x21 (LD HL,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x21;
-    assertDoFullMachineCycle(cpu, memory); // Initial fetch
-    assertDoFullMachineCycle(cpu, memory); // Actual execution
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -201,8 +205,8 @@ TEST(test16BitLoads) {
     // Set opcode 0x31 (LD SP,d16)
     cpu.instrContext.progCounter = initialProgCounter;
     cartridge->rom[initialProgCounter] = 0x31;
-    assertDoFullMachineCycle(cpu, memory); // Initial fetch
-    assertDoFullMachineCycle(cpu, memory); // Actual execution
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory, *controllers); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -251,10 +255,11 @@ TEST(test16BitLoads) {
 }*/
 
 TEST(testHALTBugSkipping) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
     auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
-    cpu.powerUpInit(memory);
+    cpu.powerUpInit(memory, *controllers);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -275,32 +280,33 @@ TEST(testHALTBugSkipping) {
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
     // Initial fetch without executing anything
-    assertDoFullMachineCycle(cpu, memory);
+    assertDoFullMachineCycle(cpu, memory, *controllers);
     assertEquals(0x76, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
-    assertDoFullMachineCycle(cpu, memory);
+    assertDoFullMachineCycle(cpu, memory, *controllers);
     assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
-    assertDoFullMachineCycle(cpu, memory);
+    assertDoFullMachineCycle(cpu, memory, *controllers);
     assertEquals(0x3C, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(originalA + 1, *cpu.regA);
 
-    assertDoFullMachineCycle(cpu, memory);
+    assertDoFullMachineCycle(cpu, memory, *controllers);
     assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(originalA + 2, *cpu.regA);
 }
 
 TEST(testHALTNoSkippingIfIMEDisabled) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
     auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
-    cpu.powerUpInit(memory);
+    cpu.powerUpInit(memory, *controllers);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -322,14 +328,14 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
     // Initial fetch without executing anything
-    assertDoFullMachineCycle(cpu, memory);
+    assertDoFullMachineCycle(cpu, memory, *controllers);
     assertEquals(0x76, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
     // Assert that we are indeed in HALT mode (no execution of any opcode)
     for (int i = 0 ; i < 5 ; i++) {
-        assertDoFullMachineCycle(cpu, memory);
+        assertDoFullMachineCycle(cpu, memory, *controllers);
 
         assertEquals(FunkyBoy::CPUState::HALTED, cpu.instrContext.cpuState);
 
@@ -345,17 +351,18 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
     // As IME == 0, we must not jump to the interrupt vector
     // Instead, we just continue reading the next opcodes
 
-    assertDoFullMachineCycle(cpu, memory);
+    assertDoFullMachineCycle(cpu, memory, *controllers);
     assertEquals(0x3C, cpu.instrContext.instr & 0xffff); // Fetched next instruction already
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 }
 
 TEST(testHALTBugHanging) {
-    auto memory = createMemory();
+    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
+    auto memory = createMemory(controllers);
     auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
-    cpu.powerUpInit(memory);
+    cpu.powerUpInit(memory, *controllers);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
     cartridge->rom = new FunkyBoy::u8[0x105];
@@ -378,7 +385,7 @@ TEST(testHALTBugHanging) {
 
     // Maybe a bit excessive, but iterating 100 times without advancing the PC should demonstrate the HALT bug correctly
     for (int i = 0 ; i < 100 ; i++) {
-        assertDoFullMachineCycle(cpu, memory);
+        assertDoFullMachineCycle(cpu, memory, *controllers);
         assertEquals(0x76, cpu.instrContext.instr);
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
         assertEquals(originalA, *cpu.regA);

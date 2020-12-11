@@ -52,9 +52,8 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+PPU::PPU(CPUPtr cpu, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
     : cpu(std::move(cpu))
-    , controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
     , gpuMode(GPUMode::GPUMode_2)
@@ -83,7 +82,7 @@ PPU::~PPU() {
 //
 // In total for 155 scanlines => 70224 clocks
 
-ret_code PPU::doClocks(u8 clocks) {
+ret_code PPU::doClocks(Controller::Controllers &controllers, u8 clocks) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
     // See http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (pages 22-27)
@@ -107,7 +106,7 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 if (++ly >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
-                    controllers->getDisplay()->drawScreen();
+                    controllers.getDisplay()->drawScreen();
                     cpu->requestInterrupt(InterruptType::VBLANK);
                     if (__fb_stat_isVBlankInterrupt(stat)) {
                         cpu->requestInterrupt(InterruptType::LCD_STAT);
@@ -160,7 +159,7 @@ ret_code PPU::doClocks(u8 clocks) {
                     cpu->requestInterrupt(InterruptType::LCD_STAT);
                 }
                 ppuMemory.setAccessibilityFromMMU(true, true);
-                renderScanline(ly);
+                renderScanline(controllers, ly);
                 result |= FB_RET_NEW_SCANLINE;
             }
             break;
@@ -171,7 +170,7 @@ ret_code PPU::doClocks(u8 clocks) {
     return result;
 }
 
-void PPU::renderScanline(u8 ly) {
+void PPU::renderScanline(Controller::Controllers &controllers, u8 ly) {
     const u8 &lcdc = ioRegisters.getLCDC();
     const memory_address tileSetAddr = __fb_getTileDataAddress(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
@@ -297,7 +296,7 @@ void PPU::renderScanline(u8 ly) {
             }
         }
     }
-    controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
+    controllers.getDisplay()->drawScanLine(ly, scanLineBuffer);
 }
 
 void PPU::updateStat(u8 &stat, u8 ly, bool lcdOn) {

@@ -65,7 +65,7 @@ namespace FunkyBoy {
         ret_code doCycle(Memory &memory);
         ret_code doFetchAndDecode(Memory &memory);
 
-        void doJoypad();
+        void doJoypad(Controller::Controllers &controllers);
         bool doInterrupts(Memory &memory);
         void doTimers(Memory &memory, u8 clocks);
 
@@ -94,12 +94,12 @@ namespace FunkyBoy {
     public:
         CPU(GameBoyType gbType, const io_registers& ioRegisters);
 
-        void powerUpInit(Memory &memory);
+        void powerUpInit(Memory &memory, Controller::Controllers &controllers);
 
         void setProgramCounter(u16 offset);
         void requestInterrupt(InterruptType type);
 
-        ret_code doMachineCycle(Memory &memory);
+        ret_code doMachineCycle(Memory &memory, Controller::Controllers &controllers);
     };
 
     typedef std::shared_ptr<CPU> CPUPtr;
