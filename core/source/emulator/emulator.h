@@ -26,7 +26,6 @@
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <cartridge/cartridge.h>
-#include <controllers/controllers.h>
 #include <memory/memory.h>
 #include <memory/ppu_memory.h>
 #include <memory>
@@ -37,7 +36,6 @@ namespace FunkyBoy {
     class Emulator {
     test_public:
         CartridgePtr cartridge;
-        Controller::ControllersPtr controllers;
 
         io_registers ioRegisters;
         PPUMemory ppuMemory;
@@ -46,7 +44,7 @@ namespace FunkyBoy {
         PPU ppu;
     public:
         explicit Emulator(GameBoyType gbType);
-        Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);
+        ~Emulator();
 
         CartridgeStatus loadGame(const fs::path &romPath);
         CartridgeStatus loadGame(std::istream &stream);

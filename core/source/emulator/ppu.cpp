@@ -18,6 +18,7 @@
 
 #include <util/return_codes.h>
 #include <emulator/io_registers.h>
+#include <controllers/display.h>
 
 // Lower tile set lives at 0x8000 in memory
 #define FB_TILE_DATA_LOWER 0x0000
@@ -52,9 +53,8 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+PPU::PPU(CPUPtr cpu, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
     : cpu(std::move(cpu))
-    , controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
     , gpuMode(GPUMode::GPUMode_2)
@@ -107,7 +107,7 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 if (++ly >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
-                    controllers->getDisplay()->drawScreen();
+                    Controllers::Display::drawScreen();
                     cpu->requestInterrupt(InterruptType::VBLANK);
                     if (__fb_stat_isVBlankInterrupt(stat)) {
                         cpu->requestInterrupt(InterruptType::LCD_STAT);
@@ -297,7 +297,7 @@ void PPU::renderScanline(u8 ly) {
             }
         }
     }
-    controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
+    Controllers::Display::drawScanLine(ly, scanLineBuffer);
 }
 
 void PPU::updateStat(u8 &stat, u8 ly, bool lcdOn) {

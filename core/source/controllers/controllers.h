@@ -23,40 +23,10 @@
 
 #include <util/typedefs.h>
 
-#include <memory>
+namespace FunkyBoy::Controllers {
 
-namespace FunkyBoy::Controller {
-
-    class Controllers {
-    private:
-        SerialControllerPtr serial;
-        JoypadControllerPtr joypad;
-        DisplayControllerPtr display;
-
-    public:
-        Controllers(SerialControllerPtr serial, JoypadControllerPtr joypad, DisplayControllerPtr display);
-        Controllers();
-
-        inline SerialControllerPtr &getSerial() {
-            return serial;
-        }
-
-        void setSerial(const SerialControllerPtr &serialController);
-
-        inline JoypadControllerPtr &getJoypad() {
-            return joypad;
-        }
-
-        void setJoypad(const JoypadControllerPtr &joypadController);
-
-        inline DisplayControllerPtr &getDisplay() {
-            return display;
-        }
-
-        void setDisplay(const DisplayControllerPtr &displayController);
-    };
-
-    typedef std::shared_ptr<Controllers> ControllersPtr;
+    void init();
+    void destroy();
 
 }
 

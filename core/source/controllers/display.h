@@ -17,20 +17,12 @@
 #ifndef FB_CORE_CONTROLLERS_DISPLAY_H
 #define FB_CORE_CONTROLLERS_DISPLAY_H
 
-#include <memory>
 #include <util/typedefs.h>
 
-namespace FunkyBoy::Controller {
+namespace FunkyBoy::Controllers::Display {
 
-    class DisplayController {
-    public:
-        virtual ~DisplayController() = default;
-
-        virtual void drawScanLine(u8 y, u8 *buffer) = 0;
-        virtual void drawScreen() = 0;
-    };
-
-    typedef std::shared_ptr<DisplayController> DisplayControllerPtr;
+    void drawScanLine(u8 y, const u8 *buffer);
+    void drawScreen();
 
 }
 

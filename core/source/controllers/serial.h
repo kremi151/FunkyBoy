@@ -17,19 +17,11 @@
 #ifndef FB_CORE_CONTROLLERS_SERIAL_H
 #define FB_CORE_CONTROLLERS_SERIAL_H
 
-#include <memory>
 #include <util/typedefs.h>
 
-namespace FunkyBoy::Controller {
+namespace FunkyBoy::Controllers::Serial {
 
-    class SerialController {
-    public:
-        virtual ~SerialController() = default;
-
-        virtual void sendByte(u8 data) = 0;
-    };
-
-    typedef std::shared_ptr<SerialController> SerialControllerPtr;
+    void sendByte(u8 data);
 
 }
 

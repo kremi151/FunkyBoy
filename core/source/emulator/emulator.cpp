@@ -20,29 +20,30 @@
 #include <fstream>
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
+#include <controllers/controllers.h>
 
 // TODO: For debugging, remove it afterwards:
 #include <sstream>
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
+Emulator::Emulator(GameBoyType gbType)
     : cartridge(new Cartridge)
-    , controllers(controllers)
-    , ioRegisters(controllers)
+    , ioRegisters()
     , ppuMemory()
-    , memory(cartridge, controllers, ioRegisters, ppuMemory)
+    , memory(cartridge, ioRegisters, ppuMemory)
     , cpu(std::make_shared<CPU>(gbType, ioRegisters))
-    , ppu(cpu, controllers, ioRegisters, ppuMemory)
+    , ppu(cpu, ioRegisters, ppuMemory)
 {
+    Controllers::init();
+
     // Initialize registers
     cpu->powerUpInit(memory);
 }
 
-Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
-        gbType,
-        std::make_shared<Controller::Controllers>()
-) {}
+Emulator::~Emulator() {
+    Controllers::destroy();
+}
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     std::ifstream romFile(romPath.c_str(), std::ios::binary);

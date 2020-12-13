@@ -20,14 +20,14 @@
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <emulator/io_registers.h>
+#include <controllers/serial.h>
 
 using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(std::shared_ptr<Cartridge> cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+Memory::Memory(std::shared_ptr<Cartridge> cartridge, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
     : cartridge(std::move(cartridge))
-    , controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
     , interruptEnableRegister(0)
@@ -186,7 +186,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
 
                 if (offset == FB_REG_SC) {
                     if (val == 0x81) {
-                        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+                        Controllers::Serial::sendByte(read8BitsAt(FB_REG_SB));
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;

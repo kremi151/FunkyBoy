@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_JOYPAD_VOID_H
-#define FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#ifndef FB_SDL_CONTROLLERS_CONTROLLERS_SDL_H
+#define FB_SDL_CONTROLLERS_CONTROLLERS_SDL_H
 
-#include "joypad.h"
+#include <controllers/controllers.h>
+#include <SDL.h>
 
-namespace FunkyBoy::Controller {
-
-    class JoypadControllerVoid: public JoypadController {
-    public:
-        bool isKeyPressed(JoypadKey key) override;
-    };
-
+namespace FunkyBoy::Controllers::SDL {
+    extern SDL_Renderer *renderer;
+    extern SDL_Texture *frameBuffer;
 }
 
-#endif //FB_CORE_CONTROLLERS_JOYPAD_VOID_H
+#endif //FB_SDL_CONTROLLERS_CONTROLLERS_SDL_H

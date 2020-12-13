@@ -19,7 +19,6 @@
 
 #include <util/typedefs.h>
 #include <util/testing.h>
-#include <controllers/controllers.h>
 #include <util/gpumode.h>
 
 #define FB_REG_P1 0xFF00
@@ -68,7 +67,6 @@ namespace FunkyBoy {
     private:
         u16 *ptrCounter;
         u8 *hwIO;
-        Controller::ControllersPtr controllers;
         void setSysCounter(u16 counter);
         void resetSysCounter();
     test_public:
@@ -76,7 +74,7 @@ namespace FunkyBoy {
         u8 *sys_counter_msb;
     public:
         io_registers(const io_registers &registers);
-        explicit io_registers(Controller::ControllersPtr controllers);
+        io_registers();
         ~io_registers();
 
         inline u16 getSysCounter() {

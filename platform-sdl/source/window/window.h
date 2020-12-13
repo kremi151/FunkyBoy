@@ -39,7 +39,6 @@ namespace FunkyBoy::SDL {
         const Uint8 *keyboardState;
         bool fullscreenRequestedPreviously;
 
-        Controller::ControllersPtr controllers;
         Emulator emulator;
 
         fs::path savePath;

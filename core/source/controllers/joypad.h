@@ -17,10 +17,9 @@
 #ifndef FB_CORE_CONTROLLERS_JOYPAD_H
 #define FB_CORE_CONTROLLERS_JOYPAD_H
 
-#include <memory>
 #include <util/typedefs.h>
 
-namespace FunkyBoy::Controller {
+namespace FunkyBoy::Controllers::Joypad {
 
     enum JoypadKey {
         JOYPAD_A = 0,
@@ -33,14 +32,7 @@ namespace FunkyBoy::Controller {
         JOYPAD_DOWN = 7
     };
 
-    class JoypadController {
-    public:
-        virtual ~JoypadController() = default;
-
-        virtual bool isKeyPressed(JoypadKey key) = 0;
-    };
-
-    typedef std::shared_ptr<JoypadController> JoypadControllerPtr;
+    bool isKeyPressed(JoypadKey key);
 
 }
 

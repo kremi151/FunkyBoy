@@ -19,7 +19,6 @@
 
 #include <util/typedefs.h>
 #include <cartridge/cartridge.h>
-#include <controllers/controllers.h>
 #include <emulator/io_registers.h>
 #include <memory/ppu_memory.h>
 
@@ -28,7 +27,6 @@ namespace FunkyBoy {
     class Memory {
     private:
         CartridgePtr cartridge;
-        Controller::ControllersPtr controllers;
         io_registers ioRegisters;
         PPUMemory ppuMemory;
 
@@ -42,7 +40,7 @@ namespace FunkyBoy {
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
     public:
-        Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
+        Memory(CartridgePtr cartridge, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~Memory();
 
         Memory(const Memory &other) = delete;

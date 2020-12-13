@@ -16,23 +16,23 @@
 
 #include "io_registers.h"
 
+#include <controllers/joypad.h>
+
 using namespace FunkyBoy;
 
 io_registers::io_registers(const io_registers &registers)
     : sys_counter_lsb(registers.sys_counter_lsb)
     , sys_counter_msb(registers.sys_counter_msb)
     , hwIO(registers.hwIO)
-    , controllers(registers.controllers)
     , ptrCounter(registers.ptrCounter)
 {
     (*ptrCounter)++;
 }
 
-io_registers::io_registers(Controller::ControllersPtr controllers)
+io_registers::io_registers()
     : sys_counter_lsb(new u8(0))
     , sys_counter_msb(new u8(0))
     , hwIO(new u8[128]{})
-    , controllers(std::move(controllers))
     , ptrCounter(new u16(1))
 {
 }
@@ -99,34 +99,33 @@ u8 io_registers::updateJoypad() {
     u8 &p1 = *(hwIO + __FB_REG_OFFSET_P1);
     u8 originalValue = p1;
     u8 val = originalValue | 0b11001111u;
-    auto &joypad = *controllers->getJoypad();
     if ((originalValue & 0b00100000u) == 0) {
         // Select Button keys
-        if (joypad.isKeyPressed(Controller::JOYPAD_A)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_A)) {
             val &= 0b11111110u;
         }
-        if (joypad.isKeyPressed(Controller::JOYPAD_B)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_B)) {
             val &= 0b11111101u;
         }
-        if (joypad.isKeyPressed(Controller::JOYPAD_SELECT)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_SELECT)) {
             val &= 0b11111011u;
         }
-        if (joypad.isKeyPressed(Controller::JOYPAD_START)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_START)) {
             val &= 0b11110111u;
         }
     }
     if ((originalValue & 0b00010000u) == 0) {
         // Select Direction keys
-        if (joypad.isKeyPressed(Controller::JOYPAD_RIGHT)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_RIGHT)) {
             val &= 0b11111110u;
         }
-        if (joypad.isKeyPressed(Controller::JOYPAD_LEFT)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_LEFT)) {
             val &= 0b11111101u;
         }
-        if (joypad.isKeyPressed(Controller::JOYPAD_UP)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_UP)) {
             val &= 0b11111011u;
         }
-        if (joypad.isKeyPressed(Controller::JOYPAD_DOWN)) {
+        if (Controllers::Joypad::isKeyPressed(Controllers::Joypad::JoypadKey::JOYPAD_DOWN)) {
             val &= 0b11110111u;
         }
     }

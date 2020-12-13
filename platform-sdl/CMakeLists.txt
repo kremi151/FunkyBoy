@@ -9,18 +9,14 @@ include(DetectOS)
 
 set(SOURCES
         source/main.cpp
-        source/controllers/serial_sdl.cpp
-        source/controllers/joypad_sdl.cpp
-        source/controllers/display_sdl.cpp
+        source/controllers/controllers_sdl.cpp
         source/ui/native_ui_windows.cpp
         source/ui/native_ui_gtk.cpp
         source/window/window.cpp
         )
 
 set(HEADERS
-        source/controllers/serial_sdl.h
-        source/controllers/joypad_sdl.h
-        source/controllers/display_sdl.h
+        source/controllers/controllers_sdl.h
         source/ui/native_ui.h
         source/window/window.h
         )

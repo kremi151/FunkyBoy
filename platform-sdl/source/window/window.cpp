@@ -17,18 +17,20 @@
 #include "window.h"
 
 #include <util/fs.h>
-#include <controllers/serial_sdl.h>
-#include <controllers/joypad_sdl.h>
-#include <controllers/display_sdl.h>
+#include <controllers/controllers_sdl.h>
 #include <ui/native_ui.h>
 #include <fstream>
+
+namespace FunkyBoy::Controllers::SDL {
+    SDL_Renderer *renderer;
+    SDL_Texture *frameBuffer;
+}
 
 using namespace FunkyBoy::SDL;
 
 Window::Window(FunkyBoy::GameBoyType gbType)
     : gbType(gbType)
-    , controllers(new Controller::Controllers)
-    , emulator(GameBoyType::GameBoyDMG, controllers)
+    , emulator(GameBoyType::GameBoyDMG)
     , window(nullptr)
     , renderer(nullptr)
     , frameBuffer(nullptr)
@@ -68,9 +70,8 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
     SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
 
-    controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
-    controllers->setJoypad(std::make_shared<Controller::JoypadControllerSDL>());
-    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
+    Controllers::SDL::renderer = renderer;
+    Controllers::SDL::frameBuffer = frameBuffer;
 
     fs::path romPath;
     if (argc <= 1) {
