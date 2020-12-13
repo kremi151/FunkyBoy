@@ -21,9 +21,7 @@
 #include <acacia.h>
 #include <util/fs.h>
 #include <memory/memory.h>
-#include <memory>
 #include <emulator/emulator.h>
-#include <controllers/controllers.h>
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
     cpu.instructionCompleted = false;
@@ -42,11 +40,10 @@ void assertDoFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
 }
 
 inline FunkyBoy::Memory createMemory() {
-    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
     FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
-    FunkyBoy::io_registers io(controllers);
+    FunkyBoy::io_registers io;
     FunkyBoy::PPUMemory ppuMemory;
-    return FunkyBoy::Memory(cartridge, controllers, io, ppuMemory);
+    return FunkyBoy::Memory(cartridge, io, ppuMemory);
 }
 
 TEST(testEchoRAM) {

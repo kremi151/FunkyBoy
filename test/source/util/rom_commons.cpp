@@ -15,22 +15,25 @@
  */
 
 #include "rom_commons.h"
-#include "../controllers/serial_test.h"
+#include "../controllers/controllers_test.h"
 
 #include <acacia.h>
 #include <memory/memory.h>
 #include <emulator/emulator.h>
 #include <cstring>
 
+namespace FunkyBoy::Controllers::Test {
+    char lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE + 1]{};
+}
+
 void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks, const char *successWord, const char *failureWord) {
+    // Clear last word
+    for (int i = 0 ; i < FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE ; i++) {
+        FunkyBoy::Controllers::Test::lastWord[i] = '\0';
+    }
+
     expectedTicks *= 4;
-    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
-    auto serial = std::make_shared<FunkyBoy::Controller::SerialControllerTest>();
-    controllers->setSerial(serial);
-    FunkyBoy::Emulator emulator(
-            TEST_GB_TYPE,
-            controllers
-    );
+    FunkyBoy::Emulator emulator(TEST_GB_TYPE);
     auto status = emulator.loadGame(romPath);
     if (status != FunkyBoy::CartridgeStatus::Loaded) {
       std::cout << "Loading test ROM at " << romPath << " failed" << std::endl;
@@ -41,10 +44,10 @@ void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks,
         if (!emulator.doTick()) {
             testFailure("Emulation tick failed");
         }
-        if (std::strcmp(successWord, serial->lastWord) == 0) {
+        if (std::strcmp(successWord, FunkyBoy::Controllers::Test::lastWord) == 0) {
             std::cout << std::endl;
             break;
-        } else if (std::strcmp(failureWord, serial->lastWord) == 0) {
+        } else if (std::strcmp(failureWord, FunkyBoy::Controllers::Test::lastWord) == 0) {
             testFailure("Test has failed");
             break;
         }

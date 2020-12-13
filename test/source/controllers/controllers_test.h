@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_CONTROLLERS_SERIAL_TEST_H
-#define FB_TESTS_CONTROLLERS_SERIAL_TEST_H
+#ifndef FB_TESTS_CONTROLLERS_CONTROLLERS_TEST_H
+#define FB_TESTS_CONTROLLERS_CONTROLLERS_TEST_H
 
-#include <controllers/serial.h>
+#include <controllers/controllers.h>
 
 // sizeof("Passed") = 6
 #define FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE 6
 
-namespace FunkyBoy::Controller {
-
-    class SerialControllerTest: public SerialController {
-    public:
-        void sendByte(u8 data) override;
-
-        char lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE + 1]{};
-    };
-
-}
-
-#endif //FB_TESTS_CONTROLLERS_SERIAL_TEST_H
+#endif //FB_TESTS_CONTROLLERS_CONTROLLERS_TEST_H

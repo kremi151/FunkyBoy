@@ -14,15 +14,31 @@
  * limitations under the License.
  */
 
+#include "controllers_test.h"
 #include <iostream>
-#include "serial_test.h"
 
-using namespace FunkyBoy::Controller;
+namespace FunkyBoy::Controllers::Test {
+    extern char lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE + 1];
+}
 
-void SerialControllerTest::sendByte(FunkyBoy::u8 data) {
+using namespace FunkyBoy;
+
+void Controllers::init() {}
+void Controllers::destroy() {}
+
+using namespace FunkyBoy::Controllers;
+
+void Display::drawScanLine(FunkyBoy::u8 y, const FunkyBoy::u8 *buffer) {}
+void Display::drawScreen() {}
+
+bool Joypad::isKeyPressed(FunkyBoy::Controllers::Joypad::JoypadKey key) {
+    return false;
+}
+
+void Serial::sendByte(FunkyBoy::u8 data) {
     std::cout << data;
     for (u8 i = 1 ; i < FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE ; i++) {
-        lastWord[i - 1] = lastWord[i];
+        Test::lastWord[i - 1] = Test::lastWord[i];
     }
-    lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE - 1] = data;
+    Test::lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE - 1] = data;
 }
