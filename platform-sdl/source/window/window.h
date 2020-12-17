@@ -44,6 +44,15 @@ namespace FunkyBoy::SDL {
 
         fs::path savePath;
 
+        bool btnAWasPressed;
+        bool btnBWasPressed;
+        bool btnSelectWasPressed;
+        bool btnStartWasPressed;
+        bool btnUpWasPressed;
+        bool btnDownWasPressed;
+        bool btnLeftWasPressed;
+        bool btnRightWasPressed;
+
         void loadSave();
         void writeSave();
     public:

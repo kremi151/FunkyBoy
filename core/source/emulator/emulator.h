@@ -54,6 +54,10 @@ namespace FunkyBoy {
         void loadCartridgeRam(std::istream &stream);
         void writeCartridgeRam(std::ostream &stream);
 
+        inline void setInputState(Controller::JoypadKey key, bool pressed) {
+            ioRegisters.setInputState(key, pressed);
+        }
+
         Cartridge &getCartridge();
 
         ret_code doTick();
