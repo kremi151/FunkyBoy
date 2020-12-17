@@ -120,54 +120,59 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     }
 }
 
+void Window::updateInputs() {
+    // Poll keyboard inputs once per frame
+    SDL_PollEvent(&sdlEvents);
+
+    if (sdlEvents.type == SDL_KEYDOWN || sdlEvents.type == SDL_KEYUP) {
+        auto scancode = sdlEvents.key.keysym.scancode;
+        bool pressed = sdlEvents.type == SDL_KEYDOWN;
+        bool wasPressed;
+        Controller::JoypadKey key;
+        if (scancode == SDL_SCANCODE_Q) {
+            key = Controller::JoypadKey::JOYPAD_A;
+            wasPressed = btnAWasPressed;
+            btnAWasPressed = pressed;
+        } else if (scancode == SDL_SCANCODE_W) {
+            key = Controller::JoypadKey::JOYPAD_B;
+            wasPressed = btnBWasPressed;
+            btnBWasPressed = pressed;
+        } else if (scancode == SDL_SCANCODE_P) {
+            key = Controller::JoypadKey::JOYPAD_SELECT;
+            wasPressed = btnSelectWasPressed;
+            btnSelectWasPressed = pressed;
+        } else if (scancode == SDL_SCANCODE_O) {
+            key = Controller::JoypadKey::JOYPAD_START;
+            wasPressed = btnStartWasPressed;
+            btnStartWasPressed = pressed;
+        } else if (scancode == SDL_SCANCODE_UP) {
+            key = Controller::JoypadKey::JOYPAD_UP;
+            wasPressed = btnUpWasPressed;
+            btnUpWasPressed = pressed;
+        } else if (scancode == SDL_SCANCODE_DOWN) {
+            key = Controller::JoypadKey::JOYPAD_DOWN;
+            wasPressed = btnDownWasPressed;
+            btnDownWasPressed = pressed;
+        } else if (scancode == SDL_SCANCODE_LEFT) {
+            key = Controller::JoypadKey::JOYPAD_LEFT;
+            wasPressed = btnLeftWasPressed;
+            btnLeftWasPressed = pressed;
+        } else if (scancode == SDL_SCANCODE_RIGHT) {
+            key = Controller::JoypadKey::JOYPAD_RIGHT;
+            wasPressed = btnRightWasPressed;
+            btnRightWasPressed = pressed;
+        } else {
+            return;
+        }
+        if (wasPressed != pressed) {
+            emulator.setInputState(key, pressed);
+        }
+    }
+}
+
 void Window::update() {
     if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
-        // Poll keyboard inputs once per frame
-        SDL_PollEvent(&sdlEvents);
-
-        if (sdlEvents.type == SDL_KEYDOWN || sdlEvents.type == SDL_KEYUP) {
-            bool btnAPressed = keyboardState[SDL_SCANCODE_Q];
-            bool btnBPressed = keyboardState[SDL_SCANCODE_W];
-            bool btnSelectPressed = keyboardState[SDL_SCANCODE_P];
-            bool btnStartPressed = keyboardState[SDL_SCANCODE_O];
-            bool btnUpPressed = keyboardState[SDL_SCANCODE_UP];
-            bool btnDownPressed = keyboardState[SDL_SCANCODE_DOWN];
-            bool btnLeftPressed = keyboardState[SDL_SCANCODE_LEFT];
-            bool btnRightPressed = keyboardState[SDL_SCANCODE_RIGHT];
-
-            if (btnAWasPressed != btnAPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_A, btnAPressed);
-            }
-            btnAWasPressed = btnAPressed;
-            if (btnBWasPressed != btnBPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_B, btnBPressed);
-            }
-            btnBWasPressed = btnBPressed;
-            if (btnSelectWasPressed != btnSelectPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_SELECT, btnSelectPressed);
-            }
-            btnSelectWasPressed = btnSelectPressed;
-            if (btnStartWasPressed != btnStartPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_START, btnStartPressed);
-            }
-            btnStartWasPressed = btnStartPressed;
-            if (btnUpWasPressed != btnUpPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_UP, btnUpPressed);
-            }
-            btnUpWasPressed = btnUpPressed;
-            if (btnDownWasPressed != btnDownPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_DOWN, btnDownPressed);
-            }
-            btnDownWasPressed = btnDownPressed;
-            if (btnLeftWasPressed != btnLeftPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_LEFT, btnLeftPressed);
-            }
-            btnLeftWasPressed = btnLeftPressed;
-            if (btnRightWasPressed != btnRightPressed) {
-                emulator.setInputState(Controller::JoypadKey::JOYPAD_RIGHT, btnRightPressed);
-            }
-            btnRightWasPressed = btnRightPressed;
-        }
+        updateInputs();
 
         // Toggle fullscreen mode
         if (keyboardState[SDL_SCANCODE_F]) {

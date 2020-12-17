@@ -53,6 +53,8 @@ namespace FunkyBoy::SDL {
         bool btnLeftWasPressed;
         bool btnRightWasPressed;
 
+        void updateInputs();
+
         void loadSave();
         void writeSave();
     public:
