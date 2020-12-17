@@ -33,6 +33,14 @@ Window::Window(FunkyBoy::GameBoyType gbType)
     , frameBuffer(nullptr)
     , keyboardState(SDL_GetKeyboardState(nullptr))
     , fullscreenRequestedPreviously(false)
+    , btnAWasPressed(false)
+    , btnBWasPressed(false)
+    , btnStartWasPressed(false)
+    , btnSelectWasPressed(false)
+    , btnUpWasPressed(false)
+    , btnDownWasPressed(false)
+    , btnLeftWasPressed(false)
+    , btnRightWasPressed(false)
 {
 }
 
@@ -129,42 +137,34 @@ void Window::update() {
 
             if (btnAWasPressed != btnAPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_A, btnAPressed);
-                fprintf(stdout, "A is pressed %d\n", btnAPressed);
             }
             btnAWasPressed = btnAPressed;
             if (btnBWasPressed != btnBPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_B, btnBPressed);
-                fprintf(stdout, "B is pressed %d\n", btnBPressed);
             }
             btnBWasPressed = btnBPressed;
             if (btnSelectWasPressed != btnSelectPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_SELECT, btnSelectPressed);
-                fprintf(stdout, "Select is pressed %d\n", btnSelectPressed);
             }
             btnSelectWasPressed = btnSelectPressed;
             if (btnStartWasPressed != btnStartPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_START, btnStartPressed);
-                fprintf(stdout, "Start is pressed %d\n", btnStartPressed);
             }
             btnStartWasPressed = btnStartPressed;
             if (btnUpWasPressed != btnUpPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_UP, btnUpPressed);
-                fprintf(stdout, "Up is pressed %d\n", btnUpPressed);
             }
             btnUpWasPressed = btnUpPressed;
             if (btnDownWasPressed != btnDownPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_DOWN, btnDownPressed);
-                fprintf(stdout, "Down is pressed %d\n", btnDownPressed);
             }
             btnDownWasPressed = btnDownPressed;
             if (btnLeftWasPressed != btnLeftPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_LEFT, btnLeftPressed);
-                fprintf(stdout, "Left is pressed %d\n", btnLeftPressed);
             }
             btnLeftWasPressed = btnLeftPressed;
             if (btnRightWasPressed != btnRightPressed) {
                 emulator.setInputState(Controller::JoypadKey::JOYPAD_RIGHT, btnRightPressed);
-                fprintf(stdout, "Right is pressed %d\n", btnRightPressed);
             }
             btnRightWasPressed = btnRightPressed;
         }

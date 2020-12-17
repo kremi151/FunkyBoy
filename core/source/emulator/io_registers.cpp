@@ -23,9 +23,9 @@ io_registers::io_registers(const io_registers &registers)
     , sys_counter_msb(registers.sys_counter_msb)
     , hwIO(registers.hwIO)
     , controllers(registers.controllers)
+    , inputsDPad(registers.inputsDPad)
+    , inputsButtons(registers.inputsButtons)
     , ptrCounter(registers.ptrCounter)
-    , inputsDPad(0b11111111u)
-    , inputsButtons(0b11111111u)
 {
     (*ptrCounter)++;
 }
@@ -35,9 +35,9 @@ io_registers::io_registers(Controller::ControllersPtr controllers)
     , sys_counter_msb(new u8(0))
     , hwIO(new u8[128]{})
     , controllers(std::move(controllers))
+    , inputsDPad(new u8_fast(0b11111111u))
+    , inputsButtons(new u8_fast(0b11111111u))
     , ptrCounter(new u16(1))
-    , inputsDPad(0b11111111u)
-    , inputsButtons(0b11111111u)
 {
 }
 
@@ -46,6 +46,8 @@ io_registers::~io_registers() {
         delete sys_counter_lsb;
         delete sys_counter_msb;
         delete[] hwIO;
+        delete inputsDPad;
+        delete inputsButtons;
         delete ptrCounter;
     }
 }
@@ -103,58 +105,58 @@ void io_registers::setInputState(Controller::JoypadKey key, bool pressed) {
     switch (key) {
         case Controller::JoypadKey::JOYPAD_A:
             if (pressed) {
-                inputsButtons &= 0b11111110u;
+                *inputsButtons &= 0b11111110u;
             } else {
-                inputsButtons |= 0b00000001u;
+                *inputsButtons |= 0b00000001u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_B:
             if (pressed) {
-                inputsButtons &= 0b11111101u;
+                *inputsButtons &= 0b11111101u;
             } else {
-                inputsButtons |= 0b00000010u;
+                *inputsButtons |= 0b00000010u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_SELECT:
             if (pressed) {
-                inputsButtons &= 0b11111011u;
+                *inputsButtons &= 0b11111011u;
             } else {
-                inputsButtons |= 0b00000100u;
+                *inputsButtons |= 0b00000100u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_START:
             if (pressed) {
-                inputsButtons &= 0b11110111u;
+                *inputsButtons &= 0b11110111u;
             } else {
-                inputsButtons |= 0b00001000u;
+                *inputsButtons |= 0b00001000u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_RIGHT:
             if (pressed) {
-                inputsDPad &= 0b11111110u;
+                *inputsDPad &= 0b11111110u;
             } else {
-                inputsDPad |= 0b00000001u;
+                *inputsDPad |= 0b00000001u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_LEFT:
             if (pressed) {
-                inputsDPad &= 0b11111101u;
+                *inputsDPad &= 0b11111101u;
             } else {
-                inputsDPad |= 0b00000010u;
+                *inputsDPad |= 0b00000010u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_UP:
             if (pressed) {
-                inputsDPad &= 0b11111011u;
+                *inputsDPad &= 0b11111011u;
             } else {
-                inputsDPad |= 0b00000100u;
+                *inputsDPad |= 0b00000100u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_DOWN:
             if (pressed) {
-                inputsDPad &= 0b11110111u;
+                *inputsDPad &= 0b11110111u;
             } else {
-                inputsDPad |= 0b00001000u;
+                *inputsDPad |= 0b00001000u;
             }
             break;
     }
@@ -166,11 +168,11 @@ u8_fast io_registers::updateJoypad() {
     u8_fast val = originalValue | 0b11001111u;
     if ((originalValue & 0b00100000u) == 0) {
         // Select Button keys
-        val &= inputsButtons;
+        val &= *inputsButtons;
     }
     if ((originalValue & 0b00010000u) == 0) {
         // Select Direction keys
-        val &= inputsDPad;
+        val &= *inputsDPad;
     }
     p1 = val;
     return val;

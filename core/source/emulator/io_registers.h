@@ -72,8 +72,8 @@ namespace FunkyBoy {
         void setSysCounter(u16 counter);
         void resetSysCounter();
 
-        u8_fast inputsDPad;
-        u8_fast inputsButtons;
+        u8_fast *inputsDPad;
+        u8_fast *inputsButtons;
     test_public:
         u8 *sys_counter_lsb;
         u8 *sys_counter_msb;
