@@ -33,15 +33,6 @@ namespace FunkyBoy::Controller {
         JOYPAD_DOWN = 7
     };
 
-    class JoypadController {
-    public:
-        virtual ~JoypadController() = default;
-
-        virtual bool isKeyPressed(JoypadKey key) = 0;
-    };
-
-    typedef std::shared_ptr<JoypadController> JoypadControllerPtr;
-
 }
 
 #endif //FB_CORE_CONTROLLERS_JOYPAD_H
