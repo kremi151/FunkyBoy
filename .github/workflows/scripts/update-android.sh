@@ -14,6 +14,9 @@ set -x
 git clone git@github.com:kremi151/FunkyBoyAndroid.git
 
 cd FunkyBoyAndroid
+
+OLD_COMMIT_HASH=$(git rev-parse HEAD)
+
 git submodule update --init --recursive
 GIT_UPDATE_OUTPUT=$(git submodule update --recursive --remote)
 
@@ -22,10 +25,18 @@ if ! echo "$GIT_UPDATE_OUTPUT" | grep -q "checked out"; then
 	exit 0
 fi
 
+NEW_COMMIT_HASH=$(git rev-parse HEAD)
+
+# Prepare commit message
+echo "Update FunkyBoy core" > /tmp/fb_git_log.txt
+echo "" >> /tmp/fb_git_log.txt
+git log --pretty="format:%h by %an: %s" ${OLD_COMMIT_HASH}..${NEW_COMMIT_HASH} >> /tmp/fb_git_log.txt
+sed -i -E "s/#([[:digit:]]+)/# \1/" /tmp/fb_git_log.txt
+
 git add app/src/main/cpp/funkyboy
 git config --local user.email "$(git log --format='%ae' HEAD^!)"
 git config --local user.name "CI"
-git commit -m "Update FunkyBoy" -m "Placeholder to include commit messages"
+git commit -F /tmp/fb_git_log.txt
 git push
 
 cd ../..
