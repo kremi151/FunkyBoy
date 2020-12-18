@@ -22,7 +22,6 @@
 
 #include <emulator/emulator.h>
 #include <controllers/display_3ds.h>
-#include <controllers/joypad_3ds.h>
 #include <util/fs.h>
 
 #define FB_3DS_ROM_PATH "funkyboy3DS/game.gb"
@@ -111,7 +110,6 @@ extern "C" {
         // Emulator config
         auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
         controllers->setDisplay(std::make_shared<FunkyBoy::Controller::DisplayController3DS>());
-        controllers->setJoypad(std::make_shared<FunkyBoy::Controller::JoypadController3DS>());
 
         FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG, controllers);
 
@@ -136,9 +134,30 @@ extern "C" {
         gspWaitForVBlank();
         gfxSwapBuffers();
 
+        FunkyBoy::u32_fast lastKeysDown = 0;
+        FunkyBoy::u32_fast lastKeysHeld = 0;
+        FunkyBoy::u32_fast currentKeysDown;
+        FunkyBoy::u32_fast currentKeysHeld;
+
         // Main loop
         while (aptMainLoop())
         {
+            currentKeysDown = hidKeysDown();
+            currentKeysHeld = hidKeysHeld();
+            if (currentKeysHeld != lastKeysHeld || currentKeysDown != lastKeysDown) {
+                FunkyBoy::u32_fast kDown = currentKeysDown | currentKeysHeld;
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_A, kDown & KEY_A);
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_B, kDown & KEY_B);
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_START, kDown & KEY_START);
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_SELECT, kDown & KEY_SELECT);
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_UP, kDown & KEY_UP);
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_DOWN, kDown & KEY_DOWN);
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_LEFT, kDown & KEY_LEFT);
+                emulator.setInputState(FunkyBoy::Controller::JOYPAD_RIGHT, kDown & KEY_RIGHT);
+            }
+            lastKeysDown = currentKeysDown;
+            lastKeysHeld = currentKeysHeld;
+
             // TODO: Limit frame rate
             if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
                 hidScanInput();
