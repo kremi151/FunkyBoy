@@ -97,10 +97,15 @@ extern "C" {
         printf("\n");
 
         bool isNew3DS;
+        bool new3DSModeEnabled = true;
+        bool requestedDisable3DSMode = false;
         APT_CheckNew3DS(&isNew3DS);
         osSetSpeedupEnable(true);
         if (!isNew3DS) {
             printf("Running on old 3DS, brace yourself for very slow emulation\n");
+            new3DSModeEnabled = false;
+        } else {
+            std::cout << "Press Y to disable speed mode" << std::endl;
         }
 
         if (!findSDCard()) {
@@ -164,9 +169,23 @@ extern "C" {
             }
 
             // Your code goes here
-            u32 kDown = hidKeysDown();
-            if (kDown & KEY_X)
+            u32 kDown = currentKeysDown;
+            if (kDown & KEY_X) {
                 break; // break in order to return to hbmenu
+            } else if (kDown & KEY_Y && isNew3DS) {
+                if (!requestedDisable3DSMode) {
+                    requestedDisable3DSMode = true;
+                    new3DSModeEnabled = !new3DSModeEnabled;
+                    osSetSpeedupEnable(new3DSModeEnabled);
+                    if (new3DSModeEnabled) {
+                        std::cout << "Press Y to disable speed mode" << std::endl;
+                    } else {
+                        std::cout << "Press Y to enable speed mode" << std::endl;
+                    }
+                }
+            } else {
+                requestedDisable3DSMode = false;
+            }
         }
 
         writeSave(emulator, savePath);
