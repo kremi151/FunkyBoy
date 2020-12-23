@@ -20,6 +20,7 @@
 #include <util/debug.h>
 #include <emulator/emulator.h>
 #include <controllers/display_psp.h>
+#include <controllers/joypad_psp.h>
 #include "callback.h"
 #include "user_input.h"
 
@@ -56,7 +57,7 @@ int main() {
     auto displayController = std::make_shared<FunkyBoyPSP::Controller::DisplayController>();
     auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
     controllers->setDisplay(displayController);
-    //controllers->setJoypad(std::make_shared<FunkyBoy::Controller::JoypadController3DS>());
+    controllers->setJoypad(std::make_shared<FunkyBoyPSP::Controller::JoypadController>());
 
     pspDebugScreenPrintf("Loading game from %s...\n", FB_PSP_ROM_PATH);
     FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG, controllers);

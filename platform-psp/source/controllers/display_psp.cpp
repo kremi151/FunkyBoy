@@ -39,7 +39,4 @@ void DisplayController::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
 
 void DisplayController::drawScreen() {
     sceDisplayWaitVblank();
-    /*gspWaitForVBlank();
-    gfxSwapBuffers();
-    frameBuffer = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &frameWidth, &frameHeight);*/
 }

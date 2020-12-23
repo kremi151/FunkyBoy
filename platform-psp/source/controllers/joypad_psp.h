@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-#include "user_input.h"
+#ifndef FB_PSP_CONTROLLERS_JOYPAD_PSP_H
+#define FB_PSP_CONTROLLERS_JOYPAD_PSP_H
 
-#include <pspctrl.h>
+#include <controllers/joypad.h>
 
-namespace FunkyBoyPSP::Input {
-    static SceCtrlLatch latch;
+namespace FunkyBoyPSP::Controller {
+
+    class JoypadController: public FunkyBoy::Controller::JoypadController {
+    public:
+        bool isKeyPressed(FunkyBoy::Controller::JoypadKey key) override;
+    };
+
 }
 
-using namespace FunkyBoyPSP;
-
-void Input::poll() {
-    sceCtrlReadLatch(&latch);
-}
-
-unsigned int Input::getUiPress() {
-    return latch.uiPress;
-}
-
-int Input::getX() {
-    return latch.uiPress & PSP_CTRL_CROSS;
-}
+#endif //FB_PSP_CONTROLLERS_JOYPAD_PSP_H
