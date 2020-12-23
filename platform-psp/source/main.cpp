@@ -59,7 +59,7 @@ int main() {
     //controllers->setJoypad(std::make_shared<FunkyBoy::Controller::JoypadController3DS>());
 
     pspDebugScreenPrintf("Loading game from %s...\n", FB_PSP_ROM_PATH);
-    FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG);
+    FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG, controllers);
     auto status = emulator.loadGame(FB_PSP_ROM_PATH);
 
     if (status == FunkyBoy::CartridgeStatus::Loaded) {
@@ -70,15 +70,19 @@ int main() {
         return pressXToExit();
     }
 
-    sceDisplaySetMode(0, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
+    u32 *vram = (u32*) (0x40000000 | 0x04000000);
+    static_cast<FunkyBoyPSP::Controller::DisplayController*>(displayController.get())->frameBuffer = vram;
+
+    sceDisplaySetMode(0, 480, 272);
     sceDisplaySetFrameBuf(
-            static_cast<FunkyBoyPSP::Controller::DisplayController*>(displayController.get())->frameBuffer,
-            FB_GB_DISPLAY_WIDTH,
+            (void*) vram,
+            512,
             PspDisplayPixelFormats::PSP_DISPLAY_PIXEL_FORMAT_8888,
             PspDisplaySetBufSync::PSP_DISPLAY_SETBUF_NEXTFRAME
             );
 
     sceDisplayWaitVblankStart();
+    pspDebugScreenPrintf("Starting game\n");
 
     FunkyBoy::ret_code retCode;
     while (isRunning()) {
@@ -86,9 +90,6 @@ int main() {
         retCode = emulator.doTick();
         if (retCode & FB_RET_NEW_SCANLINE) {
             Input::poll();
-        }
-        if (retCode & FB_RET_NEW_FRAME) {
-            sceDisplayWaitVblankStart();
         }
     }
 

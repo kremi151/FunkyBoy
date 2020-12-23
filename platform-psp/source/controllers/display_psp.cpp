@@ -16,29 +16,30 @@
 
 #include "display_psp.h"
 
+#include <pspdisplay.h>
 #include <palette/dmg_palette.h>
 
 using namespace FunkyBoyPSP::Controller;
 
-DisplayController::DisplayController()
-        : frameBuffer(new uint32_t[FB_GB_DISPLAY_WIDTH * FB_GB_DISPLAY_HEIGHT]{})
-{
-}
-
-DisplayController::~DisplayController() {
-    delete[] frameBuffer;
-}
+DisplayController::DisplayController() = default;
 
 void DisplayController::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     uint32_t pixel;
-    for (FunkyBoy::u8 x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
+    uint_fast8_t x;
+    /*for (FunkyBoy::u8 x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
         auto &color = FunkyBoy::Palette::ARGB8888::DMG[*(buffer + x)];
         pixel = (255u << 24u) | (color[0] << 16) | (color[1] << 8) | color[2];
         frameBuffer[(y * FB_GB_DISPLAY_WIDTH) + x] = pixel;
+    }*/
+    for (x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
+        auto &color = FunkyBoy::Palette::ARGB8888::DMG[*(buffer + x)];
+        pixel = (255u << 24u) | (color[0] << 16) | (color[1] << 8) | color[2];
+        frameBuffer[(y * 512) + x] = pixel;
     }
 }
 
 void DisplayController::drawScreen() {
+    sceDisplayWaitVblank();
     /*gspWaitForVBlank();
     gfxSwapBuffers();
     frameBuffer = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &frameWidth, &frameHeight);*/

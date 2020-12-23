@@ -24,9 +24,8 @@ namespace FunkyBoyPSP::Controller {
     class DisplayController: public FunkyBoy::Controller::DisplayController {
     public:
         DisplayController();
-        ~DisplayController() override;
 
-        uint32_t *frameBuffer;
+        uint32_t *frameBuffer{};
 
         void drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) override;
         void drawScreen() override;
