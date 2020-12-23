@@ -20,7 +20,10 @@
 #include <cstdint>
 
 #define FB_NAME "FunkyBoy"
-#define FB_VERSION "0.0.1-Alpha"
+#define FB_VERSION_MAJOR 0
+#define FB_VERSION_MINOR 1
+#define FB_VERSION_PATCH 0
+#define FB_VERSION FB_VERSION_MAJOR "." FB_VERSION_MINOR "." FB_VERSION_PATCH "-Alpha"
 
 #define FB_GB_DISPLAY_WIDTH 160
 #define FB_GB_DISPLAY_HEIGHT 144

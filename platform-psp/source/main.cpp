@@ -17,7 +17,12 @@
 #include <pspkernel.h>
 #include <pspdebug.h>
 #include <pspdisplay.h>
+#include <util/typedefs.h>
 #include "callback.h"
+
+PSP_MODULE_INFO(FB_NAME, 0, FB_VERSION_MAJOR, FB_VERSION_MINOR);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
+PSP_HEAP_SIZE_MAX();
 
 int main() {
     // pspDebugScreenInit();

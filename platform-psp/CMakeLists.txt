@@ -38,3 +38,5 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 
 target_link_libraries(fb_psp fb_core ${PSP_LIBRARIES})
+
+create_pbp_file(TARGET fb_psp)
