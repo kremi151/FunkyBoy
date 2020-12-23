@@ -20,7 +20,7 @@ jobs:
       - name: Run build in DevkitARM container
         uses: docker://devkitpro/devkitarm:20200730
         with:
-          entrypoint: ./.github/workflows/scripts/build-3ds.sh
+          entrypoint: ./.github/workflows/scripts/build-in-docker.sh platform-3ds
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:

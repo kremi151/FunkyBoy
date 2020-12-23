@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Arguments:
+# $1 : source path relative to the workspace root
+
+FB_SRC_DIR=$1
+
 echo "Upgrade to newer CMake"
 new_cmake_dir="$HOME/tmp_cmake"
 mkdir $new_cmake_dir
@@ -12,8 +17,8 @@ echo "Test CMake installation"
 cd ~
 cmake --version
 
-echo "Build 3DS platform"
-cd /github/workspace/platform-3ds
+echo "Build FunkyBoy at $FB_SRC_DIR"
+cd /github/workspace/$FB_SRC_DIR
 mkdir cmake-build
 cd cmake-build
 cmake ..
