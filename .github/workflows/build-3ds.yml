@@ -21,7 +21,7 @@ jobs:
         uses: docker://devkitpro/devkitarm:20200730
         with:
           entrypoint: ./.github/workflows/scripts/build-in-docker.sh
-          args: ['platform-3ds']
+          args: platform-3ds
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
