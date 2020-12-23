@@ -21,20 +21,19 @@
 
 using namespace FunkyBoyPSP::Controller;
 
-DisplayController::DisplayController() = default;
+DisplayController::DisplayController()
+    : offsetX((480 - FB_GB_DISPLAY_WIDTH) / 2)
+    , offsetY((272 - FB_GB_DISPLAY_HEIGHT) / 2)
+{
+}
 
 void DisplayController::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
     uint32_t pixel;
     uint_fast8_t x;
-    /*for (FunkyBoy::u8 x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
-        auto &color = FunkyBoy::Palette::ARGB8888::DMG[*(buffer + x)];
-        pixel = (255u << 24u) | (color[0] << 16) | (color[1] << 8) | color[2];
-        frameBuffer[(y * FB_GB_DISPLAY_WIDTH) + x] = pixel;
-    }*/
     for (x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
         auto &color = FunkyBoy::Palette::ARGB8888::DMG[*(buffer + x)];
         pixel = (255u << 24u) | (color[0] << 16) | (color[1] << 8) | color[2];
-        frameBuffer[(y * 512) + x] = pixel;
+        frameBuffer[((y + offsetY) * 512) + x + offsetX] = pixel;
     }
 }
 

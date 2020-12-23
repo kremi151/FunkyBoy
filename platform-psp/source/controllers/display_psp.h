@@ -25,6 +25,8 @@ namespace FunkyBoyPSP::Controller {
     public:
         DisplayController();
 
+        uint_fast8_t offsetX, offsetY;
+
         uint32_t *frameBuffer{};
 
         void drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) override;
