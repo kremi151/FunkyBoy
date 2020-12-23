@@ -18,6 +18,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PSP_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
+if(NOT CMAKE_BUILD_TYPE)
+    message("Setting CMAKE_BUILD_TYPE to Release")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Release is recommended for best performance)" FORCE)
+elseif(NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    message(WARNING "Using CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}, but Release is recommended for best performance during runtime")
+endif()
+
 set(SOURCES
         source/main.cpp
         source/callback.cpp
