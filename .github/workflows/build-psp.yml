@@ -20,7 +20,8 @@ jobs:
       - name: Run build in pspdev container
         uses: docker://kremi151/pspdev:latest
         with:
-          entrypoint: ./.github/workflows/scripts/build-in-docker.sh platform-psp
+          entrypoint: ./.github/workflows/scripts/build-in-docker.sh
+          args: ['platform-psp']
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
