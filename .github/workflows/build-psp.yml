@@ -4,8 +4,8 @@ on:
   push:
     branches: [ master, platform_psp ]
     paths:
-#      - 'core/**'
-#      - 'platform-psp/**'
+      - 'core/**'
+      - 'platform-psp/**'
   pull_request:
     branches: [ master ]
 
