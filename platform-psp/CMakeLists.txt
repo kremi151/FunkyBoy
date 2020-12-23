@@ -1,0 +1,38 @@
+set(BUILD_EBOOT TRUE)
+set(PSP_EBOOT_TITLE "FunkyBoy")
+
+execute_process(COMMAND psp-config --psp-prefix OUTPUT_VARIABLE PSP_PREFIX)
+string(REGEX REPLACE "\n$" "" PSP_PREFIX "${PSP_PREFIX}")
+
+set(PSP_MODULE_PATH ${PSP_PREFIX}/share/cmake)
+
+message(STATUS "PSP Prefix: ${PSP_PREFIX}")
+message(STATUS "PSP Module path: ${PSP_MODULE_PATH}")
+
+set(CMAKE_TOOLCHAIN_FILE ${PSP_MODULE_PATH}/PSP.cmake)
+
+cmake_minimum_required(VERSION 3.13)
+project(fb_psp CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PSP_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
+
+set(SOURCES
+        source/main.cpp
+        )
+
+set(HEADERS
+        )
+
+add_executable(fb_psp ${SOURCES} ${HEADERS})
+
+# Include FunkyBoy core
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core" fb_core_build)
+
+set_target_properties(fb_psp PROPERTIES LINKER_LANGUAGE CXX)
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
+
+target_link_libraries(fb_psp fb_core)
