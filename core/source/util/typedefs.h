@@ -19,11 +19,14 @@
 
 #include <cstdint>
 
+#define __fb_versionStr_indirect(major, minor, patch) "" #major "." #minor "." #patch
+#define __fb_versionStr(major, minor, patch) __fb_versionStr_indirect(major, minor, patch)
+
 #define FB_NAME "FunkyBoy"
 #define FB_VERSION_MAJOR 0
 #define FB_VERSION_MINOR 1
 #define FB_VERSION_PATCH 0
-#define FB_VERSION FB_VERSION_MAJOR "." FB_VERSION_MINOR "." FB_VERSION_PATCH "-Alpha"
+#define FB_VERSION __fb_versionStr(FB_VERSION_MAJOR, FB_VERSION_MINOR, FB_VERSION_PATCH) "-Alpha"
 
 #define FB_GB_DISPLAY_WIDTH 160
 #define FB_GB_DISPLAY_HEIGHT 144
