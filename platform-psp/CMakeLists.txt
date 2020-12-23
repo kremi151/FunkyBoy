@@ -22,11 +22,13 @@ set(SOURCES
         source/main.cpp
         source/callback.cpp
         source/user_input.cpp
+        source/controllers/display_psp.cpp
         )
 
 set(HEADERS
         source/callback.h
         source/user_input.h
+        source/controllers/display_psp.h
         )
 
 add_executable(fb_psp ${SOURCES} ${HEADERS})
