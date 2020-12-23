@@ -18,11 +18,29 @@
 #include <pspdisplay.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
+#include <emulator/emulator.h>
 #include "callback.h"
+#include "user_input.h"
 
 PSP_MODULE_INFO(FB_NAME, 0, FB_VERSION_MAJOR, FB_VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 PSP_HEAP_SIZE_MAX();
+
+#define FB_PSP_ROM_PATH "ms0:/funkyboy/game.gb"
+
+using namespace FunkyBoyPSP;
+
+int pressXToExit() {
+    pspDebugScreenPrintf("Press X to exit\n");
+    while (isRunning()) {
+        Input::poll();
+        if (Input::getX()) {
+            break;
+        }
+    }
+    sceKernelExitGame();
+    return 0;
+}
 
 int main() {
     setupExitCallback();
@@ -32,6 +50,19 @@ int main() {
     pspDebugScreenClear();
     pspDebugScreenSetXY(0, 0);
     pspDebugScreenPrintf("%s version %s\n", FB_NAME, FB_VERSION);
+
+    pspDebugScreenPrintf("Loading game from %s...\n", FB_PSP_ROM_PATH);
+    FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG);
+    auto status = emulator.loadGame(FB_PSP_ROM_PATH);
+
+    if (status == FunkyBoy::CartridgeStatus::Loaded) {
+        pspDebugScreenPrintf("Loaded ROM at %s\n", FB_PSP_ROM_PATH);
+        pspDebugScreenPrintf("ROM title: %s\n", emulator.getCartridge().getHeader()->title);
+    } else {
+        pspDebugScreenPrintf("Could not load ROM at %s (status=%d)\n", FB_PSP_ROM_PATH, status);
+        return pressXToExit();
+    }
+
     while (isRunning()) {
         // pspDebugScreenSetXY(0, 0);
     }
