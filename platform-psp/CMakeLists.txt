@@ -20,9 +20,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PSP_MODULE_PATH} ${CMAKE_SOURCE_DIR
 
 set(SOURCES
         source/main.cpp
+        source/callback.cpp
         )
 
 set(HEADERS
+        source/callback.h
         )
 
 add_executable(fb_psp ${SOURCES} ${HEADERS})
@@ -35,4 +37,4 @@ set_target_properties(fb_psp PROPERTIES LINKER_LANGUAGE CXX)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 
-target_link_libraries(fb_psp fb_core)
+target_link_libraries(fb_psp fb_core ${PSP_LIBRARIES})

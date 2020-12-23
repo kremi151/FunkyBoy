@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-#include <pspkernel.h>
-#include <pspdebug.h>
-#include <pspdisplay.h>
-#include "callback.h"
+#ifndef FB_PSP_CALLBACK_H
+#define FB_PSP_CALLBACK_H
 
-int main() {
-    // pspDebugScreenInit();
-    setupExitCallback();
-    while (isRunning()) {
-        // pspDebugScreenSetXY(0, 0);
-    }
+int isRunning();
+int setupExitCallback();
 
-    sceKernelExitGame();
-    return 0;
-}
+#endif //FB_PSP_CALLBACK_H
