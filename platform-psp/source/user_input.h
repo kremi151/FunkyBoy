@@ -20,7 +20,7 @@
 namespace FunkyBoyPSP::Input {
     int getX();
     void poll();
-    unsigned int getUiPress();
+    unsigned int getPressedKeys();
 }
 
 #endif //FB_PSP_USER_INPUT_H

@@ -21,7 +21,7 @@
 using namespace FunkyBoyPSP::Controller;
 
 bool JoypadController::isKeyPressed(FunkyBoy::Controller::JoypadKey key) {
-    uint_fast32_t kDown = Input::getUiPress();
+    uint_fast32_t kDown = Input::getPressedKeys();
     switch (key) {
         case FunkyBoy::Controller::JoypadKey::JOYPAD_A:
             return kDown & PSP_CTRL_CIRCLE;

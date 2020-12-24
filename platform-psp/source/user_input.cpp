@@ -20,16 +20,19 @@
 
 namespace FunkyBoyPSP::Input {
     static SceCtrlLatch latch;
+    static unsigned int keyPressed = 0;
 }
 
 using namespace FunkyBoyPSP;
 
 void Input::poll() {
     sceCtrlReadLatch(&latch);
+    keyPressed |= latch.uiPress;
+    keyPressed &= ~latch.uiRelease;
 }
 
-unsigned int Input::getUiPress() {
-    return latch.uiPress;
+unsigned int Input::getPressedKeys() {
+    return keyPressed;
 }
 
 int Input::getX() {
