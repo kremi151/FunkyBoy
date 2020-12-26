@@ -13,6 +13,7 @@ set(SOURCES
         source/mooneye/rom_mooneye_mbc1.cpp
         source/mooneye/rom_mooneye_mbc2.cpp
         source/mooneye/rom_acceptance.cpp
+        source/perf_mode.cpp
         source/main.cpp
         )
 
@@ -28,6 +29,7 @@ set(HEADERS
         source/blargg/blargg_tests.h
         source/mooneye/mooneye_tests.h
         source/mooneye/rom_acceptance.h
+        source/perf_mode.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
