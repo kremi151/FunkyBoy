@@ -1,4 +1,4 @@
-# FunkyBoy - Nintendo 3DS
+# FunkyBoy - PlayStation Portable
 
 ![Build PSP platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20PSP%20platform/badge.svg)
 
