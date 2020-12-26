@@ -40,6 +40,7 @@ set(SOURCES
         source/operands/conditions.cpp
         source/operands/debug.cpp
         source/operands/decoder.cpp
+        source/operands/registry.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
@@ -85,6 +86,7 @@ set(HEADERS
         source/operands/conditions.h
         source/operands/debug.h
         source/operands/decoder.h
+        source/operands/registry.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h
