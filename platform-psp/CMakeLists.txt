@@ -1,6 +1,3 @@
-set(BUILD_EBOOT TRUE)
-set(PSP_EBOOT_TITLE "FunkyBoy")
-
 execute_process(COMMAND psp-config --psp-prefix OUTPUT_VARIABLE PSP_PREFIX)
 string(REGEX REPLACE "\n$" "" PSP_PREFIX "${PSP_PREFIX}")
 
@@ -13,6 +10,8 @@ set(CMAKE_TOOLCHAIN_FILE ${PSP_MODULE_PATH}/PSP.cmake)
 
 cmake_minimum_required(VERSION 3.13)
 project(fb_psp CXX)
+
+include(FunkyBoyVersion)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -52,4 +51,4 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 
 target_link_libraries(fb_psp -lstdc++ ${PSP_LIBRARIES} fb_core)
 
-create_pbp_file(TARGET fb_psp)
+create_pbp_file(TARGET fb_psp TITLE ${FB_NAME})
