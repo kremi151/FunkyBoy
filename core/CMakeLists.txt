@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
+include(FunkyBoyVersion)
+
 if (MSVC)
     message("We're running in Visual Studio!")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -88,6 +90,7 @@ set(HEADERS
         source/util/flags.h
         source/util/gpumode.h
         source/util/return_codes.h
+        source/util/string_polyfills.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         )

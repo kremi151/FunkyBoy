@@ -1,29 +1,29 @@
-name: Build 3DS platform
+name: Build PSP platform
 
 on:
   push:
     branches: [ master ]
     paths:
       - 'core/**'
-      - 'platform-3ds/**'
+      - 'platform-psp/**'
   pull_request:
     branches: [ master ]
 
 jobs:
-  build-3ds:
+  build-psp:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Run build in DevkitARM container
-        uses: docker://devkitpro/devkitarm:20200730
+      - name: Run build in pspdev container
+        uses: docker://kremi151/pspdev:latest
         with:
           entrypoint: ./.github/workflows/scripts/build-in-docker.sh
-          args: platform-3ds
+          args: platform-psp
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: FunkyBoy-3DS
-          path: "${{ github.workspace }}/platform-3ds/cmake-build/fb_3ds.3dsx"
+          name: FunkyBoy-PSP
+          path: "${{ github.workspace }}/platform-psp/cmake-build/EBOOT.PBP"

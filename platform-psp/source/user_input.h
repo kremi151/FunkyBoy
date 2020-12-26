@@ -14,32 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef FUNKYBOY_CORE_TYPEDEFS_H
-#define FUNKYBOY_CORE_TYPEDEFS_H
+#ifndef FB_PSP_USER_INPUT_H
+#define FB_PSP_USER_INPUT_H
 
-#include <cstdint>
-
-#define FB_GB_DISPLAY_WIDTH 160
-#define FB_GB_DISPLAY_HEIGHT 144
-
-#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
-
-namespace FunkyBoy {
-
-    typedef uint8_t u8;
-    typedef uint16_t u16;
-    typedef uint32_t u32;
-    typedef uint64_t u64;
-
-    typedef u32 memory_address;
-
-    typedef int8_t i8;
-    typedef int16_t i16;
-    typedef int32_t i32;
-    typedef int64_t i64;
-
-    typedef int ret_code;
-
+namespace FunkyBoyPSP::Input {
+    int getX();
+    void poll();
+    unsigned int getPressedKeys();
 }
 
-#endif //FUNKYBOY_CORE_TYPEDEFS_H
+#endif //FB_PSP_USER_INPUT_H

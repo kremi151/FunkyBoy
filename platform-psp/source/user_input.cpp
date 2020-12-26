@@ -14,32 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef FUNKYBOY_CORE_TYPEDEFS_H
-#define FUNKYBOY_CORE_TYPEDEFS_H
+#include "user_input.h"
 
-#include <cstdint>
+#include <pspctrl.h>
 
-#define FB_GB_DISPLAY_WIDTH 160
-#define FB_GB_DISPLAY_HEIGHT 144
-
-#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
-
-namespace FunkyBoy {
-
-    typedef uint8_t u8;
-    typedef uint16_t u16;
-    typedef uint32_t u32;
-    typedef uint64_t u64;
-
-    typedef u32 memory_address;
-
-    typedef int8_t i8;
-    typedef int16_t i16;
-    typedef int32_t i32;
-    typedef int64_t i64;
-
-    typedef int ret_code;
-
+namespace FunkyBoyPSP::Input {
+    static SceCtrlLatch latch;
+    static unsigned int keyPressed = 0;
 }
 
-#endif //FUNKYBOY_CORE_TYPEDEFS_H
+using namespace FunkyBoyPSP;
+
+void Input::poll() {
+    sceCtrlReadLatch(&latch);
+    keyPressed |= latch.uiPress;
+    keyPressed &= ~latch.uiRelease;
+}
+
+unsigned int Input::getPressedKeys() {
+    return keyPressed;
+}
+
+int Input::getX() {
+    return latch.uiPress & PSP_CTRL_CROSS;
+}
