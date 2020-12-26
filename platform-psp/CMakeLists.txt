@@ -11,11 +11,11 @@ set(CMAKE_TOOLCHAIN_FILE ${PSP_MODULE_PATH}/PSP.cmake)
 cmake_minimum_required(VERSION 3.13)
 project(fb_psp CXX)
 
-include(FunkyBoyVersion)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PSP_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
+
+include(FunkyBoyVersion)
 
 if(NOT CMAKE_BUILD_TYPE)
     message("Setting CMAKE_BUILD_TYPE to Release")
