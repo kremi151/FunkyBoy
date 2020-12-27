@@ -480,10 +480,11 @@ const Operand * Operands::decodeOpcode(u8 opcode, Memory &memory, InstrContext &
         // prefix
         case 0xCB: {
             debug_print_4("prefix (CB)\n");
+            context.instr = memory.read8BitsAt(context.progCounter++);
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-            return Operands::decodePrefix(memory.read8BitsAt(context.progCounter++), context);
+            return Operands::decodePrefix(context.instr, context);
 #else
-            return Operands::decodePrefix(memory.read8BitsAt(context.progCounter++));
+            return Operands::decodePrefix(context.instr);
 #endif
         }
         default: {
