@@ -44,6 +44,6 @@ https://github.com/AntonioND/giibiiadvance/raw/master/docs/TCAGBD.pdf
 
 https://www.reddit.com/r/EmuDev/comments/5qa3x1/timer_doesnt_work_properly_failed_2/dcykiwt
 
-## Test ROMS
+## Test ROMs
 
 https://gbdev.gg8.se/wiki/articles/Test_ROMs
