@@ -54,8 +54,6 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        u8 operandIndex;
-
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
 

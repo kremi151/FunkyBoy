@@ -30,7 +30,6 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     , instrContext(gbType)
     , timerOverflowingCycles(-1)
     , delayedTIMAIncrease(false)
-    , operandIndex(0)
     , joypadWasNotPressed(true)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt")
@@ -176,9 +175,9 @@ ret_code CPU::doCycle(Memory &memory) {
     if (instrContext.cpuState == CPUState::RUNNING) {
         memory.doDMA(); // TODO: Implement delay of 2 clocks
 
-        auto op = operands[operandIndex++];
+        auto op = *operands;
 
-        if (operands[operandIndex] == nullptr) {
+        if (*(++operands) == nullptr) {
             shouldFetch = true;
             result |= FB_RET_INSTRUCTION_DONE;
         }
@@ -203,7 +202,6 @@ ret_code CPU::doCycle(Memory &memory) {
 
     if (interruptServiced || (shouldFetch && instrContext.cpuState == CPUState::RUNNING)) { // TODO: Can this be simplified to just instrContext.cpuState == CPUState::RUNNING ?
         result |= doFetchAndDecode(memory);
-        operandIndex = 0;
         return result;
     }
 
