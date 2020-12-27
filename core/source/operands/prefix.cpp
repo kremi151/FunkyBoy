@@ -276,141 +276,238 @@ bool __prefix_set_HL(InstrContext &context, Memory &memory) {
     return true;
 }
 
-bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
-    context.instr = memory.read8BitsAt(context.progCounter++);
+namespace FunkyBoy::Operands::Registry {
 
+    const Operand rlc_r[3] = {
+            Operands::nop,
+            __prefix__rlc_r,
+            nullptr
+    };
+    const Operand rlc_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix__rlc_lsb,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand rrc_r[3] = {
+            Operands::nop,
+            __prefix__rrc_r,
+            nullptr
+    };
+    const Operand rrc_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix__rrc_lsb,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand rl_r[3] = {
+            Operands::nop,
+            __prefix_rl_r,
+            nullptr
+    };
+    const Operand rl_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_rl_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand rr_r[3] = {
+            Operands::nop,
+            __prefix_rr_r,
+            nullptr
+    };
+    const Operand rr_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_rr_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand sla_r[3] = {
+            Operands::nop,
+            __prefix_sla_r,
+            nullptr
+    };
+    const Operand sla_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_sla_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand sra_r[3] = {
+            Operands::nop,
+            __prefix_sra_r,
+            nullptr
+    };
+    const Operand sra_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_sra_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand swap_r[3] = {
+            Operands::nop,
+            __prefix_swap_r,
+            nullptr
+    };
+    const Operand swap_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_swap_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand srl_r[3] = {
+            Operands::nop,
+            __prefix_srl_r,
+            nullptr
+    };
+    const Operand srl_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_srl_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand bit_n_r[3] = {
+            Operands::nop,
+            __prefix_bit_r,
+            nullptr
+    };
+    const Operand bit_n_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_bit_HL,
+            Operands::_pad_,
+            nullptr
+    };
+
+    const Operand res_n_r[3] = {
+            Operands::nop,
+            __prefix_res_r,
+            nullptr
+    };
+    const Operand res_n_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_res_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+    const Operand set_n_r[3] = {
+            Operands::nop,
+            __prefix_set_r,
+            nullptr
+    };
+    const Operand set_n_HL[5] = {
+            Operands::nop,
+            Operands::readHLMem,
+            __prefix_set_HL,
+            Operands::writeLSBIntoHLMem,
+            nullptr
+    };
+
+}
+
+const Operand *Operands::decodePrefix(u8 opcode) {
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context);
 #endif
 
-    switch (context.instr) {
+    switch (opcode) {
         // rlc reg
         case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {
             debug_print_4("rlc r\n");
-            context.operands[1] = __prefix__rlc_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::rlc_r;
         }
         // rlc (HL)
         case 0x06: {
             debug_print_4("rlc (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix__rlc_lsb;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::rlc_HL;
         }
         // rrc reg
         case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0F: {
             debug_print_4("rrc r\n");
-            context.operands[1] = __prefix__rrc_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::rrc_r;
         }
         // rrc (HL)
         case 0x0E: {
             debug_print_4("rrc (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix__rrc_lsb;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::rrc_HL;
         }
         // rl reg
         case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x17: {
             debug_print_4("rl r\n");
-            context.operands[1] = __prefix_rl_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::rl_r;
         }
         // rl (HL)
         case 0x16: {
             debug_print_4("rl (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_rl_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::rl_HL;
         }
         // rr reg
         case 0x18: case 0x19: case 0x1A: case 0x1B: case 0x1C: case 0x1D: case 0x1F: {
             debug_print_4("rr r\n");
-            context.operands[1] = __prefix_rr_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::rr_r;
         }
         // rr (HL)
         case 0x1E: {
             debug_print_4("rr (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_rr_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::rr_HL;
         }
         // sla reg
         case 0x20: case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x27: {
             debug_print_4("sla r\n");
-            context.operands[1] = __prefix_sla_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::sla_r;
         }
         // sla (HL)
         case 0x26: {
             debug_print_4("sla (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_sla_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::sla_HL;
         }
         // sra reg
         case 0x28: case 0x29: case 0x2A: case 0x2B: case 0x2C: case 0x2D: case 0x2F: {
             debug_print_4("sra r\n");
-            context.operands[1] = __prefix_sra_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::sra_r;
         }
         // sra (HL)
         case 0x2E: {
             debug_print_4("sra (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_sra_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::sra_HL;
         }
         // swap reg
         case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x37: {
             debug_print_4("swap r\n");
-            context.operands[1] = __prefix_swap_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::swap_r;
         }
         // swap (HL)
         case 0x36: {
             debug_print_4("swap (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_swap_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::swap_HL;
         }
         // srl reg
         case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
             debug_print_4("srl r\n");
-            context.operands[1] = __prefix_srl_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::srl_r;
         }
         // srl (HL)
         case 0x3E: {
             debug_print_4("srl (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_srl_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::srl_HL;
         }
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // bit 0,reg
         case 0x48: case 0x49: case 0x4A: case 0x4B: case 0x4C: case 0x4D: case 0x4F: // bit 1,reg
@@ -421,19 +518,13 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
         case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77: // bit 6,reg
         case 0x78: case 0x79: case 0x7A: case 0x7B: case 0x7C: case 0x7D: case 0x7F: // bit 7,reg
         {
-            debug_print_4("bit r\n");
-            context.operands[1] = __prefix_bit_r;
-            context.operands[2] = nullptr;
-            return true;
+            debug_print_4("bit n,r\n");
+            return Registry::bit_n_r;
         }
         // bit n,(HL)
         case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x76: case 0x7E: {
-            debug_print_4("srl (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_bit_HL;
-            context.operands[3] = Operands::_pad_;
-            context.operands[4] = nullptr;
-            return true;
+            debug_print_4("bit n,(HL)\n");
+            return Registry::bit_n_HL;
         }
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // res 0,reg
         case 0x88: case 0x89: case 0x8A: case 0x8B: case 0x8C: case 0x8D: case 0x8F: // res 1,reg
@@ -445,18 +536,12 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
         case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF: // res 7,reg
         {
             debug_print_4("res r\n");
-            context.operands[1] = __prefix_res_r;
-            context.operands[2] = nullptr;
-            return true;
+            return Registry::res_n_r;
         }
         // res n,(HL)
         case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
-            debug_print_4("res (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_res_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            debug_print_4("res n,(HL)\n");
+            return Registry::res_n_HL;
         }
         case 0xC0: case 0xC1: case 0xC2: case 0xC3: case 0xC4: case 0xC5: case 0xC7: // set 0,reg
         case 0xC8: case 0xC9: case 0xCA: case 0xCB: case 0xCC: case 0xCD: case 0xCF: // set 1,reg
@@ -467,24 +552,17 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
         case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5: case 0xF7: // set 6,reg
         case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD: case 0xFF: // set 7,reg
         {
-            debug_print_4("set r\n");
-            context.operands[1] = __prefix_set_r;
-            context.operands[2] = nullptr;
-            return true;
+            debug_print_4("set n,r\n");
+            return Registry::set_n_r;
         }
         // set n,(HL)
         case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE: {
             debug_print_4("set (HL)\n");
-            context.operands[1] = Operands::readHLMem;
-            context.operands[2] = __prefix_set_HL;
-            context.operands[3] = Operands::writeLSBIntoHLMem;
-            context.operands[4] = nullptr;
-            return true;
+            return Registry::set_n_HL;
         }
         default: {
-            fprintf(stderr, "Encountered not yet implemented prefix 0x%02X at 0x%04X\n", context.instr, context.progCounter - 1);
-            return false;
+            fprintf(stderr, "Encountered unknown prefix instruction 0x%02X\n", opcode);
+            return nullptr;
         }
     }
-    return true;
 }

@@ -65,8 +65,6 @@ namespace FunkyBoy {
         u16 progCounter;
         u16 stackPointer;
 
-        Operand *operands;
-
         CPUState cpuState;
         IMEState interruptMasterEnable;
 

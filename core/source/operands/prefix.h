@@ -26,7 +26,7 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
-    bool decodePrefix(InstrContext &context, Memory &memory);
+    const Operand *decodePrefix(u8 opcode);
 
 }
 

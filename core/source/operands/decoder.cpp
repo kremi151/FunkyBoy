@@ -21,7 +21,7 @@
 
 using namespace FunkyBoy;
 
-const Operand * Operands::decodeOpcode(u8 opcode) {
+const Operand * Operands::decodeOpcode(u8 opcode, Memory &memory, InstrContext &context) {
     switch (opcode) {
         // nop
         case 0x00: {
@@ -480,15 +480,7 @@ const Operand * Operands::decodeOpcode(u8 opcode) {
         // prefix
         case 0xCB: {
             debug_print_4("prefix (CB)\n");
-            operands[0] = Operands::decodePrefix;
-            // Small workaround:
-            // To avoid our fetch/execution overlap implementation to override the prefix operands fetched in
-            // Operands::decodePrefix, we add a dummy operand. Like this when we check if the next operand would
-            // have been null, we do not directly replace the prefix operands. We only do it once they have been
-            // executed.
-            operands[1] = Operands::nop;
-            operands[2] = nullptr;
-            return true;
+            return Operands::decodePrefix(memory.read8BitsAt(context.progCounter++));
         }
         default: {
             return nullptr;

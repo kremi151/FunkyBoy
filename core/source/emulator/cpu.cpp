@@ -60,7 +60,6 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     instrContext.regA = regA;
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
-    instrContext.operands = operands;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
     instrContext.haltBugRequested = false;
     instrContext.cpuState = CPUState::RUNNING;
@@ -224,7 +223,7 @@ ret_code CPU::doFetchAndDecode(Memory &memory) {
     instr++;
 #endif
 
-    operands = Operands::decodeOpcode(instrContext.instr);
+    operands = Operands::decodeOpcode(instrContext.instr, memory, instrContext);
     if (operands == nullptr) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
         return 0;
