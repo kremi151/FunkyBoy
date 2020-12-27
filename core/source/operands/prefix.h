@@ -26,7 +26,11 @@ namespace FunkyBoy::Operands {
      * @param context
      * @return
      */
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+    const Operand *decodePrefix(u8 opcode, InstrContext &context);
+#else
     const Operand *decodePrefix(u8 opcode);
+#endif
 
 }
 

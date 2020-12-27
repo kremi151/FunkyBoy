@@ -423,9 +423,11 @@ namespace FunkyBoy::Operands::Registry {
 
 }
 
-const Operand *Operands::decodePrefix(u8 opcode) {
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+const Operand *Operands::decodePrefix(u8 opcode, InstrContext &context) {
     FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context);
+#else
+    const Operand *Operands::decodePrefix(u8 opcode) {
 #endif
 
     switch (opcode) {
