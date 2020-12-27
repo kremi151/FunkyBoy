@@ -20,6 +20,7 @@
 #include <util/registers.h>
 #include <util/return_codes.h>
 #include <emulator/io_registers.h>
+#include <operands/registry.h>
 
 using namespace FunkyBoy;
 
@@ -70,8 +71,7 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
 
     // Fetch/Execute overlapping -> initial fetch is performed without executing any other instruction
     // To simulate this, we set a NOP as the first instruction, which does nothing
-    operands[0] = Operands::nop;
-    operands[1] = nullptr;
+    operands = Operands::Registry::nop;
 }
 
 void CPU::powerUpInit(Memory &memory) {
@@ -224,7 +224,8 @@ ret_code CPU::doFetchAndDecode(Memory &memory) {
     instr++;
 #endif
 
-    if (!Operands::decodeOpcode(instrContext.instr, operands)) {
+    operands = Operands::decodeOpcode(instrContext.instr);
+    if (operands == nullptr) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
         return 0;
     }

@@ -55,7 +55,6 @@ namespace FunkyBoy {
         u8 registers[8]{};
 
         u8 operandIndex;
-        Operand operands[25]{};
 
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
@@ -81,6 +80,7 @@ namespace FunkyBoy {
 #endif
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
+        const Operand *operands;
 
         u8 *regB;
         u8 *regC;

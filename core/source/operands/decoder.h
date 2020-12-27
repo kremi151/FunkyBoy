@@ -23,7 +23,7 @@ namespace FunkyBoy::Operands {
 
     using operand_buffer = Operand[];
 
-    bool decodeOpcode(u8 opcode, operand_buffer operands);
+    const Operand *decodeOpcode(u8 opcode);
 
 }
 
