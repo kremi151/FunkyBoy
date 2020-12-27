@@ -21,8 +21,6 @@
 
 namespace FunkyBoy::Operands {
 
-    using operand_buffer = Operand[];
-
     const Operand *decodeOpcode(u8 opcode, Memory &memory, InstrContext &context);
 
 }

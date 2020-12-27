@@ -256,13 +256,13 @@ namespace FunkyBoy::Operands::Registry {
             nullptr
     };
 
-    const Operand jr_N_Z_a16[4] = {
+    const Operand jr_N_Z_r8[4] = {
             Operands::readSigned,
             Operands::checkIsZeroContextual,
             Operands::jr,
             nullptr
     };
-    const Operand jr_N_C_a16[4] = {
+    const Operand jr_N_C_r8[4] = {
             Operands::readSigned,
             Operands::checkIsCarryContextual,
             Operands::jr,

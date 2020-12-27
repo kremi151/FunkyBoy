@@ -67,8 +67,8 @@ namespace FunkyBoy::Operands::Registry {
     extern const Operand jp[5];
     extern const Operand jp_HL[2];
 
-    extern const Operand jr_N_Z_a16[4];
-    extern const Operand jr_N_C_a16[4];
+    extern const Operand jr_N_Z_r8[4];
+    extern const Operand jr_N_C_r8[4];
     extern const Operand jr[4];
 
     extern const Operand call_N_Z_a16[7];

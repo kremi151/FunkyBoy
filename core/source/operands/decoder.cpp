@@ -245,12 +245,12 @@ const Operand * Operands::decodeOpcode(u8 opcode, Memory &memory, InstrContext &
         // jr (N)Z,r8
         case 0x20: case 0x28: {
             debug_print_4("jr (N)Z,r8\n");
-            return Operands::Registry::jr_N_Z_a16;
+            return Operands::Registry::jr_N_Z_r8;
         }
         // jr (N)C,r8
         case 0x30: case 0x38: {
             debug_print_4("jr (N)C,r8\n");
-            return Operands::Registry::jr_N_C_a16;
+            return Operands::Registry::jr_N_C_r8;
         }
         // unconditional jr
         case 0x18: {
