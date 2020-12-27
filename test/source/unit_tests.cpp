@@ -386,7 +386,7 @@ TEST(testHALTBugHanging) {
     }
 }
 
-// Test implementations of Operands::checkIsZeroContextual and Operands::checkIsCarryContextual using RET
+// Test Operands::checkIsZeroContextual and Operands::checkIsCarryContextual using RET
 TEST(testContextualZeroAndCarryCheckOperands) {
     auto memory = createMemory();
     auto cartridge = memory.getCartridge();
