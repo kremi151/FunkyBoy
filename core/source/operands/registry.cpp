@@ -311,7 +311,7 @@ namespace FunkyBoy::Operands::Registry {
 
     const Operand ret_N_Z[6] = {
             // Pad artificially to 5 machine cycles TODO: do something useful here
-            Operands::_pad_,
+            Operands::_pad_, // This has to happen before the ret condition (unmet condition -> 2 M cycles)
             Operands::checkIsZeroContextual,
             Operands::_pad_,
             Operands::_pad_,
@@ -320,7 +320,7 @@ namespace FunkyBoy::Operands::Registry {
     };
     const Operand ret_N_C[6] = {
             // Pad artificially to 5 machine cycles TODO: do something useful here
-            Operands::_pad_,
+            Operands::_pad_, // This has to happen before the ret condition (unmet condition -> 2 M cycles)
             Operands::checkIsCarryContextual,
             Operands::_pad_,
             Operands::_pad_,
