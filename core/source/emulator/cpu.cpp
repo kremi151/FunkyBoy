@@ -341,25 +341,25 @@ void CPU::doTimers(Memory &memory, u8 clocks) {
         timerOverflowingCycles -= clocks;
         if (timerOverflowingCycles <= 0) {
             //fprintf(stdout, "# Request Timer interrupt\n");
-            memory.write8BitsTo(FB_REG_TIMA, memory.read8BitsAt(FB_REG_TMA));
+            ioRegisters.getTIMA() = ioRegisters.getTMA();
             requestInterrupt(InterruptType::TIMER);
             timerOverflowingCycles = -1;
         }
     }
-    u8 tac = memory.read8BitsAt(FB_REG_TAC);
+    u8 tac = ioRegisters.getTAC();
     bool comp1 = (tac & 0b100u) != 0;
     comp1 &= doTimerObscureCheck(clocks, sysCounter, tac);
     // Falling edge detector
     if (delayedTIMAIncrease && !comp1) {
-        u8 tima = memory.read8BitsAt(FB_REG_TIMA);
+        u8 tima = ioRegisters.getTIMA();
         if (tima == 0xff) {
             //fprintf(stdout, "# TIMA has overflown\n");
             // Delay TIMA load by 1 m-cycle
             timerOverflowingCycles = 4;
             // In the meantime, set TIMA to 0
-            memory.write8BitsTo(FB_REG_TIMA, 0x00);
+            ioRegisters.getTIMA() = 0x00;
         } else if (timerOverflowingCycles == -1) { // TIME has to be 0 for one full m-cycle, so we do not increase here in that case
-            memory.write8BitsTo(FB_REG_TIMA, tima + 1);
+            ioRegisters.getTIMA() = tima + 1;
         }
     }
     delayedTIMAIncrease = comp1;

@@ -46,6 +46,9 @@
 
 #define __FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
 #define __FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
+#define __FB_REG_OFFSET_TIMA (FB_REG_TIMA - 0xFF00)
+#define __FB_REG_OFFSET_TMA (FB_REG_TMA - 0xFF00)
+#define __FB_REG_OFFSET_TAC (FB_REG_TAC - 0xFF00)
 #define __FB_REG_OFFSET_IF (FB_REG_IF - 0xFF00)
 #define __FB_REG_OFFSET_LCDC (FB_REG_LCDC - 0xFF00)
 #define __FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
@@ -90,6 +93,18 @@ namespace FunkyBoy {
 
         inline u8 &getP1() {
             return *(hwIO + __FB_REG_OFFSET_P1);
+        }
+
+        inline u8 &getTIMA() {
+            return *(hwIO + __FB_REG_OFFSET_TIMA);
+        }
+
+        inline u8 &getTMA() {
+            return *(hwIO + __FB_REG_OFFSET_TMA);
+        }
+
+        inline u8 &getTAC() {
+            return *(hwIO + __FB_REG_OFFSET_TAC);
         }
 
         inline u8 &getIF() {
