@@ -61,6 +61,7 @@
 #define __FB_REG_OFFSET_OBP1 (FB_REG_OBP1 - 0xFF00)
 #define __FB_REG_OFFSET_WY (FB_REG_WY - 0xFF00)
 #define __FB_REG_OFFSET_WX (FB_REG_WX - 0xFF00)
+#define __FB_REG_OFFSET_IE (FB_REG_IE - 0xFF00)
 
 namespace FunkyBoy {
 
@@ -153,6 +154,10 @@ namespace FunkyBoy {
 
         inline u8 &getWY() {
             return *(hwIO + __FB_REG_OFFSET_WY);
+        }
+
+        inline u8 &getIE() {
+            return *(hwIO + __FB_REG_OFFSET_IE);
         }
 
         friend class CPU;

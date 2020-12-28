@@ -263,7 +263,7 @@ bool CPU::doInterrupts(Memory &memory) {
     }
     u8 &_if = ioRegisters.getIF();
     _if %= 0x1fu;
-    u8 _ie = memory.read8BitsAt(FB_REG_IE) & 0x1fu;
+    u8 _ie = ioRegisters.getIE() & 0x1fu;
     u8 _intr = _if & _ie & 0x1f;
     if (!_intr) {
         return false;
