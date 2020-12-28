@@ -549,4 +549,10 @@ namespace FunkyBoy::Operands::Registry {
             Operands::halt,
             nullptr
     };
+
+    const Operand decodePrefix[3] = {
+            Operands::decodePrefix,
+            Operands::nop, // This is a workaround, the decodePrefix operand will fetch the effective operand list to use
+            nullptr
+    };
 }

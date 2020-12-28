@@ -21,6 +21,7 @@
 #include <util/return_codes.h>
 #include <emulator/io_registers.h>
 #include <operands/registry.h>
+#include <operands/tables.h>
 
 using namespace FunkyBoy;
 
@@ -57,6 +58,7 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     instrContext.regL = regL;
     instrContext.regF = regF_do_not_use_directly;
     instrContext.regA = regA;
+    instrContext.operandsPtr = &operands;
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
@@ -221,7 +223,7 @@ ret_code CPU::doFetchAndDecode(Memory &memory) {
     instr++;
 #endif
 
-    operands = Operands::decodeOpcode(instrContext.instr, memory, instrContext);
+    operands = Operands::Tables::instructions[instrContext.instr];
     if (operands == nullptr) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
         return 0;

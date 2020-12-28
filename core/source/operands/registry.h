@@ -138,6 +138,8 @@ namespace FunkyBoy::Operands::Registry {
     extern const Operand stop[2];
 
     extern const Operand halt[2];
+
+    extern const Operand decodePrefix[3];
 }
 
 #endif //FB_CORE_OPERANDS_REGISTRY_H

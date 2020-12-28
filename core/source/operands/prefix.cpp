@@ -23,6 +23,7 @@
 #include <operands/writes.h>
 #include <operands/misc.h>
 #include <operands/debug.h>
+#include <operands/tables.h>
 
 using namespace FunkyBoy;
 
@@ -423,148 +424,275 @@ namespace FunkyBoy::Operands::Registry {
 
 }
 
+namespace FunkyBoy::Operands::Tables {
+
+    Operand const* const prefixInstructions[256] = {
+            Registry::rlc_r,        // RLC B
+            Registry::rlc_r,        // RLC C
+            Registry::rlc_r,        // RLC D
+            Registry::rlc_r,        // RLC E
+            Registry::rlc_r,        // RLC H
+            Registry::rlc_r,        // RLC L
+            Registry::rlc_HL,       // RLC (HL)
+            Registry::rlc_r,        // RLC A
+            Registry::rrc_r,        // RRC B
+            Registry::rrc_r,        // RRC C
+            Registry::rrc_r,        // RRC D
+            Registry::rrc_r,        // RRC E
+            Registry::rrc_r,        // RRC H
+            Registry::rrc_r,        // RRC L
+            Registry::rrc_HL,       // RRC (HL)
+            Registry::rrc_r,        // RRC A
+            Registry::rl_r, // RL B
+            Registry::rl_r, // RL C
+            Registry::rl_r, // RL D
+            Registry::rl_r, // RL E
+            Registry::rl_r, // RL H
+            Registry::rl_r, // RL L
+            Registry::rl_HL,        // RL (HL)
+            Registry::rl_r, // RL A
+            Registry::rr_r, // RR B
+            Registry::rr_r, // RR C
+            Registry::rr_r, // RR D
+            Registry::rr_r, // RR E
+            Registry::rr_r, // RR H
+            Registry::rr_r, // RR L
+            Registry::rr_HL,        // RR (HL)
+            Registry::rr_r, // RR A
+            Registry::sla_r,        // SLA B
+            Registry::sla_r,        // SLA C
+            Registry::sla_r,        // SLA D
+            Registry::sla_r,        // SLA E
+            Registry::sla_r,        // SLA H
+            Registry::sla_r,        // SLA L
+            Registry::sla_HL,       // SLA (HL)
+            Registry::sla_r,        // SLA A
+            Registry::sra_r,        // SRA B
+            Registry::sra_r,        // SRA C
+            Registry::sra_r,        // SRA D
+            Registry::sra_r,        // SRA E
+            Registry::sra_r,        // SRA H
+            Registry::sra_r,        // SRA L
+            Registry::sra_HL,       // SRA (HL)
+            Registry::sra_r,        // SRA A
+            Registry::swap_r,       // SWAP B
+            Registry::swap_r,       // SWAP C
+            Registry::swap_r,       // SWAP D
+            Registry::swap_r,       // SWAP E
+            Registry::swap_r,       // SWAP H
+            Registry::swap_r,       // SWAP L
+            Registry::swap_HL,      // SWAP (HL)
+            Registry::swap_r,       // SWAP A
+            Registry::srl_r,        // SRL B
+            Registry::srl_r,        // SRL C
+            Registry::srl_r,        // SRL D
+            Registry::srl_r,        // SRL E
+            Registry::srl_r,        // SRL H
+            Registry::srl_r,        // SRL L
+            Registry::srl_HL,       // SRL (HL)
+            Registry::srl_r,        // SRL A
+            Registry::bit_n_r,      // BIT 0,B
+            Registry::bit_n_r,      // BIT 0,C
+            Registry::bit_n_r,      // BIT 0,D
+            Registry::bit_n_r,      // BIT 0,E
+            Registry::bit_n_r,      // BIT 0,H
+            Registry::bit_n_r,      // BIT 0,L
+            Registry::bit_n_HL,     // BIT 0,(HL)
+            Registry::bit_n_r,      // BIT 0,A
+            Registry::bit_n_r,      // BIT 1,B
+            Registry::bit_n_r,      // BIT 1,C
+            Registry::bit_n_r,      // BIT 1,D
+            Registry::bit_n_r,      // BIT 1,E
+            Registry::bit_n_r,      // BIT 1,H
+            Registry::bit_n_r,      // BIT 1,L
+            Registry::bit_n_HL,     // BIT 1,(HL)
+            Registry::bit_n_r,      // BIT 1,A
+            Registry::bit_n_r,      // BIT 2,B
+            Registry::bit_n_r,      // BIT 2,C
+            Registry::bit_n_r,      // BIT 2,D
+            Registry::bit_n_r,      // BIT 2,E
+            Registry::bit_n_r,      // BIT 2,H
+            Registry::bit_n_r,      // BIT 2,L
+            Registry::bit_n_HL,     // BIT 2,(HL)
+            Registry::bit_n_r,      // BIT 2,A
+            Registry::bit_n_r,      // BIT 3,B
+            Registry::bit_n_r,      // BIT 3,C
+            Registry::bit_n_r,      // BIT 3,D
+            Registry::bit_n_r,      // BIT 3,E
+            Registry::bit_n_r,      // BIT 3,H
+            Registry::bit_n_r,      // BIT 3,L
+            Registry::bit_n_HL,     // BIT 3,(HL)
+            Registry::bit_n_r,      // BIT 3,A
+            Registry::bit_n_r,      // BIT 4,B
+            Registry::bit_n_r,      // BIT 4,C
+            Registry::bit_n_r,      // BIT 4,D
+            Registry::bit_n_r,      // BIT 4,E
+            Registry::bit_n_r,      // BIT 4,H
+            Registry::bit_n_r,      // BIT 4,L
+            Registry::bit_n_HL,     // BIT 4,(HL)
+            Registry::bit_n_r,      // BIT 4,A
+            Registry::bit_n_r,      // BIT 5,B
+            Registry::bit_n_r,      // BIT 5,C
+            Registry::bit_n_r,      // BIT 5,D
+            Registry::bit_n_r,      // BIT 5,E
+            Registry::bit_n_r,      // BIT 5,H
+            Registry::bit_n_r,      // BIT 5,L
+            Registry::bit_n_HL,     // BIT 5,(HL)
+            Registry::bit_n_r,      // BIT 5,A
+            Registry::bit_n_r,      // BIT 6,B
+            Registry::bit_n_r,      // BIT 6,C
+            Registry::bit_n_r,      // BIT 6,D
+            Registry::bit_n_r,      // BIT 6,E
+            Registry::bit_n_r,      // BIT 6,H
+            Registry::bit_n_r,      // BIT 6,L
+            Registry::bit_n_HL,     // BIT 6,(HL)
+            Registry::bit_n_r,      // BIT 6,A
+            Registry::bit_n_r,      // BIT 7,B
+            Registry::bit_n_r,      // BIT 7,C
+            Registry::bit_n_r,      // BIT 7,D
+            Registry::bit_n_r,      // BIT 7,E
+            Registry::bit_n_r,      // BIT 7,H
+            Registry::bit_n_r,      // BIT 7,L
+            Registry::bit_n_HL,     // BIT 7,(HL)
+            Registry::bit_n_r,      // BIT 7,A
+            Registry::res_n_r,      // RES 0,B
+            Registry::res_n_r,      // RES 0,C
+            Registry::res_n_r,      // RES 0,D
+            Registry::res_n_r,      // RES 0,E
+            Registry::res_n_r,      // RES 0,H
+            Registry::res_n_r,      // RES 0,L
+            Registry::res_n_HL,     // RES 0,(HL)
+            Registry::res_n_r,      // RES 0,A
+            Registry::res_n_r,      // RES 1,B
+            Registry::res_n_r,      // RES 1,C
+            Registry::res_n_r,      // RES 1,D
+            Registry::res_n_r,      // RES 1,E
+            Registry::res_n_r,      // RES 1,H
+            Registry::res_n_r,      // RES 1,L
+            Registry::res_n_HL,     // RES 1,(HL)
+            Registry::res_n_r,      // RES 1,A
+            Registry::res_n_r,      // RES 2,B
+            Registry::res_n_r,      // RES 2,C
+            Registry::res_n_r,      // RES 2,D
+            Registry::res_n_r,      // RES 2,E
+            Registry::res_n_r,      // RES 2,H
+            Registry::res_n_r,      // RES 2,L
+            Registry::res_n_HL,     // RES 2,(HL)
+            Registry::res_n_r,      // RES 2,A
+            Registry::res_n_r,      // RES 3,B
+            Registry::res_n_r,      // RES 3,C
+            Registry::res_n_r,      // RES 3,D
+            Registry::res_n_r,      // RES 3,E
+            Registry::res_n_r,      // RES 3,H
+            Registry::res_n_r,      // RES 3,L
+            Registry::res_n_HL,     // RES 3,(HL)
+            Registry::res_n_r,      // RES 3,A
+            Registry::res_n_r,      // RES 4,B
+            Registry::res_n_r,      // RES 4,C
+            Registry::res_n_r,      // RES 4,D
+            Registry::res_n_r,      // RES 4,E
+            Registry::res_n_r,      // RES 4,H
+            Registry::res_n_r,      // RES 4,L
+            Registry::res_n_HL,     // RES 4,(HL)
+            Registry::res_n_r,      // RES 4,A
+            Registry::res_n_r,      // RES 5,B
+            Registry::res_n_r,      // RES 5,C
+            Registry::res_n_r,      // RES 5,D
+            Registry::res_n_r,      // RES 5,E
+            Registry::res_n_r,      // RES 5,H
+            Registry::res_n_r,      // RES 5,L
+            Registry::res_n_HL,     // RES 5,(HL)
+            Registry::res_n_r,      // RES 5,A
+            Registry::res_n_r,      // RES 6,B
+            Registry::res_n_r,      // RES 6,C
+            Registry::res_n_r,      // RES 6,D
+            Registry::res_n_r,      // RES 6,E
+            Registry::res_n_r,      // RES 6,H
+            Registry::res_n_r,      // RES 6,L
+            Registry::res_n_HL,     // RES 6,(HL)
+            Registry::res_n_r,      // RES 6,A
+            Registry::res_n_r,      // RES 7,B
+            Registry::res_n_r,      // RES 7,C
+            Registry::res_n_r,      // RES 7,D
+            Registry::res_n_r,      // RES 7,E
+            Registry::res_n_r,      // RES 7,H
+            Registry::res_n_r,      // RES 7,L
+            Registry::res_n_HL,     // RES 7,(HL)
+            Registry::res_n_r,      // RES 7,A
+            Registry::set_n_r,      // SET 0,B
+            Registry::set_n_r,      // SET 0,C
+            Registry::set_n_r,      // SET 0,D
+            Registry::set_n_r,      // SET 0,E
+            Registry::set_n_r,      // SET 0,H
+            Registry::set_n_r,      // SET 0,L
+            Registry::set_n_HL,     // SET 0,(HL)
+            Registry::set_n_r,      // SET 0,A
+            Registry::set_n_r,      // SET 1,B
+            Registry::set_n_r,      // SET 1,C
+            Registry::set_n_r,      // SET 1,D
+            Registry::set_n_r,      // SET 1,E
+            Registry::set_n_r,      // SET 1,H
+            Registry::set_n_r,      // SET 1,L
+            Registry::set_n_HL,     // SET 1,(HL)
+            Registry::set_n_r,      // SET 1,A
+            Registry::set_n_r,      // SET 2,B
+            Registry::set_n_r,      // SET 2,C
+            Registry::set_n_r,      // SET 2,D
+            Registry::set_n_r,      // SET 2,E
+            Registry::set_n_r,      // SET 2,H
+            Registry::set_n_r,      // SET 2,L
+            Registry::set_n_HL,     // SET 2,(HL)
+            Registry::set_n_r,      // SET 2,A
+            Registry::set_n_r,      // SET 3,B
+            Registry::set_n_r,      // SET 3,C
+            Registry::set_n_r,      // SET 3,D
+            Registry::set_n_r,      // SET 3,E
+            Registry::set_n_r,      // SET 3,H
+            Registry::set_n_r,      // SET 3,L
+            Registry::set_n_HL,     // SET 3,(HL)
+            Registry::set_n_r,      // SET 3,A
+            Registry::set_n_r,      // SET 4,B
+            Registry::set_n_r,      // SET 4,C
+            Registry::set_n_r,      // SET 4,D
+            Registry::set_n_r,      // SET 4,E
+            Registry::set_n_r,      // SET 4,H
+            Registry::set_n_r,      // SET 4,L
+            Registry::set_n_HL,     // SET 4,(HL)
+            Registry::set_n_r,      // SET 4,A
+            Registry::set_n_r,      // SET 5,B
+            Registry::set_n_r,      // SET 5,C
+            Registry::set_n_r,      // SET 5,D
+            Registry::set_n_r,      // SET 5,E
+            Registry::set_n_r,      // SET 5,H
+            Registry::set_n_r,      // SET 5,L
+            Registry::set_n_HL,     // SET 5,(HL)
+            Registry::set_n_r,      // SET 5,A
+            Registry::set_n_r,      // SET 6,B
+            Registry::set_n_r,      // SET 6,C
+            Registry::set_n_r,      // SET 6,D
+            Registry::set_n_r,      // SET 6,E
+            Registry::set_n_r,      // SET 6,H
+            Registry::set_n_r,      // SET 6,L
+            Registry::set_n_HL,     // SET 6,(HL)
+            Registry::set_n_r,      // SET 6,A
+            Registry::set_n_r,      // SET 7,B
+            Registry::set_n_r,      // SET 7,C
+            Registry::set_n_r,      // SET 7,D
+            Registry::set_n_r,      // SET 7,E
+            Registry::set_n_r,      // SET 7,H
+            Registry::set_n_r,      // SET 7,L
+            Registry::set_n_HL,     // SET 7,(HL)
+            Registry::set_n_r,      // SET 7,A
+    };
+
+}
+
+bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-const Operand *Operands::decodePrefix(u8 opcode, InstrContext &context) {
     FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context);
-#else
-    const Operand *Operands::decodePrefix(u8 opcode) {
 #endif
 
-    switch (opcode) {
-        // rlc reg
-        case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {
-            debug_print_4("rlc r\n");
-            return Registry::rlc_r;
-        }
-        // rlc (HL)
-        case 0x06: {
-            debug_print_4("rlc (HL)\n");
-            return Registry::rlc_HL;
-        }
-        // rrc reg
-        case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0F: {
-            debug_print_4("rrc r\n");
-            return Registry::rrc_r;
-        }
-        // rrc (HL)
-        case 0x0E: {
-            debug_print_4("rrc (HL)\n");
-            return Registry::rrc_HL;
-        }
-        // rl reg
-        case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x17: {
-            debug_print_4("rl r\n");
-            return Registry::rl_r;
-        }
-        // rl (HL)
-        case 0x16: {
-            debug_print_4("rl (HL)\n");
-            return Registry::rl_HL;
-        }
-        // rr reg
-        case 0x18: case 0x19: case 0x1A: case 0x1B: case 0x1C: case 0x1D: case 0x1F: {
-            debug_print_4("rr r\n");
-            return Registry::rr_r;
-        }
-        // rr (HL)
-        case 0x1E: {
-            debug_print_4("rr (HL)\n");
-            return Registry::rr_HL;
-        }
-        // sla reg
-        case 0x20: case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x27: {
-            debug_print_4("sla r\n");
-            return Registry::sla_r;
-        }
-        // sla (HL)
-        case 0x26: {
-            debug_print_4("sla (HL)\n");
-            return Registry::sla_HL;
-        }
-        // sra reg
-        case 0x28: case 0x29: case 0x2A: case 0x2B: case 0x2C: case 0x2D: case 0x2F: {
-            debug_print_4("sra r\n");
-            return Registry::sra_r;
-        }
-        // sra (HL)
-        case 0x2E: {
-            debug_print_4("sra (HL)\n");
-            return Registry::sra_HL;
-        }
-        // swap reg
-        case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x37: {
-            debug_print_4("swap r\n");
-            return Registry::swap_r;
-        }
-        // swap (HL)
-        case 0x36: {
-            debug_print_4("swap (HL)\n");
-            return Registry::swap_HL;
-        }
-        // srl reg
-        case 0x38: case 0x39: case 0x3A: case 0x3B: case 0x3C: case 0x3D: case 0x3F: {
-            debug_print_4("srl r\n");
-            return Registry::srl_r;
-        }
-        // srl (HL)
-        case 0x3E: {
-            debug_print_4("srl (HL)\n");
-            return Registry::srl_HL;
-        }
-        case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // bit 0,reg
-        case 0x48: case 0x49: case 0x4A: case 0x4B: case 0x4C: case 0x4D: case 0x4F: // bit 1,reg
-        case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x57: // bit 2,reg
-        case 0x58: case 0x59: case 0x5A: case 0x5B: case 0x5C: case 0x5D: case 0x5F: // bit 3,reg
-        case 0x60: case 0x61: case 0x62: case 0x63: case 0x64: case 0x65: case 0x67: // bit 4,reg
-        case 0x68: case 0x69: case 0x6A: case 0x6B: case 0x6C: case 0x6D: case 0x6F: // bit 5,reg
-        case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x77: // bit 6,reg
-        case 0x78: case 0x79: case 0x7A: case 0x7B: case 0x7C: case 0x7D: case 0x7F: // bit 7,reg
-        {
-            debug_print_4("bit n,r\n");
-            return Registry::bit_n_r;
-        }
-        // bit n,(HL)
-        case 0x46: case 0x4E: case 0x56: case 0x5E: case 0x66: case 0x6E: case 0x76: case 0x7E: {
-            debug_print_4("bit n,(HL)\n");
-            return Registry::bit_n_HL;
-        }
-        case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // res 0,reg
-        case 0x88: case 0x89: case 0x8A: case 0x8B: case 0x8C: case 0x8D: case 0x8F: // res 1,reg
-        case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // res 2,reg
-        case 0x98: case 0x99: case 0x9A: case 0x9B: case 0x9C: case 0x9D: case 0x9F: // res 3,reg
-        case 0xA0: case 0xA1: case 0xA2: case 0xA3: case 0xA4: case 0xA5: case 0xA7: // res 4,reg
-        case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: // res 5,reg
-        case 0xB0: case 0xB1: case 0xB2: case 0xB3: case 0xB4: case 0xB5: case 0xB7: // res 6,reg
-        case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: case 0xBF: // res 7,reg
-        {
-            debug_print_4("res r\n");
-            return Registry::res_n_r;
-        }
-        // res n,(HL)
-        case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
-            debug_print_4("res n,(HL)\n");
-            return Registry::res_n_HL;
-        }
-        case 0xC0: case 0xC1: case 0xC2: case 0xC3: case 0xC4: case 0xC5: case 0xC7: // set 0,reg
-        case 0xC8: case 0xC9: case 0xCA: case 0xCB: case 0xCC: case 0xCD: case 0xCF: // set 1,reg
-        case 0xD0: case 0xD1: case 0xD2: case 0xD3: case 0xD4: case 0xD5: case 0xD7: // set 2,reg
-        case 0xD8: case 0xD9: case 0xDA: case 0xDB: case 0xDC: case 0xDD: case 0xDF: // set 3,reg
-        case 0xE0: case 0xE1: case 0xE2: case 0xE3: case 0xE4: case 0xE5: case 0xE7: // set 4,reg
-        case 0xE8: case 0xE9: case 0xEA: case 0xEB: case 0xEC: case 0xED: case 0xEF: // set 5,reg
-        case 0xF0: case 0xF1: case 0xF2: case 0xF3: case 0xF4: case 0xF5: case 0xF7: // set 6,reg
-        case 0xF8: case 0xF9: case 0xFA: case 0xFB: case 0xFC: case 0xFD: case 0xFF: // set 7,reg
-        {
-            debug_print_4("set n,r\n");
-            return Registry::set_n_r;
-        }
-        // set n,(HL)
-        case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE: {
-            debug_print_4("set (HL)\n");
-            return Registry::set_n_HL;
-        }
-        default: {
-            fprintf(stderr, "Encountered unknown prefix instruction 0x%02X\n", opcode);
-            return nullptr;
-        }
-    }
+    context.instr = memory.read8BitsAt(context.progCounter++);
+    *context.operandsPtr = Tables::prefixInstructions[context.instr];
+    return true;
 }
