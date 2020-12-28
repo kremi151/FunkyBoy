@@ -65,7 +65,7 @@ int main() {
 
     if (status == FunkyBoy::CartridgeStatus::Loaded) {
         pspDebugScreenPrintf("Loaded ROM at %s\n", FB_PSP_ROM_PATH);
-        pspDebugScreenPrintf("ROM title: %s\n", emulator.getCartridge().getHeader()->title);
+        pspDebugScreenPrintf("ROM title: %s\n", emulator.getROMHeader()->title);
     } else {
         pspDebugScreenPrintf("Could not load ROM at %s (status=%d)\n", FB_PSP_ROM_PATH, status);
         return pressXToExit();

@@ -22,7 +22,6 @@ set(SOURCES
         source/controllers/joypad_void.cpp
         source/controllers/display_void.cpp
         source/util/romsizes.cpp
-        source/cartridge/cartridge.cpp
         source/memory/memory.cpp
         source/cartridge/mbc1.cpp
         source/cartridge/mbc2.cpp
@@ -64,7 +63,7 @@ set(HEADERS
         source/util/romsizes.h
         source/util/ramsizes.h
         source/util/fs.h
-        source/cartridge/cartridge.h
+        source/cartridge/status.h
         source/memory/memory.h
         source/util/debug.h
         source/util/testing.h
