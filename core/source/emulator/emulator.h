@@ -25,7 +25,6 @@
 #include <emulator/io_registers.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
-#include <cartridge/cartridge.h>
 #include <controllers/controllers.h>
 #include <memory/memory.h>
 #include <memory/ppu_memory.h>
@@ -36,7 +35,6 @@ namespace FunkyBoy {
 
     class Emulator {
     test_public:
-        CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
 
         io_registers ioRegisters;
@@ -54,7 +52,13 @@ namespace FunkyBoy {
         void loadCartridgeRam(std::istream &stream);
         void writeCartridgeRam(std::ostream &stream);
 
-        Cartridge &getCartridge();
+        inline CartridgeStatus getCartridgeStatus() {
+            return memory.getCartridgeStatus();
+        }
+
+        inline const ROMHeader *getROMHeader() {
+            return memory.getROMHeader();
+        }
 
         ret_code doTick();
     };
