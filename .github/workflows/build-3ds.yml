@@ -2,7 +2,7 @@ name: Build 3DS platform
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, operands_jump_lists ]
     paths:
       - 'core/**'
       - 'platform-3ds/**'
