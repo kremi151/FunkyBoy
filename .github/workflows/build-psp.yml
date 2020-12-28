@@ -2,7 +2,7 @@ name: Build PSP platform
 
 on:
   push:
-    branches: [ master, operands_jump_lists ]
+    branches: [ master ]
     paths:
       - 'core/**'
       - 'platform-psp/**'

@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [ master, operands_jump_lists ]
+    branches: [ master ]
     paths:
       - 'core/**'
       - 'test/**'
