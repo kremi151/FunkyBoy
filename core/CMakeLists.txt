@@ -39,7 +39,8 @@ set(SOURCES
         source/operands/rot_shifts.cpp
         source/operands/conditions.cpp
         source/operands/debug.cpp
-        source/operands/decoder.cpp
+        source/operands/registry.cpp
+        source/operands/table_unprefixed_instructions.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
@@ -84,7 +85,8 @@ set(HEADERS
         source/operands/rot_shifts.h
         source/operands/conditions.h
         source/operands/debug.h
-        source/operands/decoder.h
+        source/operands/registry.h
+        source/operands/tables.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h

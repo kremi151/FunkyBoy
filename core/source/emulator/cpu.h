@@ -23,7 +23,7 @@
 #include <memory>
 #include <util/testing.h>
 #include <util/debug.h>
-#include <operands/decoder.h>
+#include <operands/instruction_context.h>
 #include <operands/debug.h>
 #include <emulator/gb_type.h>
 #include <emulator/io_registers.h>
@@ -54,9 +54,6 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        u8 operandIndex;
-        Operand operands[25]{};
-
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
 
@@ -81,6 +78,7 @@ namespace FunkyBoy {
 #endif
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
+        const Operand *operands;
 
         u8 *regB;
         u8 *regC;

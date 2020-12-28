@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_OPERANDS_DECODER_H
-#define FB_CORE_OPERANDS_DECODER_H
+#ifndef FB_CORE_OPERANDS_TABLES_H
+#define FB_CORE_OPERANDS_TABLES_H
 
-#include <operands/instructions.h>
+#include <operands/instruction_context.h>
 
-namespace FunkyBoy::Operands {
+namespace FunkyBoy::Operands::Tables {
 
-    using operand_buffer = Operand[25];
-
-    bool decodeOpcode(u8 opcode, operand_buffer operands);
+    extern Operand const* const instructions[256];
+    extern Operand const* const prefixInstructions[256];
 
 }
 
-#endif //FB_CORE_OPERANDS_DECODER_H
+#endif //FB_CORE_OPERANDS_TABLES_H

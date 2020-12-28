@@ -22,32 +22,20 @@
 namespace FunkyBoy::Operands {
 
     /**
-     * Checks if zero flag is set. If not set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
+     * Checks whether zero flag is not set if opcode is in left half of the table (0xX0 - 0xX7), otherwise whether it is set.
+     * If not set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
      * @param context
      * @return
      */
-    bool checkIsZero(InstrContext &context, Memory &memory);
+    bool checkIsZeroContextual(InstrContext &context, Memory &memory);
 
     /**
-     * Checks if zero flag is not set. If set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
+     * Checks whether carry flag is not set if opcode is in left half of the table (0xX0 - 0xX7), otherwise whether it is set.
+     * If not set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
      * @param context
      * @return
      */
-    bool checkIsNotZero(InstrContext &context, Memory &memory);
-
-    /**
-     * Checks if carry flag is set. If not set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
-     * @param context
-     * @return
-     */
-    bool checkIsCarry(InstrContext &context, Memory &memory);
-
-    /**
-     * Checks if carry flag is not set. If set, the next opcode will be fetched in the next machine cycle, skipping remaining operands.
-     * @param context
-     * @return
-     */
-    bool checkIsNotCarry(InstrContext &context, Memory &memory);
+    bool checkIsCarryContextual(InstrContext &context, Memory &memory);
 
 }
 

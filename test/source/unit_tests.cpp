@@ -20,6 +20,7 @@
 
 #include <acacia.h>
 #include <util/fs.h>
+#include <util/flags.h>
 #include <memory/memory.h>
 #include <memory>
 #include <emulator/emulator.h>
@@ -383,6 +384,60 @@ TEST(testHALTBugHanging) {
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
         assertEquals(originalA, *cpu.regA);
     }
+}
+
+// Test Operands::checkIsZeroContextual and Operands::checkIsCarryContextual using RET
+TEST(testContextualZeroAndCarryCheckOperands) {
+    auto memory = createMemory();
+    auto cartridge = memory.getCartridge();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
+
+    // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
+    cartridge->rom = new FunkyBoy::u8[0x200];
+    cartridge->rom[0x123] = 0x00;      // NOP
+
+    auto initialProgCounter = 0x100;
+
+    // Test RET NZ (0xC0)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setZero(cpu.instrContext.regF, false);
+    cpu.instrContext.progCounter = initialProgCounter;
+    cartridge->rom[initialProgCounter] = 0xC0;      // RET NZ
+    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
+
+    // Test RET Z (0xC8)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setZero(cpu.instrContext.regF, true);
+    cpu.instrContext.progCounter = initialProgCounter;
+    cartridge->rom[initialProgCounter] = 0xC8;      // RET Z
+    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
+
+    // Test RET NC (0xD0)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setCarry(cpu.instrContext.regF, false);
+    cpu.instrContext.progCounter = initialProgCounter;
+    cartridge->rom[initialProgCounter] = 0xD0;      // RET NC
+    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
+
+    // Test RET C (0xD8)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setCarry(cpu.instrContext.regF, true);
+    cpu.instrContext.progCounter = initialProgCounter;
+    cartridge->rom[initialProgCounter] = 0xD8;      // RET C
+    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
 }
 
 acacia::Report __fbTests_runUnitTests() {

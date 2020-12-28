@@ -58,14 +58,14 @@ namespace FunkyBoy {
         u8 *regF;
         u8 *regA;
 
+        const Operand **operandsPtr;
+
         u8 lsb;
         u8 msb;
         i8 signedByte;
 
         u16 progCounter;
         u16 stackPointer;
-
-        Operand *operands;
 
         CPUState cpuState;
         IMEState interruptMasterEnable;
