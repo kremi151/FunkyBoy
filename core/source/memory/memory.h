@@ -81,6 +81,10 @@ namespace FunkyBoy {
 
         void doDMA();
 
+        inline u8 getIE() {
+            return interruptEnableRegister;
+        }
+
 #ifdef FB_TESTING
         io_registers &getIoRegisters();
 #endif
