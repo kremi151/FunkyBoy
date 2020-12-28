@@ -60,6 +60,10 @@ namespace FunkyBoy {
             return memory.getROMHeader();
         }
 
+        inline size_t getCartridgeRamSize() {
+            return memory.getCartridgeRamSize();
+        }
+
         ret_code doTick();
     };
 
