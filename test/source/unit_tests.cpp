@@ -44,10 +44,9 @@ void assertDoFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
 
 inline FunkyBoy::Memory createMemory() {
     auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::io_registers io(controllers);
     FunkyBoy::PPUMemory ppuMemory;
-    return FunkyBoy::Memory(cartridge, controllers, io, ppuMemory);
+    return FunkyBoy::Memory(controllers, io, ppuMemory);
 }
 
 TEST(testEchoRAM) {
@@ -75,9 +74,9 @@ TEST(testReadROMTitle) {
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 
-    auto &cartridge = emulator.getCartridge();
-    assertEquals(FunkyBoy::CartridgeStatus::Loaded, cartridge.getStatus());
-    assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(cartridge.getHeader()->title)));
+    auto cartridgeStatus = emulator.getCartridgeStatus();
+    assertEquals(FunkyBoy::CartridgeStatus::Loaded, cartridgeStatus);
+    assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(emulator.getROMHeader()->title)));
 }
 
 TEST(testPopPushStackPointer) {
@@ -154,21 +153,20 @@ TEST(testReadWrite16BitRegisters) {
 
 TEST(test16BitLoads) {
     auto memory = createMemory();
-    auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter + 1] = 0x06;
-    cartridge->rom[initialProgCounter + 2] = 0x18;
-    cartridge->rom[initialProgCounter + 3] = 0x00;
+    memory.rom[initialProgCounter + 1] = 0x06;
+    memory.rom[initialProgCounter + 2] = 0x18;
+    memory.rom[initialProgCounter + 3] = 0x00;
 
     // Set opcode 0x01 (LD BC,d16)
-    cartridge->rom[initialProgCounter] = 0x01;
+    memory.rom[initialProgCounter] = 0x01;
     assertDoFullMachineCycle(cpu, memory); // Initial fetch
     assertDoFullMachineCycle(cpu, memory); // Actual execution
 
@@ -179,7 +177,7 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x11 (LD DE,d16)
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0x11;
+    memory.rom[initialProgCounter] = 0x11;
     assertDoFullMachineCycle(cpu, memory); // Initial fetch
     assertDoFullMachineCycle(cpu, memory); // Actual execution
 
@@ -190,7 +188,7 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x21 (LD HL,d16)
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0x21;
+    memory.rom[initialProgCounter] = 0x21;
     assertDoFullMachineCycle(cpu, memory); // Initial fetch
     assertDoFullMachineCycle(cpu, memory); // Actual execution
 
@@ -201,7 +199,7 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x31 (LD SP,d16)
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0x31;
+    memory.rom[initialProgCounter] = 0x31;
     assertDoFullMachineCycle(cpu, memory); // Initial fetch
     assertDoFullMachineCycle(cpu, memory); // Actual execution
 
@@ -220,14 +218,14 @@ TEST(test16BitLoads) {
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter + 1] = 0xCE;
+    memory.rom[initialProgCounter + 1] = 0xCE;
 
     // Set opcode 0xF0 (LDH A,(a8))
-    cartridge->rom[initialProgCounter] = 0xF0;
+    memory.rom[initialProgCounter] = 0xF0;
     memory.write8BitsTo(0xFFCE, 0x42);
     assertNotEquals(0x42, *cpu.regA);
     assertDoFullMachineCycle(cpu, memory); // Initial fetch
@@ -241,7 +239,7 @@ TEST(test16BitLoads) {
     memory.write8BitsTo(0xFFCE, 0x0);
 
     // Set opcode 0xE0 (LDH (a8),A)
-    cartridge->rom[initialProgCounter] = 0xE0;
+    memory.rom[initialProgCounter] = 0xE0;
     *cpu.regA = 0x42;
     assertNotEquals(0x42, memory.read8BitsAt(0xFFCE));
     assertDoFullMachineCycle(cpu, memory); // Initial fetch
@@ -253,12 +251,11 @@ TEST(test16BitLoads) {
 
 TEST(testHALTBugSkipping) {
     auto memory = createMemory();
-    auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
@@ -269,9 +266,9 @@ TEST(testHALTBugSkipping) {
     memory.write8BitsTo(FB_REG_IF, 0x4);
 
     // Program ROM
-    cartridge->rom[initialProgCounter] = 0x76;      // HALT
-    cartridge->rom[initialProgCounter + 1] = 0x3C;  // INC A
-    cartridge->rom[initialProgCounter + 2] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0x76;      // HALT
+    memory.rom[initialProgCounter + 1] = 0x3C;  // INC A
+    memory.rom[initialProgCounter + 2] = 0x00;  // NOP
 
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
@@ -299,12 +296,11 @@ TEST(testHALTBugSkipping) {
 
 TEST(testHALTNoSkippingIfIMEDisabled) {
     auto memory = createMemory();
-    auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
@@ -316,9 +312,9 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
     memory.write8BitsTo(FB_REG_IF, 0x2);
 
     // Program ROM
-    cartridge->rom[initialProgCounter] = 0x76;      // HALT
-    cartridge->rom[initialProgCounter + 1] = 0x3C;  // INC A
-    cartridge->rom[initialProgCounter + 2] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0x76;      // HALT
+    memory.rom[initialProgCounter + 1] = 0x3C;  // INC A
+    memory.rom[initialProgCounter + 2] = 0x00;  // NOP
 
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
@@ -354,12 +350,11 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
 
 TEST(testHALTBugHanging) {
     auto memory = createMemory();
-    auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
@@ -370,9 +365,9 @@ TEST(testHALTBugHanging) {
     memory.write8BitsTo(FB_REG_IF, 0x4);
 
     // Program ROM
-    cartridge->rom[initialProgCounter] = 0x76;      // HALT
-    cartridge->rom[initialProgCounter + 1] = 0x76;  // HALT
-    cartridge->rom[initialProgCounter + 2] = 0x3C;  // INC A
+    memory.rom[initialProgCounter] = 0x76;      // HALT
+    memory.rom[initialProgCounter + 1] = 0x76;  // HALT
+    memory.rom[initialProgCounter + 2] = 0x3C;  // INC A
 
     *cpu.instrContext.regA = 0x00;
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
@@ -389,13 +384,12 @@ TEST(testHALTBugHanging) {
 // Test Operands::checkIsZeroContextual and Operands::checkIsCarryContextual using RET
 TEST(testContextualZeroAndCarryCheckOperands) {
     auto memory = createMemory();
-    auto cartridge = memory.getCartridge();
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x200];
-    cartridge->rom[0x123] = 0x00;      // NOP
+    memory.rom = new FunkyBoy::u8[0x200];
+    memory.rom[0x123] = 0x00;      // NOP
 
     auto initialProgCounter = 0x100;
 
@@ -403,8 +397,8 @@ TEST(testContextualZeroAndCarryCheckOperands) {
     cpu.instrContext.push16Bits(memory, 0x123);
     FunkyBoy::Flags::setZero(cpu.instrContext.regF, false);
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0xC0;      // RET NZ
-    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0xC0;      // RET NZ
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
     assertDoFullMachineCycle(cpu, memory);    // Initial fetch
     assertDoFullMachineCycle(cpu, memory);    // Actual execution
     assertEquals(0x123 + 1, cpu.instrContext.progCounter);
@@ -413,8 +407,8 @@ TEST(testContextualZeroAndCarryCheckOperands) {
     cpu.instrContext.push16Bits(memory, 0x123);
     FunkyBoy::Flags::setZero(cpu.instrContext.regF, true);
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0xC8;      // RET Z
-    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0xC8;      // RET Z
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
     assertDoFullMachineCycle(cpu, memory);    // Initial fetch
     assertDoFullMachineCycle(cpu, memory);    // Actual execution
     assertEquals(0x123 + 1, cpu.instrContext.progCounter);
@@ -423,8 +417,8 @@ TEST(testContextualZeroAndCarryCheckOperands) {
     cpu.instrContext.push16Bits(memory, 0x123);
     FunkyBoy::Flags::setCarry(cpu.instrContext.regF, false);
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0xD0;      // RET NC
-    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0xD0;      // RET NC
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
     assertDoFullMachineCycle(cpu, memory);    // Initial fetch
     assertDoFullMachineCycle(cpu, memory);    // Actual execution
     assertEquals(0x123 + 1, cpu.instrContext.progCounter);
@@ -433,8 +427,8 @@ TEST(testContextualZeroAndCarryCheckOperands) {
     cpu.instrContext.push16Bits(memory, 0x123);
     FunkyBoy::Flags::setCarry(cpu.instrContext.regF, true);
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0xD8;      // RET C
-    cartridge->rom[initialProgCounter + 1] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0xD8;      // RET C
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
     assertDoFullMachineCycle(cpu, memory);    // Initial fetch
     assertDoFullMachineCycle(cpu, memory);    // Actual execution
     assertEquals(0x123 + 1, cpu.instrContext.progCounter);
