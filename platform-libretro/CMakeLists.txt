@@ -17,13 +17,11 @@ endif()
 set(SOURCES
         source/main.cpp
         source/display_libretro.cpp
-        source/joypad_libretro.cpp
         )
 
 set(HEADERS
         include/libretro.h
         source/display_libretro.h
-        source/joypad_libretro.h
         )
 
 add_library(fb_libretro SHARED ${SOURCES} ${HEADERS})

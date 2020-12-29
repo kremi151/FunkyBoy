@@ -23,7 +23,6 @@
 #include <fstream>
 
 #include "display_libretro.h"
-#include "joypad_libretro.h"
 
 using namespace FunkyBoy;
 
@@ -50,27 +49,31 @@ extern "C" {
 
     static std::unique_ptr<Emulator> emulator;
     static std::shared_ptr<Controller::DisplayController> displayController;
-    static std::shared_ptr<Controller::JoypadController> joypadController;
 
     static fs::path savePath;
 
     static unsigned currentControllerDevice;
     static unsigned currentControllerPort;
 
+    static bool btnAWasPressed = false;
+    static bool btnBWasPressed = false;
+    static bool btnSelectWasPressed = false;
+    static bool btnStartWasPressed = false;
+    static bool btnUpWasPressed = false;
+    static bool btnDownWasPressed = false;
+    static bool btnLeftWasPressed = false;
+    static bool btnRightWasPressed = false;
+
     void retro_init(void) {
         currentControllerDevice = RETRO_DEVICE_JOYPAD;
         currentControllerPort = 0;
 
         displayController = std::make_shared<Controller::DisplayControllerLibretro>();
-        joypadController = std::make_shared<Controller::JoypadControllerLibretro>();
 
         dynamic_cast<Controller::DisplayControllerLibretro&>(*displayController).setVideoCallback(video_cb);
-        dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController)
-            .setInputCallback(input_state_cb, currentControllerPort, currentControllerDevice);
 
         auto controllers = std::make_shared<Controller::Controllers>();
         controllers->setDisplay(displayController);
-        controllers->setJoypad(joypadController);
         emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
     }
 
@@ -79,7 +82,6 @@ extern "C" {
         delete ptr;
 
         displayController.reset();
-        joypadController.reset();
     }
 
     unsigned retro_api_version(void) {
@@ -91,8 +93,6 @@ extern "C" {
 
         currentControllerPort = port;
         currentControllerDevice = device;
-        dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController)
-                .setInputCallback(input_state_cb, port, device);
     }
 
     void retro_get_system_info(struct retro_system_info *info) {
@@ -143,10 +143,6 @@ extern "C" {
 
     void retro_set_input_state(retro_input_state_t cb) {
         input_state_cb = cb;
-        if (joypadController) {
-            dynamic_cast<Controller::JoypadControllerLibretro&>(*joypadController)
-                .setInputCallback(cb, currentControllerPort, currentControllerDevice);
-        }
     }
 
     void retro_set_video_refresh(retro_video_refresh_t cb) {
@@ -164,12 +160,60 @@ extern "C" {
         // TODO: Implement sound
     }
 
+#define IS_PRESSED(key) input_state_cb(currentControllerPort, currentControllerDevice, 0, key)
+
+    void update_inputs() {
+        input_poll_cb();
+        bool pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_A);
+        if (pressed != btnAWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_A, pressed);
+            btnAWasPressed = pressed;
+        }
+        pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_B);
+        if (pressed != btnBWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_B, pressed);
+            btnBWasPressed = pressed;
+        }
+        pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_START);
+        if (pressed != btnStartWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_START, pressed);
+            btnStartWasPressed = pressed;
+        }
+        pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_SELECT);
+        if (pressed != btnSelectWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_SELECT, pressed);
+            btnSelectWasPressed = pressed;
+        }
+        pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_LEFT);
+        if (pressed != btnLeftWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_LEFT, pressed);
+            btnLeftWasPressed = pressed;
+        }
+        pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_UP);
+        if (pressed != btnUpWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_UP, pressed);
+            btnUpWasPressed = pressed;
+        }
+        pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_RIGHT);
+        if (pressed != btnRightWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_RIGHT, pressed);
+            btnRightWasPressed = pressed;
+        }
+        pressed = IS_PRESSED(RETRO_DEVICE_ID_JOYPAD_DOWN);
+        if (pressed != btnDownWasPressed) {
+            emulator->setInputState(Controller::JoypadKey::JOYPAD_DOWN, pressed);
+            btnDownWasPressed = pressed;
+        }
+    }
+
+#undef IS_PRESSED
+
     void retro_run(void) {
         ret_code result;
         do {
             result = emulator->doTick();
         } while (!(result & FB_RET_NEW_FRAME));
-        input_poll_cb();
+        update_inputs();
     }
 
     void fb_loadSave() {
