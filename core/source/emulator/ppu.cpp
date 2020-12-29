@@ -17,7 +17,6 @@
 #include "ppu.h"
 
 #include <util/return_codes.h>
-#include <emulator/io_registers.h>
 
 // Lower tile set lives at 0x8000 in memory
 #define FB_TILE_DATA_LOWER 0x0000
@@ -52,10 +51,9 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const PPUMemory &ppuMemory)
     : cpu(std::move(cpu))
     , controllers(std::move(controllers))
-    , ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
@@ -83,18 +81,18 @@ PPU::~PPU() {
 //
 // In total for 155 scanlines => 70224 clocks
 
-ret_code PPU::doClocks(u8 clocks) {
+ret_code PPU::doClocks(u8 clocks, Memory &memory) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
     // See http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (pages 22-27)
 
-    auto lcdc = ioRegisters.getLCDC();
-    u8 &ly = ioRegisters.getLY();
-    u8 &stat = ioRegisters.getSTAT();
+    auto lcdc = memory.getLCDC();
+    u8 &ly = memory.getLY();
+    u8 &stat = memory.getSTAT();
 
     if (!__fb_lcdc_isOn(lcdc)) {
         ly = 0;
-        updateStat(stat, ly, false);
+        updateStat(stat, ly, false, memory);
         return FB_RET_SUCCESS;
     }
 
@@ -108,21 +106,21 @@ ret_code PPU::doClocks(u8 clocks) {
                 if (++ly >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
                     controllers->getDisplay()->drawScreen();
-                    cpu->requestInterrupt(InterruptType::VBLANK);
+                    cpu->requestInterrupt(InterruptType::VBLANK, memory);
                     if (__fb_stat_isVBlankInterrupt(stat)) {
-                        cpu->requestInterrupt(InterruptType::LCD_STAT);
+                        cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                     }
                     ppuMemory.setAccessibilityFromMMU(true, true);
                     result |= FB_RET_NEW_FRAME;
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
                     if (__fb_stat_isOAMInterrupt(stat)) {
-                        cpu->requestInterrupt(InterruptType::LCD_STAT);
+                        cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                     }
                     ppuMemory.setAccessibilityFromMMU(true, false);
                 }
-                if (__fb_stat_isLYCInterrupt(stat) && ly == ioRegisters.getLYC()) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                if (__fb_stat_isLYCInterrupt(stat) && ly == memory.getLYC()) {
+                    cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                 }
             }
             break;
@@ -132,14 +130,14 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_2;
                 if (__fb_stat_isOAMInterrupt(stat)) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                 }
                 ppuMemory.setAccessibilityFromMMU(true, false);
                 ly = 0;
             } else if (modeClocks % 204 == 0) {
                 ly++;
-                if (__fb_stat_isLYCInterrupt(stat) && ly == ioRegisters.getLYC()) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                if (__fb_stat_isLYCInterrupt(stat) && ly == memory.getLYC()) {
+                    cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                 }
             }
             break;
@@ -157,22 +155,22 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_0;
                 if (__fb_stat_isHBlankInterrupt(stat)) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                 }
                 ppuMemory.setAccessibilityFromMMU(true, true);
-                renderScanline(ly);
+                renderScanline(ly, memory);
                 result |= FB_RET_NEW_SCANLINE;
             }
             break;
         }
     }
 
-    updateStat(stat, ly, true);
+    updateStat(stat, ly, true, memory);
     return result;
 }
 
-void PPU::renderScanline(u8 ly) {
-    const u8 &lcdc = ioRegisters.getLCDC();
+void PPU::renderScanline(u8 ly, Memory &memory) {
+    const u8 &lcdc = memory.getLCDC();
     const memory_address tileSetAddr = __fb_getTileDataAddress(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
     const bool objEnabled = __fb_lcdc_objEnabled(lcdc);
@@ -187,15 +185,15 @@ void PPU::renderScanline(u8 ly) {
     u8 colorIndex;
     u8 it;
     if (bgEnabled) {
-        const u8 &scx = ioRegisters.getSCX();
-        const u8 &scy = ioRegisters.getSCY();
+        const u8 &scx = memory.getSCX();
+        const u8 &scy = memory.getSCY();
         y = ly + scy;
         tileOffsetX = scx / 8;
         xInTile = scx % 8;
         yInTile = y % 8;
         memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
         tileMapAddr += ((y & 255u) / 8) * 32;
-        palette = ioRegisters.getBGP();
+        palette = memory.getBGP();
         tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
         u8 &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
@@ -219,8 +217,8 @@ void PPU::renderScanline(u8 ly) {
         }
     }
     if (objEnabled) {
-        const u8 objPalette0 = ioRegisters.getOBP0();
-        const u8 objPalette1 = ioRegisters.getOBP1();
+        const u8 objPalette0 = memory.getOBP0();
+        const u8 objPalette1 = memory.getOBP1();
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
         memory_address objAddr = 0x0000; // 0x0000 ~> 0xFE00 (start of OAM)
         u8 objY, objX, objFlags;
@@ -272,16 +270,16 @@ void PPU::renderScanline(u8 ly) {
         }
     }
     if (windowEnabled) {
-        const u8 wy = ioRegisters.getWY();
+        const u8 wy = memory.getWY();
         if (ly >= wy) {
             y = ly - wy;
             yInTile = y % 8;
             xInTile = 0;
             tileOffsetX = 0;
-            const u8 wx = ioRegisters.getWX() - 7;
+            const u8 wx = memory.getWX() - 7;
             memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
             tileMapAddr += ((y & 255u) / 8) * 32;
-            palette = ioRegisters.getBGP();
+            palette = memory.getBGP();
             tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
             u8 &scanLineX = it; // alias for it
             for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
@@ -300,12 +298,12 @@ void PPU::renderScanline(u8 ly) {
     controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
 }
 
-void PPU::updateStat(u8 &stat, u8 ly, bool lcdOn) {
+void PPU::updateStat(u8 &stat, u8 ly, bool lcdOn, Memory &memory) {
     stat |= 0b10000000u; // Bit 7 always returns '1'
 
     // Clear bits 0, 1 and 2 so that we can update them correctly (if LCD is on)
     stat &= 0b11111000u;
-    if (ly == ioRegisters.getLYC()) {
+    if (ly == memory.getLYC()) {
         stat |= 0b00000100u;
     }
     if (lcdOn) {

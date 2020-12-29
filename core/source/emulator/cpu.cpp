@@ -19,15 +19,13 @@
 #include <util/typedefs.h>
 #include <util/registers.h>
 #include <util/return_codes.h>
-#include <emulator/io_registers.h>
 #include <operands/registry.h>
 #include <operands/tables.h>
 
 using namespace FunkyBoy;
 
-CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
+CPU::CPU(GameBoyType gbType)
     : gbType(gbType)
-    , ioRegisters(ioRegisters)
     , instrContext(gbType)
     , timerOverflowingCycles(-1)
     , delayedTIMAIncrease(false)
@@ -137,11 +135,11 @@ void CPU::powerUpInit(Memory &memory) {
     memory.write8BitsTo(0xffff, 0x00);
 
     // Initialize Joypad
-    ioRegisters.updateJoypad();
+    memory.updateJoypad();
 }
 
 ret_code CPU::doMachineCycle(Memory &memory) {
-    doJoypad();
+    doJoypad(memory);
     auto result = doCycle(memory);
 
     // TODO: Handle timer here or earlier?
@@ -244,12 +242,12 @@ inline u8 getInterruptBitMask(InterruptType type) {
     return 1u << static_cast<u8>(type);
 }
 
-void CPU::doJoypad() {
-    u8 oldP1 = ioRegisters.getP1() & 0b00001111u;
-    u8 newP1 = ioRegisters.updateJoypad() & 0b00001111u;
+void CPU::doJoypad(Memory &memory) {
+    u8 oldP1 = memory.getP1() & 0b00001111u;
+    u8 newP1 = memory.updateJoypad() & 0b00001111u;
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
-        requestInterrupt(InterruptType::JOYPAD);
+        requestInterrupt(InterruptType::JOYPAD, memory);
     }
     if (!isNotPressed && instrContext.cpuState == CPUState::STOPPED) {
         instrContext.cpuState = CPUState::RUNNING;
@@ -261,7 +259,7 @@ bool CPU::doInterrupts(Memory &memory) {
     if (instrContext.cpuState == CPUState::STOPPED) {
         return false;
     }
-    u8 &_if = ioRegisters.getIF();
+    u8 &_if = memory.getIF();
     _if %= 0x1fu;
     u8 _ie = memory.getIE() & 0x1fu;
     u8 _intr = _if & _ie & 0x1f;
@@ -335,39 +333,39 @@ bool doTimerObscureCheck(u8 clocks, u16 sysCounter, u8 tac) {
 }
 
 void CPU::doTimers(Memory &memory, u8 clocks) {
-    u16 sysCounter = ioRegisters.getSysCounter();
-    ioRegisters.setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
+    u16 sysCounter = memory.getSysCounter();
+    memory.setSysCounter(sysCounter + clocks); // TODO: Move to end of this function?
     if (timerOverflowingCycles != -1) {
         timerOverflowingCycles -= clocks;
         if (timerOverflowingCycles <= 0) {
             //fprintf(stdout, "# Request Timer interrupt\n");
-            ioRegisters.getTIMA() = ioRegisters.getTMA();
-            requestInterrupt(InterruptType::TIMER);
+            memory.getTIMA() = memory.getTMA();
+            requestInterrupt(InterruptType::TIMER, memory);
             timerOverflowingCycles = -1;
         }
     }
-    u8 tac = ioRegisters.getTAC();
+    u8 tac = memory.getTAC();
     bool comp1 = (tac & 0b100u) != 0;
     comp1 &= doTimerObscureCheck(clocks, sysCounter, tac);
     // Falling edge detector
     if (delayedTIMAIncrease && !comp1) {
-        u8 tima = ioRegisters.getTIMA();
+        u8 tima = memory.getTIMA();
         if (tima == 0xff) {
             //fprintf(stdout, "# TIMA has overflown\n");
             // Delay TIMA load by 1 m-cycle
             timerOverflowingCycles = 4;
             // In the meantime, set TIMA to 0
-            ioRegisters.getTIMA() = 0x00;
+            memory.getTIMA() = 0x00;
         } else if (timerOverflowingCycles == -1) { // TIME has to be 0 for one full m-cycle, so we do not increase here in that case
-            ioRegisters.getTIMA() = tima + 1;
+            memory.getTIMA() = tima + 1;
         }
     }
     delayedTIMAIncrease = comp1;
 }
 
-void CPU::requestInterrupt(InterruptType type) {
+void CPU::requestInterrupt(InterruptType type, Memory &memory) {
     //fprintf(stdout, "#req int %d\n", type);
-    u8 &_if = ioRegisters.getIF();
+    u8 &_if = memory.getIF();
     _if |= getInterruptBitMask(type);
 }
 

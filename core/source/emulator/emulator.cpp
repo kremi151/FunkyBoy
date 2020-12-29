@@ -28,11 +28,10 @@ using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
     : controllers(controllers)
-    , ioRegisters(controllers)
     , ppuMemory()
-    , memory(controllers, ioRegisters, ppuMemory)
-    , cpu(std::make_shared<CPU>(gbType, ioRegisters))
-    , ppu(cpu, controllers, ioRegisters, ppuMemory)
+    , memory(controllers, ppuMemory)
+    , cpu(std::make_shared<CPU>(gbType))
+    , ppu(cpu, controllers, ppuMemory)
 {
     // Initialize registers
     cpu->powerUpInit(memory);
@@ -91,6 +90,6 @@ ret_code Emulator::doTick() {
     if (!result) {
         return 0;
     }
-    result |= ppu.doClocks(4);
+    result |= ppu.doClocks(4, memory);
     return result;
 }

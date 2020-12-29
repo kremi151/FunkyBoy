@@ -26,7 +26,6 @@
 #include <operands/instruction_context.h>
 #include <operands/debug.h>
 #include <emulator/gb_type.h>
-#include <emulator/io_registers.h>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 #include <fstream>
@@ -44,7 +43,6 @@ namespace FunkyBoy {
 
     class CPU {
     private:
-        io_registers ioRegisters;
         const GameBoyType gbType;
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
@@ -62,7 +60,7 @@ namespace FunkyBoy {
         ret_code doCycle(Memory &memory);
         ret_code doFetchAndDecode(Memory &memory);
 
-        void doJoypad();
+        void doJoypad(Memory &memory);
         bool doInterrupts(Memory &memory);
         void doTimers(Memory &memory, u8 clocks);
 
@@ -90,12 +88,12 @@ namespace FunkyBoy {
         u8 *regA;
 
     public:
-        CPU(GameBoyType gbType, const io_registers& ioRegisters);
+        CPU(GameBoyType gbType);
 
         void powerUpInit(Memory &memory);
 
         void setProgramCounter(u16 offset);
-        void requestInterrupt(InterruptType type);
+        void requestInterrupt(InterruptType type, Memory &memory);
 
         ret_code doMachineCycle(Memory &memory);
     };

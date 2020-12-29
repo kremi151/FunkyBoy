@@ -22,7 +22,6 @@
 #include <memory>
 #include <emulator/cpu.h>
 #include <emulator/ppu.h>
-#include <emulator/io_registers.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <controllers/controllers.h>
@@ -37,7 +36,6 @@ namespace FunkyBoy {
     test_public:
         Controller::ControllersPtr controllers;
 
-        io_registers ioRegisters;
         PPUMemory ppuMemory;
         Memory memory;
         CPUPtr cpu;

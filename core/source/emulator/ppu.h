@@ -19,7 +19,7 @@
 
 #include <controllers/controllers.h>
 #include <emulator/cpu.h>
-#include <emulator/io_registers.h>
+#include <memory/memory.h>
 #include <memory/ppu_memory.h>
 #include <util/gpumode.h>
 #include <util/typedefs.h>
@@ -30,7 +30,6 @@ namespace FunkyBoy {
     private:
         CPUPtr cpu;
         Controller::ControllersPtr controllers;
-        io_registers ioRegisters;
         PPUMemory ppuMemory;
 
         GPUMode gpuMode;
@@ -40,13 +39,13 @@ namespace FunkyBoy {
         u8 *scanLineBuffer;
         u8 *bgColorIndexes;
 
-        void renderScanline(u8 ly);
-        void updateStat(u8 &stat, u8 ly, bool lcdOn);
+        void renderScanline(u8 ly, Memory &memory);
+        void updateStat(u8 &stat, u8 ly, bool lcdOn, Memory &memory);
     public:
-        PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
+        PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const PPUMemory &ppuMemory);
         ~PPU();
 
-        ret_code doClocks(u8 clocks);
+        ret_code doClocks(u8 clocks, Memory &memory);
     };
 
 }
