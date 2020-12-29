@@ -44,9 +44,8 @@ void assertDoFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
 
 inline FunkyBoy::Memory createMemory() {
     auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
-    FunkyBoy::io_registers io(controllers);
     FunkyBoy::PPUMemory ppuMemory;
-    return FunkyBoy::Memory(controllers, io, ppuMemory);
+    return FunkyBoy::Memory(controllers, ppuMemory);
 }
 
 TEST(testEchoRAM) {
@@ -81,7 +80,7 @@ TEST(testReadROMTitle) {
 
 TEST(testPopPushStackPointer) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     cpu.instrContext.push16Bits(memory, 0x1806);
@@ -102,7 +101,7 @@ TEST(testPopPushStackPointer) {
 
 TEST(testReadWriteHLAndAF) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     // In this test, we check for enforcing little-endianness
@@ -124,7 +123,7 @@ TEST(testReadWriteHLAndAF) {
 
 TEST(testReadWrite16BitRegisters) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     // In this test, we check for enforcing little-endianness
@@ -153,7 +152,7 @@ TEST(testReadWrite16BitRegisters) {
 
 TEST(test16BitLoads) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
@@ -251,7 +250,7 @@ TEST(test16BitLoads) {
 
 TEST(testHALTBugSkipping) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
@@ -296,7 +295,7 @@ TEST(testHALTBugSkipping) {
 
 TEST(testHALTNoSkippingIfIMEDisabled) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
@@ -350,7 +349,7 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
 
 TEST(testHALTBugHanging) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
@@ -384,7 +383,7 @@ TEST(testHALTBugHanging) {
 // Test Operands::checkIsZeroContextual and Operands::checkIsCarryContextual using RET
 TEST(testContextualZeroAndCarryCheckOperands) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE);
     cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
