@@ -330,11 +330,13 @@ case 0x ## x ## 0: case 0x ## x ## 1: case 0x ## x ## 2: case 0x ## x ## 3: case
 case 0x ## x ## 6: case 0x ## x ## 7: case 0x ## x ## 8: case 0x ## x ## 9: case 0x ## x ## A: case 0x ## x ## B: \
 case 0x ## x ## C: case 0x ## x ## D: case 0x ## x ## E: case 0x ## x ## F
 
-#define FB_MEMORY_CARTRIDGE \
+#define FB_MEMORY_CARTRIDGE_FIXED \
 FB_MEMORY_NIBBLE_RANGE(0): \
 FB_MEMORY_NIBBLE_RANGE(1): \
 FB_MEMORY_NIBBLE_RANGE(2): \
-FB_MEMORY_NIBBLE_RANGE(3): \
+FB_MEMORY_NIBBLE_RANGE(3)
+
+#define FB_MEMORY_CARTRIDGE_DYNAMIC \
 FB_MEMORY_NIBBLE_RANGE(4): \
 FB_MEMORY_NIBBLE_RANGE(5): \
 FB_MEMORY_NIBBLE_RANGE(6): \
@@ -369,7 +371,9 @@ case 0xFF
 
 u8 Memory::read8BitsAt(memory_address offset) {
     switch ((offset >> 8) & 0xff) {
-        FB_MEMORY_CARTRIDGE:
+        FB_MEMORY_CARTRIDGE_FIXED:
+            return *(rom + offset);
+        FB_MEMORY_CARTRIDGE_DYNAMIC:
             return mbc->readFromROMAt(offset, rom);
         FB_MEMORY_VRAM:
             return vramAccessible
@@ -422,7 +426,8 @@ i8 Memory::readSigned8BitsAt(memory_address offset) {
 
 void Memory::write8BitsTo(memory_address offset, u8 val) {
     switch ((offset >> 8) & 0xff) {
-        FB_MEMORY_CARTRIDGE:
+        FB_MEMORY_CARTRIDGE_FIXED:
+        FB_MEMORY_CARTRIDGE_DYNAMIC:
             // Writing to read-only area, so we let it intercept by the MBC
             mbc->interceptROMWrite(offset, val);
             break;
