@@ -44,8 +44,7 @@ void assertDoFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
 
 inline FunkyBoy::Memory createMemory() {
     auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
-    FunkyBoy::PPUMemory ppuMemory;
-    return FunkyBoy::Memory(controllers, ppuMemory);
+    return FunkyBoy::Memory(controllers);
 }
 
 TEST(testEchoRAM) {

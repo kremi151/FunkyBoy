@@ -31,13 +31,16 @@ using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
 
-Memory::Memory(Controller::ControllersPtr controllers, const PPUMemory &ppuMemory)
+Memory::Memory(Controller::ControllersPtr controllers)
     : controllers(std::move(controllers))
     , sys_counter_lsb(0)
     , sys_counter_msb(0)
     , hwIO(new u8[128]{})
-    , ppuMemory(ppuMemory)
     , interruptEnableRegister(0)
+    , vram(new u8[8192]{})
+    , oam(new u8[160]{})
+    , vramAccessible(true)
+    , oamAccessible(true)
     , dmaStarted(false)
     , rom(nullptr)
     , cram(nullptr)
@@ -57,6 +60,8 @@ Memory::~Memory() {
     delete[] hram;
     delete[] rom;
     delete[] cram;
+    delete[] vram;
+    delete[] oam;
     delete[] hwIO;
 }
 
@@ -318,6 +323,11 @@ u8 Memory::handleIOMemoryRead(u8 offset) {
     }
 }
 
+void Memory::setAccessibilityFromMMU(bool accessVram, bool accessOam) {
+    vramAccessible = accessVram;
+    oamAccessible = accessOam;
+}
+
 #define FB_MEMORY_NIBBLE_RANGE(x) \
 case 0x ## x ## 0: case 0x ## x ## 1: case 0x ## x ## 2: case 0x ## x ## 3: case 0x ## x ## 4: case 0x ## x ## 5: \
 case 0x ## x ## 6: case 0x ## x ## 7: case 0x ## x ## 8: case 0x ## x ## 9: case 0x ## x ## A: case 0x ## x ## B: \
@@ -365,8 +375,8 @@ u8 Memory::read8BitsAt(memory_address offset) {
         FB_MEMORY_CARTRIDGE:
             return mbc->readFromROMAt(offset, rom);
         FB_MEMORY_VRAM:
-            return ppuMemory.isVRAMAccessibleFromMMU()
-                   ? ppuMemory.getVRAMByte(offset - 0x8000)
+            return vramAccessible
+                   ? getVRAMByte(offset - 0x8000)
                    : 0xFF;
         FB_MEMORY_CARTRIDGE_RAM:
             return mbc->readFromRAMAt(offset - 0xA000, cram);
@@ -381,8 +391,8 @@ u8 Memory::read8BitsAt(memory_address offset) {
             return *(dynamicRamBank + (offset - 0xF000));
         FB_MEMORY_OAM: {
             if (offset < 0xFEA0) {
-                return ppuMemory.isOAMAccessibleFromMMU()
-                    ? ppuMemory.getOAMByte(offset - 0xFE00)
+                return oamAccessible
+                    ? getOAMByte(offset - 0xFE00)
                     : 0xFF;
             } else {
                 // Not usable
@@ -420,8 +430,8 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
             mbc->interceptROMWrite(offset, val);
             break;
         FB_MEMORY_VRAM: {
-            if (ppuMemory.isVRAMAccessibleFromMMU()) {
-                ppuMemory.getVRAMByte(offset - 0x8000) = val;
+            if (vramAccessible) {
+                getVRAMByte(offset - 0x8000) = val;
             }
             break;
         }
@@ -443,8 +453,8 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
             break;
         FB_MEMORY_OAM: {
             if (offset < 0xFEA0) {
-                if (ppuMemory.isOAMAccessibleFromMMU()) {
-                    ppuMemory.getOAMByte(offset - 0xFE00) = val;
+                if (oamAccessible) {
+                    getOAMByte(offset - 0xFE00) = val;
                 }
             } else {
                 // Not usable
@@ -488,7 +498,7 @@ void Memory::doDMA() {
     if (!dmaStarted) {
         return;
     }
-    ppuMemory.getOAMByte(dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
+    getOAMByte(dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
     if (++dmaLsb > 0x9F) {
         dmaStarted = false;
     }

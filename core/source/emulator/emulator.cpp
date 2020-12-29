@@ -28,13 +28,13 @@ using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
     : controllers(controllers)
-    , ppuMemory()
-    , memory(controllers, ppuMemory)
+    , memory(controllers)
     , cpu(std::make_shared<CPU>(gbType))
-    , ppu(cpu, controllers, ppuMemory)
+    , ppu(cpu, controllers)
 {
     // Initialize registers
     cpu->powerUpInit(memory);
+    ppu.powerUpInit(memory);
 }
 
 Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(

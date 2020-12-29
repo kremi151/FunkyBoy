@@ -51,24 +51,26 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const PPUMemory &ppuMemory)
+PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers)
     : cpu(std::move(cpu))
     , controllers(std::move(controllers))
-    , ppuMemory(ppuMemory)
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
     , scanLineBuffer(new u8[FB_GB_DISPLAY_WIDTH])
     , bgColorIndexes(new u8[FB_GB_DISPLAY_WIDTH])
 {
-    this->ppuMemory.setAccessibilityFromMMU(
-            this->gpuMode != GPUMode::GPUMode_3,
-            this->gpuMode != GPUMode::GPUMode_2 && this->gpuMode != GPUMode::GPUMode_3
-    );
 }
 
 PPU::~PPU() {
     delete[] scanLineBuffer;
     delete[] bgColorIndexes;
+}
+
+void PPU::powerUpInit(Memory &memory) {
+    memory.setAccessibilityFromMMU(
+            this->gpuMode != GPUMode::GPUMode_3,
+            this->gpuMode != GPUMode::GPUMode_2 && this->gpuMode != GPUMode::GPUMode_3
+    );
 }
 
 // GPU Lifecycle:
@@ -110,14 +112,14 @@ ret_code PPU::doClocks(u8 clocks, Memory &memory) {
                     if (__fb_stat_isVBlankInterrupt(stat)) {
                         cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                     }
-                    ppuMemory.setAccessibilityFromMMU(true, true);
+                    memory.setAccessibilityFromMMU(true, true);
                     result |= FB_RET_NEW_FRAME;
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
                     if (__fb_stat_isOAMInterrupt(stat)) {
                         cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                     }
-                    ppuMemory.setAccessibilityFromMMU(true, false);
+                    memory.setAccessibilityFromMMU(true, false);
                 }
                 if (__fb_stat_isLYCInterrupt(stat) && ly == memory.getLYC()) {
                     cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
@@ -132,7 +134,7 @@ ret_code PPU::doClocks(u8 clocks, Memory &memory) {
                 if (__fb_stat_isOAMInterrupt(stat)) {
                     cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                 }
-                ppuMemory.setAccessibilityFromMMU(true, false);
+                memory.setAccessibilityFromMMU(true, false);
                 ly = 0;
             } else if (modeClocks % 204 == 0) {
                 ly++;
@@ -146,7 +148,7 @@ ret_code PPU::doClocks(u8 clocks, Memory &memory) {
             if (modeClocks >= 80) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_3;
-                ppuMemory.setAccessibilityFromMMU(false, false);
+                memory.setAccessibilityFromMMU(false, false);
             }
             break;
         }
@@ -157,7 +159,7 @@ ret_code PPU::doClocks(u8 clocks, Memory &memory) {
                 if (__fb_stat_isHBlankInterrupt(stat)) {
                     cpu->requestInterrupt(InterruptType::LCD_STAT, memory);
                 }
-                ppuMemory.setAccessibilityFromMMU(true, true);
+                memory.setAccessibilityFromMMU(true, true);
                 renderScanline(ly, memory);
                 result |= FB_RET_NEW_SCANLINE;
             }
@@ -194,10 +196,10 @@ void PPU::renderScanline(u8 ly, Memory &memory) {
         memory_address tileMapAddr = __fb_lcdc_bgTileMapDisplaySelect(lcdc);
         tileMapAddr += ((y & 255u) / 8) * 32;
         palette = memory.getBGP();
-        tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
+        tile = memory.getVRAMByte(tileMapAddr + tileOffsetX);
         u8 &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
-            tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
+            tileLine = memory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
             colorIndex = (tileLine >> (15 - xInTile)) & 1u
                 | ((tileLine >> (7 - xInTile)) & 1u) << 1;
             scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
@@ -205,7 +207,7 @@ void PPU::renderScanline(u8 ly, Memory &memory) {
             if (++xInTile >= 8) {
                 xInTile = 0;
                 tileOffsetX = (tileOffsetX + 1) & 31;
-                tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
+                tile = memory.getVRAMByte(tileMapAddr + tileOffsetX);
             }
         }
     } else {
@@ -226,10 +228,10 @@ void PPU::renderScanline(u8 ly, Memory &memory) {
         u8 yInObj;
         u8 &objIdx = it; // alias for it
         for (objIdx = 0 ; objIdx < 40 ; objIdx++) {
-            objY = ppuMemory.getOAMByte(objAddr++) - 16;
-            objX = ppuMemory.getOAMByte(objAddr++);
-            tile = ppuMemory.getOAMByte(objAddr++);
-            objFlags = ppuMemory.getOAMByte(objAddr++);
+            objY = memory.getOAMByte(objAddr++) - 16;
+            objX = memory.getOAMByte(objAddr++);
+            tile = memory.getOAMByte(objAddr++);
+            objFlags = memory.getOAMByte(objAddr++);
             if (ly < objY || ly >= objY + objHeight) {
                 continue;
             }
@@ -247,7 +249,7 @@ void PPU::renderScanline(u8 ly, Memory &memory) {
                 // In 8x16 mode, the least significant bit of the tile number is treated as '0'
                 tile &= 0b11111110u;
             }
-            tileLine = ppuMemory.readVRAM16Bits(FB_TILE_DATA_LOWER + (tile * FB_SIZEOF_TILE) + (yInObj * 2));
+            tileLine = memory.readVRAM16Bits(FB_TILE_DATA_LOWER + (tile * FB_SIZEOF_TILE) + (yInObj * 2));
             for (u8 xOnObj = 0 ; xOnObj < 8 ; xOnObj++) {
                 u8 x = objX + xOnObj - 8;
                 if (x >= FB_GB_DISPLAY_WIDTH) {
@@ -280,17 +282,17 @@ void PPU::renderScanline(u8 ly, Memory &memory) {
             memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
             tileMapAddr += ((y & 255u) / 8) * 32;
             palette = memory.getBGP();
-            tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
+            tile = memory.getVRAMByte(tileMapAddr + tileOffsetX);
             u8 &scanLineX = it; // alias for it
             for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
-                tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
+                tileLine = memory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
                 colorIndex = (tileLine >> (15 - xInTile)) & 1u
                     | ((tileLine >> (7 - xInTile)) & 1u) << 1;
                 scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
                 if (++xInTile >= 8) {
                     xInTile = 0;
                     tileOffsetX = (tileOffsetX + 1) & 31;
-                    tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
+                    tile = memory.getVRAMByte(tileMapAddr + tileOffsetX);
                 }
             }
         }

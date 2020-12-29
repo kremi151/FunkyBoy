@@ -20,12 +20,12 @@
 #include <util/typedefs.h>
 #include <cartridge/status.h>
 #include <controllers/controllers.h>
-#include <memory/ppu_memory.h>
 #include <cartridge/mbc.h>
 
 #include <iostream>
 #include <cartridge/header.h>
 #include <util/testing.h>
+#include <util/endianness.h>
 
 #define FB_REG_P1 0xFF00
 #define FB_REG_SB 0xFF01
@@ -75,15 +75,19 @@ namespace FunkyBoy {
     class Memory {
     private:
         Controller::ControllersPtr controllers;
-        PPUMemory ppuMemory;
 
         u8 *internalRam;
         u8 *hwIO;
         u8 *hram;
+        u8 *vram;
+        u8 *oam;
         u8 interruptEnableRegister;
 
         u8 dmaMsb{}, dmaLsb{};
         bool dmaStarted;
+
+        bool vramAccessible;
+        bool oamAccessible;
 
         u8 *cram;
         size_t ramSizeInBytes;
@@ -107,7 +111,7 @@ namespace FunkyBoy {
         u8 sys_counter_msb;
 
     public:
-        Memory(Controller::ControllersPtr controllers, const PPUMemory &ppuMemory);
+        Memory(Controller::ControllersPtr controllers);
         ~Memory();
 
         Memory(const Memory &other) = delete;
@@ -205,6 +209,20 @@ namespace FunkyBoy {
         inline u8 getIE() const {
             return interruptEnableRegister;
         }
+
+        inline u8 &getVRAMByte(memory_address vramOffset) {
+            return *(vram + vramOffset);
+        }
+
+        inline u16 readVRAM16Bits(memory_address vramOffset) {
+            return Util::compose16Bits(*(vram + vramOffset), *(vram + vramOffset + 1));
+        }
+
+        inline u8 &getOAMByte(memory_address oamOffset) {
+            return *(oam + oamOffset);
+        }
+
+        void setAccessibilityFromMMU(bool accessVram, bool accessOam);
 
         friend class CPU;
     };

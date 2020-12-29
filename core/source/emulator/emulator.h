@@ -26,7 +26,6 @@
 #include <util/debug.h>
 #include <controllers/controllers.h>
 #include <memory/memory.h>
-#include <memory/ppu_memory.h>
 #include <memory>
 #include <iostream>
 
@@ -36,7 +35,6 @@ namespace FunkyBoy {
     test_public:
         Controller::ControllersPtr controllers;
 
-        PPUMemory ppuMemory;
         Memory memory;
         CPUPtr cpu;
         PPU ppu;

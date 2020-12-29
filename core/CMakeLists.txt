@@ -25,7 +25,6 @@ set(SOURCES
         source/cartridge/mbc1.cpp
         source/cartridge/mbc2.cpp
         source/cartridge/mbc_none.cpp
-        source/memory/ppu_memory.cpp
         source/operands/instruction_context.cpp
         source/operands/alu.cpp
         source/operands/loads.cpp
@@ -69,7 +68,6 @@ set(HEADERS
         source/cartridge/mbc1.h
         source/cartridge/mbc2.h
         source/cartridge/mbc_none.h
-        source/memory/ppu_memory.h
         source/operands/instruction_context.h
         source/operands/alu.h
         source/operands/loads.h
