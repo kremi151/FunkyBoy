@@ -173,14 +173,14 @@ extern "C" {
     }
 
     void fb_loadSave() {
-        if (!savePath.empty() && emulator->getCartridge().getRamSize() > 0 && fs::exists(savePath)) {
+        if (!savePath.empty() && emulator->getCartridgeRamSize() > 0 && fs::exists(savePath)) {
             std::ifstream file(savePath);
             emulator->loadCartridgeRam(file);
         }
     }
 
     void fb_writeSave() {
-        if (!savePath.empty() && emulator->getCartridge().getRamSize() > 0) {
+        if (!savePath.empty() && emulator->getCartridgeRamSize() > 0) {
             std::ofstream file(savePath);
             emulator->writeCartridgeRam(file);
         }
@@ -237,7 +237,7 @@ extern "C" {
     }
 
     unsigned retro_get_region(void) {
-        auto header = emulator->getCartridge().getHeader();
+        auto header = emulator->getROMHeader();
         return header->destinationCode ? RETRO_REGION_PAL : RETRO_REGION_NTSC;
     }
 

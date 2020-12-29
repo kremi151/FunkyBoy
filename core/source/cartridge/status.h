@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_OPERANDS_DECODER_H
-#define FB_CORE_OPERANDS_DECODER_H
+#ifndef FB_CORE_CARTRIDGE_STATUS_H
+#define FB_CORE_CARTRIDGE_STATUS_H
 
-#include <operands/instructions.h>
+namespace FunkyBoy {
 
-namespace FunkyBoy::Operands {
-
-    using operand_buffer = Operand[25];
-
-    bool decodeOpcode(u8 opcode, operand_buffer operands);
+    enum CartridgeStatus {
+        NoROMLoaded,
+        ROMFileNotReadable,
+        ROMParseError,
+        ROMTooBig,
+        ROMSizeMismatch,
+        ROMUnsupportedMBC,
+        RAMSizeUnsupported,
+        Loaded
+    };
 
 }
 
-#endif //FB_CORE_OPERANDS_DECODER_H
+#endif //FB_CORE_CARTRIDGE_STATUS_H

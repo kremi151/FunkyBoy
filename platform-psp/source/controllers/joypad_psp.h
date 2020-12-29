@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#ifndef FB_PSP_CONTROLLERS_JOYPAD_PSP_H
+#define FB_PSP_CONTROLLERS_JOYPAD_PSP_H
 
-#include <util/flags.h>
+#include <controllers/joypad.h>
 
-using namespace FunkyBoy;
+namespace FunkyBoyPSP::Controller {
 
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
-    }
+    class JoypadController: public FunkyBoy::Controller::JoypadController {
+    public:
+        bool isKeyPressed(FunkyBoy::Controller::JoypadKey key) override;
+    };
+
 }
 
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
-}
+#endif //FB_PSP_CONTROLLERS_JOYPAD_PSP_H

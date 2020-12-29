@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#ifndef FB_CORE_OPERANDS_TABLES_H
+#define FB_CORE_OPERANDS_TABLES_H
 
-#include <util/flags.h>
+#include <operands/instruction_context.h>
 
-using namespace FunkyBoy;
+namespace FunkyBoy::Operands::Tables {
 
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
-    }
+    extern Operand const* const instructions[256];
+    extern Operand const* const prefixInstructions[256];
+
 }
 
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
-}
+#endif //FB_CORE_OPERANDS_TABLES_H

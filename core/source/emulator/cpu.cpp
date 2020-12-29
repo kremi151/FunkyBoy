@@ -20,6 +20,8 @@
 #include <util/registers.h>
 #include <util/return_codes.h>
 #include <emulator/io_registers.h>
+#include <operands/registry.h>
+#include <operands/tables.h>
 
 using namespace FunkyBoy;
 
@@ -29,7 +31,6 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     , instrContext(gbType)
     , timerOverflowingCycles(-1)
     , delayedTIMAIncrease(false)
-    , operandIndex(0)
     , joypadWasNotPressed(true)
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     , file("exec_opcodes_fb_v2.txt")
@@ -57,9 +58,9 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     instrContext.regL = regL;
     instrContext.regF = regF_do_not_use_directly;
     instrContext.regA = regA;
+    instrContext.operandsPtr = &operands;
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
-    instrContext.operands = operands;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
     instrContext.haltBugRequested = false;
     instrContext.cpuState = CPUState::RUNNING;
@@ -70,8 +71,7 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
 
     // Fetch/Execute overlapping -> initial fetch is performed without executing any other instruction
     // To simulate this, we set a NOP as the first instruction, which does nothing
-    operands[0] = Operands::nop;
-    operands[1] = nullptr;
+    operands = Operands::Registry::nop;
 }
 
 void CPU::powerUpInit(Memory &memory) {
@@ -177,9 +177,9 @@ ret_code CPU::doCycle(Memory &memory) {
     if (instrContext.cpuState == CPUState::RUNNING) {
         memory.doDMA(); // TODO: Implement delay of 2 clocks
 
-        auto op = operands[operandIndex++];
+        auto op = *operands;
 
-        if (operands[operandIndex] == nullptr) {
+        if (*(++operands) == nullptr) {
             shouldFetch = true;
             result |= FB_RET_INSTRUCTION_DONE;
         }
@@ -204,7 +204,6 @@ ret_code CPU::doCycle(Memory &memory) {
 
     if (interruptServiced || (shouldFetch && instrContext.cpuState == CPUState::RUNNING)) { // TODO: Can this be simplified to just instrContext.cpuState == CPUState::RUNNING ?
         result |= doFetchAndDecode(memory);
-        operandIndex = 0;
         return result;
     }
 
@@ -224,7 +223,8 @@ ret_code CPU::doFetchAndDecode(Memory &memory) {
     instr++;
 #endif
 
-    if (!Operands::decodeOpcode(instrContext.instr, operands)) {
+    operands = Operands::Tables::instructions[instrContext.instr];
+    if (operands == nullptr) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
         return 0;
     }
@@ -263,7 +263,7 @@ bool CPU::doInterrupts(Memory &memory) {
     }
     u8 &_if = ioRegisters.getIF();
     _if %= 0x1fu;
-    u8 _ie = memory.read8BitsAt(FB_REG_IE) & 0x1fu;
+    u8 _ie = memory.getIE() & 0x1fu;
     u8 _intr = _if & _ie & 0x1f;
     if (!_intr) {
         return false;
@@ -341,25 +341,25 @@ void CPU::doTimers(Memory &memory, u8 clocks) {
         timerOverflowingCycles -= clocks;
         if (timerOverflowingCycles <= 0) {
             //fprintf(stdout, "# Request Timer interrupt\n");
-            memory.write8BitsTo(FB_REG_TIMA, memory.read8BitsAt(FB_REG_TMA));
+            ioRegisters.getTIMA() = ioRegisters.getTMA();
             requestInterrupt(InterruptType::TIMER);
             timerOverflowingCycles = -1;
         }
     }
-    u8 tac = memory.read8BitsAt(FB_REG_TAC);
+    u8 tac = ioRegisters.getTAC();
     bool comp1 = (tac & 0b100u) != 0;
     comp1 &= doTimerObscureCheck(clocks, sysCounter, tac);
     // Falling edge detector
     if (delayedTIMAIncrease && !comp1) {
-        u8 tima = memory.read8BitsAt(FB_REG_TIMA);
+        u8 tima = ioRegisters.getTIMA();
         if (tima == 0xff) {
             //fprintf(stdout, "# TIMA has overflown\n");
             // Delay TIMA load by 1 m-cycle
             timerOverflowingCycles = 4;
             // In the meantime, set TIMA to 0
-            memory.write8BitsTo(FB_REG_TIMA, 0x00);
+            ioRegisters.getTIMA() = 0x00;
         } else if (timerOverflowingCycles == -1) { // TIME has to be 0 for one full m-cycle, so we do not increase here in that case
-            memory.write8BitsTo(FB_REG_TIMA, tima + 1);
+            ioRegisters.getTIMA() = tima + 1;
         }
     }
     delayedTIMAIncrease = comp1;

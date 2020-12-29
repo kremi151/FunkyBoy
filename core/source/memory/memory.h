@@ -18,16 +18,19 @@
 #define FUNKYBOY_CORE_MEMORY_H
 
 #include <util/typedefs.h>
-#include <cartridge/cartridge.h>
+#include <cartridge/status.h>
 #include <controllers/controllers.h>
 #include <emulator/io_registers.h>
 #include <memory/ppu_memory.h>
+#include <cartridge/mbc.h>
+
+#include <iostream>
+#include <cartridge/header.h>
 
 namespace FunkyBoy {
 
     class Memory {
     private:
-        CartridgePtr cartridge;
         Controller::ControllersPtr controllers;
         io_registers ioRegisters;
         PPUMemory ppuMemory;
@@ -39,14 +42,38 @@ namespace FunkyBoy {
         u8 dmaMsb{}, dmaLsb{};
         bool dmaStarted;
 
+        u8 *cram;
+        size_t ramSizeInBytes;
+        size_t romSize;
+        CartridgeStatus status;
+
+        std::unique_ptr<MBC> mbc;
+
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
+
+    test_public:
+        u8 *rom;
+
     public:
-        Memory(CartridgePtr cartridge, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
+        Memory(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~Memory();
 
         Memory(const Memory &other) = delete;
         Memory &operator= (const Memory &other) = delete;
+
+        void loadROM(std::istream &stream);
+        void loadROM(std::istream &stream, bool strictSizeCheck);
+
+        void loadRam(std::istream &stream);
+        void writeRam(std::ostream &stream);
+
+        inline size_t getCartridgeRamSize() {
+            return ramSizeInBytes;
+        }
+
+        const ROMHeader *getROMHeader();
+        CartridgeStatus getCartridgeStatus();
 
         u8 read8BitsAt(memory_address offset);
         i8 readSigned8BitsAt(memory_address offset);
@@ -54,9 +81,12 @@ namespace FunkyBoy {
 
         void doDMA();
 
+        inline u8 getIE() {
+            return interruptEnableRegister;
+        }
+
 #ifdef FB_TESTING
         io_registers &getIoRegisters();
-        CartridgePtr &getCartridge();
 #endif
     };
 

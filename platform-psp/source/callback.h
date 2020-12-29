@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#ifndef FB_PSP_CALLBACK_H
+#define FB_PSP_CALLBACK_H
 
-#include <util/flags.h>
+int isRunning();
+int setupExitCallback();
 
-using namespace FunkyBoy;
-
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
-    }
-}
-
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
-}
+#endif //FB_PSP_CALLBACK_H

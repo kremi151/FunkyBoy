@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#ifndef FB_PSP_USER_INPUT_H
+#define FB_PSP_USER_INPUT_H
 
-#include <util/flags.h>
-
-using namespace FunkyBoy;
-
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
-    }
+namespace FunkyBoyPSP::Input {
+    int getX();
+    void poll();
+    unsigned int getPressedKeys();
 }
 
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
-}
+#endif //FB_PSP_USER_INPUT_H

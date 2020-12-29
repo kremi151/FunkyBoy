@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#ifndef FB_CORE_UTIL_STRING_POLYFILLS_H
+#define FB_CORE_UTIL_STRING_POLYFILLS_H
 
-#include <util/flags.h>
+#ifdef __PSP__
+#include <sstream>
+#else
+#include <string>
+#endif
 
-using namespace FunkyBoy;
+namespace FunkyBoy::Util {
 
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
+#ifdef __PSP__
+    template <class T>
+    inline std::string toString(T val) {
+        std::ostringstream os;
+        os << val;
+        return os.str();
     }
+#else
+    template <class T>
+    inline std::string toString(T val) {
+        return std::to_string(val);
+    }
+#endif
+
 }
 
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
-}
+#endif //FB_CORE_UTIL_STRING_POLYFILLS_H

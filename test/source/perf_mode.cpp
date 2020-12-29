@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#include "perf_mode.h"
 
-#include <util/flags.h>
+#include <emulator/emulator.h>
 
-using namespace FunkyBoy;
+using namespace FunkyBoyTests;
 
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
+int Perf::runPerfMode(const std::string &path, size_t cycles) {
+    FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG);
+    emulator.loadGame(path);
+    for (size_t i = 0 ; i < cycles ; i++) {
+        emulator.doTick();
     }
-}
-
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
+    return 0;
 }

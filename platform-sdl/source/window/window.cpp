@@ -110,7 +110,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
         loadSave();
 
-        std::string title = reinterpret_cast<const char*>(emulator.getCartridge().getHeader()->title);
+        std::string title = reinterpret_cast<const char*>(emulator.getROMHeader()->title);
         title += " - " FB_NAME;
         SDL_SetWindowTitle(window, title.c_str());
         return true;
@@ -187,14 +187,14 @@ void Window::update() {
 }
 
 void Window::loadSave() {
-    if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0 && fs::exists(savePath)) {
+    if (!savePath.empty() && emulator.getCartridgeRamSize() > 0 && fs::exists(savePath)) {
         std::ifstream file(savePath);
         emulator.loadCartridgeRam(file);
     }
 }
 
 void Window::writeSave() {
-    if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0) {
+    if (!savePath.empty() && emulator.getCartridgeRamSize() > 0) {
         std::ofstream file(savePath);
         emulator.writeCartridgeRam(file);
     }

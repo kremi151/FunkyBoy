@@ -72,14 +72,14 @@ extern "C" {
     }
 
     void loadSave(FunkyBoy::Emulator &emulator, const FunkyBoy::fs::path &savePath) {
-        if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0 && FunkyBoy::fs::exists(savePath)) {
+        if (!savePath.empty() && emulator.getCartridgeRamSize() > 0 && FunkyBoy::fs::exists(savePath)) {
             std::ifstream file(savePath);
             emulator.loadCartridgeRam(file);
         }
     }
 
     void writeSave(FunkyBoy::Emulator &emulator, const FunkyBoy::fs::path &savePath) {
-        if (!savePath.empty() && emulator.getCartridge().getRamSize() > 0) {
+        if (!savePath.empty() && emulator.getCartridgeRamSize() > 0) {
             std::ofstream file(savePath);
             emulator.writeCartridgeRam(file);
         }
@@ -123,7 +123,7 @@ extern "C" {
 
         if (status == FunkyBoy::CartridgeStatus::Loaded) {
             std::cout << "Loaded ROM at " << FB_3DS_ROM_PATH << std::endl;
-            std::cout << "ROM title: " << emulator.getCartridge().getHeader()->title << std::endl;
+            std::cout << "ROM title: " << emulator.getROMHeader()->title << std::endl;
         } else {
             std::cerr << "Could not load ROM at " << FB_3DS_ROM_PATH << " (status=" << status << ")" << std::endl;
             pressAToExit();

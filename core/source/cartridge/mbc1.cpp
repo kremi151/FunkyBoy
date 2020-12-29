@@ -18,6 +18,7 @@
 
 #include <util/debug.h>
 #include <exception/state_exception.h>
+#include <util/string_polyfills.h>
 #include <algorithm>
 
 #define mbc1_print(...) debug_print_4(__VA_ARGS__)
@@ -34,7 +35,7 @@ size_t MBC1::getRAMBankSize(RAMSize size) {
     } else if (size == RAMSize::RAM_SIZE_8KB || size == RAMSize::RAM_SIZE_32KB) {
         return getRAMSizeInBytes(RAMSize::RAM_SIZE_8KB);
     } else {
-        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(size));
+        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + Util::toString(size));
     }
 }
 
@@ -46,7 +47,7 @@ u8 MBC1::getRAMBankCount(RAMSize size) {
     } else if (size == RAMSize::RAM_SIZE_32KB) {
         return 4;
     } else {
-        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(size));
+        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + Util::toString(size));
     }
 }
 
@@ -58,7 +59,7 @@ memory_address MBC1::getMaxRAMOffset(RAMSize ramSize) {
     } else if (ramSize == RAMSize::RAM_SIZE_8KB || ramSize == RAMSize::RAM_SIZE_32KB) {
         return 0x1FFF;
     } else {
-        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + std::to_string(ramSize));
+        throw Exception::WrongStateException("Invalid MBC1 RAM size: " + Util::toString(ramSize));
     }
 }
 

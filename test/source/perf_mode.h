@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#ifndef FB_TESTS_PERF_MODE_H
+#define FB_TESTS_PERF_MODE_H
 
-#include <util/flags.h>
+#include <string>
+#include <cstddef>
 
-using namespace FunkyBoy;
+namespace FunkyBoyTests::Perf {
 
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
-    }
+    int runPerfMode(const std::string &path, size_t cycles);
+
 }
 
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
-}
+#endif //FB_TESTS_PERF_MODE_H

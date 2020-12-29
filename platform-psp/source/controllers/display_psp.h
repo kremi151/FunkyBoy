@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#ifndef FB_PSP_CONTROLLERS_DISPLAY_PSP_H
+#define FB_PSP_CONTROLLERS_DISPLAY_PSP_H
 
-#include <util/flags.h>
+#include <controllers/display.h>
 
-using namespace FunkyBoy;
+namespace FunkyBoyPSP::Controller {
 
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
-    }
+    class DisplayController: public FunkyBoy::Controller::DisplayController {
+    public:
+        DisplayController();
+
+        uint_fast8_t offsetX, offsetY;
+
+        uint32_t *frameBuffer{};
+
+        void drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) override;
+        void drawScreen() override;
+    };
+
 }
 
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
-}
+#endif //FB_PSP_CONTROLLERS_DISPLAY_PSP_H

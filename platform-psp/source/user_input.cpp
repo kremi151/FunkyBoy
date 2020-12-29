@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-#include "conditions.h"
+#include "user_input.h"
 
-#include <util/flags.h>
+#include <pspctrl.h>
 
-using namespace FunkyBoy;
-
-bool Operands::checkIsZeroContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isZero(context.regF);
-    } else {
-        return Flags::isZero(context.regF);
-    }
+namespace FunkyBoyPSP::Input {
+    static SceCtrlLatch latch;
+    static unsigned int keyPressed = 0;
 }
 
-bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
-    if (((context.instr & 0x0f) < 0x08)) {
-        return !Flags::isCarry(context.regF);
-    } else {
-        return Flags::isCarry(context.regF);
-    }
+using namespace FunkyBoyPSP;
+
+void Input::poll() {
+    sceCtrlReadLatch(&latch);
+    keyPressed |= latch.uiPress;
+    keyPressed &= ~latch.uiRelease;
+}
+
+unsigned int Input::getPressedKeys() {
+    return keyPressed;
+}
+
+int Input::getX() {
+    return latch.uiPress & PSP_CTRL_CROSS;
 }
