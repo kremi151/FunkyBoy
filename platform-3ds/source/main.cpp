@@ -141,38 +141,36 @@ extern "C" {
 
         FunkyBoy::u32_fast lastKeysDown = 0;
         FunkyBoy::u32_fast lastKeysHeld = 0;
-        FunkyBoy::u32_fast currentKeysDown;
-        FunkyBoy::u32_fast currentKeysHeld;
+        FunkyBoy::u32_fast currentKeysDown = hidKeysDown();
+        FunkyBoy::u32_fast currentKeysHeld = hidKeysHeld();
 
         // Main loop
         while (aptMainLoop())
         {
-            currentKeysDown = hidKeysDown();
-            currentKeysHeld = hidKeysHeld();
-            if (currentKeysHeld != lastKeysHeld || currentKeysDown != lastKeysDown) {
-                FunkyBoy::u32_fast kDown = currentKeysDown | currentKeysHeld;
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_A, kDown & KEY_A);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_B, kDown & KEY_B);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_START, kDown & KEY_START);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_SELECT, kDown & KEY_SELECT);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_UP, kDown & KEY_UP);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_DOWN, kDown & KEY_DOWN);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_LEFT, kDown & KEY_LEFT);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_RIGHT, kDown & KEY_RIGHT);
-            }
-            lastKeysDown = currentKeysDown;
-            lastKeysHeld = currentKeysHeld;
-
             // TODO: Limit frame rate
-            if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
+            if (emulator.doTick() & FB_RET_NEW_FRAME) {
                 hidScanInput();
+                currentKeysDown = hidKeysDown();
+                currentKeysHeld = hidKeysHeld();
+                if (currentKeysHeld != lastKeysHeld || currentKeysDown != lastKeysDown) {
+                    FunkyBoy::u32_fast kDown = currentKeysDown | currentKeysHeld;
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_A, kDown & KEY_A);
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_B, kDown & KEY_B);
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_START, kDown & KEY_START);
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_SELECT, kDown & KEY_SELECT);
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_UP, kDown & KEY_UP);
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_DOWN, kDown & KEY_DOWN);
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_LEFT, kDown & KEY_LEFT);
+                    emulator.setInputState(FunkyBoy::Controller::JOYPAD_RIGHT, kDown & KEY_RIGHT);
+                }
+                lastKeysDown = currentKeysDown;
+                lastKeysHeld = currentKeysHeld;
             }
 
             // Your code goes here
-            u32 kDown = currentKeysDown;
-            if (kDown & KEY_X) {
+            if (currentKeysDown & KEY_X) {
                 break; // break in order to return to hbmenu
-            } else if (kDown & KEY_Y && isNew3DS) {
+            } else if (currentKeysDown & KEY_Y && isNew3DS) {
                 if (!requestedDisable3DSMode) {
                     requestedDisable3DSMode = true;
                     new3DSModeEnabled = !new3DSModeEnabled;

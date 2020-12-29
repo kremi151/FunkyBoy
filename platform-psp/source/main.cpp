@@ -91,7 +91,7 @@ int main() {
     while (isRunning()) {
         // TODO: Limit frame rate
         retCode = emulator.doTick();
-        if (retCode & FB_RET_NEW_SCANLINE) {
+        if (retCode & FB_RET_NEW_FRAME) {
             Input::poll();
             currentInput = Input::getPressedKeys();
 
