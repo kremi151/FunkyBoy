@@ -107,8 +107,7 @@ namespace FunkyBoy {
 
     test_public:
         u8 *rom;
-        u8 sys_counter_lsb;
-        u8 sys_counter_msb;
+        u16 sys_counter;
 
     public:
         Memory(Controller::ControllersPtr controllers);
@@ -138,8 +137,8 @@ namespace FunkyBoy {
 
         u8 updateJoypad();
 
-        inline u16 getSysCounter() {
-            return (sys_counter_msb << 8) | sys_counter_lsb;
+        inline u16 getSysCounter() const {
+            return sys_counter;
         }
 
         inline u8 &getP1() {

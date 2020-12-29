@@ -33,8 +33,7 @@ using namespace FunkyBoy;
 
 Memory::Memory(Controller::ControllersPtr controllers)
     : controllers(std::move(controllers))
-    , sys_counter_lsb(0)
-    , sys_counter_msb(0)
+    , sys_counter(0)
     , hwIO(new u8[128]{})
     , interruptEnableRegister(0)
     , vram(new u8[8192]{})
@@ -236,13 +235,11 @@ CartridgeStatus Memory::getCartridgeStatus() {
 }
 
 void Memory::resetSysCounter() {
-    sys_counter_lsb = 0;
-    sys_counter_msb = 0;
+    sys_counter = 0;
 }
 
 void Memory::setSysCounter(FunkyBoy::u16 counter) {
-    sys_counter_lsb = counter & 0xffu;
-    sys_counter_msb = (counter >> 8) & 0xffu;
+    sys_counter = counter;
 }
 
 u8 Memory::updateJoypad() {
@@ -317,7 +314,7 @@ void Memory::handleIOMemoryWrite(u8 offset, u8 value) {
 u8 Memory::handleIOMemoryRead(u8 offset) {
     switch (offset) {
         case __FB_REG_OFFSET_DIV:
-            return sys_counter_msb;
+            return (sys_counter >> 8) & 0xff;
         default:
             return *(hwIO + offset);
     }
