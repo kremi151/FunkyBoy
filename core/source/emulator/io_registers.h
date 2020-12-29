@@ -74,6 +74,9 @@ namespace FunkyBoy {
         Controller::ControllersPtr controllers;
         void setSysCounter(u16 counter);
         void resetSysCounter();
+
+        u8_fast *inputsDPad;
+        u8_fast *inputsButtons;
     test_public:
         u8 *sys_counter_lsb;
         u8 *sys_counter_msb;
@@ -89,7 +92,9 @@ namespace FunkyBoy {
         void handleMemoryWrite(u8 offset, u8 value);
         u8 handleMemoryRead(u8 offset);
 
-        u8 updateJoypad();
+        void setInputState(Controller::JoypadKey key, bool pressed);
+
+        u8_fast updateJoypad();
 
         inline u8 &getP1() {
             return *(hwIO + __FB_REG_OFFSET_P1);
