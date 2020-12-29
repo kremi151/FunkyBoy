@@ -86,6 +86,9 @@ namespace FunkyBoy {
         u8 dmaMsb{}, dmaLsb{};
         bool dmaStarted;
 
+        u8_fast inputsDPad;
+        u8_fast inputsButtons;
+
         bool vramAccessible;
         bool oamAccessible;
 
@@ -135,7 +138,9 @@ namespace FunkyBoy {
 
         void doDMA();
 
-        u8 updateJoypad();
+        void setInputState(Controller::JoypadKey key, bool pressed);
+
+        u8_fast updateJoypad();
 
         inline u16 getSysCounter() const {
             return sys_counter;

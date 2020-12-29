@@ -41,6 +41,8 @@ Memory::Memory(Controller::ControllersPtr controllers)
     , vramAccessible(true)
     , oamAccessible(true)
     , dmaStarted(false)
+    , inputsDPad(0b11111111u)
+    , inputsButtons(0b11111111u)
     , rom(nullptr)
     , cram(nullptr)
     , ramSizeInBytes(0)
@@ -242,40 +244,78 @@ void Memory::setSysCounter(FunkyBoy::u16 counter) {
     sys_counter = counter;
 }
 
-u8 Memory::updateJoypad() {
+void Memory::setInputState(Controller::JoypadKey key, bool pressed) {
+    switch (key) {
+        case Controller::JoypadKey::JOYPAD_A:
+            if (pressed) {
+                inputsButtons &= 0b11111110u;
+            } else {
+                inputsButtons |= 0b00000001u;
+            }
+            break;
+        case Controller::JoypadKey::JOYPAD_B:
+            if (pressed) {
+                inputsButtons &= 0b11111101u;
+            } else {
+                inputsButtons |= 0b00000010u;
+            }
+            break;
+        case Controller::JoypadKey::JOYPAD_SELECT:
+            if (pressed) {
+                inputsButtons &= 0b11111011u;
+            } else {
+                inputsButtons |= 0b00000100u;
+            }
+            break;
+        case Controller::JoypadKey::JOYPAD_START:
+            if (pressed) {
+                inputsButtons &= 0b11110111u;
+            } else {
+                inputsButtons |= 0b00001000u;
+            }
+            break;
+        case Controller::JoypadKey::JOYPAD_RIGHT:
+            if (pressed) {
+                inputsDPad &= 0b11111110u;
+            } else {
+                inputsDPad |= 0b00000001u;
+            }
+            break;
+        case Controller::JoypadKey::JOYPAD_LEFT:
+            if (pressed) {
+                inputsDPad &= 0b11111101u;
+            } else {
+                inputsDPad |= 0b00000010u;
+            }
+            break;
+        case Controller::JoypadKey::JOYPAD_UP:
+            if (pressed) {
+                inputsDPad &= 0b11111011u;
+            } else {
+                inputsDPad |= 0b00000100u;
+            }
+            break;
+        case Controller::JoypadKey::JOYPAD_DOWN:
+            if (pressed) {
+                inputsDPad &= 0b11110111u;
+            } else {
+                inputsDPad |= 0b00001000u;
+            }
+            break;
+    }
+}
+
+u8_fast Memory::updateJoypad() {
     u8 &p1 = *(hwIO + __FB_REG_OFFSET_P1);
-    u8 originalValue = p1;
-    u8 val = originalValue | 0b11001111u;
-    auto &joypad = *controllers->getJoypad();
+    u8_fast originalValue = p1;
+    u8_fast val = originalValue | 0b11001111u;
     if ((originalValue & 0b00100000u) == 0) {
         // Select Button keys
-        if (joypad.isKeyPressed(Controller::JOYPAD_A)) {
-            val &= 0b11111110u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_B)) {
-            val &= 0b11111101u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_SELECT)) {
-            val &= 0b11111011u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_START)) {
-            val &= 0b11110111u;
-        }
+        val &= inputsButtons;
     }
     if ((originalValue & 0b00010000u) == 0) {
         // Select Direction keys
-        if (joypad.isKeyPressed(Controller::JOYPAD_RIGHT)) {
-            val &= 0b11111110u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_LEFT)) {
-            val &= 0b11111101u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_UP)) {
-            val &= 0b11111011u;
-        }
-        if (joypad.isKeyPressed(Controller::JOYPAD_DOWN)) {
-            val &= 0b11110111u;
-        }
+        val &= inputsDPad;
     }
     p1 = val;
     return val;
@@ -330,13 +370,11 @@ case 0x ## x ## 0: case 0x ## x ## 1: case 0x ## x ## 2: case 0x ## x ## 3: case
 case 0x ## x ## 6: case 0x ## x ## 7: case 0x ## x ## 8: case 0x ## x ## 9: case 0x ## x ## A: case 0x ## x ## B: \
 case 0x ## x ## C: case 0x ## x ## D: case 0x ## x ## E: case 0x ## x ## F
 
-#define FB_MEMORY_CARTRIDGE_FIXED \
+#define FB_MEMORY_CARTRIDGE \
 FB_MEMORY_NIBBLE_RANGE(0): \
 FB_MEMORY_NIBBLE_RANGE(1): \
 FB_MEMORY_NIBBLE_RANGE(2): \
-FB_MEMORY_NIBBLE_RANGE(3)
-
-#define FB_MEMORY_CARTRIDGE_DYNAMIC \
+FB_MEMORY_NIBBLE_RANGE(3): \
 FB_MEMORY_NIBBLE_RANGE(4): \
 FB_MEMORY_NIBBLE_RANGE(5): \
 FB_MEMORY_NIBBLE_RANGE(6): \
@@ -371,9 +409,7 @@ case 0xFF
 
 u8 Memory::read8BitsAt(memory_address offset) {
     switch ((offset >> 8) & 0xff) {
-        FB_MEMORY_CARTRIDGE_FIXED:
-            return *(rom + offset);
-        FB_MEMORY_CARTRIDGE_DYNAMIC:
+        FB_MEMORY_CARTRIDGE:
             return mbc->readFromROMAt(offset, rom);
         FB_MEMORY_VRAM:
             return vramAccessible
@@ -426,8 +462,7 @@ i8 Memory::readSigned8BitsAt(memory_address offset) {
 
 void Memory::write8BitsTo(memory_address offset, u8 val) {
     switch ((offset >> 8) & 0xff) {
-        FB_MEMORY_CARTRIDGE_FIXED:
-        FB_MEMORY_CARTRIDGE_DYNAMIC:
+        FB_MEMORY_CARTRIDGE:
             // Writing to read-only area, so we let it intercept by the MBC
             mbc->interceptROMWrite(offset, val);
             break;

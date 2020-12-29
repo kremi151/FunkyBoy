@@ -243,8 +243,8 @@ inline u8 getInterruptBitMask(InterruptType type) {
 }
 
 void CPU::doJoypad(Memory &memory) {
-    u8 oldP1 = memory.getP1() & 0b00001111u;
-    u8 newP1 = memory.updateJoypad() & 0b00001111u;
+    u8_fast oldP1 = memory.getP1() & 0b00001111u;
+    u8_fast newP1 = memory.updateJoypad() & 0b00001111u;
     bool isNotPressed = oldP1 & newP1;
     if (!isNotPressed && joypadWasNotPressed) {
         requestInterrupt(InterruptType::JOYPAD, memory);
