@@ -344,12 +344,12 @@ void CPU::doTimers(Memory &memory, u8 clocks) {
             timerOverflowingCycles = -1;
         }
     }
-    u8 tac = memory.getTAC();
+    u8_fast tac = memory.getTAC();
     bool comp1 = (tac & 0b100u) != 0;
     comp1 &= doTimerObscureCheck(clocks, sysCounter, tac);
     // Falling edge detector
     if (delayedTIMAIncrease && !comp1) {
-        u8 tima = memory.getTIMA();
+        u8_fast tima = memory.getTIMA();
         if (tima == 0xff) {
             //fprintf(stdout, "# TIMA has overflown\n");
             // Delay TIMA load by 1 m-cycle

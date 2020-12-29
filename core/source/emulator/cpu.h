@@ -52,7 +52,7 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        i8 timerOverflowingCycles;
+        int timerOverflowingCycles;
         bool delayedTIMAIncrease;
 
         bool joypadWasNotPressed;
