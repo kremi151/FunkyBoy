@@ -19,9 +19,6 @@
 
 #include <cstdint>
 
-#define FB_NAME "FunkyBoy"
-#define FB_VERSION "0.0.1-Alpha"
-
 #define FB_GB_DISPLAY_WIDTH 160
 #define FB_GB_DISPLAY_HEIGHT 144
 
@@ -36,6 +33,11 @@ namespace FunkyBoy {
 
     typedef uint_fast8_t uf8;
     typedef uint_fast16_t uf16;
+
+    typedef uint_fast8_t u8_fast;
+    typedef uint_fast16_t u16_fast;
+    typedef uint_fast32_t u32_fast;
+    typedef uint_fast64_t u64_fast;
 
     typedef u32 memory_address;
 

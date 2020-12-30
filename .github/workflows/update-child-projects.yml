@@ -1,0 +1,21 @@
+name: Update child projects
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'core/**'
+
+jobs:
+  update-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+      - name: Update Android project
+        run: ./.github/workflows/scripts/update-android.sh
+        env:
+          FB_ANDROID_DEPLOY_KEY: "${{ secrets.FB_ANDROID_DEPLOY_KEY }}"

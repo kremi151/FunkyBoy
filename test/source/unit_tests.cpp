@@ -20,51 +20,51 @@
 
 #include <acacia.h>
 #include <util/fs.h>
+#include <util/flags.h>
 #include <memory/memory.h>
 #include <memory>
 #include <emulator/emulator.h>
 #include <controllers/controllers.h>
 
-bool doFullMachineCycle(FunkyBoy::CPU &cpu) {
+bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
     cpu.instructionCompleted = false;
     do {
-        if (!cpu.doMachineCycle()) {
+        if (!cpu.doMachineCycle(memory)) {
             return false;
         }
     } while (!cpu.instructionCompleted);
     return true;
 }
 
-void assertDoFullMachineCycle(FunkyBoy::CPU &cpu) {
-    if (!doFullMachineCycle(cpu)) {
+void assertDoFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
+    if (!doFullMachineCycle(cpu, memory)) {
         testFailure("Emulation tick failed");
     }
 }
 
-FunkyBoy::MemoryPtr createMemory() {
+inline FunkyBoy::Memory createMemory() {
     auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
-    FunkyBoy::CartridgePtr cartridge(new FunkyBoy::Cartridge);
     FunkyBoy::io_registers io(controllers);
     FunkyBoy::PPUMemory ppuMemory;
-    return std::make_shared<FunkyBoy::Memory>(cartridge, controllers, io, ppuMemory);
+    return FunkyBoy::Memory(controllers, io, ppuMemory);
 }
 
 TEST(testEchoRAM) {
     auto memory = createMemory();
 
     // Write to beginning of internal RAM bank 0
-    memory->write8BitsTo(0xC000, 42);
-    int val = memory->read8BitsAt(0xE000);
+    memory.write8BitsTo(0xC000, 42);
+    int val = memory.read8BitsAt(0xE000);
     assertEquals(42, val);
 
     // Write to end of internal RAM bank 0
-    memory->write8BitsTo(0xCFFF, 124);
-    val = memory->read8BitsAt(0xEFFF);
+    memory.write8BitsTo(0xCFFF, 124);
+    val = memory.read8BitsAt(0xEFFF);
     assertEquals(124, val);
 
     // Write to beginning of internal RAM bank 1
-    memory->write8BitsTo(0xD000, 186);
-    val = memory->read8BitsAt(0xF000);
+    memory.write8BitsTo(0xD000, 186);
+    val = memory.read8BitsAt(0xF000);
     assertEquals(186, val);
 }
 
@@ -74,34 +74,36 @@ TEST(testReadROMTitle) {
     auto status = emulator.loadGame(romPath);
     assertEquals(FunkyBoy::CartridgeStatus::Loaded, status);
 
-    auto &cartridge = emulator.getCartridge();
-    assertEquals(FunkyBoy::CartridgeStatus::Loaded, cartridge.getStatus());
-    assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(cartridge.getHeader()->title)));
+    auto cartridgeStatus = emulator.getCartridgeStatus();
+    assertEquals(FunkyBoy::CartridgeStatus::Loaded, cartridgeStatus);
+    assertEquals("CPU_INSTRS", std::string(reinterpret_cast<const char*>(emulator.getROMHeader()->title)));
 }
 
 TEST(testPopPushStackPointer) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
 
-    cpu.instrContext.push16Bits(*memory, 0x1806);
-    auto val = cpu.instrContext.pop16Bits(*memory);
+    cpu.instrContext.push16Bits(memory, 0x1806);
+    auto val = cpu.instrContext.pop16Bits(memory);
     assertEquals(0x1806, val);
 
-    cpu.instrContext.push16Bits(*memory, 0x28, 0x09);
-    cpu.instrContext.push16Bits(*memory, 0x1223);
-    cpu.instrContext.push16Bits(*memory, 0x42, 0x69);
+    cpu.instrContext.push16Bits(memory, 0x28, 0x09);
+    cpu.instrContext.push16Bits(memory, 0x1223);
+    cpu.instrContext.push16Bits(memory, 0x42, 0x69);
 
-    val = cpu.instrContext.pop16Bits(*memory);
+    val = cpu.instrContext.pop16Bits(memory);
     assertEquals(0x4269, val);
-    val = cpu.instrContext.pop16Bits(*memory);
+    val = cpu.instrContext.pop16Bits(memory);
     assertEquals(0x1223, val);
-    val = cpu.instrContext.pop16Bits(*memory);
+    val = cpu.instrContext.pop16Bits(memory);
     assertEquals(0x2809, val);
 }
 
 TEST(testReadWriteHLAndAF) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
 
     // In this test, we check for enforcing little-endianness
 
@@ -122,7 +124,8 @@ TEST(testReadWriteHLAndAF) {
 
 TEST(testReadWrite16BitRegisters) {
     auto memory = createMemory();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
 
     // In this test, we check for enforcing little-endianness
 
@@ -150,22 +153,22 @@ TEST(testReadWrite16BitRegisters) {
 
 TEST(test16BitLoads) {
     auto memory = createMemory();
-    auto cartridge = memory->getCartridge();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter + 1] = 0x06;
-    cartridge->rom[initialProgCounter + 2] = 0x18;
-    cartridge->rom[initialProgCounter + 3] = 0x00;
+    memory.rom[initialProgCounter + 1] = 0x06;
+    memory.rom[initialProgCounter + 2] = 0x18;
+    memory.rom[initialProgCounter + 3] = 0x00;
 
     // Set opcode 0x01 (LD BC,d16)
-    cartridge->rom[initialProgCounter] = 0x01;
-    assertDoFullMachineCycle(cpu); // Initial fetch
-    assertDoFullMachineCycle(cpu); // Actual execution
+    memory.rom[initialProgCounter] = 0x01;
+    assertDoFullMachineCycle(cpu, memory); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -174,9 +177,9 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x11 (LD DE,d16)
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0x11;
-    assertDoFullMachineCycle(cpu); // Initial fetch
-    assertDoFullMachineCycle(cpu); // Actual execution
+    memory.rom[initialProgCounter] = 0x11;
+    assertDoFullMachineCycle(cpu, memory); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -185,9 +188,9 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x21 (LD HL,d16)
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0x21;
-    assertDoFullMachineCycle(cpu); // Initial fetch
-    assertDoFullMachineCycle(cpu); // Actual execution
+    memory.rom[initialProgCounter] = 0x21;
+    assertDoFullMachineCycle(cpu, memory); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -196,9 +199,9 @@ TEST(test16BitLoads) {
 
     // Set opcode 0x31 (LD SP,d16)
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter] = 0x31;
-    assertDoFullMachineCycle(cpu); // Initial fetch
-    assertDoFullMachineCycle(cpu); // Actual execution
+    memory.rom[initialProgCounter] = 0x31;
+    assertDoFullMachineCycle(cpu, memory); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory); // Actual execution
 
     // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
     assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
@@ -215,77 +218,77 @@ TEST(test16BitLoads) {
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, io);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
-    cartridge->rom[initialProgCounter + 1] = 0xCE;
+    memory.rom[initialProgCounter + 1] = 0xCE;
 
     // Set opcode 0xF0 (LDH A,(a8))
-    cartridge->rom[initialProgCounter] = 0xF0;
-    memory->write8BitsTo(0xFFCE, 0x42);
+    memory.rom[initialProgCounter] = 0xF0;
+    memory.write8BitsTo(0xFFCE, 0x42);
     assertNotEquals(0x42, *cpu.regA);
-    assertDoFullMachineCycle(cpu); // Initial fetch
-    assertDoFullMachineCycle(cpu); // Actual execution
+    assertDoFullMachineCycle(cpu, memory); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory); // Actual execution
     // PC = initial + fetch(1) + a8(1) + fetch(1)
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(0x42, *cpu.regA);
 
     // Reset prog counter and register
     cpu.instrContext.progCounter = initialProgCounter;
-    memory->write8BitsTo(0xFFCE, 0x0);
+    memory.write8BitsTo(0xFFCE, 0x0);
 
     // Set opcode 0xE0 (LDH (a8),A)
-    cartridge->rom[initialProgCounter] = 0xE0;
+    memory.rom[initialProgCounter] = 0xE0;
     *cpu.regA = 0x42;
-    assertNotEquals(0x42, memory->read8BitsAt(0xFFCE));
-    assertDoFullMachineCycle(cpu); // Initial fetch
-    assertDoFullMachineCycle(cpu); // Actual execution
+    assertNotEquals(0x42, memory.read8BitsAt(0xFFCE));
+    assertDoFullMachineCycle(cpu, memory); // Initial fetch
+    assertDoFullMachineCycle(cpu, memory); // Actual execution
     // PC = initial + fetch(1) + a8(1) + fetch(1)
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
-    assertEquals(0x42, memory->read8BitsAt(0xFFCE));
+    assertEquals(0x42, memory.read8BitsAt(0xFFCE));
 }*/
 
 TEST(testHALTBugSkipping) {
     auto memory = createMemory();
-    auto cartridge = memory->getCartridge();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
     cpu.instrContext.interruptMasterEnable = FunkyBoy::IMEState::DISABLED;
 
     // HALT bug is triggered when IME == 0 && (IE & IF) != 0
-    memory->write8BitsTo(FB_REG_IE, 0x4);
-    memory->write8BitsTo(FB_REG_IF, 0x4);
+    memory.write8BitsTo(FB_REG_IE, 0x4);
+    memory.write8BitsTo(FB_REG_IF, 0x4);
 
     // Program ROM
-    cartridge->rom[initialProgCounter] = 0x76;      // HALT
-    cartridge->rom[initialProgCounter + 1] = 0x3C;  // INC A
-    cartridge->rom[initialProgCounter + 2] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0x76;      // HALT
+    memory.rom[initialProgCounter + 1] = 0x3C;  // INC A
+    memory.rom[initialProgCounter + 2] = 0x00;  // NOP
 
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
     // Initial fetch without executing anything
-    assertDoFullMachineCycle(cpu);
+    assertDoFullMachineCycle(cpu, memory);
     assertEquals(0x76, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
-    assertDoFullMachineCycle(cpu);
+    assertDoFullMachineCycle(cpu, memory);
     assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
-    assertDoFullMachineCycle(cpu);
+    assertDoFullMachineCycle(cpu, memory);
     assertEquals(0x3C, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(originalA + 1, *cpu.regA);
 
-    assertDoFullMachineCycle(cpu);
+    assertDoFullMachineCycle(cpu, memory);
     assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
     assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
     assertEquals(originalA + 2, *cpu.regA);
@@ -293,11 +296,11 @@ TEST(testHALTBugSkipping) {
 
 TEST(testHALTNoSkippingIfIMEDisabled) {
     auto memory = createMemory();
-    auto cartridge = memory->getCartridge();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
@@ -305,25 +308,25 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
 
     // HALT bug is triggered when IME == 0 && (IE & IF) != 0
     // So we set (IE & IF) == 0 here
-    memory->write8BitsTo(FB_REG_IE, 0x4);
-    memory->write8BitsTo(FB_REG_IF, 0x2);
+    memory.write8BitsTo(FB_REG_IE, 0x4);
+    memory.write8BitsTo(FB_REG_IF, 0x2);
 
     // Program ROM
-    cartridge->rom[initialProgCounter] = 0x76;      // HALT
-    cartridge->rom[initialProgCounter + 1] = 0x3C;  // INC A
-    cartridge->rom[initialProgCounter + 2] = 0x00;  // NOP
+    memory.rom[initialProgCounter] = 0x76;      // HALT
+    memory.rom[initialProgCounter + 1] = 0x3C;  // INC A
+    memory.rom[initialProgCounter + 2] = 0x00;  // NOP
 
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
     // Initial fetch without executing anything
-    assertDoFullMachineCycle(cpu);
+    assertDoFullMachineCycle(cpu, memory);
     assertEquals(0x76, cpu.instrContext.instr);
     assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
 
     // Assert that we are indeed in HALT mode (no execution of any opcode)
     for (int i = 0 ; i < 5 ; i++) {
-        assertDoFullMachineCycle(cpu);
+        assertDoFullMachineCycle(cpu, memory);
 
         assertEquals(FunkyBoy::CPUState::HALTED, cpu.instrContext.cpuState);
 
@@ -333,13 +336,13 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
     }
 
     // Set IE and IF to same value -> should request an interrupt
-    memory->write8BitsTo(FB_REG_IE, 0x4);
-    memory->write8BitsTo(FB_REG_IF, 0x4);
+    memory.write8BitsTo(FB_REG_IE, 0x4);
+    memory.write8BitsTo(FB_REG_IF, 0x4);
 
     // As IME == 0, we must not jump to the interrupt vector
     // Instead, we just continue reading the next opcodes
 
-    assertDoFullMachineCycle(cpu);
+    assertDoFullMachineCycle(cpu, memory);
     assertEquals(0x3C, cpu.instrContext.instr & 0xffff); // Fetched next instruction already
     assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
     assertEquals(originalA, *cpu.regA);
@@ -347,35 +350,88 @@ TEST(testHALTNoSkippingIfIMEDisabled) {
 
 TEST(testHALTBugHanging) {
     auto memory = createMemory();
-    auto cartridge = memory->getCartridge();
-    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory, memory->getIoRegisters());
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
 
     // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
-    cartridge->rom = new FunkyBoy::u8[0x105];
+    memory.rom = new FunkyBoy::u8[0x105];
 
     auto initialProgCounter = 0x100;
     cpu.instrContext.progCounter = initialProgCounter;
     cpu.instrContext.interruptMasterEnable = FunkyBoy::IMEState::DISABLED;
 
     // HALT bug is triggered when IME == 0 && (IE & IF) != 0
-    memory->write8BitsTo(FB_REG_IE, 0x4);
-    memory->write8BitsTo(FB_REG_IF, 0x4);
+    memory.write8BitsTo(FB_REG_IE, 0x4);
+    memory.write8BitsTo(FB_REG_IF, 0x4);
 
     // Program ROM
-    cartridge->rom[initialProgCounter] = 0x76;      // HALT
-    cartridge->rom[initialProgCounter + 1] = 0x76;  // HALT
-    cartridge->rom[initialProgCounter + 2] = 0x3C;  // INC A
+    memory.rom[initialProgCounter] = 0x76;      // HALT
+    memory.rom[initialProgCounter + 1] = 0x76;  // HALT
+    memory.rom[initialProgCounter + 2] = 0x3C;  // INC A
 
     *cpu.instrContext.regA = 0x00;
     FunkyBoy::u8 originalA = *cpu.instrContext.regA;
 
     // Maybe a bit excessive, but iterating 100 times without advancing the PC should demonstrate the HALT bug correctly
     for (int i = 0 ; i < 100 ; i++) {
-        assertDoFullMachineCycle(cpu);
+        assertDoFullMachineCycle(cpu, memory);
         assertEquals(0x76, cpu.instrContext.instr);
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
         assertEquals(originalA, *cpu.regA);
     }
+}
+
+// Test Operands::checkIsZeroContextual and Operands::checkIsCarryContextual using RET
+TEST(testContextualZeroAndCarryCheckOperands) {
+    auto memory = createMemory();
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
+
+    // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
+    memory.rom = new FunkyBoy::u8[0x200];
+    memory.rom[0x123] = 0x00;      // NOP
+
+    auto initialProgCounter = 0x100;
+
+    // Test RET NZ (0xC0)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setZero(cpu.instrContext.regF, false);
+    cpu.instrContext.progCounter = initialProgCounter;
+    memory.rom[initialProgCounter] = 0xC0;      // RET NZ
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
+
+    // Test RET Z (0xC8)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setZero(cpu.instrContext.regF, true);
+    cpu.instrContext.progCounter = initialProgCounter;
+    memory.rom[initialProgCounter] = 0xC8;      // RET Z
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
+
+    // Test RET NC (0xD0)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setCarry(cpu.instrContext.regF, false);
+    cpu.instrContext.progCounter = initialProgCounter;
+    memory.rom[initialProgCounter] = 0xD0;      // RET NC
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
+
+    // Test RET C (0xD8)
+    cpu.instrContext.push16Bits(memory, 0x123);
+    FunkyBoy::Flags::setCarry(cpu.instrContext.regF, true);
+    cpu.instrContext.progCounter = initialProgCounter;
+    memory.rom[initialProgCounter] = 0xD8;      // RET C
+    memory.rom[initialProgCounter + 1] = 0x00;  // NOP
+    assertDoFullMachineCycle(cpu, memory);    // Initial fetch
+    assertDoFullMachineCycle(cpu, memory);    // Actual execution
+    assertEquals(0x123 + 1, cpu.instrContext.progCounter);
 }
 
 acacia::Report __fbTests_runUnitTests() {

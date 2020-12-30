@@ -23,8 +23,8 @@
 #include <memory>
 #include <util/testing.h>
 #include <util/debug.h>
-#include <instructions/decoder.h>
-#include <instructions/debug.h>
+#include <operands/instruction_context.h>
+#include <operands/debug.h>
 #include <emulator/gb_type.h>
 #include <emulator/io_registers.h>
 
@@ -45,7 +45,6 @@ namespace FunkyBoy {
     class CPU {
     private:
         io_registers ioRegisters;
-        MemoryPtr memory;
         const GameBoyType gbType;
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
@@ -55,22 +54,17 @@ namespace FunkyBoy {
 
         u8 registers[8]{};
 
-        u8 operandIndex;
-        Operand operands[25]{};
-
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
 
         bool joypadWasNotPressed;
 
-        void powerUpInit();
-
-        ret_code doCycle();
-        ret_code doFetchAndDecode();
+        ret_code doCycle(Memory &memory);
+        ret_code doFetchAndDecode(Memory &memory);
 
         void doJoypad();
-        bool doInterrupts();
-        void doTimers(u8 clocks);
+        bool doInterrupts(Memory &memory);
+        void doTimers(Memory &memory, u8 clocks);
 
     test_public:
 
@@ -84,6 +78,7 @@ namespace FunkyBoy {
 #endif
 
         // Do not free these pointers, they are proxies to specific locations in the registers array
+        const Operand *operands;
 
         u8 *regB;
         u8 *regC;
@@ -95,12 +90,14 @@ namespace FunkyBoy {
         u8 *regA;
 
     public:
-        CPU(GameBoyType gbType, MemoryPtr memory, const io_registers& ioRegisters);
+        CPU(GameBoyType gbType, const io_registers& ioRegisters);
+
+        void powerUpInit(Memory &memory);
 
         void setProgramCounter(u16 offset);
         void requestInterrupt(InterruptType type);
 
-        ret_code doMachineCycle();
+        ret_code doMachineCycle(Memory &memory);
     };
 
     typedef std::shared_ptr<CPU> CPUPtr;

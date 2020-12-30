@@ -46,6 +46,9 @@
 
 #define __FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
 #define __FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
+#define __FB_REG_OFFSET_TIMA (FB_REG_TIMA - 0xFF00)
+#define __FB_REG_OFFSET_TMA (FB_REG_TMA - 0xFF00)
+#define __FB_REG_OFFSET_TAC (FB_REG_TAC - 0xFF00)
 #define __FB_REG_OFFSET_IF (FB_REG_IF - 0xFF00)
 #define __FB_REG_OFFSET_LCDC (FB_REG_LCDC - 0xFF00)
 #define __FB_REG_OFFSET_STAT (FB_REG_STAT - 0xFF00)
@@ -71,6 +74,9 @@ namespace FunkyBoy {
         Controller::ControllersPtr controllers;
         void setSysCounter(u16 counter);
         void resetSysCounter();
+
+        u8_fast *inputsDPad;
+        u8_fast *inputsButtons;
     test_public:
         u8 *sys_counter_lsb;
         u8 *sys_counter_msb;
@@ -86,10 +92,24 @@ namespace FunkyBoy {
         void handleMemoryWrite(u8 offset, u8 value);
         u8 handleMemoryRead(u8 offset);
 
-        u8 updateJoypad();
+        void setInputState(Controller::JoypadKey key, bool pressed);
+
+        u8_fast updateJoypad();
 
         inline u8 &getP1() {
             return *(hwIO + __FB_REG_OFFSET_P1);
+        }
+
+        inline u8 &getTIMA() {
+            return *(hwIO + __FB_REG_OFFSET_TIMA);
+        }
+
+        inline u8 &getTMA() {
+            return *(hwIO + __FB_REG_OFFSET_TMA);
+        }
+
+        inline u8 &getTAC() {
+            return *(hwIO + __FB_REG_OFFSET_TAC);
         }
 
         inline u8 &getIF() {

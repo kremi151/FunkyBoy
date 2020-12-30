@@ -30,11 +30,10 @@ namespace FunkyBoy::Controller {
     class Controllers {
     private:
         SerialControllerPtr serial;
-        JoypadControllerPtr joypad;
         DisplayControllerPtr display;
 
     public:
-        Controllers(SerialControllerPtr serial, JoypadControllerPtr joypad, DisplayControllerPtr display);
+        Controllers(SerialControllerPtr serial, DisplayControllerPtr display);
         Controllers();
 
         inline SerialControllerPtr &getSerial() {
@@ -42,12 +41,6 @@ namespace FunkyBoy::Controller {
         }
 
         void setSerial(const SerialControllerPtr &serialController);
-
-        inline JoypadControllerPtr &getJoypad() {
-            return joypad;
-        }
-
-        void setJoypad(const JoypadControllerPtr &joypadController);
 
         inline DisplayControllerPtr &getDisplay() {
             return display;

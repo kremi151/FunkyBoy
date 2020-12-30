@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
+include(FunkyBoyVersion)
+
 if (MSVC)
     message("We're running in Visual Studio!")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -17,10 +19,8 @@ set(SOURCES
         source/emulator/ppu.cpp
         source/controllers/controllers.cpp
         source/controllers/serial_null.cpp
-        source/controllers/joypad_void.cpp
         source/controllers/display_void.cpp
         source/util/romsizes.cpp
-        source/cartridge/cartridge.cpp
         source/memory/memory.cpp
         source/cartridge/mbc1.cpp
         source/cartridge/mbc2.cpp
@@ -28,18 +28,19 @@ set(SOURCES
         source/cartridge/mbc_none.cpp
         source/cartridge/rtc.cpp
         source/memory/ppu_memory.cpp
-        source/instructions/instruction_context.cpp
-        source/instructions/alu.cpp
-        source/instructions/loads.cpp
-        source/instructions/misc.cpp
-        source/instructions/prefix.cpp
-        source/instructions/reads.cpp
-        source/instructions/writes.cpp
-        source/instructions/jumps.cpp
-        source/instructions/rot_shifts.cpp
-        source/instructions/conditions.cpp
-        source/instructions/debug.cpp
-        source/instructions/decoder.cpp
+        source/operands/instruction_context.cpp
+        source/operands/alu.cpp
+        source/operands/loads.cpp
+        source/operands/misc.cpp
+        source/operands/prefix.cpp
+        source/operands/reads.cpp
+        source/operands/writes.cpp
+        source/operands/jumps.cpp
+        source/operands/rot_shifts.cpp
+        source/operands/conditions.cpp
+        source/operands/debug.cpp
+        source/operands/registry.cpp
+        source/operands/table_unprefixed_instructions.cpp
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
@@ -55,7 +56,6 @@ set(HEADERS
         source/controllers/serial.h
         source/controllers/serial_null.h
         source/controllers/joypad.h
-        source/controllers/joypad_void.h
         source/controllers/display.h
         source/controllers/display_void.h
         source/util/typedefs.h
@@ -63,7 +63,7 @@ set(HEADERS
         source/util/romsizes.h
         source/util/ramsizes.h
         source/util/fs.h
-        source/cartridge/cartridge.h
+        source/cartridge/status.h
         source/memory/memory.h
         source/util/debug.h
         source/util/testing.h
@@ -74,24 +74,26 @@ set(HEADERS
         source/cartridge/mbc_none.h
         source/cartridge/rtc.h
         source/memory/ppu_memory.h
-        source/instructions/instruction_context.h
-        source/instructions/alu.h
-        source/instructions/loads.h
-        source/instructions/instructions.h
-        source/instructions/misc.h
-        source/instructions/prefix.h
-        source/instructions/reads.h
-        source/instructions/writes.h
-        source/instructions/jumps.h
-        source/instructions/rot_shifts.h
-        source/instructions/conditions.h
-        source/instructions/debug.h
-        source/instructions/decoder.h
+        source/operands/instruction_context.h
+        source/operands/alu.h
+        source/operands/loads.h
+        source/operands/instructions.h
+        source/operands/misc.h
+        source/operands/prefix.h
+        source/operands/reads.h
+        source/operands/writes.h
+        source/operands/jumps.h
+        source/operands/rot_shifts.h
+        source/operands/conditions.h
+        source/operands/debug.h
+        source/operands/registry.h
+        source/operands/tables.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h
         source/util/gpumode.h
         source/util/return_codes.h
+        source/util/string_polyfills.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         )

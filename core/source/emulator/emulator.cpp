@@ -27,14 +27,15 @@
 using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
-    : cartridge(new Cartridge)
-    , controllers(controllers)
+    : controllers(controllers)
     , ioRegisters(controllers)
     , ppuMemory()
-    , memory(new Memory(cartridge, controllers, ioRegisters, ppuMemory))
-    , cpu(std::make_shared<CPU>(gbType, memory, ioRegisters))
+    , memory(controllers, ioRegisters, ppuMemory)
+    , cpu(std::make_shared<CPU>(gbType, ioRegisters))
     , ppu(cpu, controllers, ioRegisters, ppuMemory)
 {
+    // Initialize registers
+    cpu->powerUpInit(memory);
 }
 
 Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
@@ -48,14 +49,14 @@ CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
 }
 
 CartridgeStatus Emulator::loadGame(std::istream &stream) {
-    cartridge->loadROM(stream);
+    memory.loadROM(stream);
 
-    if (cartridge->getStatus() != CartridgeStatus::Loaded) {
-        std::cerr << "ROM could not be loaded, status " << cartridge->getStatus() << std::endl;
-        return cartridge->getStatus();
+    if (memory.getCartridgeStatus() != CartridgeStatus::Loaded) {
+        std::cerr << "ROM could not be loaded, status " << memory.getCartridgeStatus() << std::endl;
+        return memory.getCartridgeStatus();
     }
 
-    auto header = cartridge->getHeader();
+    auto header = memory.getROMHeader();
 
     cpu->setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
 
@@ -74,26 +75,22 @@ CartridgeStatus Emulator::loadGame(std::istream &stream) {
     std::cout << ss.str() << std::endl;
 #endif
 
-    return cartridge->getStatus();
+    return memory.getCartridgeStatus();
 }
 
 void Emulator::loadCartridgeRam(std::istream &stream) {
-    cartridge->loadRam(stream);
+    memory.loadRam(stream);
 }
 
 void Emulator::writeCartridgeRam(std::ostream &stream) {
-    cartridge->writeRam(stream);
+    memory.writeRam(stream);
 }
 
 ret_code Emulator::doTick() {
-    auto result = cpu->doMachineCycle();
+    auto result = cpu->doMachineCycle(memory);
     if (!result) {
         return 0;
     }
     result |= ppu.doClocks(4);
     return result;
-}
-
-Cartridge & Emulator::getCartridge() {
-    return *cartridge;
 }
