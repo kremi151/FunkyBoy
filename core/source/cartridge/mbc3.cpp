@@ -75,13 +75,11 @@ void MBC3::interceptROMWrite(memory_address offset, u8 val) {
         ramEnabled = ((val & 0xfu) == 0xA);
         mbc3_print("[MBC3] Enable RAM? %d\n", ramEnabled);
     } else if (offset <= 0x3FFF) {
-        // Set ROM Bank number (lower 5 bits)
-        val &= 0b0011111u;
         if (val == 0 && !(romBank & 0b1100000u)) {
             val = 1;
         }
         mbc3_print("[MBC3] about to update ROM bank with value %d\n", val);
-        preliminaryRomBank = val & 0b1111111u;
+        preliminaryRomBank = val & 0b1111111u; // TODO: Adapt this for MBC30
         updateBanks();
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
