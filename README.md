@@ -7,7 +7,25 @@
 ![Build PSP platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20PSP%20platform/badge.svg)
 ![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)
 
-A Gameboy emulator written in C++
+A GameBoy emulator written in C++.
+
+## Features
+
+FunkyBoy is currently at an early stage,
+A lot of games are already playable, albeit with some graphical glitches and without sound.
+
+|Feature name|Status|
+|------------|------|
+|Graphical output|:warning: Supported, but there are some graphical glitches|
+|Button inputs|:heavy_check_mark: Supported|
+|Sound|:x: Not started ([Issue #51](https://github.com/kremi151/FunkyBoy/issues/51))|
+|MBC1|:heavy_check_mark: Supported|
+|MBC1 Multicard|:x: Not started ([Issue #53](https://github.com/kremi151/FunkyBoy/issues/53))|
+|MBC2|:heavy_check_mark: Supported|
+|MBC3|:construction_worker: In progress ([Issue #37](https://github.com/kremi151/FunkyBoy/issues/37))|
+|MBC5|:x: Not started ([Issue #52](https://github.com/kremi151/FunkyBoy/issues/52))|
+|Save games|:question: Implemented, but to be tested|
+|Save states|:x: Not started ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
 
 ## Implementations
 
