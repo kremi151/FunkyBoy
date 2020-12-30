@@ -111,3 +111,8 @@ void MBC2::loadBattery(std::istream &stream, u8 *ram, size_t l) {
 bool MBC2::hasBattery() {
     return battery;
 }
+
+void MBC2::getDebugInfo(const char **outName, unsigned int &outRomBank) {
+    *outName = "MBC2";
+    outRomBank = romBank;
+}

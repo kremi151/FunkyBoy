@@ -23,6 +23,7 @@
 #include <emulator/io_registers.h>
 #include <memory/ppu_memory.h>
 #include <cartridge/mbc.h>
+#include <operands/debug.h>
 
 #include <iostream>
 #include <cartridge/header.h>
@@ -84,6 +85,12 @@ namespace FunkyBoy {
         inline u8 getIE() {
             return interruptEnableRegister;
         }
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+        inline void getMBCDebugInfo(const char **outName, unsigned &outRomBank) {
+            mbc->getDebugInfo(outName, outRomBank);
+        }
+#endif
 
 #ifdef FB_TESTING
         io_registers &getIoRegisters();

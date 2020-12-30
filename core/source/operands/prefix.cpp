@@ -691,7 +691,7 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
     context.instr = memory.read8BitsAt(context.progCounter++);
     *context.operandsPtr = Tables::prefixInstructions[context.instr];
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context);
+    FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context, memory);
 #endif
     return true;
 }

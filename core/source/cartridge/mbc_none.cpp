@@ -45,3 +45,8 @@ void MBCNone::loadBattery(std::istream &stream, u8 *ram, size_t l) {
 bool MBCNone::hasBattery() {
     return false;
 }
+
+void MBCNone::getDebugInfo(const char **outName, unsigned int &outRomBank) {
+    *outName = "No MBC";
+    outRomBank = 0;
+}

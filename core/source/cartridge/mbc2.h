@@ -44,6 +44,8 @@ namespace FunkyBoy {
         void loadBattery(std::istream &stream, u8 *ram, size_t l) override;
 
         bool hasBattery() override;
+
+        void getDebugInfo(const char **outName, unsigned &outRomBank) override;
     };
 
 }
