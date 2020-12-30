@@ -1,10 +1,6 @@
 # FunkyBoy
 
 ![Build core](https://github.com/kremi151/FunkyBoy/workflows/Build%20core/badge.svg)
-![Build SDL platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20SDL%20platform/badge.svg)
-![Build Libretro](https://github.com/kremi151/FunkyBoy/workflows/Build%20Libretro/badge.svg)
-![Build 3DS platform](https://github.com/kremi151/FunkyBoy/workflows/Build%203DS%20platform/badge.svg)
-![Build PSP platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20PSP%20platform/badge.svg)
 ![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)
 
 A GameBoy emulator written in C++.
@@ -29,9 +25,19 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 
 ## Implementations
 
-* [SDL](https://github.com/kremi151/FunkyBoy/tree/master/platform-sdl) (Linux, macOS & Windows)
-* [Libretro (RetroArch)](https://github.com/kremi151/FunkyBoy/tree/master/platform-libretro)
-* [Nintendo 3DS](https://github.com/kremi151/FunkyBoy/tree/master/platform-3ds)
-* [PlayStation Portable](https://github.com/kremi151/FunkyBoy/tree/master/platform-psp)
-* [Android](https://github.com/kremi151/FunkyBoyAndroid)
-* [Tests](https://github.com/kremi151/FunkyBoy/tree/master/test)
+FunkyBoy is developed with keeping portability in mind.
+The [core](https://github.com/kremi151/FunkyBoy/tree/master/core) is developed as an isolated module which can be easily integrated in a platform specific implementation.
+
+The implementations of FunkyBoy are classified as primary or secondary implementations.
+The main focus lies on the primary implementations to get them working properly.
+Secondary implementations provide basic functionality, but may experience slow emulation.
+Those performance issues will be tackled at a later stage of development.
+
+|Platform|Classification|CI status|
+|--------|--------------|---------|
+|[SDL](https://github.com/kremi151/FunkyBoy/tree/master/platform-sdl) (Linux, macOS & Windows)|Primary|![Build SDL platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20SDL%20platform/badge.svg)|
+|[Libretro (RetroArch)](https://github.com/kremi151/FunkyBoy/tree/master/platform-libretro)|Primary|![Build Libretro](https://github.com/kremi151/FunkyBoy/workflows/Build%20Libretro/badge.svg)|
+|[Android](https://github.com/kremi151/FunkyBoyAndroid)|Secondary|![CI](https://github.com/kremi151/FunkyBoyAndroid/workflows/CI/badge.svg)|
+|[Nintendo 3DS](https://github.com/kremi151/FunkyBoy/tree/master/platform-3ds)|Secondary|![Build 3DS platform](https://github.com/kremi151/FunkyBoy/workflows/Build%203DS%20platform/badge.svg)|
+|[PlayStation Portable](https://github.com/kremi151/FunkyBoy/tree/master/platform-psp)|Secondary|![Build PSP platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20PSP%20platform/badge.svg)|
+|[Tests](https://github.com/kremi151/FunkyBoy/tree/master/test)| |![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)|
