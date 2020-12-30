@@ -150,7 +150,7 @@ void RTC::write(std::ostream &stream) {
     buffer[0] = buffer[20] = getSeconds();
     buffer[4] = buffer[24] = getMinutes();
     buffer[8] = buffer[28] = getHours();
-    uf16 days = getDays();
+    u16_fast days = getDays();
     buffer[12] = buffer[32] = days & 0xffu;
     buffer[16] = buffer[36] = (days >> 8) & 0xffu;
     size_t latch = latchTimestamp / secondFactor;
@@ -170,7 +170,7 @@ void RTC::load(std::istream &stream) {
     u8 &hours = buffer[8];
     u8 &daysLsb = buffer[12];
     u8 &daysMsb = buffer[16];
-    uf16 days = (daysMsb << 8) | daysLsb;
+    u16_fast days = (daysMsb << 8) | daysLsb;
     timestampOffset = (days * dayFactor) + (hours * hourFactor) + (minutes * minuteFactor) + (seconds * secondFactor);
     startTimestamp = ((buffer[43] << 24) | (buffer[42] << 16) | (buffer[41] << 8) | buffer[40]) * secondFactor;
 }
