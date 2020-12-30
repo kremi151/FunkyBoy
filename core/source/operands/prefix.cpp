@@ -688,11 +688,10 @@ namespace FunkyBoy::Operands::Tables {
 }
 
 bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
+    context.instr = memory.read8BitsAt(context.progCounter++);
+    *context.operandsPtr = Tables::prefixInstructions[context.instr];
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context);
 #endif
-
-    context.instr = memory.read8BitsAt(context.progCounter++);
-    *context.operandsPtr = Tables::prefixInstructions[context.instr];
     return true;
 }
