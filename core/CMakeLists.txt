@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 include(FunkyBoyVersion)
+include(DetectOS)
 
 if (MSVC)
     message("We're running in Visual Studio!")
