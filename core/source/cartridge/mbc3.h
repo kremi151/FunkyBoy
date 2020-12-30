@@ -18,16 +18,11 @@
 #define FB_CORE_MBC3_H
 
 #include <cartridge/mbc.h>
+#include <cartridge/rtc.h>
 #include <util/testing.h>
 #include <util/romsizes.h>
 #include <util/ramsizes.h>
 #include <cstddef>
-
-#define FB_IS_MBC3
-
-#ifdef FB_IS_MBC3
-#include <cartridge/rtc.h>
-#endif
 
 namespace FunkyBoy {
 
@@ -42,16 +37,11 @@ namespace FunkyBoy {
         u32 romBankOffsetLower{};
         u32 romBankOffset{};
         u32 ramBankOffset{};
-#ifdef FB_IS_MBC3
         RTC rtc;
-#endif
         void updateBanks();
     test_public:
         u8 preliminaryRomBank, romBank{};
         u8 ramBank{};
-#ifndef FB_IS_MBC3
-        bool ramBankingMode;
-#endif
         bool ramEnabled;
     public:
         MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc);

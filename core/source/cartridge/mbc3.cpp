@@ -32,9 +32,6 @@ MBC3::MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc)
     , ramBankSize(MBC1::getRAMBankSize(ramSize))
     , ramBankCount(MBC1::getRAMBankCount(ramSize))
     , maxRamOffset(MBC1::getMaxRAMOffset(ramSize))
-#ifndef FB_IS_MBC3
-    , ramBankingMode(false)
-#endif
     , romSize(romSize)
     , ramEnabled(false)
     , useBattery(battery)
@@ -44,22 +41,12 @@ MBC3::MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc)
 }
 
 void MBC3::updateBanks() {
-    mbc3_print("[MBC3] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", ramBankingMode, romBank, ramBank);
+    mbc3_print("[MBC3] update banks from [rom=0x%02X,ram=0x%02X] to", romBank, ramBank);
 
     romBank = preliminaryRomBank & 0b1111111u;
-#ifndef FB_IS_MBC3
-    if (ramBankingMode) {
-        romBank &= 0b11111;
-        romBank |= (ramBank & 0b11) << 5;
-#endif
-        if (ramBank >= ramBankCount) {
-            ramBank = std::max(0, ramBankCount - 1);
-        }
-#ifndef FB_IS_MBC3
-    } else {
-        ramBank = 0;
+    if (ramBank >= ramBankCount) {
+        ramBank = std::max(0, ramBankCount - 1);
     }
-#endif
 
     u8 romBankMask = MBC1::getROMBankBitMask(romSize);
     romBank &= romBankMask;
@@ -74,16 +61,7 @@ void MBC3::updateBanks() {
 
 u8 MBC3::readFromROMAt(memory_address offset, u8 *rom) {
     if (offset <= 0x3FFF) {
-#ifndef FB_IS_MBC3
-        if (ramBankingMode) {
-            // TODO: Is this correct? Apparently it should be done like this according to https://gekkio.fi/files/gb-docs/gbctr.pdf
-            return *(rom + romBankOffsetLower + offset);
-        } else {
-#endif
-            return *(rom + offset);
-#ifndef FB_IS_MBC3
-        }
-#endif
+        return *(rom + offset);
     } else if (offset <= 0x7FFF) {
         return *(rom + romBankOffset + (offset - 0x4000));
     } else {
@@ -99,36 +77,17 @@ void MBC3::interceptROMWrite(memory_address offset, u8 val) {
     } else if (offset <= 0x3FFF) {
         // Set ROM Bank number (lower 5 bits)
         val &= 0b0011111u;
-#ifndef FB_IS_MBC3
-        if (val == 0) val = 1;
-#else
         if (val == 0 && !(romBank & 0b1100000u)) {
             val = 1;
         }
-#endif
         mbc3_print("[MBC3] about to update ROM bank with value %d\n", val);
-#ifndef FB_IS_MBC3
-        preliminaryRomBank = (preliminaryRomBank & 0b1100000u) | val;
-#else
         preliminaryRomBank = val & 0b1111111u;
-#endif
         updateBanks();
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
         mbc3_print("[MBC3] about to update ROM/RAM bank with value %d\n", val);
-#ifndef FB_IS_MBC3
-        preliminaryRomBank = ((val & 0b11u) << 5) | (preliminaryRomBank & 0b0011111u);
-        ramBank = val & 0b11u;
-#else
         ramBank = val & 0b1111u;
-#endif
         updateBanks();
-#ifndef FB_IS_MBC3
-    } else if (offset <= 0x7FFF) {
-        ramBankingMode = val & 0b1;
-        mbc3_print("[MBC3] Set banking mode to %d\n", ramBankingMode);
-        updateBanks();
-#endif
     }
 }
 
@@ -137,7 +96,6 @@ u8 MBC3::readFromRAMAt(memory_address offset, u8 *ram) {
         // Not readable
         return 0xff;
     }
-#ifdef FB_IS_MBC3
     switch (ramBank) {
         case 0x0: case 0x1: case 0x2: case 0x3: {
             return *(ram + ramBankOffset + offset);
@@ -182,15 +140,9 @@ u8 MBC3::readFromRAMAt(memory_address offset, u8 *ram) {
             return 0xff;
         }
     }
-#endif
 }
 
 void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
-#ifndef FB_IS_MBC3
-    if (ramEnabled && offset <= maxRamOffset) {
-        *(ram + ramBankOffset + offset) = val;
-    }
-#else
     if (!ramEnabled || offset > maxRamOffset) {
         // Not writable
         return;
@@ -230,7 +182,6 @@ void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
             break;
         }
     }
-#endif
 }
 
 void MBC3::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
