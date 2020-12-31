@@ -44,6 +44,14 @@ int pressXToExit() {
     return 0;
 }
 
+void jeremyBearimy() {
+    // There is a weird linker issue if I don't call the next functions explicitly
+    // TODO: To be investigated why this happens
+    struct timeval tp;
+    sceKernelLibcTime(nullptr);
+    sceKernelLibcGettimeofday(&tp, nullptr);
+}
+
 int main() {
     setupExitCallback();
 
@@ -52,6 +60,8 @@ int main() {
     pspDebugScreenClear();
     pspDebugScreenSetXY(0, 0);
     pspDebugScreenPrintf("%s version %s\n", FB_NAME, FB_VERSION);
+
+    jeremyBearimy();
 
     // Emulator config
     auto displayController = std::make_shared<FunkyBoyPSP::Controller::DisplayController>();
