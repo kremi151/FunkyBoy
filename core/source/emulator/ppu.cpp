@@ -200,8 +200,8 @@ void PPU::renderScanline(u8 ly) {
         u8 &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
             tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
-            colorIndex = (tileLine >> (15 - xInTile)) & 1u
-                | ((tileLine >> (7 - xInTile)) & 1u) << 1;
+            colorIndex = (tileLine >> (7 - xInTile)) & 1u
+                | ((tileLine >> (15 - xInTile)) & 1u) << 1;
             scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
             bgColorIndexes[scanLineX] = colorIndex;
             if (++xInTile >= 8) {
@@ -258,11 +258,11 @@ void PPU::renderScanline(u8 ly) {
                 }
                 if (!hide || !bgColorIndexes[x]) {
                     if (flipX) {
-                        colorIndex = (tileLine >> (8 + xOnObj)) & 1u
-                            | ((tileLine >> xOnObj) & 1u) << 1;
+                        colorIndex = (tileLine >> xOnObj) & 1u
+                            | ((tileLine >> (8 + xOnObj)) & 1u) << 1;
                     } else {
-                        colorIndex = (tileLine >> (15 - xOnObj)) & 1u
-                            | ((tileLine >> (7 - xOnObj)) & 1u) << 1;
+                        colorIndex = (tileLine >> (7 - xOnObj)) & 1u
+                            | ((tileLine >> (15 - xOnObj)) & 1u) << 1;
                     }
                     if (colorIndex) {
                         scanLineBuffer[x] = (palette >> (colorIndex * 2u)) & 3u;
@@ -286,8 +286,8 @@ void PPU::renderScanline(u8 ly) {
             u8 &scanLineX = it; // alias for it
             for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
                 tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
-                colorIndex = (tileLine >> (15 - xInTile)) & 1u
-                    | ((tileLine >> (7 - xInTile)) & 1u) << 1;
+                colorIndex = (tileLine >> (7 - xInTile)) & 1u
+                    | ((tileLine >> (15 - xInTile)) & 1u) << 1;
                 scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
                 if (++xInTile >= 8) {
                     xInTile = 0;
