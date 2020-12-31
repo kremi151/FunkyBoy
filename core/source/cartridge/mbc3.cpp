@@ -20,6 +20,7 @@
 #include <exception/state_exception.h>
 #include <algorithm>
 #include <cartridge/mbc1.h>
+#include <util/string_polyfills.h>
 
 #define mbc3_print(...) debug_print_4(__VA_ARGS__)
 
@@ -27,11 +28,57 @@
 
 using namespace FunkyBoy;
 
+size_t MBC3::getRAMBankSize(RAMSize size) {
+    switch (size) {
+        case RAMSize::RAM_SIZE_None:
+            return 0;
+        case RAMSize::RAM_SIZE_2KB:
+            return getRAMSizeInBytes(RAMSize::RAM_SIZE_2KB);
+        case RAMSize::RAM_SIZE_8KB:
+        case RAMSize::RAM_SIZE_32KB:
+        case RAMSize::RAM_SIZE_64KB:
+            return getRAMSizeInBytes(RAMSize::RAM_SIZE_8KB);
+        default:
+            throw Exception::WrongStateException("Invalid MBC3 RAM size: " + Util::toString(size));
+    }
+}
+
+u8 MBC3::getRAMBankCount(RAMSize size) {
+    switch (size) {
+        case RAMSize::RAM_SIZE_None:
+            return 0;
+        case RAMSize::RAM_SIZE_2KB:
+        case RAMSize::RAM_SIZE_8KB:
+            return 1;
+        case RAMSize::RAM_SIZE_32KB:
+            return 4;
+        case RAMSize::RAM_SIZE_64KB:
+            return 8;
+        default:
+            throw Exception::WrongStateException("Invalid MBC3 RAM size: " + Util::toString(size));
+    }
+}
+
+memory_address MBC3::getMaxRAMOffset(RAMSize ramSize) {
+    switch (ramSize) {
+        case RAMSize::RAM_SIZE_None:
+            return 0x0000;
+        case RAMSize::RAM_SIZE_2KB:
+            return 0x07FF;
+        case RAMSize::RAM_SIZE_8KB:
+        case RAMSize::RAM_SIZE_32KB:
+        case RAMSize::RAM_SIZE_64KB:
+            return 0x1FFF;
+        default:
+            throw Exception::WrongStateException("Invalid MBC3 RAM size: " + Util::toString(ramSize));
+    }
+}
+
 MBC3::MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc, bool mbc30)
     : preliminaryRomBank(1)
-    , ramBankSize(MBC1::getRAMBankSize(ramSize))
-    , ramBankCount(MBC1::getRAMBankCount(ramSize))
-    , maxRamOffset(MBC1::getMaxRAMOffset(ramSize))
+    , ramBankSize(getRAMBankSize(ramSize))
+    , ramBankCount(getRAMBankCount(ramSize))
+    , maxRamOffset(getMaxRAMOffset(ramSize))
     , romSize(romSize)
     , ramEnabled(false)
     , useBattery(battery)

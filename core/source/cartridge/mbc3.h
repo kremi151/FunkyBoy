@@ -60,6 +60,10 @@ namespace FunkyBoy {
         bool hasBattery() override;
 
         void getDebugInfo(const char **outName, unsigned &outRomBank) override;
+
+        static size_t getRAMBankSize(RAMSize size);
+        static u8 getRAMBankCount(RAMSize size);
+        static memory_address getMaxRAMOffset(RAMSize ramSize);
     };
 
 }
