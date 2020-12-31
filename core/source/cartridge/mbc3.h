@@ -33,6 +33,8 @@ namespace FunkyBoy {
         const u8 ramBankCount;
         const bool useBattery;
         const bool useRtc;
+        const u8 romBankMask;
+        const u8 ramBankMask;
         const memory_address maxRamOffset;
         u32 romBankOffsetLower{};
         u32 romBankOffset{};
@@ -44,7 +46,7 @@ namespace FunkyBoy {
         u8 ramBank{};
         bool ramEnabled;
     public:
-        MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc);
+        MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc, bool mbc30);
 
         u8 readFromROMAt(memory_address offset, u8 *rom) override;
         void interceptROMWrite(memory_address offset, u8 val) override;

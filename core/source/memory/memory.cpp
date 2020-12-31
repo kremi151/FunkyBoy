@@ -193,10 +193,13 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         case 0x11:
         case 0x12:
         case 0x13: {
+            bool isMBC30 = ramSizeType == RAMSize::RAM_SIZE_64KB;
             if (ramSizeType != RAMSize::RAM_SIZE_None
                 && ramSizeType != RAMSize::RAM_SIZE_2KB
                 && ramSizeType != RAMSize::RAM_SIZE_8KB
-                && ramSizeType != RAMSize::RAM_SIZE_32KB) {
+                && ramSizeType != RAMSize::RAM_SIZE_32KB
+                && !isMBC30
+            ) {
                 status = CartridgeStatus::ROMUnsupportedMBC;
                 return;
             }
@@ -205,7 +208,7 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
                                   || header->cartridgeType == 0x10
                                   || header->cartridgeType == 0x13);
             bool useRtc = header->cartridgeType == 0x0f || header->cartridgeType == 0x10;
-            mbc = std::make_unique<MBC3>(romSizeType, ramSizeType, useBattery, useRtc);
+            mbc = std::make_unique<MBC3>(romSizeType, ramSizeType, useBattery, useRtc, isMBC30);
             break;
         }
         default:

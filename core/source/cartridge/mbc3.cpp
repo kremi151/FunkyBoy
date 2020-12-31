@@ -27,7 +27,7 @@
 
 using namespace FunkyBoy;
 
-MBC3::MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc)
+MBC3::MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc, bool mbc30)
     : preliminaryRomBank(1)
     , ramBankSize(MBC1::getRAMBankSize(ramSize))
     , ramBankCount(MBC1::getRAMBankCount(ramSize))
@@ -36,6 +36,8 @@ MBC3::MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc)
     , ramEnabled(false)
     , useBattery(battery)
     , useRtc(rtc)
+    , romBankMask(mbc30 ? 0b11111111u : 0b1111111u)
+    , ramBankMask(mbc30 ? 0b111u : 0b11u)
 {
     updateBanks();
 }
@@ -79,12 +81,12 @@ void MBC3::interceptROMWrite(memory_address offset, u8 val) {
             val = 1;
         }
         mbc3_print("[MBC3] about to update ROM bank with value %d\n", val);
-        preliminaryRomBank = val & 0b1111111u; // TODO: Adapt this for MBC30
+        preliminaryRomBank = val & romBankMask;
         updateBanks();
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
         mbc3_print("[MBC3] about to update ROM/RAM bank with value %d\n", val);
-        ramBank = val & 0b1111u;
+        ramBank = val & ramBankMask;
         updateBanks();
     }
 }
