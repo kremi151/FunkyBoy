@@ -87,7 +87,7 @@ u8 MBC1::getROMBankBitMask(ROMSize romSize) {
     }
 }
 
-MBC1::MBC1(ROMSize romSize, RAMSize ramSize)
+MBC1::MBC1(ROMSize romSize, RAMSize ramSize, bool battery)
     : preliminaryRomBank(1)
     , ramBankSize(getRAMBankSize(ramSize))
     , ramBankCount(getRAMBankCount(ramSize))
@@ -95,6 +95,7 @@ MBC1::MBC1(ROMSize romSize, RAMSize ramSize)
     , ramBankingMode(false)
     , romSize(romSize)
     , ramEnabled(false)
+    , battery(battery)
 {
     updateBanks();
 }
@@ -177,4 +178,21 @@ void MBC1::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     if (ramEnabled && offset <= maxRamOffset) {
         *(ram + ramBankOffset + offset) = val;
     }
+}
+
+void MBC1::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
+    stream.write(static_cast<char*>(static_cast<void*>(ram)), l);
+}
+
+void MBC1::loadBattery(std::istream &stream, u8 *ram, size_t l) {
+    stream.read(static_cast<char*>(static_cast<void*>(ram)), l);
+}
+
+bool MBC1::hasBattery() {
+    return battery;
+}
+
+void MBC1::getDebugInfo(const char **outName, unsigned &outRomBank) {
+    *outName = "MBC1";
+    outRomBank = romBank;
 }

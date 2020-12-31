@@ -219,7 +219,7 @@ ret_code CPU::doFetchAndDecode(Memory &memory) {
     }
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    FunkyBoy::Debug::writeExecutionToLog('I', file, instrContext);
+    FunkyBoy::Debug::writeExecutionToLog('I', file, instrContext, memory);
     instr++;
 #endif
 

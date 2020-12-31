@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_MBC1_H
-#define FB_CORE_MBC1_H
+#ifndef FB_CORE_MBC3_H
+#define FB_CORE_MBC3_H
 
 #include <cartridge/mbc.h>
+#include <cartridge/rtc.h>
 #include <util/testing.h>
 #include <util/romsizes.h>
 #include <util/ramsizes.h>
@@ -25,24 +26,27 @@
 
 namespace FunkyBoy {
 
-    class MBC1: public MBC {
+    class MBC3: public MBC {
     private:
         const ROMSize romSize;
         const size_t ramBankSize;
         const u8 ramBankCount;
-        const bool battery;
+        const bool useBattery;
+        const bool useRtc;
+        const u8 romBankMask;
+        const u8 ramBankMask;
         const memory_address maxRamOffset;
         u32 romBankOffsetLower{};
         u32 romBankOffset{};
         u32 ramBankOffset{};
+        RTC rtc;
         void updateBanks();
     test_public:
         u8 preliminaryRomBank, romBank{};
         u8 ramBank{};
-        bool ramBankingMode;
         bool ramEnabled;
     public:
-        MBC1(ROMSize romSize, RAMSize ramSize, bool battery);
+        MBC3(ROMSize romSize, RAMSize ramSize, bool battery, bool rtc, bool mbc30);
 
         u8 readFromROMAt(memory_address offset, u8 *rom) override;
         void interceptROMWrite(memory_address offset, u8 val) override;
@@ -60,9 +64,8 @@ namespace FunkyBoy {
         static size_t getRAMBankSize(RAMSize size);
         static u8 getRAMBankCount(RAMSize size);
         static memory_address getMaxRAMOffset(RAMSize ramSize);
-        static u8 getROMBankBitMask(ROMSize romSize);
     };
 
 }
 
-#endif //FB_CORE_MBC1_H
+#endif //FB_CORE_MBC3_H

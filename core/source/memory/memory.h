@@ -23,6 +23,7 @@
 #include <emulator/io_registers.h>
 #include <memory/ppu_memory.h>
 #include <cartridge/mbc.h>
+#include <operands/debug.h>
 
 #include <iostream>
 #include <cartridge/header.h>
@@ -42,18 +43,18 @@ namespace FunkyBoy {
         u8 dmaMsb{}, dmaLsb{};
         bool dmaStarted;
 
-        u8 *cram;
-        size_t ramSizeInBytes;
         size_t romSize;
         CartridgeStatus status;
-
-        std::unique_ptr<MBC> mbc;
 
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
 
     test_public:
         u8 *rom;
+        u8 *cram;
+        size_t ramSizeInBytes;
+
+        std::unique_ptr<MBC> mbc;
 
     public:
         Memory(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
@@ -84,6 +85,12 @@ namespace FunkyBoy {
         inline u8 getIE() {
             return interruptEnableRegister;
         }
+
+#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+        inline void getMBCDebugInfo(const char **outName, unsigned &outRomBank) {
+            mbc->getDebugInfo(outName, outRomBank);
+        }
+#endif
 
 #ifdef FB_TESTING
         io_registers &getIoRegisters();

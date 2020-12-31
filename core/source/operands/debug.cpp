@@ -17,12 +17,13 @@
 #include "debug.h"
 
 #include <operands/instruction_context.h>
+#include <memory/memory.h>
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
 
 using namespace FunkyBoy;
 
-void Debug::writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::InstrContext &instrContext) {
+void Debug::writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::InstrContext &instrContext, FunkyBoy::Memory &memory) {
     file << discriminator << " ";
     file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (instrContext.instr & 0xff);
     file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*instrContext.regB & 0xff);
@@ -35,6 +36,12 @@ void Debug::writeExecutionToLog(uint8_t discriminator, std::ofstream &file, Funk
     file << " F=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*instrContext.regF & 0xff);
     file << " PC=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << (instrContext.progCounter - 1);
     file << " SP=0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << instrContext.stackPointer;
+
+    const char *mbcName;
+    unsigned romBank;
+    memory.getMBCDebugInfo(&mbcName, romBank);
+
+    file << " MBC=" << mbcName << " RB=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << romBank;
     file << std::endl;
 }
 

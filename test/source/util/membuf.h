@@ -14,28 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_OPERANDS_DEBUG_H
-#define FB_CORE_OPERANDS_DEBUG_H
-
-// Uncomment to enable printing current opcode and register values to a file
-// #define FB_DEBUG_WRITE_EXECUTION_LOG
-
-#ifdef FB_DEBUG_WRITE_EXECUTION_LOG
+#ifndef FB_TESTS_MEMBUF_H
+#define FB_TESTS_MEMBUF_H
 
 #include <iostream>
-#include <iomanip>
-#include <fstream>
 
-namespace FunkyBoy {
-    class InstrContext;
-    class Memory;
-}
+class membuf: public std::streambuf {
+public:
+    membuf(char *buffer, size_t size, bool read) {
+        if (read) {
+            setg(buffer, buffer, buffer + size);
+        } else {
+            setp(buffer, buffer + size);
+        }
+    }
+};
 
-namespace FunkyBoy::Debug {
-    void writeExecutionToLog(uint8_t discriminator, std::ofstream &file, FunkyBoy::InstrContext &instrContext, FunkyBoy::Memory &memory);
-    void writeInterruptToLog(uint16_t interrupt, std::ofstream &file);
-}
-
-#endif
-
-#endif //FB_CORE_OPERANDS_DEBUG_H
+#endif //FB_TESTS_MEMBUF_H

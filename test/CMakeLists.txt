@@ -20,6 +20,7 @@ set(SOURCES
 set(HEADERS
         source/controllers/serial_test.h
         source/util/rom_commons.h
+        source/util/membuf.h
         source/blargg/rom_cpu_instrs_tests.h
         source/unit_tests.h
         source/mooneye/rom_mooneye_mbc1.h

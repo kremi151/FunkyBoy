@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 include(FunkyBoyVersion)
+include(DetectOS)
 
 if (MSVC)
     message("We're running in Visual Studio!")
@@ -24,7 +25,9 @@ set(SOURCES
         source/memory/memory.cpp
         source/cartridge/mbc1.cpp
         source/cartridge/mbc2.cpp
+        source/cartridge/mbc3.cpp
         source/cartridge/mbc_none.cpp
+        source/cartridge/rtc.cpp
         source/memory/ppu_memory.cpp
         source/operands/instruction_context.cpp
         source/operands/alu.cpp
@@ -68,7 +71,9 @@ set(HEADERS
         source/cartridge/mbc.h
         source/cartridge/mbc1.h
         source/cartridge/mbc2.h
+        source/cartridge/mbc3.h
         source/cartridge/mbc_none.h
+        source/cartridge/rtc.h
         source/memory/ppu_memory.h
         source/operands/instruction_context.h
         source/operands/alu.h

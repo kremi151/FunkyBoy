@@ -26,18 +26,26 @@ namespace FunkyBoy {
     class MBC2: public MBC {
     private:
         const ROMSize romSize;
+        const bool battery;
         u32 romBankOffset;
     test_public:
         u8 romBank;
         bool ramEnabled;
     public:
-        explicit MBC2(ROMSize romSize);
+        MBC2(ROMSize romSize, bool battery);
 
         u8 readFromROMAt(memory_address offset, u8 *rom) override;
         void interceptROMWrite(memory_address offset, u8 val) override;
 
         u8 readFromRAMAt(memory_address offset, u8 *ram) override;
         void writeToRAMAt(memory_address offset, u8 val, u8 *ram) override;
+
+        void saveBattery(std::ostream &stream, u8 *ram, size_t l) override;
+        void loadBattery(std::istream &stream, u8 *ram, size_t l) override;
+
+        bool hasBattery() override;
+
+        void getDebugInfo(const char **outName, unsigned &outRomBank) override;
     };
 
 }

@@ -46,8 +46,9 @@ u8 __fb_mbc2_getROMBankBitMask(ROMSize romSize) {
     }
 }
 
-MBC2::MBC2(ROMSize romSize)
+MBC2::MBC2(ROMSize romSize, bool battery)
     : romSize(romSize)
+    , battery(battery)
     , ramEnabled(false)
     , romBank(1)
     , romBankOffset(1 * FB_MBC2_ROM_BANK_SIZE)
@@ -97,4 +98,21 @@ void MBC2::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
         // When going higher than 0xA1FF, the RAM just wraps around (i.e. starts writing again to 0xA000)
         *(ram + (offset % (FB_MBC2_MAX_RAM_OFFSET + 1))) = val & 0b1111u;
     }
+}
+
+void MBC2::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
+    stream.write(static_cast<char*>(static_cast<void*>(ram)), l);
+}
+
+void MBC2::loadBattery(std::istream &stream, u8 *ram, size_t l) {
+    stream.read(static_cast<char*>(static_cast<void*>(ram)), l);
+}
+
+bool MBC2::hasBattery() {
+    return battery;
+}
+
+void MBC2::getDebugInfo(const char **outName, unsigned int &outRomBank) {
+    *outName = "MBC2";
+    outRomBank = romBank;
 }
