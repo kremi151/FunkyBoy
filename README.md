@@ -18,7 +18,7 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 |MBC1|:heavy_check_mark: Supported|
 |MBC1 Multicard|:x: Not started ([Issue #53](https://github.com/kremi151/FunkyBoy/issues/53))|
 |MBC2|:heavy_check_mark: Supported|
-|MBC3|:construction_worker: In progress ([Issue #37](https://github.com/kremi151/FunkyBoy/issues/37))|
+|MBC3 / MBC30|:heavy_check_mark: Supported|
 |MBC5|:x: Not started ([Issue #52](https://github.com/kremi151/FunkyBoy/issues/52))|
 |Save games|:question: Implemented, but to be tested|
 |Save states|:x: Not started ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
