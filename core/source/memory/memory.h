@@ -43,18 +43,18 @@ namespace FunkyBoy {
         u8 dmaMsb{}, dmaLsb{};
         bool dmaStarted;
 
-        u8 *cram;
-        size_t ramSizeInBytes;
         size_t romSize;
         CartridgeStatus status;
-
-        std::unique_ptr<MBC> mbc;
 
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
 
     test_public:
         u8 *rom;
+        u8 *cram;
+        size_t ramSizeInBytes;
+
+        std::unique_ptr<MBC> mbc;
 
     public:
         Memory(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);

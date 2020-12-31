@@ -25,6 +25,10 @@
 #include <memory>
 #include <emulator/emulator.h>
 #include <controllers/controllers.h>
+#include <cartridge/mbc1.h>
+#include <cartridge/mbc2.h>
+#include <cartridge/mbc3.h>
+#include "util/membuf.h"
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
     cpu.instructionCompleted = false;
@@ -432,6 +436,92 @@ TEST(testContextualZeroAndCarryCheckOperands) {
     assertDoFullMachineCycle(cpu, memory);    // Initial fetch
     assertDoFullMachineCycle(cpu, memory);    // Actual execution
     assertEquals(0x123 + 1, cpu.instrContext.progCounter);
+}
+
+size_t calc_quick_hash(const FunkyBoy::u8 *array, size_t len) {
+    size_t result = 0;
+    for (size_t i = 0 ; i < len ; i++) {
+        result = (result * 31) + array[i];
+    }
+    return result;
+}
+
+void testBatterySave(FunkyBoy::Memory &memory, size_t ramSize) {
+    using namespace FunkyBoy;
+
+    memory.ramSizeInBytes = ramSize;
+    memory.cram = new u8[memory.ramSizeInBytes]{}; // Gets freed by Memory's destructor
+
+    memory.cram[0] = 0x12;
+    memory.cram[1] = 0x34;
+    memory.cram[ramSize / 2] = 0xab;
+    memory.cram[(ramSize / 2) + 1] = 0xcd;
+    memory.cram[ramSize - 2] = 0x1a;
+    memory.cram[ramSize - 1] = 0x2b;
+
+    size_t originalHash = calc_quick_hash(memory.cram, memory.ramSizeInBytes);
+
+    u8 *saveFile = new u8[memory.ramSizeInBytes];
+    membuf outBuf(reinterpret_cast<char *>(saveFile), memory.ramSizeInBytes, false);
+    std::ostream outStream(&outBuf);
+    memory.writeRam(outStream);
+
+    assertEquals(0x12, saveFile[0]);
+    assertEquals(0x34, saveFile[1]);
+    assertEquals(0xab, saveFile[ramSize / 2]);
+    assertEquals(0xcd, saveFile[(ramSize / 2) + 1]);
+    assertEquals(0x1a, saveFile[ramSize - 2]);
+    assertEquals(0x2b, saveFile[ramSize - 1]);
+
+    size_t calculatedHash = calc_quick_hash(saveFile, memory.ramSizeInBytes);
+    assertEquals(originalHash, calculatedHash);
+
+    delete[] memory.cram;
+    memory.cram = new u8[memory.ramSizeInBytes]; // Gets freed by Memory's destructor
+
+    membuf inBuf(reinterpret_cast<char *>(saveFile), memory.ramSizeInBytes, true);
+    std::istream inStream(&inBuf);
+    memory.loadRam(inStream);
+
+    assertEquals(0x12, memory.cram[0] & 0xff);
+    assertEquals(0x34, memory.cram[1]);
+    assertEquals(0xab, memory.cram[ramSize / 2]);
+    assertEquals(0xcd, memory.cram[(ramSize / 2) + 1]);
+    assertEquals(0x1a, memory.cram[ramSize - 2]);
+    assertEquals(0x2b, memory.cram[ramSize - 1]);
+
+    calculatedHash = calc_quick_hash(saveFile, memory.ramSizeInBytes);
+    assertEquals(originalHash, calculatedHash);
+}
+
+TEST(testBatterySaveMBC1) {
+    auto memory = createMemory();
+    memory.mbc = std::make_unique<FunkyBoy::MBC1>(FunkyBoy::ROMSize::ROM_SIZE_2048K, FunkyBoy::RAMSize::RAM_SIZE_8KB, true);
+
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
+
+    testBatterySave(memory, 8192);
+}
+
+TEST(testBatterySaveMBC2) {
+    auto memory = createMemory();
+    memory.mbc = std::make_unique<FunkyBoy::MBC2>(FunkyBoy::ROMSize::ROM_SIZE_2048K, true);
+
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
+
+    testBatterySave(memory, 2048);
+}
+
+TEST(testBatterySaveMBC3) {
+    auto memory = createMemory();
+    memory.mbc = std::make_unique<FunkyBoy::MBC3>(FunkyBoy::ROMSize::ROM_SIZE_2048K, FunkyBoy::RAMSize::RAM_SIZE_8KB, true, false, false);
+
+    FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
+    cpu.powerUpInit(memory);
+
+    testBatterySave(memory, 8192);
 }
 
 acacia::Report __fbTests_runUnitTests() {
