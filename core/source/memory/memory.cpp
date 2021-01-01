@@ -23,11 +23,12 @@
 #include <cartridge/mbc_none.h>
 #include <cartridge/mbc1.h>
 #include <cartridge/mbc2.h>
+#include <cartridge/mbc3.h>
+#include <cartridge/mbc5.h>
 #include <util/romsizes.h>
 #include <util/ramsizes.h>
 
 #include <cstring>
-#include <cartridge/mbc3.h>
 
 using namespace FunkyBoy;
 
@@ -215,6 +216,32 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
                                   || header->cartridgeType == 0x13);
             bool useRtc = header->cartridgeType == 0x0f || header->cartridgeType == 0x10;
             mbc = std::make_unique<MBC3>(romSizeType, ramSizeType, useBattery, useRtc, isMBC30);
+            break;
+        }
+        case 0x19:
+        case 0x1C:
+            mbc = std::make_unique<MBC5>(romSizeType, RAMSize::RAM_SIZE_None, false);
+            break;
+        case 0x1A:
+        case 0x1B:
+        case 0x1D:
+        case 0x1E: {
+            // TODO: Battery
+            if (ramSizeType != RAMSize::RAM_SIZE_8KB
+                && ramSizeType != RAMSize::RAM_SIZE_32KB
+                && ramSizeType != RAMSize::RAM_SIZE_128KB
+            ) {
+                status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+                fprintf(stderr, "Invalid RAM size type for MBC5: 0x%2X\n", ramSizeType);
+#endif
+                return;
+            }
+            mbc = std::make_unique<MBC5>(
+                    romSizeType,
+                    ramSizeType,
+                    (header->cartridgeType == 0x1B || header->cartridgeType == 0x1E) && ramSizeType != RAMSize::RAM_SIZE_None
+                    );
             break;
         }
         default:
