@@ -29,9 +29,10 @@ namespace FunkyBoy {
         ROM_SIZE_2M = 6,
         ROM_SIZE_4M = 7,
         ROM_SIZE_8M = 8,
-        ROM_SIZE_1_1M = 0x52,
-        ROM_SIZE_1_2M = 0x53,
-        ROM_SIZE_1_5M = 0x54,
+        // TODO: Check compatibility and re-enable:
+        // ROM_SIZE_1_1M = 0x52,
+        // ROM_SIZE_1_2M = 0x53,
+        // ROM_SIZE_1_5M = 0x54,
     };
 
     unsigned int romSizeInBytes(ROMSize size);

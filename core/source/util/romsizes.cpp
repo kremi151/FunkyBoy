@@ -36,12 +36,13 @@ unsigned int FunkyBoy::romSizeInBytes(ROMSize size) {
             return 4096 * 1024;
         case ROM_SIZE_8M:
             return 8 * 1024 * 1024;
-        case ROM_SIZE_1_1M:
-            return 72 * 16 * 1024;
-        case ROM_SIZE_1_2M:
-            return 80 * 16 * 1024;
-        case ROM_SIZE_1_5M:
-            return 96 * 16 * 1024;
+        // TODO: Check compatibility and re-enable:
+        // case ROM_SIZE_1_1M:
+        //     return 72 * 16 * 1024;
+        // case ROM_SIZE_1_2M:
+        //    return 80 * 16 * 1024;
+        // case ROM_SIZE_1_5M:
+        //    return 96 * 16 * 1024;
         default:
             return 0;
     }
