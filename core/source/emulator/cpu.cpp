@@ -22,6 +22,7 @@
 #include <emulator/io_registers.h>
 #include <operands/registry.h>
 #include <operands/tables.h>
+#include <exception/read_exception.h>
 
 using namespace FunkyBoy;
 
@@ -382,4 +383,23 @@ u16 CPU::readAF() {
 void CPU::writeAF(FunkyBoy::u16 val) {
     *regF_do_not_use_directly = val & 0b11110000; // Only the 4 most significant bits are written to register F
     *regA = (val >> 8) & 0xff;
+}
+
+void CPU::serialize(std::ostream &ostream) const {
+    instrContext.serialize(ostream);
+    ostream.put(timerOverflowingCycles);
+    ostream.put(delayedTIMAIncrease);
+    ostream.put(joypadWasNotPressed);
+}
+
+void CPU::deserialize(std::istream &istream) {
+    instrContext.deserialize(istream);
+    char buffer[3];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short");
+    }
+    timerOverflowingCycles = buffer[0];
+    delayedTIMAIncrease = buffer[1];
+    joypadWasNotPressed = buffer[2];
 }

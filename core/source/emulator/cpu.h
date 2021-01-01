@@ -21,6 +21,7 @@
 
 #include <memory/memory.h>
 #include <memory>
+#include <iostream>
 #include <util/testing.h>
 #include <util/debug.h>
 #include <operands/instruction_context.h>
@@ -98,6 +99,9 @@ namespace FunkyBoy {
         void requestInterrupt(InterruptType type);
 
         ret_code doMachineCycle(Memory &memory);
+
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
     };
 
     typedef std::shared_ptr<CPU> CPUPtr;

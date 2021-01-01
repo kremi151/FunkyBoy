@@ -20,6 +20,7 @@
 #include <fstream>
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
+#include <exception/read_exception.h>
 
 // TODO: For debugging, remove it afterwards:
 #include <sstream>
@@ -84,6 +85,27 @@ void Emulator::loadCartridgeRam(std::istream &stream) {
 
 void Emulator::writeCartridgeRam(std::ostream &stream) {
     memory.writeRam(stream);
+}
+
+#define FB_SAVE_STATE_VERSION 1
+
+void Emulator::saveState(std::ostream &ostream) {
+    ostream.put(FB_SAVE_STATE_VERSION);
+    // TODO: GB Type
+    cpu->serialize(ostream);
+
+    // TODO: ioRegisters
+    // TODO: ppuMemory
+    // TODO: memory
+    // TODO: MBC state
+}
+
+void Emulator::loadState(std::istream &istream) {
+    int version = istream.get();
+    if (version != FB_SAVE_STATE_VERSION) {
+        throw Exception::ReadException("Save state version mismatch");
+    }
+    cpu->deserialize(istream);
 }
 
 ret_code Emulator::doTick() {

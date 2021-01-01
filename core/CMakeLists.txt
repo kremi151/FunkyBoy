@@ -46,6 +46,7 @@ set(SOURCES
         source/util/registers.cpp
         source/util/flags.cpp
         source/exception/state_exception.cpp
+        source/exception/read_exception.cpp
         )
 
 set(HEADERS
@@ -99,6 +100,7 @@ set(HEADERS
         source/util/string_polyfills.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
+        source/exception/read_exception.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
