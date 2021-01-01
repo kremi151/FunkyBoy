@@ -12,7 +12,7 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 
 |Feature name|Status|
 |------------|------|
-|Graphical output|:warning: Supported, but there are some graphical glitches|
+|Graphical output|:warning: Supported with some minor graphical glitches|
 |Button inputs|:heavy_check_mark: Supported|
 |Sound|:x: Not started ([Issue #51](https://github.com/kremi151/FunkyBoy/issues/51))|
 |MBC1|:heavy_check_mark: Supported|
