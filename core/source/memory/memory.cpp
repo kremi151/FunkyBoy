@@ -152,7 +152,7 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         fprintf(stderr, "Warning: Loading ROM which is smaller than the size it claims to have. The allocated memory will be resized.\n");
 #endif
         u8 *newRomBytes = new u8[romFlagInBytes]{};
-        std::memcpy(newRomBytes, romBytes.get(), romFlagInBytes);
+        std::memcpy(newRomBytes, romBytes.get(), length);
         romBytes.reset(newRomBytes);
         header = reinterpret_cast<ROMHeader*>(newRomBytes);
     }
