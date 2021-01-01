@@ -96,7 +96,7 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
     std::cout << "Seeked a length of " << length << std::endl;
 #endif
 
-    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4M);
+    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_8M);
     if (length > maxRomSize) {
         std::cerr << "ROM size mismatch, seeked " << length
                   << " bytes, which is more than the maximal supported size of " << maxRomSize << " bytes" << std::endl;
@@ -104,10 +104,8 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         return;
     }
 
-    // It is important to always allocate 8MB for ROMs even if they are smaller
-    // Some ROMs might (because of whatever reason) switch the ROM bank to an area outside of the ROM's size.
-    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(maxRomSize);
-    memset(romBytes.get(), 0, maxRomSize * sizeof(u8));
+    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(length);
+    memset(romBytes.get(), 0, length * sizeof(u8));
 
     // TODO: Improve this so that I don't have to do this ugly to-char conversion
     auto voidPtr = static_cast<void*>(romBytes.get());
