@@ -28,6 +28,33 @@
 
 using namespace FunkyBoy;
 
+u16_fast MBC5::getROMBankBitMask(ROMSize romSize) {
+    switch (romSize) {
+        case ROMSize::ROM_SIZE_32K:
+            // 32K ROMs have in theory no banking, as bank 0 is mapped to 0x0000-0x3FFF
+            // and bank 1 to 0x4000-0x7000, with every bank being 16K
+            return 0b1u;
+        case ROMSize::ROM_SIZE_64K:
+            return 0b11u;
+        case ROMSize::ROM_SIZE_128K:
+            return 0b111u;
+        case ROMSize::ROM_SIZE_256K:
+            return 0b1111u;
+        case ROMSize::ROM_SIZE_512K:
+            return 0b11111u;
+        case ROMSize::ROM_SIZE_1M:
+            return 0b111111u;
+        case ROMSize::ROM_SIZE_2M:
+            return 0b1111111u;
+        case ROMSize::ROM_SIZE_4M:
+            return 0b11111111u;
+        case ROMSize::ROM_SIZE_8M:
+            return 0b111111111u;
+        default:
+            return 0b0u;
+    }
+}
+
 MBC5::MBC5(ROMSize romSize, RAMSize ramSize, bool battery)
     : preliminaryRomBank(1)
     , ramBankSize(MBC1::getRAMBankSize(ramSize))
@@ -43,13 +70,12 @@ MBC5::MBC5(ROMSize romSize, RAMSize ramSize, bool battery)
 void MBC5::updateBanks() {
     mbc5_print("[MBC5] bank mode %d update banks from [rom=0x%02X,ram=0x%02X] to", ramBankingMode, romBank, ramBank);
 
-    romBank = preliminaryRomBank & 0b1111111u;
     if (ramBank >= ramBankCount) {
         ramBank = std::max(0, ramBankCount - 1);
     }
 
-    u8 romBankMask = MBC1::getROMBankBitMask(romSize);
-    romBank &= romBankMask;
+    u16_fast romBankMask = getROMBankBitMask(romSize);
+    romBank = preliminaryRomBank & romBankMask;
 
     romBankOffset = romBank * FB_MBC5_ROM_BANK_SIZE;
     ramBankOffset = ramBank * ramBankSize;

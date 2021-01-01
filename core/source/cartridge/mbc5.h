@@ -54,6 +54,8 @@ namespace FunkyBoy {
         bool hasBattery() override;
 
         void getDebugInfo(const char **outName, unsigned &outRomBank) override;
+
+        static u16_fast getROMBankBitMask(ROMSize romSize);
     };
 
 }
