@@ -20,7 +20,9 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 |MBC2|:heavy_check_mark: Supported|
 |MBC3 / MBC30|:heavy_check_mark: Supported|
 |MBC5|:heavy_check_mark: Supported|
-|Save games|:question: Implemented, but to be tested|
+|MBC6|:x: Not supported|
+|MBC7|:x: Not supported|
+|Save games|:warning: Working on Linux, not working on Windows, to be tested on macOS|
 |Save states|:x: Not started ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
 
 ## Compatible games
