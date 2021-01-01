@@ -43,7 +43,6 @@ namespace FunkyBoy {
         u8 dmaMsb{}, dmaLsb{};
         bool dmaStarted;
 
-        size_t romSize;
         CartridgeStatus status;
 
         // Do not free these pointers, they are proxies to the ones above:
