@@ -218,6 +218,32 @@ void PPU::renderScanline(u8 ly) {
             bgColorIndexes[scanLineX] = 0;
         }
     }
+    if (windowEnabled) {
+        const u8 wy = ioRegisters.getWY();
+        if (ly >= wy) {
+            y = ly - wy;
+            yInTile = y % 8;
+            xInTile = 0;
+            tileOffsetX = 0;
+            const u8 wx = ioRegisters.getWX() - 7;
+            memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
+            tileMapAddr += ((y & 255u) / 8) * 32;
+            palette = ioRegisters.getBGP();
+            tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
+            u8 &scanLineX = it; // alias for it
+            for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
+                tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
+                colorIndex = (tileLine >> (7 - xInTile)) & 1u
+                    | ((tileLine >> (15 - xInTile)) & 1u) << 1;
+                scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
+                if (++xInTile >= 8) {
+                    xInTile = 0;
+                    tileOffsetX = (tileOffsetX + 1) & 31;
+                    tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
+                }
+            }
+        }
+    }
     if (objEnabled) {
         const u8 objPalette0 = ioRegisters.getOBP0();
         const u8 objPalette1 = ioRegisters.getOBP1();
@@ -267,32 +293,6 @@ void PPU::renderScanline(u8 ly) {
                     if (colorIndex) {
                         scanLineBuffer[x] = (palette >> (colorIndex * 2u)) & 3u;
                     }
-                }
-            }
-        }
-    }
-    if (windowEnabled) {
-        const u8 wy = ioRegisters.getWY();
-        if (ly >= wy) {
-            y = ly - wy;
-            yInTile = y % 8;
-            xInTile = 0;
-            tileOffsetX = 0;
-            const u8 wx = ioRegisters.getWX() - 7;
-            memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
-            tileMapAddr += ((y & 255u) / 8) * 32;
-            palette = ioRegisters.getBGP();
-            tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
-            u8 &scanLineX = it; // alias for it
-            for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
-                tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
-                colorIndex = (tileLine >> (7 - xInTile)) & 1u
-                    | ((tileLine >> (15 - xInTile)) & 1u) << 1;
-                scanLineBuffer[scanLineX] = (palette >> (colorIndex * 2u)) & 3u;
-                if (++xInTile >= 8) {
-                    xInTile = 0;
-                    tileOffsetX = (tileOffsetX + 1) & 31;
-                    tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
                 }
             }
         }
