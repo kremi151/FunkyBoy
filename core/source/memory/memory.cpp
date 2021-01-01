@@ -447,7 +447,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;
-                    dmaMsb = val & 0xF1u;
+                    dmaMsb = val % 0xF1u;
                     dmaLsb = 0x00;
                 }
 
