@@ -96,7 +96,7 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
     std::cout << "Seeked a length of " << length << std::endl;
 #endif
 
-    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4096K);
+    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4M);
     if (length > maxRomSize) {
         std::cerr << "ROM size mismatch, seeked " << length
                   << " bytes, which is more than the maximal supported size of " << maxRomSize << " bytes" << std::endl;

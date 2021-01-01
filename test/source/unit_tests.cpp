@@ -496,7 +496,7 @@ void testBatterySave(FunkyBoy::Memory &memory, size_t ramSize) {
 
 TEST(testBatterySaveMBC1) {
     auto memory = createMemory();
-    memory.mbc = std::make_unique<FunkyBoy::MBC1>(FunkyBoy::ROMSize::ROM_SIZE_2048K, FunkyBoy::RAMSize::RAM_SIZE_8KB, true);
+    memory.mbc = std::make_unique<FunkyBoy::MBC1>(FunkyBoy::ROMSize::ROM_SIZE_2M, FunkyBoy::RAMSize::RAM_SIZE_8KB, true);
 
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);
@@ -506,7 +506,7 @@ TEST(testBatterySaveMBC1) {
 
 TEST(testBatterySaveMBC2) {
     auto memory = createMemory();
-    memory.mbc = std::make_unique<FunkyBoy::MBC2>(FunkyBoy::ROMSize::ROM_SIZE_2048K, true);
+    memory.mbc = std::make_unique<FunkyBoy::MBC2>(FunkyBoy::ROMSize::ROM_SIZE_2M, true);
 
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);
@@ -516,7 +516,7 @@ TEST(testBatterySaveMBC2) {
 
 TEST(testBatterySaveMBC3) {
     auto memory = createMemory();
-    memory.mbc = std::make_unique<FunkyBoy::MBC3>(FunkyBoy::ROMSize::ROM_SIZE_2048K, FunkyBoy::RAMSize::RAM_SIZE_8KB, true, false, false);
+    memory.mbc = std::make_unique<FunkyBoy::MBC3>(FunkyBoy::ROMSize::ROM_SIZE_2M, FunkyBoy::RAMSize::RAM_SIZE_8KB, true, false, false);
 
     FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
     cpu.powerUpInit(memory);

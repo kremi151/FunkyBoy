@@ -36,9 +36,9 @@ u8 __fb_mbc2_getROMBankBitMask(ROMSize romSize) {
             return 0b111u;
         case ROMSize::ROM_SIZE_256K:
         case ROMSize::ROM_SIZE_512K:
-        case ROMSize::ROM_SIZE_1024K:
-        case ROMSize::ROM_SIZE_2048K:
-        case ROMSize::ROM_SIZE_4096K:
+        case ROMSize::ROM_SIZE_1M:
+        case ROMSize::ROM_SIZE_2M:
+        case ROMSize::ROM_SIZE_4M:
             return 0b1111u;
         default:
             mbc2_print("Invalid ROM size for MBC2 chip: %d\n", romSize);
