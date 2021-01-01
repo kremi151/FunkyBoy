@@ -176,6 +176,9 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
                 && ramSizeType != RAMSize::RAM_SIZE_8KB
                 && ramSizeType != RAMSize::RAM_SIZE_32KB) {
                 status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+                fprintf(stderr, "Invalid RAM size type for MBC1: 0x%2X\n", ramSizeType);
+#endif
                 return;
             }
             mbc = std::make_unique<MBC1>(romSizeType, ramSizeType, header->cartridgeType == 0x03 && ramSizeType != RAMSize::RAM_SIZE_None);
@@ -201,6 +204,9 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
                 && !isMBC30
             ) {
                 status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+                fprintf(stderr, "Invalid RAM size type for MBC3: 0x%2X\n", ramSizeType);
+#endif
                 return;
             }
             bool useBattery = ramSizeType != RAMSize::RAM_SIZE_None // TODO: This actually contradicts cartridgeType 0x0f
@@ -213,6 +219,9 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         }
         default:
             status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+            fprintf(stderr, "Unsupported MBC type: 0x%2X\n", header->cartridgeType);
+#endif
             return;
     }
 
