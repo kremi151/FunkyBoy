@@ -147,6 +147,14 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         std::cerr << "ROM size mismatch, loaded " << length << " bytes, but expected " << romFlagInBytes << std::endl;
         status = CartridgeStatus::ROMSizeMismatch;
         return;
+    } else if (romFlagInBytes > length) {
+#ifdef FB_DEBUG
+        fprintf(stderr, "Warning: Loading ROM which is smaller than the size it claims to have. The allocated memory will be resized.\n");
+#endif
+        u8 *newRomBytes = new u8[romFlagInBytes]{};
+        std::memcpy(newRomBytes, romBytes.get(), romFlagInBytes);
+        romBytes.reset(newRomBytes);
+        header = reinterpret_cast<ROMHeader*>(newRomBytes);
     }
 
     RAMSize ramSizeType;
