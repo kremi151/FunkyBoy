@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_MOONEYE_TESTS_H
-#define FB_TESTS_MOONEYE_TESTS_H
+#ifndef FB_TESTS_ROM_MOONEYE_MBC5_H
+#define FB_TESTS_ROM_MOONEYE_MBC5_H
 
 #include <acacia.h>
 
-#include "rom_mooneye_mbc1.h"
-#include "rom_mooneye_mbc2.h"
-#include "rom_mooneye_mbc5.h"
-#include "rom_acceptance.h"
+acacia::Report __fbTests_runMooneyeMBC5RomTests();
 
-inline acacia::Report __fbTests_runMooneyeTests() {
-    acacia::Report report;
-
-    report += __fbTests_runMooneyeMBC1RomTests();
-    report += __fbTests_runMooneyeMBC2RomTests();
-    report += __fbTests_runMooneyeMBC5RomTests();
-    report += __fbTests_runMooneyeAcceptanceRomTests();
-
-    return report;
-}
-
-#endif //FB_TESTS_MOONEYE_TESTS_H
+#endif //FB_TESTS_ROM_MOONEYE_MBC5_H

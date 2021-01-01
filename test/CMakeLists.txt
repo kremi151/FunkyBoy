@@ -12,6 +12,7 @@ set(SOURCES
         source/unit_tests.cpp
         source/mooneye/rom_mooneye_mbc1.cpp
         source/mooneye/rom_mooneye_mbc2.cpp
+        source/mooneye/rom_mooneye_mbc5.cpp
         source/mooneye/rom_acceptance.cpp
         source/perf_mode.cpp
         source/main.cpp
@@ -25,6 +26,7 @@ set(HEADERS
         source/unit_tests.h
         source/mooneye/rom_mooneye_mbc1.h
         source/mooneye/rom_mooneye_mbc2.h
+        source/mooneye/rom_mooneye_mbc5.h
         source/mooneye/commons.h
         source/blargg/commons.h
         source/blargg/blargg_tests.h

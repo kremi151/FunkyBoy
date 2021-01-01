@@ -23,11 +23,12 @@
 #include <cartridge/mbc_none.h>
 #include <cartridge/mbc1.h>
 #include <cartridge/mbc2.h>
+#include <cartridge/mbc3.h>
+#include <cartridge/mbc5.h>
 #include <util/romsizes.h>
 #include <util/ramsizes.h>
 
 #include <cstring>
-#include <cartridge/mbc3.h>
 
 using namespace FunkyBoy;
 
@@ -95,7 +96,7 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
     std::cout << "Seeked a length of " << length << std::endl;
 #endif
 
-    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_4096K);
+    size_t maxRomSize = romSizeInBytes(ROMSize::ROM_SIZE_8M);
     if (length > maxRomSize) {
         std::cerr << "ROM size mismatch, seeked " << length
                   << " bytes, which is more than the maximal supported size of " << maxRomSize << " bytes" << std::endl;
@@ -103,10 +104,8 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         return;
     }
 
-    // It is important to always allocate 8MB for ROMs even if they are smaller
-    // Some ROMs might (because of whatever reason) switch the ROM bank to an area outside of the ROM's size.
-    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(maxRomSize);
-    memset(romBytes.get(), 0, maxRomSize * sizeof(u8));
+    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(length);
+    memset(romBytes.get(), 0, length * sizeof(u8));
 
     // TODO: Improve this so that I don't have to do this ugly to-char conversion
     auto voidPtr = static_cast<void*>(romBytes.get());
@@ -148,6 +147,14 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         std::cerr << "ROM size mismatch, loaded " << length << " bytes, but expected " << romFlagInBytes << std::endl;
         status = CartridgeStatus::ROMSizeMismatch;
         return;
+    } else if (romFlagInBytes > length) {
+#ifdef FB_DEBUG
+        fprintf(stderr, "Warning: Loading ROM which is smaller than the size it claims to have. The allocated memory will be resized.\n");
+#endif
+        u8 *newRomBytes = new u8[romFlagInBytes]{};
+        std::memcpy(newRomBytes, romBytes.get(), romFlagInBytes);
+        romBytes.reset(newRomBytes);
+        header = reinterpret_cast<ROMHeader*>(newRomBytes);
     }
 
     RAMSize ramSizeType;
@@ -176,6 +183,9 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
                 && ramSizeType != RAMSize::RAM_SIZE_8KB
                 && ramSizeType != RAMSize::RAM_SIZE_32KB) {
                 status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+                fprintf(stderr, "Invalid RAM size type for MBC1: 0x%2X\n", ramSizeType);
+#endif
                 return;
             }
             mbc = std::make_unique<MBC1>(romSizeType, ramSizeType, header->cartridgeType == 0x03 && ramSizeType != RAMSize::RAM_SIZE_None);
@@ -201,6 +211,9 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
                 && !isMBC30
             ) {
                 status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+                fprintf(stderr, "Invalid RAM size type for MBC3: 0x%2X\n", ramSizeType);
+#endif
                 return;
             }
             bool useBattery = ramSizeType != RAMSize::RAM_SIZE_None // TODO: This actually contradicts cartridgeType 0x0f
@@ -211,8 +224,37 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
             mbc = std::make_unique<MBC3>(romSizeType, ramSizeType, useBattery, useRtc, isMBC30);
             break;
         }
+        case 0x19:
+        case 0x1C:
+            mbc = std::make_unique<MBC5>(romSizeType, RAMSize::RAM_SIZE_None, false);
+            break;
+        case 0x1A:
+        case 0x1B:
+        case 0x1D:
+        case 0x1E: {
+            // TODO: Battery
+            if (ramSizeType != RAMSize::RAM_SIZE_8KB
+                && ramSizeType != RAMSize::RAM_SIZE_32KB
+                && ramSizeType != RAMSize::RAM_SIZE_128KB
+            ) {
+                status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+                fprintf(stderr, "Invalid RAM size type for MBC5: 0x%2X\n", ramSizeType);
+#endif
+                return;
+            }
+            mbc = std::make_unique<MBC5>(
+                    romSizeType,
+                    ramSizeType,
+                    (header->cartridgeType == 0x1B || header->cartridgeType == 0x1E) && ramSizeType != RAMSize::RAM_SIZE_None
+                    );
+            break;
+        }
         default:
             status = CartridgeStatus::ROMUnsupportedMBC;
+#ifdef FB_DEBUG
+            fprintf(stderr, "Unsupported MBC type: 0x%2X\n", header->cartridgeType);
+#endif
             return;
     }
 
