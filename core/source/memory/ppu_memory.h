@@ -18,8 +18,9 @@
 #define FB_CORE_MEMORY_PPU_MEMORY_H
 
 #include <util/typedefs.h>
-
 #include <util/endianness.h>
+
+#include <iostream>
 
 namespace FunkyBoy {
 
@@ -58,6 +59,9 @@ namespace FunkyBoy {
         }
 
         void setAccessibilityFromMMU(bool accessVram, bool accessOam);
+
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
     };
 
 }

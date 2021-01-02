@@ -90,8 +90,8 @@ void Emulator::saveState(std::ostream &ostream) {
     // TODO: GB Type
     cpu->serialize(ostream);
     ioRegisters.serialize(ostream);
+    ppuMemory.serialize(ostream);
 
-    // TODO: ppuMemory
     // TODO: memory
     // TODO: MBC state
 }
@@ -103,6 +103,7 @@ void Emulator::loadState(std::istream &istream) {
     }
     cpu->deserialize(istream);
     ioRegisters.deserialize(istream);
+    ppuMemory.deserialize(istream);
 }
 
 ret_code Emulator::doTick() {
