@@ -28,7 +28,7 @@
 using namespace FunkyBoy;
 
 bool __prefix__rlc_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     u8 newVal = (*reg << 1) | ((*reg >> 7) & 0b1);
     Flags::setFlags(context.regF, newVal == 0, false, false, (*reg & 0b10000000) > 0);
     *reg = newVal;
@@ -44,7 +44,7 @@ bool __prefix__rlc_lsb(InstrContext &context, Memory &memory) {
 }
 
 bool __prefix__rrc_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     u8 newVal = (*reg >> 1) | ((*reg & 0b1) << 7);
     Flags::setFlags(context.regF, newVal == 0, false, false, (*reg & 0b1) > 0);
     *reg = newVal;
@@ -60,7 +60,7 @@ bool __prefix__rrc_lsb(InstrContext &context, Memory &memory) {
 }
 
 bool __prefix_rl_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     u8 newVal = (*reg << 1);
     if (Flags::isCarry(context.regF)) {
         newVal |= 0b1;
@@ -90,7 +90,7 @@ bool __prefix_rr_r(InstrContext &context, Memory &memory) {
     // 0x1D -> 11 101 -> L
     // --- Skip F ---
     // 0x1F -> 11 111 -> A
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     u8 newVal = *reg >> 1;
     if (Flags::isCarry(context.regF)) {
         newVal |= 0b10000000;
@@ -120,7 +120,7 @@ bool __prefix_sla_r(InstrContext &context, Memory &memory) {
     // 0x25 -> 100 101 -> L
     // --- Skip F ---
     // 0x27 -> 100 111 -> A
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     u8 newVal = *reg << 1;
     Flags::setFlags(context.regF, newVal == 0, false, false, (*reg & 0b10000000) > 0);
     *reg = newVal;
@@ -136,7 +136,7 @@ bool __prefix_sla_HL(InstrContext &context, Memory &memory) {
 }
 
 bool __prefix_sra_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     u8 newVal = (*reg >> 1) | (*reg & 0b10000000);
     Flags::setFlags(context.regF, newVal == 0, false, false, *reg & 0b1);
     *reg = newVal;
@@ -152,7 +152,7 @@ bool __prefix_sra_HL(InstrContext &context, Memory &memory) {
 }
 
 bool __prefix_swap_r(InstrContext &context, Memory &memory) {
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     *reg = ((*reg >> 4) & 0b1111) | ((*reg & 0b1111) << 4);
     Flags::setFlags(context.regF, *reg == 0, false, false, false);
     return true;
@@ -175,7 +175,7 @@ bool __prefix_srl_r(InstrContext &context, Memory &memory) {
     // 0x3D -> 111 101 -> L
     // --- Skip F ---
     // 0x3F -> 111 111 -> A
-    u8 *reg = context.registers + (context.instr & 0b111);
+    u8 *reg = context.registers + (context.cbInstr & 0b111);
     u8 newVal = *reg >> 1;
     Flags::setFlags(context.regF, newVal == 0, false, false, *reg & 0b1);
     *reg = newVal;
@@ -220,9 +220,9 @@ bool __prefix_bit_r(InstrContext &context, Memory &memory) {
 
     // etc...
 
-    u8 bitShift = (context.instr >> 3) & 0b111;
+    u8 bitShift = (context.cbInstr >> 3) & 0b111;
     u8 bitMask = 1 << bitShift;
-    u8 regPos = context.instr & 0b111;
+    u8 regPos = context.cbInstr & 0b111;
     u8 *reg = context.registers + regPos;
     // Note: We write the opposite of the Nth bit into the Z flag
     Flags::setFlags(context.regF, !(*reg & bitMask), false, true, Flags::isCarry(context.regF));
@@ -238,7 +238,7 @@ bool __prefix_bit_HL(InstrContext &context, Memory &memory) {
     // 0x6E -> 1 101 110 -> 5
     // 0x76 -> 1 110 110 -> 6
     // 0x7E -> 1 111 110 -> 6
-    u8 bitShift = (context.instr >> 3) & 0b111;
+    u8 bitShift = (context.cbInstr >> 3) & 0b111;
     u8 bitMask = 1 << bitShift;
     // Note: We write the opposite of the Nth bit into the Z flag
     Flags::setFlags(context.regF, !(context.lsb & bitMask), false, true, Flags::isCarry(context.regF));
@@ -246,15 +246,15 @@ bool __prefix_bit_HL(InstrContext &context, Memory &memory) {
 }
 
 bool __prefix_res_r(InstrContext &context, Memory &memory) {
-    u8 bitShift = (context.instr >> 3) & 0b111;
-    u8 regPos = context.instr & 0b111;
+    u8 bitShift = (context.cbInstr >> 3) & 0b111;
+    u8 regPos = context.cbInstr & 0b111;
     u8 *reg = context.registers + regPos;
     *reg &= ~(1 << bitShift);
     return true;
 }
 
 bool __prefix_res_HL(InstrContext &context, Memory &memory) {
-    u8 bitShift = (context.instr >> 3) & 0b111;
+    u8 bitShift = (context.cbInstr >> 3) & 0b111;
     u8 val = context.lsb;
     val &= ~(1 << bitShift);
     context.lsb = val;
@@ -262,15 +262,15 @@ bool __prefix_res_HL(InstrContext &context, Memory &memory) {
 }
 
 bool __prefix_set_r(InstrContext &context, Memory &memory) {
-    u8 bitMask = (context.instr >> 3) & 0b111;
-    u8 regPos = context.instr & 0b111;
+    u8 bitMask = (context.cbInstr >> 3) & 0b111;
+    u8 regPos = context.cbInstr & 0b111;
     u8 *reg = context.registers + regPos;
     *reg |= (1 << bitMask);
     return true;
 }
 
 bool __prefix_set_HL(InstrContext &context, Memory &memory) {
-    u8 bitMask = (context.instr >> 3) & 0b111;
+    u8 bitMask = (context.cbInstr >> 3) & 0b111;
     u8 val = context.lsb;
     val |= (1 << bitMask);
     context.lsb = val;
@@ -688,8 +688,8 @@ namespace FunkyBoy::Operands::Tables {
 }
 
 bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
-    context.instr = memory.read8BitsAt(context.progCounter++);
-    *context.operandsPtr = Tables::prefixInstructions[context.instr];
+    context.cbInstr = memory.read8BitsAt(context.progCounter++);
+    *context.operandsPtr = Tables::prefixInstructions[context.cbInstr];
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
     FunkyBoy::Debug::writeExecutionToLog('P', *context.executionLog, context, memory);
 #endif

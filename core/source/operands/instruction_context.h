@@ -49,6 +49,7 @@ namespace FunkyBoy {
         const GameBoyType gbType;
 
         u8 instr;
+        u8 cbInstr;
         u8 *registers;
         u8 *regB;
         u8 *regC;

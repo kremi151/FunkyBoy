@@ -60,6 +60,7 @@ u16 InstrContext::read16BitRegister(u8 position) {
 
 void InstrContext::serialize(std::ostream &ostream) const {
     ostream.put(instr);
+    ostream.put(cbInstr);
     ostream.write(reinterpret_cast<const char*>(registers), 8);
     ostream.put(lsb);
     ostream.put(msb);
@@ -74,19 +75,20 @@ void InstrContext::serialize(std::ostream &ostream) const {
 }
 
 void InstrContext::deserialize(std::istream &istream) {
-    char buffer[19];
-    istream.read(buffer, 19);
+    char buffer[20];
+    istream.read(buffer, sizeof(buffer));
     if (!istream) {
         throw Exception::ReadException("Stream is too short");
     }
     instr = buffer[0];
-    std::memcpy(registers, buffer + 1, 8);
-    lsb = buffer[9];
-    msb = buffer[10];
-    signedByte = buffer[11];
-    progCounter = (buffer[13] << 8) | buffer[12];
-    stackPointer = (buffer[15] << 8) | buffer[14];
-    cpuState = static_cast<CPUState>(buffer[16]);
-    interruptMasterEnable = static_cast<IMEState>(buffer[17]);
-    haltBugRequested = !!buffer[18];
+    cbInstr = buffer[1];
+    std::memcpy(registers, buffer + 2, 8);
+    lsb = buffer[10];
+    msb = buffer[11];
+    signedByte = buffer[12];
+    progCounter = (buffer[14] << 8) | buffer[13];
+    stackPointer = (buffer[16] << 8) | buffer[15];
+    cpuState = static_cast<CPUState>(buffer[17]);
+    interruptMasterEnable = static_cast<IMEState>(buffer[18]);
+    haltBugRequested = buffer[19] != 0;
 }
