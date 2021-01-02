@@ -22,6 +22,8 @@
 #include <controllers/controllers.h>
 #include <util/gpumode.h>
 
+#include <iostream>
+
 #define FB_REG_P1 0xFF00
 #define FB_REG_SB 0xFF01
 #define FB_REG_SC 0xFF02
@@ -159,6 +161,9 @@ namespace FunkyBoy {
         inline u8 &getWY() {
             return *(hwIO + __FB_REG_OFFSET_WY);
         }
+
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
 
         friend class CPU;
     };

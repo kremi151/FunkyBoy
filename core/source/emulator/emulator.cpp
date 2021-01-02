@@ -89,8 +89,8 @@ void Emulator::saveState(std::ostream &ostream) {
     ostream.put(FB_SAVE_STATE_VERSION);
     // TODO: GB Type
     cpu->serialize(ostream);
+    ioRegisters.serialize(ostream);
 
-    // TODO: ioRegisters
     // TODO: ppuMemory
     // TODO: memory
     // TODO: MBC state
@@ -102,6 +102,7 @@ void Emulator::loadState(std::istream &istream) {
         throw Exception::ReadException("Save state version mismatch");
     }
     cpu->deserialize(istream);
+    ioRegisters.deserialize(istream);
 }
 
 ret_code Emulator::doTick() {
