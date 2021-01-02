@@ -44,7 +44,7 @@ Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
 ) {}
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
-    std::ifstream romFile(romPath.c_str(), std::ios::binary);
+    std::ifstream romFile(romPath.c_str(), std::ios::binary | std::ios::in);
     return loadGame(romFile);
 }
 
