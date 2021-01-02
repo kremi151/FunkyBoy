@@ -58,22 +58,13 @@ void PPUMemory::setAccessibilityFromMMU(bool accessVram, bool accessOam) {
 }
 
 void PPUMemory::serialize(std::ostream &ostream) const {
-    ostream.put(*vramAccessible);
-    ostream.put(*oamAccessible);
     ostream.write(reinterpret_cast<const char*>(vram), FB_VRAM_BYTES);
     ostream.write(reinterpret_cast<const char*>(oam), FB_OAM_BYTES);
+    ostream.put(*vramAccessible);
+    ostream.put(*oamAccessible);
 }
 
 void PPUMemory::deserialize(std::istream &istream) {
-    char buffer[2];
-    istream.read(buffer, sizeof(buffer));
-    if (!istream) {
-        throw Exception::ReadException("Stream is too short");
-    }
-
-    *vramAccessible = buffer[0] != 0;
-    *oamAccessible = buffer[1] != 0;
-
     istream.read(reinterpret_cast<char*>(vram), FB_VRAM_BYTES);
     if (!istream) {
         throw Exception::ReadException("Stream is too short");
@@ -82,4 +73,13 @@ void PPUMemory::deserialize(std::istream &istream) {
     if (!istream) {
         throw Exception::ReadException("Stream is too short");
     }
+
+    char buffer[2];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short");
+    }
+
+    *vramAccessible = buffer[0] != 0;
+    *oamAccessible = buffer[1] != 0;
 }

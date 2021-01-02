@@ -190,15 +190,18 @@ void io_registers::serialize(std::ostream &ostream) const {
 }
 
 void io_registers::deserialize(std::istream &istream) {
-    char buffer[FB_HW_IO_BYTES + 4];
-    istream.read(buffer, sizeof(buffer));
+    istream.read(reinterpret_cast<char*>(hwIO), FB_HW_IO_BYTES);
     if (!istream) {
         throw Exception::ReadException("Stream is too short");
     }
 
-    std::memcpy(hwIO, buffer, FB_HW_IO_BYTES);
-    *inputsDPad = buffer[FB_HW_IO_BYTES + 0];
-    *inputsButtons = buffer[FB_HW_IO_BYTES + 1];
-    *sys_counter_lsb = buffer[FB_HW_IO_BYTES + 2];
-    *sys_counter_msb = buffer[FB_HW_IO_BYTES + 3];
+    char buffer[4];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short");
+    }
+    *inputsDPad = buffer[0];
+    *inputsButtons = buffer[1];
+    *sys_counter_lsb = buffer[2];
+    *sys_counter_msb = buffer[3];
 }
