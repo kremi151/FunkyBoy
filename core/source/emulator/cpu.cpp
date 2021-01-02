@@ -22,7 +22,9 @@
 #include <emulator/io_registers.h>
 #include <operands/registry.h>
 #include <operands/tables.h>
+#include <operands/prefix.h>
 #include <exception/read_exception.h>
+#include <exception/state_exception.h>
 
 using namespace FunkyBoy;
 
@@ -387,6 +389,38 @@ void CPU::writeAF(FunkyBoy::u16 val) {
 
 void CPU::serialize(std::ostream &ostream) const {
     instrContext.serialize(ostream);
+
+    const Operand *operandTable;
+    u8 operandIndex;
+    if (instrContext.instr == 0xCB) {
+        if (*operands == Operands::decodePrefix) {
+            operandIndex = 0;
+        } else if (*operands == Operands::prefixPlaceholder) {
+            operandIndex = 1;
+        } else {
+            operandTable = Operands::Tables::prefixInstructions[instrContext.cbInstr];
+            for (int i = 0 ;; i++) {
+                if (*(operandTable++) == *operands) {
+                    operandIndex = i + 2; // For Operands::decodePrefix and Operands::prefixPlaceholder
+                    break;
+                } else if (*operandTable == nullptr) {
+                    throw Exception::WrongStateException("Prefix operand index could not be determined");
+                }
+            }
+        }
+    } else {
+        operandTable = Operands::Tables::instructions[instrContext.instr];
+        for (int i = 0 ;; i++) {
+            if (*(operandTable++) == *operands) {
+                operandIndex = i;
+                break;
+            } else if (*operandTable == nullptr) {
+                throw Exception::WrongStateException("Operand index could not be determined");
+            }
+        }
+    }
+    ostream.put(operandIndex);
+
     ostream.put(timerOverflowingCycles);
     ostream.put(delayedTIMAIncrease);
     ostream.put(joypadWasNotPressed);
@@ -394,12 +428,27 @@ void CPU::serialize(std::ostream &ostream) const {
 
 void CPU::deserialize(std::istream &istream) {
     instrContext.deserialize(istream);
-    char buffer[3];
+
+    char buffer[4];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
         throw Exception::ReadException("Stream is too short");
     }
-    timerOverflowingCycles = buffer[0];
-    delayedTIMAIncrease = buffer[1];
-    joypadWasNotPressed = buffer[2];
+
+    u8 operandIndex = buffer[0];
+    if (instrContext.instr == 0xCB) {
+        if (operandIndex == 0) {
+            operands = Operands::Tables::instructions[0xCB];
+        } else if (operandIndex == 1) {
+            operands = Operands::Tables::instructions[0xCB] + 1;
+        } else {
+            operands = Operands::Tables::prefixInstructions[instrContext.cbInstr] + (operandIndex - 2);
+        }
+    } else {
+        operands = Operands::Tables::instructions[instrContext.instr] + operandIndex;
+    }
+
+    timerOverflowingCycles = buffer[1];
+    delayedTIMAIncrease = buffer[2];
+    joypadWasNotPressed = buffer[3];
 }

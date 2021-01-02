@@ -695,3 +695,8 @@ bool Operands::decodePrefix(InstrContext &context, Memory &memory) {
 #endif
     return true;
 }
+
+bool Operands::prefixPlaceholder(InstrContext &context, Memory &memory) {
+    // No-op
+    return true;
+}

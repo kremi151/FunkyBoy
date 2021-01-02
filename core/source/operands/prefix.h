@@ -28,6 +28,14 @@ namespace FunkyBoy::Operands {
      */
     bool decodePrefix(InstrContext &context, Memory &memory);
 
+    /**
+     * No-operator as a placeholder for prefix operands to be fetched
+     * @param context
+     * @param memory
+     * @return
+     */
+    bool prefixPlaceholder(InstrContext &context, Memory &memory);
+
 }
 
 #endif //FB_CORE_OPERANDS_PREFIX_PREFIX_H
