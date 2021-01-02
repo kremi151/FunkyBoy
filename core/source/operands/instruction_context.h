@@ -50,7 +50,9 @@ namespace FunkyBoy {
 
         u8 instr;
         u8 cbInstr;
-        u8 *registers;
+        u8 registers[8]{};
+
+        // Do not free these pointers, they are proxies to specific locations in the registers array
         u8 *regB;
         u8 *regC;
         u8 *regD;

@@ -21,7 +21,17 @@
 
 using namespace FunkyBoy;
 
-InstrContext::InstrContext(FunkyBoy::GameBoyType gbType): gbType(gbType) {
+InstrContext::InstrContext(FunkyBoy::GameBoyType gbType)
+    : gbType(gbType)
+{
+    regB = registers;
+    regC = registers + 1;
+    regD = registers + 2;
+    regE = registers + 3;
+    regH = registers + 4;
+    regL = registers + 5;
+    regF = registers + 6;
+    regA = registers + 7;
 }
 
 void InstrContext::push16Bits(Memory &memory, u16 val) {
