@@ -390,12 +390,6 @@ u8 Memory::read8BitsAt(memory_address offset) {
     }
 }
 
-i8 Memory::readSigned8BitsAt(memory_address offset) {
-    u8 ubyte = read8BitsAt(offset);
-    auto vptr = static_cast<void*>(&ubyte);
-    return *static_cast<i8*>(vptr);
-}
-
 void Memory::write8BitsTo(memory_address offset, u8 val) {
     switch ((offset >> 8) & 0xff) {
         FB_MEMORY_CARTRIDGE:

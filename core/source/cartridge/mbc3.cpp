@@ -232,14 +232,14 @@ void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
 }
 
 void MBC3::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
-    stream.write(static_cast<char*>(static_cast<void*>(ram)), l);
+    stream.write(reinterpret_cast<char*>(ram), l);
     if (useRtc) {
         rtc.write(stream);
     }
 }
 
 void MBC3::loadBattery(std::istream &stream, u8 *ram, size_t l) {
-    stream.read(static_cast<char*>(static_cast<void*>(ram)), l);
+    stream.read(reinterpret_cast<char*>(ram), l);
     if (useRtc) {
         rtc.load(stream);
     }

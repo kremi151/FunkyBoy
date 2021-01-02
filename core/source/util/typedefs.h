@@ -22,8 +22,6 @@
 #define FB_GB_DISPLAY_WIDTH 160
 #define FB_GB_DISPLAY_HEIGHT 144
 
-#define FB_CAST_8_TO_16_BIT(x) static_cast<u16*>(static_cast<void*>(x))
-
 namespace FunkyBoy {
 
     typedef uint8_t u8;

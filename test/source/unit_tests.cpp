@@ -524,6 +524,32 @@ TEST(testBatterySaveMBC3) {
     testBatterySave(memory, 8192);
 }
 
+TEST(testMemoryReadSigned8BitsAt) {
+    auto memory = createMemory();
+    memory.rom = new FunkyBoy::u8[10]{}; // Freed by memory's destructor
+
+    memory.rom[3] = 11;
+    memory.rom[4] = 254;
+    memory.rom[5] = 127;
+    memory.rom[6] = 128;
+    memory.rom[7] = 0;
+
+    FunkyBoy::i8 signedByte = memory.readSigned8BitsAt(3);
+    assertEquals(11, signedByte);
+
+    signedByte = memory.readSigned8BitsAt(4);
+    assertEquals(-2, signedByte);
+
+    signedByte = memory.readSigned8BitsAt(5);
+    assertEquals(127, signedByte);
+
+    signedByte = memory.readSigned8BitsAt(6);
+    assertEquals(-128, signedByte);
+
+    signedByte = memory.readSigned8BitsAt(7);
+    assertEquals(0, signedByte);
+}
+
 acacia::Report __fbTests_runUnitTests() {
     return runAcaciaFileTests();
 }
