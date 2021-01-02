@@ -33,6 +33,7 @@
 using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
+#define FB_CARTRIDGE_HEADER_SIZE 336
 
 Memory::Memory(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
     : controllers(std::move(controllers))
@@ -43,7 +44,6 @@ Memory::Memory(Controller::ControllersPtr controllers, const io_registers& ioReg
     , rom(nullptr)
     , cram(nullptr)
     , ramSizeInBytes(0)
-    , romSize(0)
     , status(CartridgeStatus::NoROMLoaded)
     , mbc(new MBCNone())
 {
@@ -84,6 +84,9 @@ namespace FunkyBoy::Util {
 
 void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
     if (!stream.good()) {
+#ifdef FB_DEBUG
+        fprintf(stderr, "Stream is not readable\n");
+#endif
         status = CartridgeStatus::ROMFileNotReadable;
         return;
     }
@@ -104,17 +107,44 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         return;
     }
 
-    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(length);
-    memset(romBytes.get(), 0, length * sizeof(u8));
+    if (length < FB_CARTRIDGE_HEADER_SIZE) {
+#ifdef FB_DEBUG
+        fprintf(stderr, "ROM is smaller than the expected cartridge header\n");
+#endif
+        status = CartridgeStatus::ROMFileNotReadable;
+        return;
+    }
 
-    // TODO: Improve this so that I don't have to do this ugly to-char conversion
-    auto voidPtr = static_cast<void*>(romBytes.get());
-    auto romPtr = static_cast<char*>(voidPtr);
-    stream.read(romPtr, length);
-
+    // First, let's only read the ROM header (0x0000 - 0x014F)
+    std::unique_ptr<u8[]> romBytes = std::make_unique<u8[]>(FB_CARTRIDGE_HEADER_SIZE);
+    stream.read(reinterpret_cast<char *>(romBytes.get()), FB_CARTRIDGE_HEADER_SIZE);
     auto *header = reinterpret_cast<ROMHeader*>(romBytes.get());
 
     auto romSizeType = static_cast<ROMSize>(header->romSize);
+    size_t romSize = romSizeInBytes(romSizeType);
+
+    if (romSize == 0) {
+        std::cerr << "Unknown rom size flag: " << (header->romSize & 0xFF) << std::endl;
+        status = CartridgeStatus::ROMParseError;
+        return;
+    } else if (strictSizeCheck && romSize != length) {
+        std::cerr << "ROM size mismatch, loaded " << length << " bytes, but expected " << romSize << std::endl;
+        status = CartridgeStatus::ROMSizeMismatch;
+        return;
+    }
+#ifdef FB_DEBUG
+    else if (romSize > length) {
+        fprintf(stderr, "Warning: Loading ROM which is smaller than the size it claims to have\n");
+    }
+#endif
+
+    // Next, let's load the rest of the ROM
+    size_t newRomSize = std::max(romSize, length);
+    u8 *newRomBytes = new u8[newRomSize]{};
+    std::memcpy(newRomBytes, romBytes.get(), FB_CARTRIDGE_HEADER_SIZE);
+    romBytes.reset(newRomBytes);
+    header = reinterpret_cast<ROMHeader*>(newRomBytes);
+    stream.read(reinterpret_cast<char*>(newRomBytes) + FB_CARTRIDGE_HEADER_SIZE, length - FB_CARTRIDGE_HEADER_SIZE);
 
     auto type = static_cast<RAMSize>(header->ramSize);
     switch (type) {
@@ -138,25 +168,6 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
             break;
     }
 
-    size_t romFlagInBytes = romSizeInBytes(romSizeType);
-    if (romFlagInBytes == 0) {
-        std::cerr << "Unknown rom size flag: " << (header->romSize & 0xFF) << std::endl;
-        status = CartridgeStatus::ROMParseError;
-        return;
-    } else if (strictSizeCheck && romFlagInBytes != length) {
-        std::cerr << "ROM size mismatch, loaded " << length << " bytes, but expected " << romFlagInBytes << std::endl;
-        status = CartridgeStatus::ROMSizeMismatch;
-        return;
-    } else if (romFlagInBytes > length) {
-#ifdef FB_DEBUG
-        fprintf(stderr, "Warning: Loading ROM which is smaller than the size it claims to have. The allocated memory will be resized.\n");
-#endif
-        u8 *newRomBytes = new u8[romFlagInBytes]{};
-        std::memcpy(newRomBytes, romBytes.get(), romFlagInBytes);
-        romBytes.reset(newRomBytes);
-        header = reinterpret_cast<ROMHeader*>(newRomBytes);
-    }
-
     RAMSize ramSizeType;
     if (header->ramSize > 0x5) {
         status = CartridgeStatus::RAMSizeUnsupported;
@@ -177,7 +188,6 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
             break;
         case 0x02:
         case 0x03: {
-            // TODO: Battery
             if (ramSizeType != RAMSize::RAM_SIZE_None
                 && ramSizeType != RAMSize::RAM_SIZE_2KB
                 && ramSizeType != RAMSize::RAM_SIZE_8KB
@@ -193,7 +203,6 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         }
         case 0x05:
         case 0x06: {
-            // TODO: Battery
             mbc = std::make_unique<MBC2>(romSizeType, header->cartridgeType == 0x06);
             ramSizeInBytes = 0x200; // MBC2 always uses a fixed RAM size of 512 bytes (4 bits per byte usable)
             break;
@@ -232,7 +241,6 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
         case 0x1B:
         case 0x1D:
         case 0x1E: {
-            // TODO: Battery
             if (ramSizeType != RAMSize::RAM_SIZE_8KB
                 && ramSizeType != RAMSize::RAM_SIZE_32KB
                 && ramSizeType != RAMSize::RAM_SIZE_128KB
@@ -265,7 +273,6 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
 #endif
 
     rom = romBytes.release();
-    romSize = length;
 
     cram = new u8[ramSizeInBytes];
 
@@ -383,12 +390,6 @@ u8 Memory::read8BitsAt(memory_address offset) {
     }
 }
 
-i8 Memory::readSigned8BitsAt(memory_address offset) {
-    u8 ubyte = read8BitsAt(offset);
-    auto vptr = static_cast<void*>(&ubyte);
-    return *static_cast<i8*>(vptr);
-}
-
 void Memory::write8BitsTo(memory_address offset, u8 val) {
     switch ((offset >> 8) & 0xff) {
         FB_MEMORY_CARTRIDGE:
@@ -440,7 +441,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;
-                    dmaMsb = val & 0xF1u;
+                    dmaMsb = val % 0xF1u;
                     dmaLsb = 0x00;
                 }
 

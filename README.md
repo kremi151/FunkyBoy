@@ -12,7 +12,7 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 
 |Feature name|Status|
 |------------|------|
-|Graphical output|:warning: Supported, but there are some graphical glitches|
+|Graphical output|:warning: Supported with some minor graphical glitches|
 |Button inputs|:heavy_check_mark: Supported|
 |Sound|:x: Not started ([Issue #51](https://github.com/kremi151/FunkyBoy/issues/51))|
 |MBC1|:heavy_check_mark: Supported|
@@ -22,7 +22,7 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 |MBC5|:heavy_check_mark: Supported|
 |MBC6|:x: Not supported|
 |MBC7|:x: Not supported|
-|Save games|:warning: Working on Linux, not working on Windows, to be tested on macOS|
+|Save games|:heavy_check_mark: Supported in SDL implementation|
 |Save states|:x: Not started ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
 
 ## Compatible games

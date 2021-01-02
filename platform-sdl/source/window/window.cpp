@@ -188,14 +188,14 @@ void Window::update() {
 
 void Window::loadSave() {
     if (!savePath.empty() && emulator.getCartridgeRamSize() > 0 && fs::exists(savePath)) {
-        std::ifstream file(savePath);
+        std::ifstream file(savePath, std::ios::binary | std::ios::in);
         emulator.loadCartridgeRam(file);
     }
 }
 
 void Window::writeSave() {
     if (!savePath.empty() && emulator.getCartridgeRamSize() > 0) {
-        std::ofstream file(savePath);
+        std::ofstream file(savePath, std::ios::binary | std::ios::out);
         emulator.writeCartridgeRam(file);
     }
 }

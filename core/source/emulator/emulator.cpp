@@ -22,9 +22,6 @@
 #include <cartridge/header.h>
 #include <exception/read_exception.h>
 
-// TODO: For debugging, remove it afterwards:
-#include <sstream>
-
 using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
@@ -45,7 +42,7 @@ Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
 ) {}
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
-    std::ifstream romFile(romPath.c_str(), std::ios::binary);
+    std::ifstream romFile(romPath.c_str(), std::ios::binary | std::ios::in);
     return loadGame(romFile);
 }
 
@@ -57,23 +54,22 @@ CartridgeStatus Emulator::loadGame(std::istream &stream) {
         return memory.getCartridgeStatus();
     }
 
-    auto header = memory.getROMHeader();
-
     cpu->setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
 
 #ifdef FB_DEBUG
+    auto header = memory.getROMHeader();
+
     fprintf(stdout, "Cartridge type: 0x%02X\n", header->cartridgeType);
 
-    std::cout << "Nintendo logo:" << std::endl;
-    std::stringstream ss;
+    fprintf(stdout, "Nintendo logo:");
+    std::cout << std::endl;
     for (u8 i = 0 ; i < 48 ; i++) {
         if (i != 0 && i % 16 == 0) {
-            ss << std::endl;
+            std::cout << std::endl;
         }
-        ss << std::hex << static_cast<unsigned int>(header->nintendoLogo[i] & 0xff);
-        ss << " ";
+        fprintf(stdout, "0x%02X ", header->nintendoLogo[i] & 0xff);
     }
-    std::cout << ss.str() << std::endl;
+    std::cout << std::endl;
 #endif
 
     return memory.getCartridgeStatus();

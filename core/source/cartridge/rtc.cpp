@@ -159,12 +159,12 @@ void RTC::write(std::ostream &stream) {
     buffer[42] = (latch >> 16) & 0xff;
     buffer[43] = (latch >> 24) & 0xff;
     endLatch();
-    stream.write(static_cast<char*>(static_cast<void*>(buffer)), 48);
+    stream.write(reinterpret_cast<char*>(buffer), 48);
 }
 
 void RTC::load(std::istream &stream) {
     u8 buffer[44]{};
-    stream.read(static_cast<char*>(static_cast<void*>(buffer)), 44);
+    stream.read(reinterpret_cast<char*>(buffer), 44);
     u8 &seconds = buffer[0];
     u8 &minutes = buffer[4];
     u8 &hours = buffer[8];

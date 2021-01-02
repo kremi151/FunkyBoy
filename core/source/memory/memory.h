@@ -43,7 +43,6 @@ namespace FunkyBoy {
         u8 dmaMsb{}, dmaLsb{};
         bool dmaStarted;
 
-        size_t romSize;
         CartridgeStatus status;
 
         // Do not free these pointers, they are proxies to the ones above:
@@ -77,7 +76,11 @@ namespace FunkyBoy {
         CartridgeStatus getCartridgeStatus();
 
         u8 read8BitsAt(memory_address offset);
-        i8 readSigned8BitsAt(memory_address offset);
+
+        inline i8 readSigned8BitsAt(memory_address offset) {
+            return static_cast<i8>(read8BitsAt(offset));
+        }
+
         void write8BitsTo(memory_address offset, u8 val);
 
         void doDMA();
