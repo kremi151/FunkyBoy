@@ -17,46 +17,41 @@
 #include <SDL.h>
 #include <window/window.h>
 #include <ui/native_ui.h>
-#include <chrono>
-#include <thread>
+#include <util/frame_executor.h>
 
-// 1048576 Hz = 1/4 * 4194304 Hz
-#define fb_clock_frequency (1000000000/1048576)
+void runGame(FunkyBoy::SDL::Window &window);
 
 int main(int argc, char **argv) {
     FunkyBoy::SDL::NativeUI::init(argc, argv);
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    using clock = std::chrono::high_resolution_clock;
-    auto next_frame = clock::now();
-
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
     bool romLoaded = fbWindow.init(argc, argv, FB_GB_DISPLAY_WIDTH * 3, FB_GB_DISPLAY_HEIGHT * 3);
     int retCode = 0;
 
-    if (!romLoaded) {
-        goto fb_exit;
+    if (romLoaded) {
+        runGame(fbWindow);
     }
 
-    while (true) {
-        next_frame += std::chrono::nanoseconds(fb_clock_frequency);
-
-        if (romLoaded) {
-            fbWindow.update();
-        }
-        if (fbWindow.hasUserRequestedExit()) {
-            break;
-        }
-
-        std::this_thread::sleep_until(next_frame);
-    }
-
-fb_exit:
     fbWindow.deinit();
 
     SDL_Quit();
 
     FunkyBoy::SDL::NativeUI::deinit();
     return retCode;
+}
+
+void runGame(FunkyBoy::SDL::Window &window) {
+    bool running = true;
+    FunkyBoy::Util::FrameExecutor executeFrame([&](){
+        window.doFrame();
+        if (window.hasUserRequestedExit()) {
+            running = false;
+        }
+    }, FB_TARGET_FPS);
+
+    while (running) {
+        executeFrame();
+    }
 }

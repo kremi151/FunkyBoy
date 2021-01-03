@@ -170,19 +170,22 @@ void Window::updateInputs() {
     }
 }
 
-void Window::update() {
-    if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
-        updateInputs();
+void Window::doFrame() {
+    ret_code result;
+    do {
+        result = emulator.doTick();
+    } while ((result & FB_RET_NEW_FRAME) == 0);
 
-        // Toggle fullscreen mode
-        if (keyboardState[SDL_SCANCODE_F]) {
-            if (!fullscreenRequestedPreviously) {
-                toggleFullscreen();
-            }
-            fullscreenRequestedPreviously = true;
-        } else {
-            fullscreenRequestedPreviously = false;
+    updateInputs();
+
+    // Toggle fullscreen mode
+    if (keyboardState[SDL_SCANCODE_F]) {
+        if (!fullscreenRequestedPreviously) {
+            toggleFullscreen();
         }
+        fullscreenRequestedPreviously = true;
+    } else {
+        fullscreenRequestedPreviously = false;
     }
 }
 
