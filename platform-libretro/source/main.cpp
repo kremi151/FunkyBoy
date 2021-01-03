@@ -21,10 +21,14 @@
 #include <cstdarg>
 #include <cstring>
 #include <fstream>
+#include <chrono>
+#include <thread>
 
 #include "display_libretro.h"
 
 using namespace FunkyBoy;
+
+using hrclock = std::chrono::high_resolution_clock;
 
 static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 {
@@ -51,6 +55,7 @@ extern "C" {
     static std::shared_ptr<Controller::DisplayController> displayController;
 
     static fs::path savePath;
+    static double durationPerFrame;
 
     static unsigned currentControllerDevice;
     static unsigned currentControllerPort;
@@ -108,6 +113,8 @@ extern "C" {
 
         info->timing.fps = 59.7154;
         info->timing.sample_rate = 0.0;
+
+        durationPerFrame = 1000.0 / info->timing.fps;
 
         // TODO: Implement sound
         // info->timing.sample_rate = sampling_rate;
@@ -209,11 +216,18 @@ extern "C" {
 #undef IS_PRESSED
 
     void retro_run(void) {
+        auto frameStart = hrclock::now();
+
         ret_code result;
         do {
             result = emulator->doTick();
         } while (!(result & FB_RET_NEW_FRAME));
         update_inputs();
+
+        auto timeSinceFrameStart = std::chrono::duration_cast<std::chrono::milliseconds>(hrclock::now() - frameStart).count();
+
+        auto delay = (int)durationPerFrame - timeSinceFrameStart;
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     }
 
     void fb_loadSave() {
