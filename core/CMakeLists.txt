@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 include(FunkyBoyVersion)
 include(DetectOS)
+include(CheckForThreadSupport)
 
 if (MSVC)
     message("We're running in Visual Studio!")
@@ -111,4 +112,4 @@ add_library(fb_core STATIC ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 
-target_link_libraries(fb_core CXX::Filesystem)
+target_link_libraries(fb_core CXX::Filesystem CXX::Thread)

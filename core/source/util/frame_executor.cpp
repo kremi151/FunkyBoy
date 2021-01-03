@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if HAS_STD_THIS_THREAD
+
 #include "frame_executor.h"
 
 #include <thread>
@@ -35,3 +37,5 @@ void FrameExecutor::operator()() {
     auto delay = (int)durationPerFrame - timeSinceFrameStart;
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 }
+
+#endif

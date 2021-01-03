@@ -17,6 +17,8 @@
 #ifndef FB_CORE_UTIL_FRAME_EXECUTOR_H
 #define FB_CORE_UTIL_FRAME_EXECUTOR_H
 
+#if HAS_STD_THIS_THREAD
+
 #include <functional>
 #include <chrono>
 
@@ -33,5 +35,7 @@ namespace FunkyBoy::Util {
     };
 
 }
+
+#endif
 
 #endif //FB_CORE_UTIL_FRAME_EXECUTOR_H
