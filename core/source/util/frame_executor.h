@@ -17,8 +17,6 @@
 #ifndef FB_CORE_UTIL_FRAME_EXECUTOR_H
 #define FB_CORE_UTIL_FRAME_EXECUTOR_H
 
-#if HAS_STD_THIS_THREAD
-
 #include <functional>
 #include <chrono>
 
@@ -28,6 +26,11 @@ namespace FunkyBoy::Util {
     private:
         std::function<void(void)> func;
         double durationPerFrame;
+
+#if HAS_STD_THIS_THREAD
+#else
+        static sleepms(unsigned long millis);
+#endif
     public:
         FrameExecutor(std::function<void(void)> func, double fps);
 
@@ -35,7 +38,5 @@ namespace FunkyBoy::Util {
     };
 
 }
-
-#endif
 
 #endif //FB_CORE_UTIL_FRAME_EXECUTOR_H

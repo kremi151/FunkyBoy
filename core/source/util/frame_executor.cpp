@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-#if HAS_STD_THIS_THREAD
-
 #include "frame_executor.h"
 
+#if HAS_STD_THIS_THREAD
 #include <thread>
+#else
+#include <ctime>
+
+void FunkyBoy::Util::FrameExecutor::sleepms(unsigned long milli) {
+    clock_t end_time = clock() + milli * CLOCKS_PER_SEC/1000;
+    while (clock() < end_time) {
+        // No-op
+    }
+}
+#endif
 
 using namespace FunkyBoy::Util;
 
@@ -35,7 +44,12 @@ void FrameExecutor::operator()() {
     func();
     auto timeSinceFrameStart = std::chrono::duration_cast<std::chrono::milliseconds>(hrclock::now() - frameStart).count();
     auto delay = (int)durationPerFrame - timeSinceFrameStart;
+
+#if HAS_STD_THIS_THREAD
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+#else
+    sleepms(delay);
+#endif
 }
 
 #endif
