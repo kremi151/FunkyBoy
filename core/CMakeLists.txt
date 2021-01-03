@@ -45,6 +45,7 @@ set(SOURCES
         source/operands/table_unprefixed_instructions.cpp
         source/util/registers.cpp
         source/util/flags.cpp
+        source/util/frame_executor.cpp
         source/exception/state_exception.cpp
         )
 
@@ -97,6 +98,7 @@ set(HEADERS
         source/util/gpumode.h
         source/util/return_codes.h
         source/util/string_polyfills.h
+        source/util/frame_executor.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         )
