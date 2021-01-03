@@ -62,7 +62,7 @@ namespace FunkyBoy::SDL {
         ~Window();
 
         bool init(int argc, char **argv, size_t width, size_t height);
-        void update();
+        void doFrame();
         void deinit();
 
         void toggleFullscreen();

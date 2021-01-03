@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 include(FunkyBoyVersion)
 include(DetectOS)
+include(CheckForThreadSupport)
 
 if (MSVC)
     message("We're running in Visual Studio!")
@@ -45,6 +46,7 @@ set(SOURCES
         source/operands/table_unprefixed_instructions.cpp
         source/util/registers.cpp
         source/util/flags.cpp
+        source/util/frame_executor.cpp
         source/exception/state_exception.cpp
         )
 
@@ -97,6 +99,7 @@ set(HEADERS
         source/util/gpumode.h
         source/util/return_codes.h
         source/util/string_polyfills.h
+        source/util/frame_executor.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         )
@@ -109,4 +112,4 @@ add_library(fb_core STATIC ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 
-target_link_libraries(fb_core CXX::Filesystem)
+target_link_libraries(fb_core CXX::Filesystem CXX::Thread)

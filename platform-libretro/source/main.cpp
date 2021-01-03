@@ -17,18 +17,15 @@
 #include <libretro.h>
 #include <emulator/emulator.h>
 #include <controllers/display.h>
+#include <util/frame_executor.h>
 
 #include <cstdarg>
 #include <cstring>
 #include <fstream>
-#include <chrono>
-#include <thread>
 
 #include "display_libretro.h"
 
 using namespace FunkyBoy;
-
-using hrclock = std::chrono::high_resolution_clock;
 
 static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 {
@@ -55,7 +52,7 @@ extern "C" {
     static std::shared_ptr<Controller::DisplayController> displayController;
 
     static fs::path savePath;
-    static double durationPerFrame;
+    static FunkyBoy::Util::FrameExecutor executeFrame(nullptr, 1.0);
 
     static unsigned currentControllerDevice;
     static unsigned currentControllerPort;
@@ -69,6 +66,8 @@ extern "C" {
     static bool btnLeftWasPressed = false;
     static bool btnRightWasPressed = false;
 
+    void update_inputs();
+
     void retro_init(void) {
         currentControllerDevice = RETRO_DEVICE_JOYPAD;
         currentControllerPort = 0;
@@ -80,6 +79,14 @@ extern "C" {
         auto controllers = std::make_shared<Controller::Controllers>();
         controllers->setDisplay(displayController);
         emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
+
+        executeFrame = FunkyBoy::Util::FrameExecutor([&]() {
+            ret_code result;
+            do {
+                result = emulator->doTick();
+            } while (!(result & FB_RET_NEW_FRAME));
+            update_inputs();
+        }, FB_TARGET_FPS);
     }
 
     void retro_deinit(void) {
@@ -111,10 +118,8 @@ extern "C" {
     void retro_get_system_av_info(struct retro_system_av_info *info) {
         float aspect = (float) FB_GB_DISPLAY_WIDTH / (float) FB_GB_DISPLAY_HEIGHT;
 
-        info->timing.fps = 59.7154;
+        info->timing.fps = FB_TARGET_FPS;
         info->timing.sample_rate = 0.0;
-
-        durationPerFrame = 1000.0 / info->timing.fps;
 
         // TODO: Implement sound
         // info->timing.sample_rate = sampling_rate;
@@ -216,18 +221,7 @@ extern "C" {
 #undef IS_PRESSED
 
     void retro_run(void) {
-        auto frameStart = hrclock::now();
-
-        ret_code result;
-        do {
-            result = emulator->doTick();
-        } while (!(result & FB_RET_NEW_FRAME));
-        update_inputs();
-
-        auto timeSinceFrameStart = std::chrono::duration_cast<std::chrono::milliseconds>(hrclock::now() - frameStart).count();
-
-        auto delay = (int)durationPerFrame - timeSinceFrameStart;
-        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        executeFrame();
     }
 
     void fb_loadSave() {
