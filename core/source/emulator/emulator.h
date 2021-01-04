@@ -68,6 +68,10 @@ namespace FunkyBoy {
             return memory.getCartridgeRamSize();
         }
 
+        inline bool supportsSaving() {
+            return memory.getCartridgeRamSize() > 0;
+        }
+
         ret_code doTick();
     };
 
