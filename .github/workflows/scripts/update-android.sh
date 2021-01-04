@@ -1,16 +1,15 @@
 #!/bin/bash
 
 set -euo pipefail;
+set +x
 
 mkdir -p ~/.ssh
 
 mkdir tmp_android_ws
 cd tmp_android_ws
 
-set +x
 echo "$FB_ANDROID_DEPLOY_KEY" > ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
-set -x
 git clone git@github.com:kremi151/FunkyBoyAndroid.git
 
 cd FunkyBoyAndroid
