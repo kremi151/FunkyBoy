@@ -19,6 +19,7 @@
 #include <pspctrl.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
+#include <util/frame_executor.h>
 #include <emulator/emulator.h>
 #include <controllers/display_psp.h>
 #include "callback.h"
@@ -97,25 +98,29 @@ int main() {
     unsigned int previousInput = 0;
     unsigned int currentInput;
 
-    FunkyBoy::ret_code retCode;
-    while (isRunning()) {
-        // TODO: Limit frame rate
-        retCode = emulator.doTick();
-        if (retCode & FB_RET_NEW_FRAME) {
-            Input::poll();
-            currentInput = Input::getPressedKeys();
+    FunkyBoy::Util::FrameExecutor executeFrame([&emulator](){
+        FunkyBoy::ret_code retCode;
+        do {
+            retCode = emulator.doTick();
+        } while ((retCode & FB_RET_NEW_FRAME) == 0);
+    }, FB_TARGET_FPS);
 
-            if (currentInput != previousInput) {
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_A, currentInput & PSP_CTRL_CIRCLE);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_B, currentInput & PSP_CTRL_CROSS);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_START, currentInput & PSP_CTRL_START);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_SELECT, currentInput & PSP_CTRL_SELECT);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_LEFT, currentInput & PSP_CTRL_LEFT);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_UP, currentInput & PSP_CTRL_UP);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_RIGHT, currentInput & PSP_CTRL_RIGHT);
-                emulator.setInputState(FunkyBoy::Controller::JOYPAD_DOWN, currentInput & PSP_CTRL_DOWN);
-                previousInput = currentInput;
-            }
+    while (isRunning()) {
+        executeFrame();
+
+        Input::poll();
+        currentInput = Input::getPressedKeys();
+
+        if (currentInput != previousInput) {
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_A, currentInput & PSP_CTRL_CIRCLE);
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_B, currentInput & PSP_CTRL_CROSS);
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_START, currentInput & PSP_CTRL_START);
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_SELECT, currentInput & PSP_CTRL_SELECT);
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_LEFT, currentInput & PSP_CTRL_LEFT);
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_UP, currentInput & PSP_CTRL_UP);
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_RIGHT, currentInput & PSP_CTRL_RIGHT);
+            emulator.setInputState(FunkyBoy::Controller::JOYPAD_DOWN, currentInput & PSP_CTRL_DOWN);
+            previousInput = currentInput;
         }
     }
 

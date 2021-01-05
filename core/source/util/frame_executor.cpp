@@ -50,9 +50,13 @@ void FrameExecutor::operator()() {
 #if HAS_STD_THIS_THREAD
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 #elif __PSP__
-    sceKernelDelayThread(delay);
+    if (delay > 0) {
+        sceKernelDelayThread(delay);
+    }
 #elif HAS_UNISTD_USLEEP
-    usleep(delay);
+    if (delay > 0) {
+        usleep(delay);
+    }
 #endif
 }
 
