@@ -20,6 +20,8 @@
 
 #if HAS_STD_THIS_THREAD
 #include <thread>
+#elif __PSP__
+#include <pspkernel.h>
 #elif HAS_UNISTD_USLEEP
 #include <unistd.h>
 #endif
@@ -41,6 +43,8 @@ void FrameExecutor::operator()() {
     auto delay = (int)durationPerFrame - timeSinceFrameStart;
 #if HAS_STD_THIS_THREAD
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+#elif __PSP__
+    sceKernelDelayThread(delay * 1000);
 #elif HAS_UNISTD_USLEEP
     usleep(delay);
 #endif
