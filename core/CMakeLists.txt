@@ -7,7 +7,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
 include(FunkyBoyVersion)
 include(DetectOS)
-include(CheckForThreadSupport)
 
 if (MSVC)
     message("We're running in Visual Studio!")
@@ -112,4 +111,32 @@ add_library(fb_core STATIC ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 
-target_link_libraries(fb_core CXX::Filesystem CXX::Thread)
+# Check whether we can include thread
+check_include_file_cxx("thread" HAVE_STD_THREAD)
+target_compile_definitions(fb_core PUBLIC -DHAS_STD_THREAD=$<BOOL:${HAVE_STD_THREAD}>)
+
+# Check whether we can use std::this_thread
+string(CONFIGURE [[
+        #include <thread>
+
+        int main() {
+            std::this_thread::get_id();
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_STD_THIS_THREAD)
+target_compile_definitions(fb_core PUBLIC -DHAS_STD_THIS_THREAD=$<BOOL:${CAN_COMPILE_STD_THIS_THREAD}>)
+
+# Check whether we can use usleep from unistd.h
+string(CONFIGURE [[
+        #include <unistd.h>
+
+        int main() {
+            usleep(0);
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_UNISTD_USLEEP)
+target_compile_definitions(fb_core PUBLIC -DHAS_UNISTD_USLEEP=$<BOOL:${CAN_COMPILE_UNISTD_USLEEP}>)
+
+target_link_libraries(fb_core CXX::Filesystem)
