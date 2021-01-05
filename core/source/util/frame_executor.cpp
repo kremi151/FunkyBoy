@@ -20,10 +20,16 @@
 
 #if HAS_STD_THIS_THREAD
 #include <thread>
+using duration_t = std::chrono::milliseconds;
+#define ONE_SECOND 1000.0
 #elif __PSP__
 #include <pspkernel.h>
+using duration_t = std::chrono::microseconds;
+#define ONE_SECOND 1000000.0
 #elif HAS_UNISTD_USLEEP
 #include <unistd.h>
+using duration_t = std::chrono::microseconds;
+#define ONE_SECOND 1000000.0
 #endif
 
 using namespace FunkyBoy::Util;
@@ -32,19 +38,19 @@ using hrclock = std::chrono::high_resolution_clock;
 
 FrameExecutor::FrameExecutor(std::function<void(void)> func, double fps)
     : func(std::move(func))
-    , durationPerFrame(1000.0 / fps)
+    , durationPerFrame(ONE_SECOND / fps)
 {
 }
 
 void FrameExecutor::operator()() {
     auto frameStart = hrclock::now();
     func();
-    auto timeSinceFrameStart = std::chrono::duration_cast<std::chrono::milliseconds>(hrclock::now() - frameStart).count();
+    auto timeSinceFrameStart = std::chrono::duration_cast<duration_t>(hrclock::now() - frameStart).count();
     auto delay = (int)durationPerFrame - timeSinceFrameStart;
 #if HAS_STD_THIS_THREAD
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 #elif __PSP__
-    sceKernelDelayThread(delay * 1000);
+    sceKernelDelayThread(delay);
 #elif HAS_UNISTD_USLEEP
     usleep(delay);
 #endif
