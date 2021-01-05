@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-#if HAS_STD_THIS_THREAD
-
 #include "frame_executor.h"
 
+#ifdef FB_FRAME_EXECUTOR_SUPPORTED
+
+#if HAS_STD_THIS_THREAD
 #include <thread>
+#elif HAS_UNISTD_USLEEP
+#include <unistd.h>
+#endif
 
 using namespace FunkyBoy::Util;
 
@@ -35,7 +39,11 @@ void FrameExecutor::operator()() {
     func();
     auto timeSinceFrameStart = std::chrono::duration_cast<std::chrono::milliseconds>(hrclock::now() - frameStart).count();
     auto delay = (int)durationPerFrame - timeSinceFrameStart;
+#if HAS_STD_THIS_THREAD
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+#elif HAS_UNISTD_USLEEP
+    usleep(delay);
+#endif
 }
 
 #endif

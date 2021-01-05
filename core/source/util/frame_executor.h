@@ -18,6 +18,12 @@
 #define FB_CORE_UTIL_FRAME_EXECUTOR_H
 
 #if HAS_STD_THIS_THREAD
+#define FB_FRAME_EXECUTOR_SUPPORTED
+#elif HAS_UNISTD_USLEEP
+#define FB_FRAME_EXECUTOR_SUPPORTED
+#endif
+
+#ifdef FB_FRAME_EXECUTOR_SUPPORTED
 
 #include <functional>
 #include <chrono>

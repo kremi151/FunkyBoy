@@ -127,4 +127,16 @@ string(CONFIGURE [[
 check_cxx_source_compiles("${code}" CAN_COMPILE_STD_THIS_THREAD)
 target_compile_definitions(fb_core PUBLIC -DHAS_STD_THIS_THREAD=$<BOOL:${CAN_COMPILE_STD_THIS_THREAD}>)
 
+# Check whether we can use usleep from unistd.h
+string(CONFIGURE [[
+        #include <unistd.h>
+
+        int main() {
+            usleep(0);
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_UNISTD_USLEEP)
+target_compile_definitions(fb_core PUBLIC -DHAS_UNISTD_USLEEP=$<BOOL:${CAN_COMPILE_UNISTD_USLEEP}>)
+
 target_link_libraries(fb_core CXX::Filesystem)
