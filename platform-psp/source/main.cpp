@@ -17,6 +17,7 @@
 #include <pspkernel.h>
 #include <pspdisplay.h>
 #include <pspctrl.h>
+#include <psppower.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
 #include <util/frame_executor.h>
@@ -26,7 +27,7 @@
 #include "user_input.h"
 
 PSP_MODULE_INFO(FB_NAME, 0, FB_VERSION_MAJOR, FB_VERSION_MINOR);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER|THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_MAX();
 
 #define FB_PSP_ROM_PATH "ms0:/funkyboy/game.gb"
@@ -55,6 +56,8 @@ void jeremyBearimy() {
 
 int main() {
     setupExitCallback();
+
+    scePowerSetClockFrequency(333, 333, 166);
 
     sceDisplayWaitVblankStart();
     pspDebugScreenInit();
@@ -98,7 +101,7 @@ int main() {
     unsigned int previousInput = 0;
     unsigned int currentInput;
 
-    FunkyBoy::Util::FrameExecutor executeFrame([&emulator](){
+    FunkyBoy::Util::FrameExecutor executeFrame([&emulator]() {
         FunkyBoy::ret_code retCode;
         do {
             retCode = emulator.doTick();
