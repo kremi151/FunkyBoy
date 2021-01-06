@@ -23,10 +23,7 @@
 #define FB_FRAME_EXECUTOR_SUPPORTED
 #endif
 
-#if __PSP__
-// Using FrameExecutor on a real PSP will let it crash // TODO: Investigate why
-#undef FB_FRAME_EXECUTOR_SUPPORTED
-#elif _3DS
+#if _3DS
 // std::chrono::duration_cast seems to be broken on 3DS // TODO: Find workaround / alternative implementation
 #undef FB_FRAME_EXECUTOR_SUPPORTED
 #endif

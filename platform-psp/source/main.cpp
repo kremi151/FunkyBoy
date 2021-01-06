@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Un-comment to use frame executor (will slow down emulation)
+// #define FB_PSP_USE_FRAME_EXECUTOR
+
 #include <pspkernel.h>
 #include <pspdisplay.h>
 #include <pspctrl.h>
@@ -24,6 +27,10 @@
 #include <controllers/display_psp.h>
 #include "callback.h"
 #include "user_input.h"
+
+#ifdef FB_PSP_USE_FRAME_EXECUTOR
+#include <util/frame_executor.h>
+#endif
 
 PSP_MODULE_INFO(FB_NAME, 0, FB_VERSION_MAJOR, FB_VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER|THREAD_ATTR_VFPU);
@@ -100,11 +107,18 @@ int main() {
     unsigned int previousInput = 0;
     unsigned int currentInput;
 
+#ifdef FB_PSP_USE_FRAME_EXECUTOR
+    FunkyBoy::Util::FrameExecutor executeFrame([&emulator]() {
+        while ((emulator.doTick() & FB_RET_NEW_FRAME) == 0);
+    }, FB_TARGET_FPS);
+#endif
+
     while (isRunning()) {
-        FunkyBoy::ret_code retCode;
-        do {
-            retCode = emulator.doTick();
-        } while ((retCode & FB_RET_NEW_FRAME) == 0);
+#ifdef FB_PSP_USE_FRAME_EXECUTOR
+        executeFrame();
+#else
+        while ((emulator.doTick() & FB_RET_NEW_FRAME) == 0);
+#endif
 
         Input::poll();
         currentInput = Input::getPressedKeys();

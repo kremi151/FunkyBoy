@@ -24,7 +24,6 @@ using duration_t = std::chrono::milliseconds;
 #define ONE_SECOND 1000.0
 #elif __PSP__
 #include <pspkernel.h>
-using duration_t = std::chrono::microseconds;
 #define ONE_SECOND 1000000.0
 #elif HAS_UNISTD_USLEEP
 #include <unistd.h>
@@ -43,10 +42,21 @@ FrameExecutor::FrameExecutor(std::function<void(void)> func, double fps)
 }
 
 void FrameExecutor::operator()() {
+#ifdef __PSP__
+    auto frameStartMicros = sceKernelGetSystemTimeLow();
+#else
     auto frameStart = hrclock::now();
+#endif
+
     func();
+
+#ifdef __PSP__
+    auto delay = sceKernelGetSystemTimeLow() - frameStartMicros;
+#else
     auto timeSinceFrameStart = std::chrono::duration_cast<duration_t>(hrclock::now() - frameStart).count();
     auto delay = (int)durationPerFrame - timeSinceFrameStart;
+#endif
+
 #if HAS_STD_THIS_THREAD
     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 #elif __PSP__
