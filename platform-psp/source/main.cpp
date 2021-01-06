@@ -20,7 +20,6 @@
 #include <psppower.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
-#include <util/frame_executor.h>
 #include <emulator/emulator.h>
 #include <controllers/display_psp.h>
 #include "callback.h"
@@ -101,15 +100,11 @@ int main() {
     unsigned int previousInput = 0;
     unsigned int currentInput;
 
-    FunkyBoy::Util::FrameExecutor executeFrame([&emulator]() {
+    while (isRunning()) {
         FunkyBoy::ret_code retCode;
         do {
             retCode = emulator.doTick();
         } while ((retCode & FB_RET_NEW_FRAME) == 0);
-    }, FB_TARGET_FPS);
-
-    while (isRunning()) {
-        executeFrame();
 
         Input::poll();
         currentInput = Input::getPressedKeys();
