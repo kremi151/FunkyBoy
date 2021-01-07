@@ -16,7 +16,6 @@ set(SOURCES
         source/main.cpp
         source/controllers/serial_sdl.cpp
         source/controllers/display_sdl.cpp
-        source/controllers/sdl_autosave.cpp
         source/ui/native_ui_windows.cpp
         source/ui/native_ui_gtk.cpp
         source/window/window.cpp

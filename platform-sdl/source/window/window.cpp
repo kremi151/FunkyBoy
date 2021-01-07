@@ -107,6 +107,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
         savePath = romPath;
         savePath.replace_extension(".sav");
+        emulator.savePath = savePath;
 
         loadSave();
 

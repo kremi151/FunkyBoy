@@ -61,7 +61,6 @@ set(HEADERS
         source/controllers/joypad.h
         source/controllers/display.h
         source/controllers/display_void.h
-        source/controllers/autosave.h
         source/util/typedefs.h
         source/cartridge/header.h
         source/util/romsizes.h

@@ -21,10 +21,6 @@
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
 
-#ifdef FB_USE_AUTOSAVE
-#include <controllers/autosave.h>
-#endif
-
 using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
@@ -36,6 +32,7 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , ppu(cpu, controllers, ioRegisters, ppuMemory)
 #ifdef FB_USE_AUTOSAVE
     , cramLastWritten(0)
+    , savePath()
 #endif
 {
     // Initialize registers
@@ -89,6 +86,19 @@ void Emulator::writeCartridgeRam(std::ostream &stream) {
     memory.writeRam(stream);
 }
 
+#ifdef FB_USE_AUTOSAVE
+void Emulator::doAutosave() {
+    if (!savePath.empty()) {
+        std::ofstream stream(savePath);
+        memory.writeRam(stream);
+    } else {
+#ifdef FB_DEBUG
+        fprintf(stderr, "Autosave could not be performed because savePath is not set!\n");
+#endif
+    }
+}
+#endif
+
 ret_code Emulator::doTick() {
     auto result = cpu->doMachineCycle(memory);
     if (!result) {
@@ -102,7 +112,7 @@ ret_code Emulator::doTick() {
     } else if (cramLastWritten != -1
         && (result & FB_RET_NEW_FRAME)
         && ++cramLastWritten >= 30) {
-        Controller::doAutosave(*this);
+        doAutosave();
         cramLastWritten = -1;
     }
 #endif
