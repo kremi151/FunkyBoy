@@ -81,5 +81,6 @@ endif()
 
 target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
 
-target_compile_definitions(fb_core PUBLIC -DFB_USE_AUTOSAVE)
+fb_use_autosave(fb_core)
+
 add_definitions(-DSDL_MAIN_HANDLED)

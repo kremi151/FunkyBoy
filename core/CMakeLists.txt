@@ -139,4 +139,9 @@ string(CONFIGURE [[
 check_cxx_source_compiles("${code}" CAN_COMPILE_UNISTD_USLEEP)
 target_compile_definitions(fb_core PUBLIC -DHAS_UNISTD_USLEEP=$<BOOL:${CAN_COMPILE_UNISTD_USLEEP}>)
 
+# Macros
+macro(fb_use_autosave target)
+    target_compile_definitions(${target} PUBLIC -DFB_USE_AUTOSAVE)
+endmacro()
+
 target_link_libraries(fb_core CXX::Filesystem)
