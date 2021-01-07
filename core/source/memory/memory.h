@@ -98,6 +98,10 @@ namespace FunkyBoy {
 #ifdef FB_TESTING
         io_registers &getIoRegisters();
 #endif
+
+#ifdef FB_USE_AUTOSAVE
+        bool cartridgeRAMWritten;
+#endif
     };
 
 }

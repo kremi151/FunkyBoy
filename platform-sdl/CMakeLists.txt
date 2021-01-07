@@ -16,6 +16,7 @@ set(SOURCES
         source/main.cpp
         source/controllers/serial_sdl.cpp
         source/controllers/display_sdl.cpp
+        source/controllers/sdl_autosave.cpp
         source/ui/native_ui_windows.cpp
         source/ui/native_ui_gtk.cpp
         source/window/window.cpp
@@ -80,4 +81,6 @@ if (OS_MACOS)
 endif()
 
 target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
+
+target_compile_definitions(fb_core PUBLIC -DFB_USE_AUTOSAVE)
 add_definitions(-DSDL_MAIN_HANDLED)

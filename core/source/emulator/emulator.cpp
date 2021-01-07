@@ -21,6 +21,10 @@
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
 
+#ifdef FB_USE_AUTOSAVE
+#include <controllers/autosave.h>
+#endif
+
 using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
@@ -30,6 +34,9 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , memory(controllers, ioRegisters, ppuMemory)
     , cpu(std::make_shared<CPU>(gbType, ioRegisters))
     , ppu(cpu, controllers, ioRegisters, ppuMemory)
+#ifdef FB_USE_AUTOSAVE
+    , cramLastWritten(0)
+#endif
 {
     // Initialize registers
     cpu->powerUpInit(memory);
@@ -88,5 +95,16 @@ ret_code Emulator::doTick() {
         return 0;
     }
     result |= ppu.doClocks(4);
+#ifdef FB_USE_AUTOSAVE
+    if (memory.cartridgeRAMWritten) {
+        memory.cartridgeRAMWritten = false;
+        cramLastWritten = 0;
+    } else if (cramLastWritten != -1
+        && (result & FB_RET_NEW_FRAME)
+        && ++cramLastWritten >= 30) {
+        Controller::doAutosave(*this);
+        cramLastWritten = -1;
+    }
+#endif
     return result;
 }

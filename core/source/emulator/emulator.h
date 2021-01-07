@@ -34,6 +34,10 @@
 namespace FunkyBoy {
 
     class Emulator {
+    private:
+#ifdef FB_USE_AUTOSAVE
+        int cramLastWritten;
+#endif
     test_public:
         Controller::ControllersPtr controllers;
 
