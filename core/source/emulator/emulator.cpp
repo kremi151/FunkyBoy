@@ -31,7 +31,7 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , cpu(std::make_shared<CPU>(gbType, ioRegisters))
     , ppu(cpu, controllers, ioRegisters, ppuMemory)
 #ifdef FB_USE_AUTOSAVE
-    , cramLastWritten(0)
+    , cramLastWritten(-1)
     , savePath()
 #endif
 {
