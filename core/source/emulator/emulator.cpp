@@ -106,14 +106,14 @@ ret_code Emulator::doTick() {
     }
     result |= ppu.doClocks(4);
 #ifdef FB_USE_AUTOSAVE
-    if (memory.cartridgeRAMWritten) {
-        memory.cartridgeRAMWritten = false;
-        cramLastWritten = 0;
-    } else if (cramLastWritten != -1
-        && (result & FB_RET_NEW_FRAME)
-        && ++cramLastWritten >= 30) {
-        doAutosave();
-        cramLastWritten = -1;
+    if (result & FB_RET_NEW_FRAME) {
+        if (memory.cartridgeRAMWritten) {
+            memory.cartridgeRAMWritten = false;
+            cramLastWritten = 0;
+        } else if (cramLastWritten != -1 && ++cramLastWritten >= 30) {
+            doAutosave();
+            cramLastWritten = -1;
+        }
     }
 #endif
     return result;
