@@ -407,11 +407,15 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
         }
         FB_MEMORY_CARTRIDGE_RAM:
 #ifdef FB_USE_AUTOSAVE
-            if (mbc->writeToRAMAt(offset - 0xA000, val, cram)) {
+            if (
+#endif
+                mbc->writeToRAMAt(offset - 0xA000, val, cram)
+#ifdef FB_USE_AUTOSAVE
+            ) {
                 cartridgeRAMWritten = true;
             }
 #else
-            mbc->writeToRAMAt(offset - 0xA000, val, cram);
+                ;
 #endif
             break;
         FB_MEMORY_INTERNAL_RAM:
