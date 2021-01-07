@@ -93,11 +93,13 @@ u8 MBC2::readFromRAMAt(memory_address offset, u8 *ram) {
     return (*(ram + (offset % (FB_MBC2_MAX_RAM_OFFSET + 1))) & 0b1111u) | 0b11110000u;
 }
 
-void MBC2::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
+bool MBC2::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     if (ramEnabled) {
         // When going higher than 0xA1FF, the RAM just wraps around (i.e. starts writing again to 0xA000)
         *(ram + (offset % (FB_MBC2_MAX_RAM_OFFSET + 1))) = val & 0b1111u;
+        return true;
     }
+    return false;
 }
 
 void MBC2::saveBattery(std::ostream &stream, u8 *ram, size_t l) {

@@ -189,10 +189,10 @@ u8 MBC3::readFromRAMAt(memory_address offset, u8 *ram) {
     }
 }
 
-void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
+bool MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     if (!ramEnabled || offset > maxRamOffset) {
         // Not writable
-        return;
+        return false;
     }
     switch (ramBank) {
         case 0x0: case 0x1: case 0x2: case 0x3: {
@@ -229,6 +229,7 @@ void MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
             break;
         }
     }
+    return true;
 }
 
 void MBC3::saveBattery(std::ostream &stream, u8 *ram, size_t l) {

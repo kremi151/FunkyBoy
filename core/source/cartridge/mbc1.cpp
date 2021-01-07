@@ -174,10 +174,12 @@ u8 MBC1::readFromRAMAt(memory_address offset, u8 *ram) {
     return *(ram + ramBankOffset + offset);
 }
 
-void MBC1::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
+bool MBC1::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     if (ramEnabled && offset <= maxRamOffset) {
         *(ram + ramBankOffset + offset) = val;
+        return true;
     }
+    return false;
 }
 
 void MBC1::saveBattery(std::ostream &stream, u8 *ram, size_t l) {

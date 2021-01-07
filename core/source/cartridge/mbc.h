@@ -30,7 +30,7 @@ namespace FunkyBoy {
         virtual void interceptROMWrite(memory_address offset, u8 val) = 0;
 
         virtual u8 readFromRAMAt(memory_address offset, u8 *ram) = 0;
-        virtual void writeToRAMAt(memory_address offset, u8 val, u8 *ram) = 0;
+        virtual bool writeToRAMAt(memory_address offset, u8 val, u8 *ram) = 0;
 
         virtual void saveBattery(std::ostream &stream, u8 *ram, size_t l) = 0;
         virtual void loadBattery(std::istream &stream, u8 *ram, size_t l) = 0;

@@ -51,7 +51,6 @@ extern "C" {
     static std::unique_ptr<Emulator> emulator;
     static std::shared_ptr<Controller::DisplayController> displayController;
 
-    static fs::path savePath;
     static FunkyBoy::Util::FrameExecutor executeFrame(nullptr, 1.0);
 
     static unsigned currentControllerDevice;
@@ -224,7 +223,7 @@ extern "C" {
         executeFrame();
     }
 
-    void fb_loadSave() {
+    void fb_loadSave(const FunkyBoy::fs::path &savePath) {
         if (!savePath.empty() && emulator->getCartridgeRamSize() > 0 && fs::exists(savePath)) {
             std::ifstream file(savePath, std::ios::binary | std::ios::in);
             emulator->loadCartridgeRam(file);
@@ -232,6 +231,7 @@ extern "C" {
     }
 
     void fb_writeSave() {
+        auto &savePath = emulator->savePath;
         if (!savePath.empty() && emulator->getCartridgeRamSize() > 0) {
             std::ofstream file(savePath, std::ios::binary | std::ios::out);
             emulator->writeCartridgeRam(file);
@@ -268,9 +268,10 @@ extern "C" {
                 return false;
             }
             case CartridgeStatus::Loaded: {
-                savePath = info->path;
+                FunkyBoy::fs::path savePath = info->path;
                 savePath.replace_extension(".sav");
-                fb_loadSave();
+                emulator->savePath = savePath;
+                fb_loadSave(savePath);
                 return true;
             }
             default: {
@@ -282,7 +283,6 @@ extern "C" {
 
     void retro_unload_game(void) {
         fb_writeSave();
-        savePath.clear();
 
         auto ptr = emulator.release();
         delete ptr;
