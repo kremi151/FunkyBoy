@@ -41,6 +41,7 @@ jobs:
       - name: run-cmake
         uses: lukka/run-cmake@v2.5
         with:
+          cmakeBuildType: Release
           cmakeListsTxtPath: "${{ github.workspace }}/test/CMakeLists.txt"
           buildDirectory: "${{ github.workspace }}/test/_fb_tests"
           cmakeGenerator: ${{ matrix.config.generator }}
