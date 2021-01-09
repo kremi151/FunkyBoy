@@ -60,7 +60,11 @@ RTC::RTC()
 }
 
 u8 RTC::getSeconds() {
-    return currentTimestamp() / secondFactor;
+    if (halted) {
+        return haltedSeconds;
+    } else {
+        return currentTimestamp() / secondFactor;
+    }
 }
 
 void RTC::setSeconds(u8 val) {
@@ -70,7 +74,11 @@ void RTC::setSeconds(u8 val) {
 }
 
 u8 RTC::getMinutes() {
-    return currentTimestamp() / minuteFactor;
+    if (halted) {
+        return haltedMinutes;
+    } else {
+        return currentTimestamp() / minuteFactor;
+    }
 }
 
 void RTC::setMinutes(u8 val) {
@@ -80,7 +88,11 @@ void RTC::setMinutes(u8 val) {
 }
 
 u8 RTC::getHours() {
-    return currentTimestamp() / hourFactor;
+    if (halted) {
+        return haltedHours;
+    } else {
+        return currentTimestamp() / hourFactor;
+    }
 }
 
 void RTC::setHours(u8 val) {
@@ -90,7 +102,11 @@ void RTC::setHours(u8 val) {
 }
 
 u16 RTC::getDays() {
-    return currentTimestamp() / dayFactor;
+    if (halted) {
+        return haltedDays;
+    } else {
+        return currentTimestamp() / dayFactor;
+    }
 }
 
 u8 RTC::getDL() {

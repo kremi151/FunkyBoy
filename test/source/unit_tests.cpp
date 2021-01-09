@@ -28,6 +28,7 @@
 #include <cartridge/mbc1.h>
 #include <cartridge/mbc2.h>
 #include <cartridge/mbc3.h>
+#include <cartridge/rtc.h>
 #include "util/membuf.h"
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
@@ -548,6 +549,37 @@ TEST(testMemoryReadSigned8BitsAt) {
 
     signedByte = memory.readSigned8BitsAt(7);
     assertEquals(0, signedByte);
+}
+
+TEST(testRTCLatch) {
+    FunkyBoy::RTC rtc;
+    rtc.setHours(12);
+    rtc.setMinutes(38);
+    rtc.setSeconds(42);
+    rtc.setDL(69);
+    rtc.setDH(1);
+
+    // Everything is 0 as the RTC has not been halted
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(0, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    // Now halt the RTC
+    rtc.setDH(0b01000000u | 1u);
+    rtc.setHours(12);
+    rtc.setMinutes(38);
+    rtc.setSeconds(42);
+    rtc.setDL(69);
+
+    assertEquals(12, rtc.getHours() & 0xffffu);
+    assertEquals(38, rtc.getMinutes() & 0xffffu);
+    assertEquals(42, rtc.getSeconds() & 0xffffu);
+    assertEquals(325, rtc.getDays() & 0xffffu);
+    assertEquals(69, rtc.getDL() & 0xffffu);
+    assertEquals(0b01000000u | 1u, rtc.getDH() & 0xffffu);
 }
 
 acacia::Report __fbTests_runUnitTests() {
