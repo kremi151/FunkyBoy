@@ -22,6 +22,7 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 |MBC5|:heavy_check_mark: Supported|
 |MBC6|:x: Not supported|
 |MBC7|:x: Not supported|
+|Real-time clock (RTC)|:warning: Currently broken|
 |Save games|:heavy_check_mark: Supported in SDL implementation|
 |Save states|:x: Not started ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
 
