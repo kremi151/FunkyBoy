@@ -112,7 +112,7 @@ void RTC::setHours(u8 val) {
 
 u16 RTC::getDays() {
     if (halted) {
-        return haltedDays;
+        return haltedDays % DAY_OVERFLOW_MOD;
     } else {
         return (currentTimestamp() / dayFactor) % DAY_OVERFLOW_MOD;
     }
@@ -127,18 +127,19 @@ void RTC::setDL(u8 val) {
 }
 
 u8 RTC::getDH() {
-    size_t days = currentTimestamp() / dayFactor;
-    return (((days & DAY_OVERFLOW_MOD) >> 8) & 0b1u) | (halted ? 0b01000000u : 0u) | ((days > DAY_OVERFLOW) ? 0b10000000u : 0u);
+    size_t days = halted ? haltedDays : currentTimestamp() / dayFactor;
+    return (((days % DAY_OVERFLOW_MOD) >> 8) & 0b1u) | (halted ? 0b01000000u : 0u) | ((days > DAY_OVERFLOW) ? 0b10000000u : 0u);
 }
 
 void RTC::setDH(u8 val) {
     bool requestHalt = val & 0b01000000u;
     if (requestHalt && !halted) {
         startLatch();
-        haltedDays = getDays();
-        haltedHours = getHours();
-        haltedMinutes = getMinutes();
-        haltedSeconds = getSeconds();
+        time_t ts = currentTimestamp();
+        haltedDays = ts / dayFactor;
+        haltedHours = ts / hourFactor;
+        haltedMinutes = ts / minuteFactor;
+        haltedSeconds = ts / secondFactor;
         endLatch();
     } else if (!requestHalt && halted) {
         timestampOffset = (haltedDays * dayFactor) + (haltedHours * hourFactor) + (haltedMinutes * minuteFactor) + (haltedSeconds * secondFactor);
