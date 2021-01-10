@@ -27,6 +27,7 @@
 #include <controllers/display_psp.h>
 #include "callback.h"
 #include "user_input.h"
+#include <cstring>
 
 #ifdef FB_PSP_USE_FRAME_EXECUTOR
 #include <util/frame_executor.h>
@@ -84,7 +85,10 @@ int main() {
 
     if (status == FunkyBoy::CartridgeStatus::Loaded) {
         pspDebugScreenPrintf("Loaded ROM at %s\n", FB_PSP_ROM_PATH);
-        pspDebugScreenPrintf("ROM title: %s\n", emulator.getROMHeader()->title);
+
+        char romTitleSafe[FB_ROM_HEADER_TITLE_BYTES + 1]{};
+        std::memcpy(romTitleSafe, emulator.getROMHeader()->title, FB_ROM_HEADER_TITLE_BYTES);
+        pspDebugScreenPrintf("ROM title: %s\n", romTitleSafe);
     } else {
         pspDebugScreenPrintf("Could not load ROM at %s (status=%d)\n", FB_PSP_ROM_PATH, status);
         return pressXToExit();
