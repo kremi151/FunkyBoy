@@ -22,6 +22,7 @@
 using namespace FunkyBoy;
 
 #define DAY_OVERFLOW 511
+#define DAY_OVERFLOW_MOD (DAY_OVERFLOW + 1)
 
 #ifdef FB_TESTING
 #define get_time() FunkyBoy::Testing::time()
@@ -71,7 +72,7 @@ u8 RTC::getSeconds() {
     if (halted) {
         return haltedSeconds;
     } else {
-        return currentTimestamp() / secondFactor;
+        return (currentTimestamp() / secondFactor) % 60;
     }
 }
 
@@ -85,7 +86,7 @@ u8 RTC::getMinutes() {
     if (halted) {
         return haltedMinutes;
     } else {
-        return currentTimestamp() / minuteFactor;
+        return (currentTimestamp() / minuteFactor) % 60;
     }
 }
 
@@ -99,7 +100,7 @@ u8 RTC::getHours() {
     if (halted) {
         return haltedHours;
     } else {
-        return currentTimestamp() / hourFactor;
+        return (currentTimestamp() / hourFactor) % 24;
     }
 }
 
@@ -113,7 +114,7 @@ u16 RTC::getDays() {
     if (halted) {
         return haltedDays;
     } else {
-        return currentTimestamp() / dayFactor;
+        return (currentTimestamp() / dayFactor) % DAY_OVERFLOW_MOD;
     }
 }
 
@@ -126,8 +127,8 @@ void RTC::setDL(u8 val) {
 }
 
 u8 RTC::getDH() {
-    size_t days = getDays();
-    return ((days >> 8) & 0xffu) | (halted ? 0b01000000u : 0u) | ((days > DAY_OVERFLOW) ? 0b10000000u : 0u);
+    size_t days = currentTimestamp() / dayFactor;
+    return (((days & DAY_OVERFLOW_MOD) >> 8) & 0b1u) | (halted ? 0b01000000u : 0u) | ((days > DAY_OVERFLOW) ? 0b10000000u : 0u);
 }
 
 void RTC::setDH(u8 val) {

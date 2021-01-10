@@ -30,6 +30,7 @@
 #include <cartridge/mbc3.h>
 #include <cartridge/rtc.h>
 #include "util/membuf.h"
+#include "util/mock_time.h"
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
     cpu.instructionCompleted = false;
@@ -616,6 +617,77 @@ TEST(testRTCSaveLoad) {
     assertEquals(325, rtc2.getDays() & 0xffffu);
     assertEquals(69, rtc2.getDL() & 0xffffu);
     assertEquals(0b01000000u | 1u, rtc2.getDH() & 0xffffu);
+}
+
+TEST(testRTCTime) {
+    FunkyBoy::Testing::useMockTime(true);
+    FunkyBoy::Testing::setMockSeconds(34);
+
+    FunkyBoy::RTC rtc;
+
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(0, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(35);
+
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(1, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(95);
+
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(1, rtc.getMinutes() & 0xffffu);
+    assertEquals(1, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(3695);
+
+    assertEquals(1, rtc.getHours() & 0xffffu);
+    assertEquals(1, rtc.getMinutes() & 0xffffu);
+    assertEquals(1, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(90095);
+
+    assertEquals(1, rtc.getHours() & 0xffffu);
+    assertEquals(1, rtc.getMinutes() & 0xffffu);
+    assertEquals(1, rtc.getSeconds() & 0xffffu);
+    assertEquals(1, rtc.getDays() & 0xffffu);
+    assertEquals(1, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(154895);
+
+    assertEquals(19, rtc.getHours() & 0xffffu);
+    assertEquals(1, rtc.getMinutes() & 0xffffu);
+    assertEquals(1, rtc.getSeconds() & 0xffffu);
+    assertEquals(1, rtc.getDays() & 0xffffu);
+    assertEquals(1, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    //FunkyBoy::Testing::setMockSeconds(44305295);
+    FunkyBoy::Testing::setMockSeconds(44391695);
+
+    assertEquals(19, rtc.getHours() & 0xffffu);
+    assertEquals(1, rtc.getMinutes() & 0xffffu);
+    assertEquals(1, rtc.getSeconds() & 0xffffu);
+    assertEquals(1, rtc.getDays() & 0xffffu);
+    assertEquals(1, rtc.getDL() & 0xffffu);
+    assertEquals(0b10000000u, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::useMockTime(false);
 }
 
 acacia::Report __fbTests_runUnitTests() {
