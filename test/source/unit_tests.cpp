@@ -814,6 +814,51 @@ TEST(testRTCLatchTimeContinuity) {
     FunkyBoy::Testing::useMockTime(false);
 }
 
+TEST(testMBC3RTCRegisterSelect) {
+    FunkyBoy::Testing::useMockTime(true);
+    FunkyBoy::Testing::setMockSeconds(69);
+
+    FunkyBoy::MBC3 mbc(FunkyBoy::ROMSize::ROM_SIZE_32K, FunkyBoy::RAMSize::RAM_SIZE_2KB, true, true, false);
+    auto &rtc = mbc.rtc;
+
+    // Now halt the RTC
+    rtc.setDH(0b01000000u | 1u);
+    rtc.setHours(12);
+    rtc.setMinutes(38);
+    rtc.setSeconds(42);
+    rtc.setDL(69);
+
+    assertEquals(12, rtc.getHours() & 0xffffu);
+    assertEquals(38, rtc.getMinutes() & 0xffffu);
+    assertEquals(42, rtc.getSeconds() & 0xffffu);
+    assertEquals(325, rtc.getDays() & 0xffffu);
+    assertEquals(69, rtc.getDL() & 0xffffu);
+    assertEquals(0b01000000u | 1u, rtc.getDH() & 0xffffu);
+
+    // Enable RAM & RTC
+    mbc.interceptROMWrite(0x0000, 0x0A);
+
+    // Switch to RTC S register
+    mbc.interceptROMWrite(0x4000, 0x8);
+    assertEquals(42, mbc.readFromRAMAt(0x0000, nullptr) & 0xffffu);
+
+    // Switch to RTC M register
+    mbc.interceptROMWrite(0x4000, 0x9);
+    assertEquals(38, mbc.readFromRAMAt(0x0000, nullptr) & 0xffffu);
+
+    // Switch to RTC H register
+    mbc.interceptROMWrite(0x4000, 0xA);
+    assertEquals(12, mbc.readFromRAMAt(0x0000, nullptr) & 0xffffu);
+
+    // Switch to RTC DL register
+    mbc.interceptROMWrite(0x4000, 0xB);
+    assertEquals(69, mbc.readFromRAMAt(0x0000, nullptr) & 0xffffu);
+
+    // Switch to RTC DL register
+    mbc.interceptROMWrite(0x4000, 0xC);
+    assertEquals(0b01000000u | 1u, mbc.readFromRAMAt(0x0000, nullptr) & 0xffffu);
+}
+
 acacia::Report __fbTests_runUnitTests() {
     return runAcaciaFileTests();
 }
