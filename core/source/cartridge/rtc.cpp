@@ -136,10 +136,10 @@ void RTC::setDH(u8 val) {
     if (requestHalt && !halted) {
         startLatch();
         time_t ts = currentTimestamp();
-        haltedDays = ts / dayFactor;
-        haltedHours = ts / hourFactor;
-        haltedMinutes = ts / minuteFactor;
-        haltedSeconds = ts / secondFactor;
+        haltedDays = (ts / dayFactor) % DAY_OVERFLOW_MOD;
+        haltedHours = (ts / hourFactor) % 24;
+        haltedMinutes = (ts / minuteFactor) % 60;
+        haltedSeconds = (ts / secondFactor) % 60;
         endLatch();
     } else if (!requestHalt && halted) {
         timestampOffset = (haltedDays * dayFactor) + (haltedHours * hourFactor) + (haltedMinutes * minuteFactor) + (haltedSeconds * secondFactor);
