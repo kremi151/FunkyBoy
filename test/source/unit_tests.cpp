@@ -690,6 +690,63 @@ TEST(testRTCTime) {
     FunkyBoy::Testing::useMockTime(false);
 }
 
+TEST(testRTCLatchTimeContinuity) {
+    FunkyBoy::Testing::useMockTime(true);
+    FunkyBoy::Testing::setMockSeconds(69);
+
+    FunkyBoy::RTC rtc;
+
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(0, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(82);
+
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(13, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    // Halt the RTC
+    rtc.setDH(0b01000000u);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0b01000000u, rtc.getDH() & 0xffffu);
+
+    // Time goes on...
+    FunkyBoy::Testing::setMockSeconds(186);
+
+    // ...but actually not
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(13, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0b01000000u, rtc.getDH() & 0xffffu);
+
+    // Un-halt the RTC
+    rtc.setDH(0b00000000u);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    // Time goes on again...
+    FunkyBoy::Testing::setMockSeconds(242);
+
+    // ...and so does the RTC
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(1, rtc.getMinutes() & 0xffffu);
+    assertEquals(9, rtc.getSeconds() & 0xffffu);
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::useMockTime(false);
+}
+
 acacia::Report __fbTests_runUnitTests() {
     return runAcaciaFileTests();
 }
