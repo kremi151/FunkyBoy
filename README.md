@@ -3,16 +3,16 @@
 ![Build core](https://github.com/kremi151/FunkyBoy/workflows/Build%20core/badge.svg)
 ![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)
 
-A GameBoy emulator written in C++.
+A Game Boy emulator written in C++.
 
 ## Features
 
-FunkyBoy is currently at an early stage,
-A lot of games are already playable, albeit with some graphical glitches and without sound.
+FunkyBoy is currently at advanced stage.
+Most of the games are already playable, albeit with some minor graphical glitches and currently without sound.
 
 |Feature name|Status|
 |------------|------|
-|Graphical output|:warning: Supported with some minor graphical glitches|
+|Graphical output|:heavy_check_mark: Supported with some minor graphical glitches|
 |Button inputs|:heavy_check_mark: Supported|
 |Sound|:x: Not started ([Issue #51](https://github.com/kremi151/FunkyBoy/issues/51))|
 |MBC1|:heavy_check_mark: Supported|
@@ -22,8 +22,8 @@ A lot of games are already playable, albeit with some graphical glitches and wit
 |MBC5|:heavy_check_mark: Supported|
 |MBC6|:x: Not supported|
 |MBC7|:x: Not supported|
-|Real-time clock (RTC)|:heavy_check_mark: Supported|
-|Save games|:heavy_check_mark: Supported in SDL implementation|
+|Real-time clock (RTC) as part of MBC3[0]|:heavy_check_mark: Supported|
+|Save games|:heavy_check_mark: Supported in SDL, libretro and Android implementations|
 |Save states|:x: Not started ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
 
 ## Compatible games
@@ -43,7 +43,7 @@ Those performance issues will be tackled at a later stage of development.
 |--------|--------------|---------|
 |[SDL](https://github.com/kremi151/FunkyBoy/tree/master/platform-sdl) (Linux, macOS & Windows)|Primary|![Build SDL platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20SDL%20platform/badge.svg)|
 |[Libretro (RetroArch)](https://github.com/kremi151/FunkyBoy/tree/master/platform-libretro)|Primary|![Build Libretro](https://github.com/kremi151/FunkyBoy/workflows/Build%20Libretro/badge.svg)|
-|[Android](https://github.com/kremi151/FunkyBoyAndroid)|Secondary|![CI](https://github.com/kremi151/FunkyBoyAndroid/workflows/CI/badge.svg)|
+|[Android](https://github.com/kremi151/FunkyBoyAndroid)|Primary|![CI](https://github.com/kremi151/FunkyBoyAndroid/workflows/CI/badge.svg)|
 |[Nintendo 3DS](https://github.com/kremi151/FunkyBoy/tree/master/platform-3ds)|Secondary|![Build 3DS platform](https://github.com/kremi151/FunkyBoy/workflows/Build%203DS%20platform/badge.svg)|
 |[PlayStation Portable](https://github.com/kremi151/FunkyBoy/tree/master/platform-psp)|Secondary|![Build PSP platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20PSP%20platform/badge.svg)|
 |[Tests](https://github.com/kremi151/FunkyBoy/tree/master/test)| |![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)|
