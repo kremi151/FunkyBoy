@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-#include <algorithm>
 #include "rtc.h"
+
+#include <algorithm>
+#include <util/testing.h>
 
 using namespace FunkyBoy;
 
 #define DAY_OVERFLOW 511
+
+#ifdef FB_TESTING
+#define get_time() FunkyBoy::Testing::time()
+#else
+#define get_time() time(nullptr)
+#endif
 
 size_t RTC::determineTimeConstant() {
     time_t time1 = time(nullptr);
@@ -53,7 +61,7 @@ RTC::RTC()
     , haltedMinutes(0)
     , haltedSeconds(0)
     , latchTimestamp(0)
-    , startTimestamp(time(nullptr))
+    , startTimestamp(get_time())
     , timestampOffset(0)
     , halted(false)
 {
@@ -133,7 +141,7 @@ void RTC::setDH(u8 val) {
         endLatch();
     } else if (!requestHalt && halted) {
         timestampOffset = (haltedDays * dayFactor) + (haltedHours * hourFactor) + (haltedMinutes * minuteFactor) + (haltedSeconds * secondFactor);
-        startTimestamp = time(nullptr);
+        startTimestamp = get_time();
     }
     halted = requestHalt;
     if (!(val & 0b10000000u)) {
@@ -145,7 +153,7 @@ void RTC::setDH(u8 val) {
 }
 
 void RTC::startLatch() {
-    latchTimestamp = time(nullptr);
+    latchTimestamp = get_time();
 }
 
 void RTC::endLatch() {
@@ -156,7 +164,7 @@ time_t RTC::currentTimestamp() const {
     if (latchTimestamp) {
         return (latchTimestamp - startTimestamp) + timestampOffset;
     } else {
-        return (time(nullptr) - startTimestamp) + timestampOffset;
+        return (get_time() - startTimestamp) + timestampOffset;
     }
 }
 

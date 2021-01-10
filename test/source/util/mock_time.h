@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_TESTING_H
-#define FB_TESTS_TESTING_H
-
-#ifdef FB_TESTING
+#ifndef FB_TESTS_MOCK_TIME_H
+#define FB_TESTS_MOCK_TIME_H
 
 #include <ctime>
 
-#define test_public public
-
 namespace FunkyBoy::Testing {
-    size_t time();
+    void useMockTime(bool mock);
+    void setMockSeconds(time_t seconds);
 }
 
-#else
-
-#define test_public private
-
-#endif
-
-#endif //FB_TESTS_TESTING_H
+#endif //FB_TESTS_MOCK_TIME_H

@@ -44,7 +44,6 @@ namespace FunkyBoy {
         void endLatch();
 
         static size_t determineTimeConstant();
-        static size_t approximativeTimeConstant(size_t iterations);
     public:
         RTC();
 
@@ -71,6 +70,8 @@ namespace FunkyBoy {
             return halted;
         }
 #endif
+
+        static size_t approximativeTimeConstant(size_t iterations);
     };
 
     typedef std::shared_ptr<RTC> RTCPtr;

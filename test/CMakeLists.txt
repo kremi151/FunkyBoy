@@ -8,6 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 set(SOURCES
         source/controllers/serial_test.cpp
         source/util/rom_commons.cpp
+        source/util/mock_time.cpp
         source/blargg/rom_cpu_instrs_tests.cpp
         source/unit_tests.cpp
         source/mooneye/rom_mooneye_mbc1.cpp
@@ -21,6 +22,7 @@ set(SOURCES
 set(HEADERS
         source/controllers/serial_test.h
         source/util/rom_commons.h
+        source/util/mock_time.h
         source/util/membuf.h
         source/blargg/rom_cpu_instrs_tests.h
         source/unit_tests.h
