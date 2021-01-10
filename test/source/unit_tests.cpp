@@ -583,9 +583,12 @@ TEST(testRTCLatch) {
     assertEquals(0b01000000u | 1u, rtc.getDH() & 0xffffu);
 }
 
-TEST(testRTCSaveLoad) {
+TEST(testRTCHaltedSaveLoad) {
+    FunkyBoy::Testing::useMockTime(true);
+    FunkyBoy::Testing::setMockSeconds(42);
+
     FunkyBoy::RTC rtc;
-    rtc.setDH(0b01000000u | 1u);
+    rtc.setDH(0b01000000u | 1u); // Halt the RTC so that we can write to the clock counter registers
     rtc.setHours(12);
     rtc.setMinutes(38);
     rtc.setSeconds(42);
@@ -604,6 +607,9 @@ TEST(testRTCSaveLoad) {
     std::ostream outStream(&outBuf);
     rtc.write(outStream);
 
+    // Real-life time passes on
+    FunkyBoy::Testing::setMockSeconds(45667);
+
     membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
     std::istream inStream(&inBuf);
 
@@ -617,6 +623,26 @@ TEST(testRTCSaveLoad) {
     assertEquals(325, rtc2.getDays() & 0xffffu);
     assertEquals(69, rtc2.getDL() & 0xffffu);
     assertEquals(0b01000000u | 1u, rtc2.getDH() & 0xffffu);
+
+    // Un-halt RTC
+    rtc2.setDH(1u);
+    assertFalse(rtc2.isHalted());
+    assertEquals(12, rtc2.getHours() & 0xffffu);
+    assertEquals(38, rtc2.getMinutes() & 0xffffu);
+    assertEquals(42, rtc2.getSeconds() & 0xffffu);
+    assertEquals(325, rtc2.getDays() & 0xffffu);
+    assertEquals(69, rtc2.getDL() & 0xffffu);
+    assertEquals(1, rtc2.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(45669);
+    assertEquals(12, rtc2.getHours() & 0xffffu);
+    assertEquals(38, rtc2.getMinutes() & 0xffffu);
+    assertEquals(44, rtc2.getSeconds() & 0xffffu);
+    assertEquals(325, rtc2.getDays() & 0xffffu);
+    assertEquals(69, rtc2.getDL() & 0xffffu);
+    assertEquals(1, rtc2.getDH() & 0xffffu);
+
+    FunkyBoy::Testing::useMockTime(false);
 }
 
 TEST(testRTCTime) {
