@@ -93,8 +93,11 @@ void MBC3::updateBanks() {
     mbc3_print("[MBC3] update banks from [rom=0x%02X,ram=0x%02X] to", romBank, ramBank);
 
     romBank = preliminaryRomBank & 0b1111111u;
-    if (ramBank >= ramBankCount) {
-        ramBank = std::max(0, ramBankCount - 1);
+    if (ramBank < 0x8 || ramBank > 0xC) {
+        ramBank &= ramBankMask;
+        if (ramBank >= ramBankCount) {
+            ramBank = std::max(0, ramBankCount - 1);
+        }
     }
 
     u8 romBankMask = MBC1::getROMBankBitMask(romSize);
@@ -133,7 +136,7 @@ void MBC3::interceptROMWrite(memory_address offset, u8 val) {
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
         mbc3_print("[MBC3] about to update ROM/RAM bank with value %d\n", val);
-        ramBank = val & ramBankMask;
+        ramBank = val;
         updateBanks();
     }
 }
