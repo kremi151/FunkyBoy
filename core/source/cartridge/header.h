@@ -20,6 +20,7 @@
 #include <util/typedefs.h>
 
 #define FB_ROM_HEADER_ENTRY_POINT 0x100
+#define FB_ROM_HEADER_TITLE_BYTES 15
 
 namespace FunkyBoy {
 
@@ -30,7 +31,7 @@ namespace FunkyBoy {
 
         u8 entryPoint[4];                           // 0x0100 - 0x0103
         u8 nintendoLogo[48];                        // 0x0104 - 0x0133
-        u8 title[15];                               // 0x0134 - 0x0142
+        u8 title[FB_ROM_HEADER_TITLE_BYTES];        // 0x0134 - 0x0142
         u8 cgbFlag;                                 // 0x0143
         u8 newLicenseCode[2];                       // 0x0144 - 0x0145
         u8 sgbFlag;                                 // 0x0146
