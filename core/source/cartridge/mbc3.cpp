@@ -200,40 +200,45 @@ bool MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     switch (ramBank) {
         case 0x0: case 0x1: case 0x2: case 0x3: {
             *(ram + ramBankOffset + offset) = val;
-            break;
+            return true;
         }
         case 0x8: {
             if (useRtc) {
                 rtc.setSeconds(val);
+                return true;
             }
             break;
         }
         case 0x9: {
             if (useRtc) {
                 rtc.setMinutes(val);
+                return true;
             }
             break;
         }
         case 0xA: {
             if (useRtc) {
                 rtc.setHours(val);
+                return true;
             }
             break;
         }
         case 0xB: {
             if (useRtc) {
                 rtc.setDL(val);
+                return true;
             }
             break;
         }
         case 0xC: {
             if (useRtc) {
                 rtc.setDH(val);
+                return true;
             }
             break;
         }
     }
-    return true;
+    return false;
 }
 
 void MBC3::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
