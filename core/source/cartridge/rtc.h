@@ -65,6 +65,12 @@ namespace FunkyBoy {
 
         void write(std::ostream &stream);
         void load(std::istream &stream);
+
+#ifdef FB_TESTING
+        inline bool isHalted() const {
+            return halted;
+        }
+#endif
     };
 
     typedef std::shared_ptr<RTC> RTCPtr;

@@ -582,6 +582,42 @@ TEST(testRTCLatch) {
     assertEquals(0b01000000u | 1u, rtc.getDH() & 0xffffu);
 }
 
+TEST(testRTCSaveLoad) {
+    FunkyBoy::RTC rtc;
+    rtc.setDH(0b01000000u | 1u);
+    rtc.setHours(12);
+    rtc.setMinutes(38);
+    rtc.setSeconds(42);
+    rtc.setDL(69);
+
+    assertTrue(rtc.isHalted());
+    assertEquals(12, rtc.getHours() & 0xffffu);
+    assertEquals(38, rtc.getMinutes() & 0xffffu);
+    assertEquals(42, rtc.getSeconds() & 0xffffu);
+    assertEquals(325, rtc.getDays() & 0xffffu);
+    assertEquals(69, rtc.getDL() & 0xffffu);
+    assertEquals(0b01000000u | 1u, rtc.getDH() & 0xffffu);
+
+    FunkyBoy::u8 saveFile[48]{};
+    membuf outBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), false);
+    std::ostream outStream(&outBuf);
+    rtc.write(outStream);
+
+    membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
+    std::istream inStream(&inBuf);
+
+    FunkyBoy::RTC rtc2;
+    rtc2.load(inStream);
+
+    assertTrue(rtc2.isHalted());
+    assertEquals(12, rtc2.getHours() & 0xffffu);
+    assertEquals(38, rtc2.getMinutes() & 0xffffu);
+    assertEquals(42, rtc2.getSeconds() & 0xffffu);
+    assertEquals(325, rtc2.getDays() & 0xffffu);
+    assertEquals(69, rtc2.getDL() & 0xffffu);
+    assertEquals(0b01000000u | 1u, rtc2.getDH() & 0xffffu);
+}
+
 acacia::Report __fbTests_runUnitTests() {
     return runAcaciaFileTests();
 }
