@@ -197,6 +197,7 @@ bool MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     switch (ramBank) {
         case 0x0: case 0x1: case 0x2: case 0x3: {
             *(ram + ramBankOffset + offset) = val;
+            break;
         }
         case 0x8: {
             if (useRtc) {
