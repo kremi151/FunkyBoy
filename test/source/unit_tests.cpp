@@ -814,11 +814,11 @@ TEST(testRTCLatchTimeContinuity) {
     FunkyBoy::Testing::useMockTime(false);
 }
 
-TEST(testMBC3RTCRegisterSelect) {
+void testMBC3RTCRegisterSelect(FunkyBoy::RAMSize ramSize) {
     FunkyBoy::Testing::useMockTime(true);
     FunkyBoy::Testing::setMockSeconds(69);
 
-    FunkyBoy::MBC3 mbc(FunkyBoy::ROMSize::ROM_SIZE_32K, FunkyBoy::RAMSize::RAM_SIZE_2KB, true, true, false);
+    FunkyBoy::MBC3 mbc(FunkyBoy::ROMSize::ROM_SIZE_32K, ramSize, true, true, false);
     auto &rtc = mbc.rtc;
 
     // Now halt the RTC
@@ -857,6 +857,26 @@ TEST(testMBC3RTCRegisterSelect) {
     // Switch to RTC DL register
     mbc.interceptROMWrite(0x4000, 0xC);
     assertEquals(0b01000000u | 1u, mbc.readFromRAMAt(0x0000, nullptr) & 0xffffu);
+}
+
+TEST(testMBC3RTCRegisterSelectNoRAM) {
+    testMBC3RTCRegisterSelect(FunkyBoy::RAMSize::RAM_SIZE_None);
+}
+
+TEST(testMBC3RTCRegisterSelect2KBRAM) {
+    testMBC3RTCRegisterSelect(FunkyBoy::RAMSize::RAM_SIZE_2KB);
+}
+
+TEST(testMBC3RTCRegisterSelect8KBRAM) {
+    testMBC3RTCRegisterSelect(FunkyBoy::RAMSize::RAM_SIZE_8KB);
+}
+
+TEST(testMBC3RTCRegisterSelect32KBRAM) {
+    testMBC3RTCRegisterSelect(FunkyBoy::RAMSize::RAM_SIZE_32KB);
+}
+
+TEST(testMBC3RTCRegisterSelect64KBRAM) {
+    testMBC3RTCRegisterSelect(FunkyBoy::RAMSize::RAM_SIZE_64KB);
 }
 
 acacia::Report __fbTests_runUnitTests() {
