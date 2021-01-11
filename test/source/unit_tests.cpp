@@ -1100,7 +1100,83 @@ TEST(testRTCOverflowWithSaveAndLoad) {
     FunkyBoy::Testing::useMockTime(false);
 }
 
-// TODO: Test resetting overflow flag
+TEST(testRTCOverflowResetFlag) {
+    FunkyBoy::Testing::useMockTime(true);
+    FunkyBoy::Testing::setMockSeconds(138);
+
+    FunkyBoy::RTC rtc;
+    assertFalse(rtc.isHalted());
+
+    // Now halt the RTC
+    rtc.setDH(0b01000000u | 1u);
+    rtc.setDL(255);
+    rtc.setHours(23);
+    rtc.setMinutes(59);
+    rtc.setSeconds(59);
+
+    assertTrue(rtc.isHalted());
+    assertEquals(511, rtc.getDays() & 0xffffu);
+    assertEquals(255, rtc.getDL() & 0xffffu);
+    assertEquals(0b01000000u | 1u, rtc.getDH() & 0xffffu);
+    assertEquals(23, rtc.getHours() & 0xffffu);
+    assertEquals(59, rtc.getMinutes() & 0xffffu);
+    assertEquals(59, rtc.getSeconds() & 0xffffu);
+
+    rtc.setDH(1); // Un-halt RTC
+
+    assertFalse(rtc.isHalted());
+    assertEquals(511, rtc.getDays() & 0xffffu);
+    assertEquals(255, rtc.getDL() & 0xffffu);
+    assertEquals(1, rtc.getDH() & 0xffffu);
+    assertEquals(23, rtc.getHours() & 0xffffu);
+    assertEquals(59, rtc.getMinutes() & 0xffffu);
+    assertEquals(59, rtc.getSeconds() & 0xffffu);
+
+    FunkyBoy::Testing::setMockSeconds(139); // Let the RTC overflow
+
+    assertFalse(rtc.isHalted());
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0b10000000u, rtc.getDH() & 0xffffu);
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(0, rtc.getSeconds() & 0xffffu);
+
+    rtc.setDH(0b11000000u); // Halt the RTC again
+
+    assertTrue(rtc.isHalted());
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0b11000000u, rtc.getDH() & 0xffffu);
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(0, rtc.getSeconds() & 0xffffu);
+
+    rtc.setDH(0b01000000u); // Reset the overflow bit
+
+    assertTrue(rtc.isHalted());
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0b01000000u, rtc.getDH() & 0xffffu);
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(0, rtc.getSeconds() & 0xffffu);
+
+    rtc.setDH(0b00000000); // Un-halt RTC
+    assertFalse(rtc.isHalted());
+
+    FunkyBoy::Testing::setMockSeconds(140);
+
+    assertFalse(rtc.isHalted());
+    assertEquals(0, rtc.getDays() & 0xffffu);
+    assertEquals(0, rtc.getDL() & 0xffffu);
+    assertEquals(0, rtc.getDH() & 0xffffu);
+    assertEquals(0, rtc.getHours() & 0xffffu);
+    assertEquals(0, rtc.getMinutes() & 0xffffu);
+    assertEquals(1, rtc.getSeconds() & 0xffffu);
+
+    FunkyBoy::Testing::useMockTime(false);
+}
 
 acacia::Report __fbTests_runUnitTests() {
     return runAcaciaFileTests();
