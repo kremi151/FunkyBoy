@@ -201,7 +201,7 @@ void RTC::load(std::istream &stream) {
     u8 &hours = buffer[8];
     setHours(hours);
 
-    u16_fast days = ((dh & 0b1u) << 8) | dl;
+    u16_fast days = ((dh & 0b10111111u) << 8) | dl;
     timestampOffset = (days * dayFactor) + (hours * hourFactor) + (minutes * minuteFactor) + (seconds * secondFactor);
     startTimestamp = ((buffer[43] << 24) | (buffer[42] << 16) | (buffer[41] << 8) | buffer[40]) * secondFactor;
 }
