@@ -93,8 +93,11 @@ void MBC3::updateBanks() {
     mbc3_print("[MBC3] update banks from [rom=0x%02X,ram=0x%02X] to", romBank, ramBank);
 
     romBank = preliminaryRomBank & 0b1111111u;
-    if (ramBank >= ramBankCount) {
-        ramBank = std::max(0, ramBankCount - 1);
+    if (ramBank < 0x8 || ramBank > 0xC) {
+        ramBank &= ramBankMask;
+        if (ramBank >= ramBankCount) {
+            ramBank = std::max(0, ramBankCount - 1);
+        }
     }
 
     u8 romBankMask = MBC1::getROMBankBitMask(romSize);
@@ -133,7 +136,7 @@ void MBC3::interceptROMWrite(memory_address offset, u8 val) {
     } else if (offset <= 0x5FFF) {
         // Set RAM Bank number or ROM Bank number (upper 2 bits)
         mbc3_print("[MBC3] about to update ROM/RAM bank with value %d\n", val);
-        ramBank = val & ramBankMask;
+        ramBank = val;
         updateBanks();
     }
 }
@@ -197,39 +200,45 @@ bool MBC3::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     switch (ramBank) {
         case 0x0: case 0x1: case 0x2: case 0x3: {
             *(ram + ramBankOffset + offset) = val;
+            return true;
         }
         case 0x8: {
             if (useRtc) {
                 rtc.setSeconds(val);
+                return true;
             }
             break;
         }
         case 0x9: {
             if (useRtc) {
                 rtc.setMinutes(val);
+                return true;
             }
             break;
         }
         case 0xA: {
             if (useRtc) {
                 rtc.setHours(val);
+                return true;
             }
             break;
         }
         case 0xB: {
             if (useRtc) {
                 rtc.setDL(val);
+                return true;
             }
             break;
         }
         case 0xC: {
             if (useRtc) {
                 rtc.setDH(val);
+                return true;
             }
             break;
         }
     }
-    return true;
+    return false;
 }
 
 void MBC3::saveBattery(std::ostream &stream, u8 *ram, size_t l) {

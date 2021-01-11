@@ -39,9 +39,9 @@ namespace FunkyBoy {
         u32 romBankOffsetLower{};
         u32 romBankOffset{};
         u32 ramBankOffset{};
-        RTC rtc;
         void updateBanks();
     test_public:
+        RTC rtc;
         u8 preliminaryRomBank, romBank{};
         u8 ramBank{};
         bool ramEnabled;
