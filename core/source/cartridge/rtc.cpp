@@ -151,7 +151,7 @@ void RTC::setDH(u8 val) {
             timestampOffset -= overflowTime;
         }
     }
-    haltedDays = (haltedDays & 0x00ffu) | ((val & 0b1u) << 8);
+    haltedDays = (haltedDays & 0x00ffu) | ((val & 0b10111111u) << 8);
 }
 
 void RTC::startLatch() {
