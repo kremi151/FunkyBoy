@@ -683,6 +683,16 @@ TEST(testRTCNonHaltedSaveLoad) {
     assertEquals(80, rtc2.getDL() & 0xffffu);
     assertEquals(0, rtc2.getDH() & 0xffffu);
 
+    FunkyBoy::Testing::setMockSeconds(6964866);
+
+    assertFalse(rtc2.isHalted());
+    assertEquals(14, rtc2.getHours() & 0xffffu);
+    assertEquals(40, rtc2.getMinutes() & 0xffffu);
+    assertEquals(24, rtc2.getSeconds() & 0xffffu);
+    assertEquals(80, rtc2.getDays() & 0xffffu);
+    assertEquals(80, rtc2.getDL() & 0xffffu);
+    assertEquals(0, rtc2.getDH() & 0xffffu);
+
     FunkyBoy::Testing::useMockTime(false);
 }
 
