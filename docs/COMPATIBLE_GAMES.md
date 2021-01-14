@@ -12,4 +12,5 @@ The following games have been tested during the development of FunkyBoy
 |Pokémon Gold Version|U|MBC3|:heavy_check_mark: Playable|
 |Pokémon Silberne Edition|E (DE)|MBC3|:heavy_check_mark: Playable|
 |Pokémon Crystal Version|JP|MBC30|:x: Game boots up but gets stuck in white screen|
+|Super Mario Land|U|MBC1|:heavy_check_mark: Playable|
 |Game Boy Controller Kensa Cartridge|JP|None|:heavy_check_mark: Playable|
