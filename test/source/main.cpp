@@ -16,23 +16,15 @@
 
 #include <acacia.h>
 
-#include "unit_tests.h"
-#include "blargg/blargg_tests.h"
-#include "mooneye/mooneye_tests.h"
 #include "perf_mode.h"
 
 #include <cstring>
 #include <cstdlib>
 
-int runTests(bool runMooneye) {
+int runTests(int argc, char **argv) {
     acacia::Report report;
 
-    report += __fbTests_runUnitTests();
-    report += __fbTests_runBlarggTests();
-
-    if (runMooneye) {
-        report += __fbTests_runMooneyeTests();
-    }
+    acacia::runTests(argc, argv, &report);
 
     std::ofstream reportFile("acacia-report.txt");
     acacia::generateAcaciaReport(report, reportFile);
@@ -41,15 +33,12 @@ int runTests(bool runMooneye) {
 }
 
 int main(int argc, char **argv) {
-    bool runMooneye = false;
     std::string perfRomPath;
     size_t perfCycles = 10240000;
 
     char **argv_end = argv + argc;
     for (char **argv_c = argv ; argv_c < argv_end ; argv_c++) {
-        if (std::strcmp(*argv_c, "--mooneye") == 0) {
-            runMooneye = true;
-        } else if (std::strcmp(*argv_c, "--perf") == 0) {
+        if (std::strcmp(*argv_c, "--perf") == 0) {
             perfRomPath = *(++argv_c);
         } else if (std::strcmp(*argv_c, "--perf-cycles") == 0) {
             char *cycles_str = *(++argv_c);
@@ -58,7 +47,7 @@ int main(int argc, char **argv) {
     }
 
     if (perfRomPath.empty()) {
-        return runTests(runMooneye);
+        return runTests(argc, argv);
     } else {
         return FunkyBoyTests::Perf::runPerfMode(perfRomPath, perfCycles);
     }
