@@ -44,6 +44,12 @@ TEST_SUITE(mooneyeROMAcceptance) {
 
     MOONEYE_ACCEPTANCE_TEST(BootRegsDMGABC, ., boot_regs-dmgABC)
 
+    MOONEYE_ACCEPTANCE_TEST(DivTiming, ., div_timing)
+
+    MOONEYE_ACCEPTANCE_TEST(HaltIme0EI, ., halt_ime0_ei)
+
+    MOONEYE_ACCEPTANCE_TEST(HaltIme1Timing, ., halt_ime1_timing)
+
     // TODO: Fix tests
     #ifdef FB_RUN_FAILING_MOONEYE_TESTS
         MOONEYE_ACCEPTANCE_TEST(BitsUnusedHwIoGS, bits, unused_hwio-GS)
@@ -90,12 +96,9 @@ TEST_SUITE(mooneyeROMAcceptance) {
         MOONEYE_ACCEPTANCE_TEST(CallTiming, ., call_timing)
         MOONEYE_ACCEPTANCE_TEST(CallTiming2, ., call_timing2)
         MOONEYE_ACCEPTANCE_TEST(DITiming, ., di_timing-GS)
-        MOONEYE_ACCEPTANCE_TEST(DivTiming, ., div_timing)
         MOONEYE_ACCEPTANCE_TEST(EISequence, ., ei_sequence)
         MOONEYE_ACCEPTANCE_TEST(EITiming, ., ei_timing)
-        MOONEYE_ACCEPTANCE_TEST(HaltIme0EI, ., halt_ime0_ei)
         MOONEYE_ACCEPTANCE_TEST(HaltIme0NoIntrTiming, ., halt_ime0_nointr_timing)
-        MOONEYE_ACCEPTANCE_TEST(HaltIme1Timing, ., halt_ime1_timing)
         MOONEYE_ACCEPTANCE_TEST(HaltIme2GS, ., halt_ime1_timing2-GS)
         MOONEYE_ACCEPTANCE_TEST(IFIERegisters, ., if_ie_registers)
         MOONEYE_ACCEPTANCE_TEST(IntrTiming, ., intr_timing)
