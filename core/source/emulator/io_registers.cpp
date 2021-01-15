@@ -176,8 +176,8 @@ void io_registers::serialize(std::ostream &ostream) const {
     ostream.write(reinterpret_cast<const char*>(hwIO), FB_HW_IO_BYTES);
     ostream.put(*inputsDPad & 0xffu);
     ostream.put(*inputsButtons & 0xffu);
-    ostream.put(*sys_counter_lsb & 0xffu);
-    ostream.put(*sys_counter_msb & 0xffu);
+    ostream.put(*sys_counter & 0xffu);
+    ostream.put((*sys_counter >> 8) & 0xffu);
 }
 
 void io_registers::deserialize(std::istream &istream) {
@@ -193,6 +193,5 @@ void io_registers::deserialize(std::istream &istream) {
     }
     *inputsDPad = buffer[0];
     *inputsButtons = buffer[1];
-    *sys_counter_lsb = buffer[2];
-    *sys_counter_msb = buffer[3];
+    *sys_counter = (buffer[3] << 8) | buffer[2];
 }

@@ -108,20 +108,21 @@ TEST_SUITE(unitTests) {
         auto memory = createMemory();
         FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
         cpu.powerUpInit(memory);
+        FunkyBoy::InstrContext &context = cpu.instrContext;
 
         // In this test, we check for enforcing little-endianness
 
         cpu.writeAF(0x1234);
         // 0x34 -> 0b110100
         // 0x34 -> F -> 0b110000 -> 0x30 (register F only stores the 4 most significant bits)
-        assertEquals(0x30, *cpu.regF_do_not_use_directly);
-        assertEquals(0x12, *cpu.regA);
+        assertEquals(0x30, *context.regF);
+        assertEquals(0x12, *context.regA);
         auto val = cpu.readAF();
         assertEquals(0x1230, val);
 
         cpu.instrContext.writeHL(0x1806);
-        assertEquals(0x06, *cpu.regL);
-        assertEquals(0x18, *cpu.regH);
+        assertEquals(0x06, *context.regL);
+        assertEquals(0x18, *context.regH);
         val = cpu.instrContext.readHL();
         assertEquals(0x1806, val);
     }
@@ -130,27 +131,28 @@ TEST_SUITE(unitTests) {
         auto memory = createMemory();
         FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
         cpu.powerUpInit(memory);
+        FunkyBoy::InstrContext &context = cpu.instrContext;
 
         // In this test, we check for enforcing little-endianness
 
         // BC
         cpu.instrContext.write16BitRegister(0, 0x1234);
-        assertEquals(0x34, *cpu.regC);
-        assertEquals(0x12, *cpu.regB);
+        assertEquals(0x34, *context.regC);
+        assertEquals(0x12, *context.regB);
         auto val = cpu.instrContext.read16BitRegister(0);
         assertEquals(0x1234, val);
 
         // DE
         cpu.instrContext.write16BitRegister(1, 0x1806);
-        assertEquals(0x06, *cpu.regE);
-        assertEquals(0x18, *cpu.regD);
+        assertEquals(0x06, *context.regE);
+        assertEquals(0x18, *context.regD);
         val = cpu.instrContext.read16BitRegister(1);
         assertEquals(0x1806, val);
 
         // HL
         cpu.instrContext.write16BitRegister(2, 0x2809);
-        assertEquals(0x09, *cpu.regL);
-        assertEquals(0x28, *cpu.regH);
+        assertEquals(0x09, *context.regL);
+        assertEquals(0x28, *context.regH);
         val = cpu.instrContext.read16BitRegister(2);
         assertEquals(0x2809, val);
     }
@@ -159,6 +161,7 @@ TEST_SUITE(unitTests) {
         auto memory = createMemory();
         FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
         cpu.powerUpInit(memory);
+        FunkyBoy::InstrContext &context = cpu.instrContext;
 
         // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
         memory.rom = new FunkyBoy::u8[0x105];
@@ -176,8 +179,8 @@ TEST_SUITE(unitTests) {
 
         // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
         assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
-        assertEquals(0x06, (*cpu.regC) & 0xff);
-        assertEquals(0x18, (*cpu.regB) & 0xff);
+        assertEquals(0x06, (*context.regC) & 0xff);
+        assertEquals(0x18, (*context.regB) & 0xff);
 
         // Set opcode 0x11 (LD DE,d16)
         cpu.instrContext.progCounter = initialProgCounter;
@@ -187,8 +190,8 @@ TEST_SUITE(unitTests) {
 
         // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
         assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
-        assertEquals(0x06, (*cpu.regE) & 0xff);
-        assertEquals(0x18, (*cpu.regD) & 0xff);
+        assertEquals(0x06, (*context.regE) & 0xff);
+        assertEquals(0x18, (*context.regD) & 0xff);
 
         // Set opcode 0x21 (LD HL,d16)
         cpu.instrContext.progCounter = initialProgCounter;
@@ -198,8 +201,8 @@ TEST_SUITE(unitTests) {
 
         // PC = initial + fetch(1) + execution(2) + next fetch(1) = initial + 4
         assertEquals(initialProgCounter + 4, cpu.instrContext.progCounter);
-        assertEquals(0x06, (*cpu.regL) & 0xff);
-        assertEquals(0x18, (*cpu.regH) & 0xff);
+        assertEquals(0x06, (*context.regL) & 0xff);
+        assertEquals(0x18, (*context.regH) & 0xff);
 
         // Set opcode 0x31 (LD SP,d16)
         cpu.instrContext.progCounter = initialProgCounter;
@@ -257,6 +260,7 @@ TEST_SUITE(unitTests) {
         auto memory = createMemory();
         FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
         cpu.powerUpInit(memory);
+        FunkyBoy::InstrContext &context = cpu.instrContext;
 
         // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
         memory.rom = new FunkyBoy::u8[0x105];
@@ -280,28 +284,29 @@ TEST_SUITE(unitTests) {
         assertDoFullMachineCycle(cpu, memory);
         assertEquals(0x76, cpu.instrContext.instr);
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
-        assertEquals(originalA, *cpu.regA);
+        assertEquals(originalA, *context.regA);
 
         assertDoFullMachineCycle(cpu, memory);
         assertEquals(0x3C, cpu.instrContext.instr); // Fetched next instruction already
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
-        assertEquals(originalA, *cpu.regA);
+        assertEquals(originalA, *context.regA);
 
         assertDoFullMachineCycle(cpu, memory);
         assertEquals(0x3C, cpu.instrContext.instr);
         assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
-        assertEquals(originalA + 1, *cpu.regA);
+        assertEquals(originalA + 1, *context.regA);
 
         assertDoFullMachineCycle(cpu, memory);
         assertEquals(0x00, cpu.instrContext.instr); // Fetched next instruction already
         assertEquals(initialProgCounter + 3, cpu.instrContext.progCounter);
-        assertEquals(originalA + 2, *cpu.regA);
+        assertEquals(originalA + 2, *context.regA);
     }
 
     TEST(testHALTNoSkippingIfIMEDisabled) {
         auto memory = createMemory();
         FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
         cpu.powerUpInit(memory);
+        FunkyBoy::InstrContext &context = cpu.instrContext;
 
         // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
         memory.rom = new FunkyBoy::u8[0x105];
@@ -326,7 +331,7 @@ TEST_SUITE(unitTests) {
         assertDoFullMachineCycle(cpu, memory);
         assertEquals(0x76, cpu.instrContext.instr);
         assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
-        assertEquals(originalA, *cpu.regA);
+        assertEquals(originalA, *context.regA);
 
         // Assert that we are indeed in HALT mode (no execution of any opcode)
         for (int i = 0; i < 5; i++) {
@@ -336,7 +341,7 @@ TEST_SUITE(unitTests) {
 
             assertEquals(0x76, cpu.instrContext.instr); // No fetch of next instruction, we stay at the HALT instruction
             assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
-            assertEquals(originalA, *cpu.regA);
+            assertEquals(originalA, *context.regA);
         }
 
         // Set IE and IF to same value -> should request an interrupt
@@ -349,13 +354,14 @@ TEST_SUITE(unitTests) {
         assertDoFullMachineCycle(cpu, memory);
         assertEquals(0x3C, cpu.instrContext.instr & 0xffff); // Fetched next instruction already
         assertEquals(initialProgCounter + 2, cpu.instrContext.progCounter);
-        assertEquals(originalA, *cpu.regA);
+        assertEquals(originalA, *context.regA);
     }
 
     TEST(testHALTBugHanging) {
         auto memory = createMemory();
         FunkyBoy::CPU cpu(TEST_GB_TYPE, memory.getIoRegisters());
         cpu.powerUpInit(memory);
+        FunkyBoy::InstrContext &context = cpu.instrContext;
 
         // Allocate a simulated ROM, will be destroyed by the cartridge's destructor
         memory.rom = new FunkyBoy::u8[0x105];
@@ -381,7 +387,7 @@ TEST_SUITE(unitTests) {
             assertDoFullMachineCycle(cpu, memory);
             assertEquals(0x76, cpu.instrContext.instr);
             assertEquals(initialProgCounter + 1, cpu.instrContext.progCounter);
-            assertEquals(originalA, *cpu.regA);
+            assertEquals(originalA, *context.regA);
         }
     }
 
