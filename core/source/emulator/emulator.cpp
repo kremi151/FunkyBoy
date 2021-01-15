@@ -95,8 +95,8 @@ void Emulator::saveState(std::ostream &ostream) {
     cpu->serialize(ostream);
     ioRegisters.serialize(ostream);
     ppuMemory.serialize(ostream);
+    memory.serialize(ostream);
 
-    // TODO: memory
     // TODO: MBC state
 }
 
@@ -108,6 +108,7 @@ void Emulator::loadState(std::istream &istream) {
     cpu->deserialize(istream);
     ioRegisters.deserialize(istream);
     ppuMemory.deserialize(istream);
+    memory.deserialize(istream);
 }
 
 #ifdef FB_USE_AUTOSAVE

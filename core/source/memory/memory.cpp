@@ -29,11 +29,14 @@
 #include <util/ramsizes.h>
 
 #include <cstring>
+#include <exception/read_exception.h>
 
 using namespace FunkyBoy;
 
 #define FB_INTERNAL_RAM_BANK_SIZE (4 * 1024)
+#define FB_INTERNAL_RAM_SIZE (8 * FB_INTERNAL_RAM_BANK_SIZE)
 #define FB_CARTRIDGE_HEADER_SIZE 336
+#define FB_HRAM_SIZE 127
 
 Memory::Memory(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
     : controllers(std::move(controllers))
@@ -50,8 +53,8 @@ Memory::Memory(Controller::ControllersPtr controllers, const io_registers& ioReg
     , cartridgeRAMWritten(false)
 #endif
 {
-    internalRam = new u8[8 * FB_INTERNAL_RAM_BANK_SIZE]{};
-    hram = new u8[127]{};
+    internalRam = new u8[FB_INTERNAL_RAM_SIZE]{};
+    hram = new u8[FB_HRAM_SIZE]{};
 
     dynamicRamBank = internalRam + FB_INTERNAL_RAM_BANK_SIZE;
 }
@@ -482,6 +485,58 @@ void Memory::doDMA() {
     if (++dmaLsb > 0x9F) {
         dmaStarted = false;
     }
+}
+
+void Memory::serialize(std::ostream &ostream) const {
+    ostream.write(reinterpret_cast<char*>(internalRam), FB_INTERNAL_RAM_SIZE);
+    ostream.write(reinterpret_cast<char*>(hram), FB_HRAM_SIZE);
+    ostream.put(interruptEnableRegister);
+    ostream.put(dmaLsb);
+    ostream.put(dmaMsb);
+    ostream.put(dmaStarted);
+    ostream.put(status);
+    ostream << uint64_t(ramSizeInBytes);
+    if (ramSizeInBytes > 0) {
+        ostream.write(reinterpret_cast<char*>(cram), ramSizeInBytes);
+    }
+}
+
+void Memory::deserialize(std::istream &istream) {
+    istream.read(reinterpret_cast<char*>(internalRam), FB_INTERNAL_RAM_SIZE);
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short");
+    }
+    istream.read(reinterpret_cast<char*>(hram), FB_HRAM_SIZE);
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short");
+    }
+    char buffer[5];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short");
+    }
+    interruptEnableRegister = buffer[0];
+    dmaLsb = buffer[1];
+    dmaMsb = buffer[2];
+    dmaStarted = buffer[3] != 0;
+    status = static_cast<CartridgeStatus>(buffer[4]);
+
+    uint64_t ramSizeInBytes;
+    istream >> ramSizeInBytes;
+
+    if (ramSizeInBytes > 0) {
+        if (ramSizeInBytes != this->ramSizeInBytes) {
+            delete[] cram;
+            cram = new u8[ramSizeInBytes];
+        }
+        istream.read(reinterpret_cast<char*>(cram), ramSizeInBytes);
+        if (!istream) {
+            throw Exception::ReadException("Stream is too short");
+        }
+    } else {
+        delete[] cram;
+    }
+    this->ramSizeInBytes = ramSizeInBytes;
 }
 
 #ifdef FB_TESTING
