@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "util/rom_commons.h"
+#include "../util/rom_commons.h"
 
 #include <acacia.h>
 #include <util/fs.h>
@@ -26,7 +26,7 @@
 #include <cartridge/mbc1.h>
 #include <cartridge/mbc2.h>
 #include <cartridge/mbc3.h>
-#include "util/membuf.h"
+#include "../util/membuf.h"
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
     cpu.instructionCompleted = false;
