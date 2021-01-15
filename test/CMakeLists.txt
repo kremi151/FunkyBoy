@@ -11,6 +11,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/acacia/source")
 set_acacia_test_sources(
         source/blargg/rom_cpu_instrs_tests.cpp
         source/unit_tests.cpp
+        source/unit_tests/rtc.cpp
         source/mooneye/rom_mooneye_mbc1.cpp
         source/mooneye/rom_mooneye_mbc2.cpp
         source/mooneye/rom_mooneye_mbc5.cpp
