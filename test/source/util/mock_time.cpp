@@ -14,11 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_ROM_MOONEYE_MBC5_H
-#define FB_TESTS_ROM_MOONEYE_MBC5_H
+#include "mock_time.h"
 
-#include <acacia.h>
+#include <util/testing.h>
+#include <cartridge/rtc.h>
 
-acacia::Report __fbTests_runMooneyeMBC5RomTests();
+namespace FunkyBoy::Testing {
+    static bool mockTime = false;
+    static time_t secondFactor;
+    static time_t mockedSeconds = 0;
+}
 
-#endif //FB_TESTS_ROM_MOONEYE_MBC5_H
+using namespace FunkyBoy;
+
+void Testing::useMockTime(bool mock) {
+    mockTime = mock;
+    if (mock) {
+        secondFactor = RTC::approximativeTimeConstant(5);
+    }
+}
+
+void Testing::setMockSeconds(time_t seconds) {
+    mockedSeconds = seconds;
+}
+
+size_t Testing::time() {
+    if (mockTime) {
+        return mockedSeconds * secondFactor;
+    } else {
+        return std::time(nullptr);
+    }
+}

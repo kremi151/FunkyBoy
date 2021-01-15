@@ -31,6 +31,10 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , memory(controllers, ioRegisters, ppuMemory)
     , cpu(std::make_shared<CPU>(gbType, ioRegisters))
     , ppu(cpu, controllers, ioRegisters, ppuMemory)
+#ifdef FB_USE_AUTOSAVE
+    , cramLastWritten(-1)
+    , savePath()
+#endif
 {
     // Initialize registers
     cpu->powerUpInit(memory);
@@ -106,11 +110,35 @@ void Emulator::loadState(std::istream &istream) {
     ppuMemory.deserialize(istream);
 }
 
+#ifdef FB_USE_AUTOSAVE
+void Emulator::doAutosave() {
+    if (!savePath.empty()) {
+        std::ofstream stream(savePath);
+        memory.writeRam(stream);
+    } else {
+#ifdef FB_DEBUG
+        fprintf(stderr, "Autosave could not be performed because savePath is not set!\n");
+#endif
+    }
+}
+#endif
+
 ret_code Emulator::doTick() {
     auto result = cpu->doMachineCycle(memory);
     if (!result) {
         return 0;
     }
     result |= ppu.doClocks(4);
+#ifdef FB_USE_AUTOSAVE
+    if (result & FB_RET_NEW_FRAME) {
+        if (memory.cartridgeRAMWritten) {
+            memory.cartridgeRAMWritten = false;
+            cramLastWritten = 0;
+        } else if (cramLastWritten != -1 && ++cramLastWritten >= 30) {
+            doAutosave();
+            cramLastWritten = -1;
+        }
+    }
+#endif
     return result;
 }

@@ -74,21 +74,23 @@ namespace FunkyBoy {
         u16 *ptrCounter;
         u8 *hwIO;
         Controller::ControllersPtr controllers;
-        void setSysCounter(u16 counter);
         void resetSysCounter();
 
         u8_fast *inputsDPad;
         u8_fast *inputsButtons;
     test_public:
-        u8 *sys_counter_lsb;
-        u8 *sys_counter_msb;
+        u16 *sys_counter;
     public:
         io_registers(const io_registers &registers);
         explicit io_registers(Controller::ControllersPtr controllers);
         ~io_registers();
 
-        inline u16 getSysCounter() {
-            return (*sys_counter_msb << 8) | *sys_counter_lsb;
+        inline u16 &getSysCounter() {
+            return *sys_counter;
+        }
+
+        inline void setSysCounter(u16 counter) {
+            *sys_counter = counter;
         }
 
         void handleMemoryWrite(u8 offset, u8 value);

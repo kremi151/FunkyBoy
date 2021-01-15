@@ -22,8 +22,7 @@ using namespace FunkyBoy;
 #define FB_HW_IO_BYTES 128
 
 io_registers::io_registers(const io_registers &registers)
-    : sys_counter_lsb(registers.sys_counter_lsb)
-    , sys_counter_msb(registers.sys_counter_msb)
+    : sys_counter(registers.sys_counter)
     , hwIO(registers.hwIO)
     , controllers(registers.controllers)
     , inputsDPad(registers.inputsDPad)
@@ -34,8 +33,7 @@ io_registers::io_registers(const io_registers &registers)
 }
 
 io_registers::io_registers(Controller::ControllersPtr controllers)
-    : sys_counter_lsb(new u8(0))
-    , sys_counter_msb(new u8(0))
+    : sys_counter(new u16(0))
     , hwIO(new u8[FB_HW_IO_BYTES]{})
     , controllers(std::move(controllers))
     , inputsDPad(new u8_fast(0b11111111u))
@@ -46,8 +44,7 @@ io_registers::io_registers(Controller::ControllersPtr controllers)
 
 io_registers::~io_registers() {
     if (--(*ptrCounter) < 1) {
-        delete sys_counter_lsb;
-        delete sys_counter_msb;
+        delete sys_counter;
         delete[] hwIO;
         delete inputsDPad;
         delete inputsButtons;
@@ -56,13 +53,7 @@ io_registers::~io_registers() {
 }
 
 void io_registers::resetSysCounter() {
-    *sys_counter_lsb = 0;
-    *sys_counter_msb = 0;
-}
-
-void io_registers::setSysCounter(FunkyBoy::u16 counter) {
-    *sys_counter_lsb = counter & 0xffu;
-    *sys_counter_msb = (counter >> 8) & 0xffu;
+    *sys_counter = 0;
 }
 
 void io_registers::handleMemoryWrite(u8 offset, u8 value) {
@@ -98,7 +89,7 @@ void io_registers::handleMemoryWrite(u8 offset, u8 value) {
 u8 io_registers::handleMemoryRead(u8 offset) {
     switch (offset) {
         case __FB_REG_OFFSET_DIV:
-            return *sys_counter_msb;
+            return *sys_counter >> 8;
         default:
             return *(hwIO + offset);
     }

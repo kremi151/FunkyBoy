@@ -46,6 +46,9 @@ Memory::Memory(Controller::ControllersPtr controllers, const io_registers& ioReg
     , ramSizeInBytes(0)
     , status(CartridgeStatus::NoROMLoaded)
     , mbc(new MBCNone())
+#ifdef FB_USE_AUTOSAVE
+    , cartridgeRAMWritten(false)
+#endif
 {
     internalRam = new u8[8 * FB_INTERNAL_RAM_BANK_SIZE]{};
     hram = new u8[127]{};
@@ -403,7 +406,17 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
             break;
         }
         FB_MEMORY_CARTRIDGE_RAM:
-            mbc->writeToRAMAt(offset - 0xA000, val, cram);
+#ifdef FB_USE_AUTOSAVE
+            if (
+#endif
+                mbc->writeToRAMAt(offset - 0xA000, val, cram)
+#ifdef FB_USE_AUTOSAVE
+            ) {
+                cartridgeRAMWritten = true;
+            }
+#else
+                ;
+#endif
             break;
         FB_MEMORY_INTERNAL_RAM:
             *(internalRam + (offset - 0xC000)) = val;

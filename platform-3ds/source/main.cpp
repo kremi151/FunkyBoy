@@ -19,6 +19,7 @@
 #include <3ds.h>
 #include <memory>
 #include <fstream>
+#include <cstring>
 
 #include <emulator/emulator.h>
 #include <controllers/display_3ds.h>
@@ -122,8 +123,11 @@ extern "C" {
         auto status = emulator.loadGame(FB_3DS_ROM_PATH);
 
         if (status == FunkyBoy::CartridgeStatus::Loaded) {
-            std::cout << "Loaded ROM at " << FB_3DS_ROM_PATH << std::endl;
-            std::cout << "ROM title: " << emulator.getROMHeader()->title << std::endl;
+            printf("Loaded ROM at %s\n", FB_3DS_ROM_PATH);
+
+            char romTitleSafe[FB_ROM_HEADER_TITLE_BYTES + 1]{};
+            std::memcpy(romTitleSafe, emulator.getROMHeader()->title, FB_ROM_HEADER_TITLE_BYTES);
+            printf("ROM title: %s\n", romTitleSafe);
         } else {
             std::cerr << "Could not load ROM at " << FB_3DS_ROM_PATH << " (status=" << status << ")" << std::endl;
             pressAToExit();

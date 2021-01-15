@@ -22,6 +22,8 @@
 #define FB_GB_DISPLAY_WIDTH 160
 #define FB_GB_DISPLAY_HEIGHT 144
 
+#define FB_TARGET_FPS 59.7154
+
 namespace FunkyBoy {
 
     typedef uint8_t u8;

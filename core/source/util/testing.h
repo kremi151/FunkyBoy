@@ -17,9 +17,15 @@
 #ifndef FB_TESTS_TESTING_H
 #define FB_TESTS_TESTING_H
 
-#if defined(FB_TESTING)
+#ifdef FB_TESTING
+
+#include <ctime>
 
 #define test_public public
+
+namespace FunkyBoy::Testing {
+    size_t time();
+}
 
 #else
 

@@ -21,6 +21,7 @@
 #include <controllers/display_sdl.h>
 #include <ui/native_ui.h>
 #include <fstream>
+#include <cstring>
 
 using namespace FunkyBoy::SDL;
 
@@ -107,10 +108,13 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
         savePath = romPath;
         savePath.replace_extension(".sav");
+        emulator.savePath = savePath;
 
         loadSave();
 
-        std::string title = reinterpret_cast<const char*>(emulator.getROMHeader()->title);
+        char romTitleSafe[FB_ROM_HEADER_TITLE_BYTES + 1]{};
+        std::memcpy(romTitleSafe, reinterpret_cast<const char*>(emulator.getROMHeader()->title), FB_ROM_HEADER_TITLE_BYTES);
+        std::string title = romTitleSafe;
         title += " - " FB_NAME;
         SDL_SetWindowTitle(window, title.c_str());
         return true;
@@ -170,19 +174,22 @@ void Window::updateInputs() {
     }
 }
 
-void Window::update() {
-    if (emulator.doTick() & FB_RET_NEW_SCANLINE) {
-        updateInputs();
+void Window::doFrame() {
+    ret_code result;
+    do {
+        result = emulator.doTick();
+    } while ((result & FB_RET_NEW_FRAME) == 0);
 
-        // Toggle fullscreen mode
-        if (keyboardState[SDL_SCANCODE_F]) {
-            if (!fullscreenRequestedPreviously) {
-                toggleFullscreen();
-            }
-            fullscreenRequestedPreviously = true;
-        } else {
-            fullscreenRequestedPreviously = false;
+    updateInputs();
+
+    // Toggle fullscreen mode
+    if (keyboardState[SDL_SCANCODE_F]) {
+        if (!fullscreenRequestedPreviously) {
+            toggleFullscreen();
         }
+        fullscreenRequestedPreviously = true;
+    } else {
+        fullscreenRequestedPreviously = false;
     }
 }
 

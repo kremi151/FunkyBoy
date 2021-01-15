@@ -17,6 +17,7 @@
 #include <libretro.h>
 #include <emulator/emulator.h>
 #include <controllers/display.h>
+#include <util/frame_executor.h>
 
 #include <cstdarg>
 #include <cstring>
@@ -50,7 +51,7 @@ extern "C" {
     static std::unique_ptr<Emulator> emulator;
     static std::shared_ptr<Controller::DisplayController> displayController;
 
-    static fs::path savePath;
+    static FunkyBoy::Util::FrameExecutor executeFrame(nullptr, 1.0);
 
     static unsigned currentControllerDevice;
     static unsigned currentControllerPort;
@@ -64,6 +65,8 @@ extern "C" {
     static bool btnLeftWasPressed = false;
     static bool btnRightWasPressed = false;
 
+    void update_inputs();
+
     void retro_init(void) {
         currentControllerDevice = RETRO_DEVICE_JOYPAD;
         currentControllerPort = 0;
@@ -75,6 +78,14 @@ extern "C" {
         auto controllers = std::make_shared<Controller::Controllers>();
         controllers->setDisplay(displayController);
         emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
+
+        executeFrame = FunkyBoy::Util::FrameExecutor([&]() {
+            ret_code result;
+            do {
+                result = emulator->doTick();
+            } while (!(result & FB_RET_NEW_FRAME));
+            update_inputs();
+        }, FB_TARGET_FPS);
     }
 
     void retro_deinit(void) {
@@ -106,7 +117,7 @@ extern "C" {
     void retro_get_system_av_info(struct retro_system_av_info *info) {
         float aspect = (float) FB_GB_DISPLAY_WIDTH / (float) FB_GB_DISPLAY_HEIGHT;
 
-        info->timing.fps = 59.7154;
+        info->timing.fps = FB_TARGET_FPS;
         info->timing.sample_rate = 0.0;
 
         // TODO: Implement sound
@@ -209,23 +220,20 @@ extern "C" {
 #undef IS_PRESSED
 
     void retro_run(void) {
-        ret_code result;
-        do {
-            result = emulator->doTick();
-        } while (!(result & FB_RET_NEW_FRAME));
-        update_inputs();
+        executeFrame();
     }
 
-    void fb_loadSave() {
+    void fb_loadSave(const FunkyBoy::fs::path &savePath) {
         if (!savePath.empty() && emulator->getCartridgeRamSize() > 0 && fs::exists(savePath)) {
-            std::ifstream file(savePath);
+            std::ifstream file(savePath, std::ios::binary | std::ios::in);
             emulator->loadCartridgeRam(file);
         }
     }
 
     void fb_writeSave() {
+        auto &savePath = emulator->savePath;
         if (!savePath.empty() && emulator->getCartridgeRamSize() > 0) {
-            std::ofstream file(savePath);
+            std::ofstream file(savePath, std::ios::binary | std::ios::out);
             emulator->writeCartridgeRam(file);
         }
     }
@@ -260,9 +268,10 @@ extern "C" {
                 return false;
             }
             case CartridgeStatus::Loaded: {
-                savePath = info->path;
+                FunkyBoy::fs::path savePath = info->path;
                 savePath.replace_extension(".sav");
-                fb_loadSave();
+                emulator->savePath = savePath;
+                fb_loadSave(savePath);
                 return true;
             }
             default: {
@@ -274,7 +283,6 @@ extern "C" {
 
     void retro_unload_game(void) {
         fb_writeSave();
-        savePath.clear();
 
         auto ptr = emulator.release();
         delete ptr;

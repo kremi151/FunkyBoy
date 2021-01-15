@@ -34,6 +34,12 @@
 namespace FunkyBoy {
 
     class Emulator {
+    private:
+#ifdef FB_USE_AUTOSAVE
+        int cramLastWritten;
+
+        void doAutosave();
+#endif
     test_public:
         Controller::ControllersPtr controllers;
 
@@ -43,6 +49,10 @@ namespace FunkyBoy {
         CPUPtr cpu;
         PPU ppu;
     public:
+#ifdef FB_USE_AUTOSAVE
+        fs::path savePath;
+#endif
+
         explicit Emulator(GameBoyType gbType);
         Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);
 
@@ -69,6 +79,10 @@ namespace FunkyBoy {
 
         inline size_t getCartridgeRamSize() {
             return memory.getCartridgeRamSize();
+        }
+
+        inline bool supportsSaving() {
+            return memory.getCartridgeRamSize() > 0;
         }
 
         ret_code doTick();

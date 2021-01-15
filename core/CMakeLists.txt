@@ -45,6 +45,7 @@ set(SOURCES
         source/operands/table_unprefixed_instructions.cpp
         source/util/registers.cpp
         source/util/flags.cpp
+        source/util/frame_executor.cpp
         source/exception/state_exception.cpp
         source/exception/read_exception.cpp
         )
@@ -98,6 +99,7 @@ set(HEADERS
         source/util/gpumode.h
         source/util/return_codes.h
         source/util/string_polyfills.h
+        source/util/frame_executor.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         source/exception/read_exception.h
@@ -110,5 +112,38 @@ find_package(Filesystem REQUIRED)
 add_library(fb_core STATIC ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
+
+# Check whether we can include thread
+check_include_file_cxx("thread" HAVE_STD_THREAD)
+target_compile_definitions(fb_core PUBLIC -DHAS_STD_THREAD=$<BOOL:${HAVE_STD_THREAD}>)
+
+# Check whether we can use std::this_thread
+string(CONFIGURE [[
+        #include <thread>
+
+        int main() {
+            std::this_thread::get_id();
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_STD_THIS_THREAD)
+target_compile_definitions(fb_core PUBLIC -DHAS_STD_THIS_THREAD=$<BOOL:${CAN_COMPILE_STD_THIS_THREAD}>)
+
+# Check whether we can use usleep from unistd.h
+string(CONFIGURE [[
+        #include <unistd.h>
+
+        int main() {
+            usleep(0);
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_UNISTD_USLEEP)
+target_compile_definitions(fb_core PUBLIC -DHAS_UNISTD_USLEEP=$<BOOL:${CAN_COMPILE_UNISTD_USLEEP}>)
+
+# Macros
+macro(fb_use_autosave target)
+    target_compile_definitions(${target} PUBLIC -DFB_USE_AUTOSAVE)
+endmacro()
 
 target_link_libraries(fb_core CXX::Filesystem)

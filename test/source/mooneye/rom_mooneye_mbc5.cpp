@@ -14,51 +14,59 @@
  * limitations under the License.
  */
 
-#include "rom_mooneye_mbc1.h"
+#include <acacia.h>
 
 #include "commons.h"
 #include <util/fs.h>
 
-TEST(testMooneyeMBC5Rom512Kb) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_512kb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+TEST_SUITE(mooneyeMBC5) {
 
-TEST(testMooneyeMBC5Rom1MB) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_1Mb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+    TEST(testMooneyeMBC5Rom512Kb) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_512kb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
 
-TEST(testMooneyeMBC5Rom2MB) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_2Mb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+    TEST(testMooneyeMBC5Rom1MB) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_1Mb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
 
-TEST(testMooneyeMBC5Rom4MB) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_4Mb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+    TEST(testMooneyeMBC5Rom2MB) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_2Mb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
 
-TEST(testMooneyeMBC5Rom8MB) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_8Mb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+    TEST(testMooneyeMBC5Rom4MB) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_4Mb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
 
-TEST(testMooneyeMBC5Rom16MB) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_16Mb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+    TEST(testMooneyeMBC5Rom8MB) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_8Mb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
 
-TEST(testMooneyeMBC5Rom32MB) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_32Mb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+    TEST(testMooneyeMBC5Rom16MB) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_16Mb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
 
-TEST(testMooneyeMBC5Rom64MB) {
-    FunkyBoy::fs::path romPath = FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_64Mb.gb";
-    testUsingMooneyeROM(romPath, 5120000);
-}
+    TEST(testMooneyeMBC5Rom32MB) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_32Mb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
 
-acacia::Report __fbTests_runMooneyeMBC5RomTests() {
-    return runAcaciaFileTests();
+    TEST(testMooneyeMBC5Rom64MB) {
+        FunkyBoy::fs::path romPath =
+                FunkyBoy::fs::path("..") / "mooneye-test-roms" / "emulator-only" / "mbc5" / "rom_64Mb.gb";
+        testUsingMooneyeROM(romPath, 5120000);
+    }
+
 }

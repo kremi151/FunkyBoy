@@ -30,8 +30,9 @@ u8 MBCNone::readFromRAMAt(memory_address offset, u8 *ram) {
     return *(ram + offset);
 }
 
-void MBCNone::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
+bool MBCNone::writeToRAMAt(memory_address offset, u8 val, u8 *ram) {
     *(ram + offset) = val;
+    return true;
 }
 
 void MBCNone::saveBattery(std::ostream &stream, u8 *ram, size_t l) {

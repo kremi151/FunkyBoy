@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_ROM_CPU_INSTRS_TESTS_H
-#define FB_TESTS_ROM_CPU_INSTRS_TESTS_H
+#ifndef FB_TESTS_MOCK_TIME_H
+#define FB_TESTS_MOCK_TIME_H
 
-#include <acacia.h>
+#include <ctime>
 
-acacia::Report __fbTests_runBlarggCpuInstrsRomTests();
+namespace FunkyBoy::Testing {
+    void useMockTime(bool mock);
+    void setMockSeconds(time_t seconds);
+}
 
-#endif //FB_TESTS_ROM_CPU_INSTRS_TESTS_H
+#endif //FB_TESTS_MOCK_TIME_H

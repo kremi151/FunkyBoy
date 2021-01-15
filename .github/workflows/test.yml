@@ -41,12 +41,13 @@ jobs:
       - name: run-cmake
         uses: lukka/run-cmake@v2.5
         with:
+          cmakeBuildType: Release
           cmakeListsTxtPath: "${{ github.workspace }}/test/CMakeLists.txt"
           buildDirectory: "${{ github.workspace }}/test/_fb_tests"
           cmakeGenerator: ${{ matrix.config.generator }}
       - name: Perform tests (Windows)
         if: ${{ matrix.config.os == 'windows-latest' }}
-        run: ".\\Debug\\fb_tests.exe --mooneye"
+        run: ".\\Release\\fb_tests.exe --mooneye"
         working-directory: "${{ github.workspace }}/test/_fb_tests"
       - name: Perform tests (Linux + macOS)
         if: ${{ matrix.config.os != 'windows-latest' }}

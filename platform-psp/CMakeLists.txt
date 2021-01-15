@@ -47,6 +47,6 @@ set_target_properties(fb_psp PROPERTIES LINKER_LANGUAGE CXX)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../core/source")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
 
-target_link_libraries(fb_psp -lstdc++ ${PSP_LIBRARIES} fb_core)
+target_link_libraries(fb_psp -lstdc++ fb_core -lpsppower ${PSP_LIBRARIES})
 
 create_pbp_file(TARGET fb_psp TITLE ${FB_NAME})
