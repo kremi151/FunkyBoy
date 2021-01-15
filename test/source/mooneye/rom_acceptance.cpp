@@ -82,7 +82,6 @@ TEST_SUITE(mooneyeROMAcceptance) {
         MOONEYE_ACCEPTANCE_TEST(BootHwioDMGABCMGB, ., boot_hwio-dmgABCmgb)
         MOONEYE_ACCEPTANCE_TEST(BootHwioS, ., boot_hwio-S)
         MOONEYE_ACCEPTANCE_TEST(BootRegsDMG0, ., boot_regs-dmg0)
-        MOONEYE_ACCEPTANCE_TEST(BootRegsDMGABC, ., boot_regs-dmgABC)
         MOONEYE_ACCEPTANCE_TEST(BootRegsMGB, ., boot_regs-mgb)
         MOONEYE_ACCEPTANCE_TEST(BootRegsSGB, ., boot_regs-sgb)
         MOONEYE_ACCEPTANCE_TEST(BootRegsSGB2, ., boot_regs-sgb2)
