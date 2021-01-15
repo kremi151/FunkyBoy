@@ -393,10 +393,11 @@ void CPU::serialize(std::ostream &ostream) const {
     } else {
         operandTable = Operands::Tables::instructions[instrContext.instr];
         for (int i = 0 ;; i++) {
-            if (*(operandTable++) == *operands) {
+            auto &operand = *(operandTable++);
+            if (operand == *operands) {
                 operandIndex = i;
                 break;
-            } else if (*operandTable == nullptr) {
+            } else if (operand == nullptr) {
                 throw Exception::WrongStateException("Operand index could not be determined");
             }
         }
