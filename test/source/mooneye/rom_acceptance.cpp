@@ -40,11 +40,14 @@ TEST_SUITE(mooneyeROMAcceptance) {
 
     MOONEYE_ACCEPTANCE_TEST(Timer_Tma_WriteReloading, timer, tma_write_reloading)
 
+    MOONEYE_ACCEPTANCE_TEST(OamDmaBasic, oam_dma, basic)
+
+    MOONEYE_ACCEPTANCE_TEST(BootRegsDMGABC, ., boot_regs-dmgABC)
+
     // TODO: Fix tests
     #ifdef FB_RUN_FAILING_MOONEYE_TESTS
         MOONEYE_ACCEPTANCE_TEST(BitsUnusedHwIoGS, bits, unused_hwio-GS)
         MOONEYE_ACCEPTANCE_TEST(InterruptsIEPush, interrupts, ie_push)
-        MOONEYE_ACCEPTANCE_TEST(OamDmaBasic, oam_dma, basic)
         MOONEYE_ACCEPTANCE_TEST(OamDmaSourcesGS, oam_dma, sources-GS) // Unsupported MBC
         MOONEYE_ACCEPTANCE_TEST(PPU_HblankLyScxTimingGS, ppu, hblank_ly_scx_timing-GS)
         MOONEYE_ACCEPTANCE_TEST(PPU_Intr_1_2_TimingGS, ppu, intr_1_2_timing-GS)
@@ -74,6 +77,43 @@ TEST_SUITE(mooneyeROMAcceptance) {
         MOONEYE_ACCEPTANCE_TEST(BootDiv2_S, ., boot_div2-S)
         MOONEYE_ACCEPTANCE_TEST(BootDivDmg0, ., boot_div-dmg0)
         MOONEYE_ACCEPTANCE_TEST(BootDivDmgABCMgb, ., boot_div-dmgABCmgb)
-    #endif
+        MOONEYE_ACCEPTANCE_TEST(BootDivS, ., boot_div-S)
+        MOONEYE_ACCEPTANCE_TEST(BootHwioDMG0, ., boot_hwio-dmg0)
+        MOONEYE_ACCEPTANCE_TEST(BootHwioDMGABCMGB, ., boot_hwio-dmgABCmgb)
+        MOONEYE_ACCEPTANCE_TEST(BootHwioS, ., boot_hwio-S)
+        MOONEYE_ACCEPTANCE_TEST(BootRegsDMG0, ., boot_regs-dmg0)
+        MOONEYE_ACCEPTANCE_TEST(BootRegsDMGABC, ., boot_regs-dmgABC)
+        MOONEYE_ACCEPTANCE_TEST(BootRegsMGB, ., boot_regs-mgb)
+        MOONEYE_ACCEPTANCE_TEST(BootRegsSGB, ., boot_regs-sgb)
+        MOONEYE_ACCEPTANCE_TEST(BootRegsSGB2, ., boot_regs-sgb2)
+        MOONEYE_ACCEPTANCE_TEST(CallCCTiming, ., call_cc_timing)
+        MOONEYE_ACCEPTANCE_TEST(CallCCTiming2, ., call_cc_timing2)
+        MOONEYE_ACCEPTANCE_TEST(CallTiming, ., call_timing)
+        MOONEYE_ACCEPTANCE_TEST(CallTiming2, ., call_timing2)
+        MOONEYE_ACCEPTANCE_TEST(DITiming, ., di_timing-GS)
+        MOONEYE_ACCEPTANCE_TEST(DivTiming, ., div_timing)
+        MOONEYE_ACCEPTANCE_TEST(EISequence, ., ei_sequence)
+        MOONEYE_ACCEPTANCE_TEST(EITiming, ., ei_timing)
+        MOONEYE_ACCEPTANCE_TEST(HaltIme0EI, ., halt_ime0_ei)
+        MOONEYE_ACCEPTANCE_TEST(HaltIme0NoIntrTiming, ., halt_ime0_nointr_timing)
+        MOONEYE_ACCEPTANCE_TEST(HaltIme1Timing, ., halt_ime1_timing)
+        MOONEYE_ACCEPTANCE_TEST(HaltIme2GS, ., halt_ime1_timing2-GS)
+        MOONEYE_ACCEPTANCE_TEST(IFIERegisters, ., if_ie_registers)
+        MOONEYE_ACCEPTANCE_TEST(IntrTiming, ., intr_timing)
+        MOONEYE_ACCEPTANCE_TEST(JpCCTiming, ., jp_cc_timing)
+        MOONEYE_ACCEPTANCE_TEST(JPTiming, ., jp_timing)
+        MOONEYE_ACCEPTANCE_TEST(LDHLSPeTiming, ., ld_hl_sp_e_timing)
+        MOONEYE_ACCEPTANCE_TEST(OAMDMARestart, ., oam_dma_restart)
+        MOONEYE_ACCEPTANCE_TEST(OAMDMAStart, ., oam_dma_start)
+        MOONEYE_ACCEPTANCE_TEST(OAMDMATiming, ., oam_dma_timing)
+        MOONEYE_ACCEPTANCE_TEST(PopTiming, ., pop_timing)
+        MOONEYE_ACCEPTANCE_TEST(PushTiming, ., push_timing)
+        MOONEYE_ACCEPTANCE_TEST(RapidDIEI, ., rapid_di_ei)
+        MOONEYE_ACCEPTANCE_TEST(RETCCTiming, ., ret_cc_timing)
+        MOONEYE_ACCEPTANCE_TEST(RETTiming, ., ret_timing)
+        MOONEYE_ACCEPTANCE_TEST(RETIIntrTiming, ., reti_intr_timing)
+        MOONEYE_ACCEPTANCE_TEST(RETITiming, ., reti_timing)
+        MOONEYE_ACCEPTANCE_TEST(RSTTiming, ., rst_timing)
+#endif
 
 }
