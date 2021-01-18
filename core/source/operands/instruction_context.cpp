@@ -96,8 +96,8 @@ void InstrContext::deserialize(std::istream &istream) {
     lsb = buffer[10];
     msb = buffer[11];
     signedByte = buffer[12];
-    progCounter = (buffer[14] << 8) | buffer[13];
-    stackPointer = (buffer[16] << 8) | buffer[15];
+    progCounter = ((buffer[14] & 0xffu) << 8)  | (buffer[13] & 0xffu);
+    stackPointer = ((buffer[16] & 0xffu) << 8) | (buffer[15] & 0xffu);
     cpuState = static_cast<CPUState>(buffer[17]);
     interruptMasterEnable = static_cast<IMEState>(buffer[18]);
     haltBugRequested = buffer[19] != 0;
