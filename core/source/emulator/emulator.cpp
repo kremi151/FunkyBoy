@@ -96,8 +96,6 @@ void Emulator::saveState(std::ostream &ostream) {
     ioRegisters.serialize(ostream);
     ppuMemory.serialize(ostream);
     memory.serialize(ostream);
-
-    // TODO: MBC state
 }
 
 void Emulator::loadState(std::istream &istream) {

@@ -16,6 +16,7 @@
 
 #include "io_registers.h"
 #include <exception/read_exception.h>
+#include <util/stream_utils.h>
 
 using namespace FunkyBoy;
 
@@ -176,8 +177,7 @@ void io_registers::serialize(std::ostream &ostream) const {
     ostream.write(reinterpret_cast<const char*>(hwIO), FB_HW_IO_BYTES);
     ostream.put(*inputsDPad & 0xffu);
     ostream.put(*inputsButtons & 0xffu);
-    ostream.put(*sys_counter & 0xffu);
-    ostream.put((*sys_counter >> 8) & 0xffu);
+    Util::Stream::write16BitIgnoreEndianness(*sys_counter, ostream);
 }
 
 void io_registers::deserialize(std::istream &istream) {
@@ -186,12 +186,12 @@ void io_registers::deserialize(std::istream &istream) {
         throw Exception::ReadException("Stream is too short (HWIO)");
     }
 
-    char buffer[4];
+    char buffer[2];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
         throw Exception::ReadException("Stream is too short (IO registers)");
     }
     *inputsDPad = buffer[0];
     *inputsButtons = buffer[1];
-    *sys_counter = (buffer[3] << 8) | buffer[2];
+    *sys_counter = Util::Stream::read16BitIgnoreEndianness(istream);
 }

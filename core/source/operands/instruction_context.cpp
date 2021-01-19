@@ -18,6 +18,7 @@
 
 #include <exception/read_exception.h>
 #include <cstring>
+#include <util/stream_utils.h>
 
 using namespace FunkyBoy;
 
@@ -75,17 +76,15 @@ void InstrContext::serialize(std::ostream &ostream) const {
     ostream.put(lsb);
     ostream.put(msb);
     ostream.put(signedByte);
-    ostream.put(progCounter & 0xffu);
-    ostream.put((progCounter >> 8) & 0xffu);
-    ostream.put(stackPointer & 0xffu);
-    ostream.put((stackPointer >> 8) & 0xffu);
     ostream.put(cpuState);
     ostream.put(interruptMasterEnable);
     ostream.put(haltBugRequested);
+    Util::Stream::write16BitIgnoreEndianness(progCounter, ostream);
+    Util::Stream::write16BitIgnoreEndianness(stackPointer, ostream);
 }
 
 void InstrContext::deserialize(std::istream &istream) {
-    char buffer[20];
+    char buffer[16];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
         throw Exception::ReadException("Stream is too short (Instruction context)");
@@ -96,9 +95,9 @@ void InstrContext::deserialize(std::istream &istream) {
     lsb = buffer[10];
     msb = buffer[11];
     signedByte = buffer[12];
-    progCounter = ((buffer[14] & 0xffu) << 8)  | (buffer[13] & 0xffu);
-    stackPointer = ((buffer[16] & 0xffu) << 8) | (buffer[15] & 0xffu);
-    cpuState = static_cast<CPUState>(buffer[17]);
-    interruptMasterEnable = static_cast<IMEState>(buffer[18]);
-    haltBugRequested = buffer[19] != 0;
+    cpuState = static_cast<CPUState>(buffer[13]);
+    interruptMasterEnable = static_cast<IMEState>(buffer[14]);
+    haltBugRequested = buffer[15] != 0;
+    progCounter = Util::Stream::read16BitIgnoreEndianness(istream);
+    stackPointer = Util::Stream::read16BitIgnoreEndianness(istream);
 }
