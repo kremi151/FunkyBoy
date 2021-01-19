@@ -43,6 +43,9 @@ namespace FunkyBoy {
         void saveBattery(std::ostream &stream, u8 *ram, size_t l) override;
         void loadBattery(std::istream &stream, u8 *ram, size_t l) override;
 
+        void serialize(std::ostream &ostream) const override;
+        void deserialize(std::istream &istream) override;
+
         bool hasBattery() override;
 
         void getDebugInfo(const char **outName, unsigned &outRomBank) override;

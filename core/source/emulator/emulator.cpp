@@ -109,6 +109,9 @@ void Emulator::loadState(std::istream &istream) {
     ioRegisters.deserialize(istream);
     ppuMemory.deserialize(istream);
     memory.deserialize(istream);
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (Emulator)");
+    }
 }
 
 #ifdef FB_USE_AUTOSAVE

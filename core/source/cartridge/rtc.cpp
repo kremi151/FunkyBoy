@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <util/testing.h>
+#include <util/stream_utils.h>
 
 using namespace FunkyBoy;
 
@@ -204,4 +205,38 @@ void RTC::load(std::istream &stream) {
     u16_fast days = ((dh & 0b10111111u) << 8) | dl;
     timestampOffset = (days * dayFactor) + (hours * hourFactor) + (minutes * minuteFactor) + (seconds * secondFactor);
     startTimestamp = ((buffer[43] << 24) | (buffer[42] << 16) | (buffer[41] << 8) | buffer[40]) * secondFactor;
+}
+
+void RTC::serialize(std::ostream &ostream) const {
+    // 64-bit writes
+    Util::Stream::write64BitIgnoreEndianness(startTimestamp, ostream);
+    Util::Stream::write64BitIgnoreEndianness(timestampOffset, ostream);
+    Util::Stream::write64BitIgnoreEndianness(latchTimestamp, ostream);
+
+    // 16-bit writes
+    Util::Stream::write16BitIgnoreEndianness(haltedDays, ostream);
+
+    // 8-bit writes
+    ostream
+        << haltedHours
+        << haltedMinutes
+        << haltedSeconds
+        << halted;
+}
+
+void RTC::deserialize(std::istream &istream) {
+    // 64-bit reads
+    startTimestamp = Util::Stream::read64BitIgnoreEndianness(istream);
+    timestampOffset = Util::Stream::read64BitIgnoreEndianness(istream);
+    latchTimestamp = Util::Stream::read64BitIgnoreEndianness(istream);
+
+    // 16-bit reads
+    haltedDays = Util::Stream::read16BitIgnoreEndianness(istream);
+
+    // 8-bit reads
+    istream
+        >> haltedHours
+        >> haltedMinutes
+        >> haltedSeconds
+        >> halted;
 }

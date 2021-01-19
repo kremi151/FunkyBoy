@@ -183,13 +183,13 @@ void io_registers::serialize(std::ostream &ostream) const {
 void io_registers::deserialize(std::istream &istream) {
     istream.read(reinterpret_cast<char*>(hwIO), FB_HW_IO_BYTES);
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (HWIO)");
     }
 
     char buffer[4];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (IO registers)");
     }
     *inputsDPad = buffer[0];
     *inputsButtons = buffer[1];

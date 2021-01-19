@@ -73,6 +73,10 @@ TEST_SUITE(saveStates) {
                 TEST_GB_TYPE,
                 controllers
         );
+        status = emulator2.loadGame(romPath);
+        if (status != FunkyBoy::CartridgeStatus::Loaded) {
+            testFailure("Loading ROM in second emulator failed");
+        }
         emulator2.loadState(inStream);
 
         assertEquals(emulator1.memory.ramSizeInBytes, emulator2.memory.ramSizeInBytes);

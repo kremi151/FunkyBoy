@@ -67,17 +67,17 @@ void PPUMemory::serialize(std::ostream &ostream) const {
 void PPUMemory::deserialize(std::istream &istream) {
     istream.read(reinterpret_cast<char*>(vram), FB_VRAM_BYTES);
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (Video RAM)");
     }
     istream.read(reinterpret_cast<char*>(oam), FB_OAM_BYTES);
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (OAM)");
     }
 
     char buffer[2];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (PPU Memory)");
     }
 
     *vramAccessible = buffer[0] != 0;

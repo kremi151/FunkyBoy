@@ -100,6 +100,7 @@ set(HEADERS
         source/util/return_codes.h
         source/util/string_polyfills.h
         source/util/frame_executor.h
+        source/util/stream_utils.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         source/exception/read_exception.h

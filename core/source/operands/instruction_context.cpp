@@ -88,7 +88,7 @@ void InstrContext::deserialize(std::istream &istream) {
     char buffer[20];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (Instruction context)");
     }
     instr = buffer[0];
     cbInstr = buffer[1];

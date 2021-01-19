@@ -415,7 +415,7 @@ void CPU::deserialize(std::istream &istream) {
     char buffer[4];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (CPU)");
     }
 
     u8 operandIndex = buffer[0];

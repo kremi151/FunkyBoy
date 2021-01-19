@@ -495,6 +495,7 @@ void Memory::serialize(std::ostream &ostream) const {
     ostream.put(dmaMsb);
     ostream.put(dmaStarted);
     ostream.put(status);
+    mbc->serialize(ostream);
     ostream << uint64_t(ramSizeInBytes);
     if (ramSizeInBytes > 0) {
         ostream.write(reinterpret_cast<char*>(cram), ramSizeInBytes);
@@ -504,22 +505,24 @@ void Memory::serialize(std::ostream &ostream) const {
 void Memory::deserialize(std::istream &istream) {
     istream.read(reinterpret_cast<char*>(internalRam), FB_INTERNAL_RAM_SIZE);
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (Internal RAM)");
     }
     istream.read(reinterpret_cast<char*>(hram), FB_HRAM_SIZE);
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (HRAM)");
     }
     char buffer[5];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
-        throw Exception::ReadException("Stream is too short");
+        throw Exception::ReadException("Stream is too short (Memory)");
     }
     interruptEnableRegister = buffer[0];
     dmaLsb = buffer[1];
     dmaMsb = buffer[2];
     dmaStarted = buffer[3] != 0;
     status = static_cast<CartridgeStatus>(buffer[4]);
+
+    mbc->deserialize(istream);
 
     uint64_t ramSizeInBytes;
     istream >> ramSizeInBytes;
@@ -531,7 +534,7 @@ void Memory::deserialize(std::istream &istream) {
         }
         istream.read(reinterpret_cast<char*>(cram), ramSizeInBytes);
         if (!istream) {
-            throw Exception::ReadException("Stream is too short");
+            throw Exception::ReadException("Stream is too short (Cartridge RAM)");
         }
     } else {
         delete[] cram;

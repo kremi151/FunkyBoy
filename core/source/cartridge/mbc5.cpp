@@ -19,7 +19,7 @@
 #include <cartridge/mbc1.h>
 #include <util/debug.h>
 #include <exception/state_exception.h>
-#include <util/string_polyfills.h>
+#include <util/stream_utils.h>
 #include <algorithm>
 
 #define mbc5_print(...) debug_print_4(__VA_ARGS__)
@@ -138,6 +138,36 @@ void MBC5::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
 
 void MBC5::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     stream.read(reinterpret_cast<char*>(ram), l);
+}
+
+void MBC5::serialize(std::ostream &ostream) const {
+    // 32-bit writes
+    Util::Stream::write32BitIgnoreEndianness(romBankOffset, ostream);
+    Util::Stream::write32BitIgnoreEndianness(ramBankOffset, ostream);
+
+    // 16-bit writes
+    Util::Stream::write16BitIgnoreEndianness(preliminaryRomBank, ostream);
+    Util::Stream::write16BitIgnoreEndianness(romBank, ostream);
+
+    // 8-bit writes
+    ostream
+        << ramBank
+        << ramEnabled;
+}
+
+void MBC5::deserialize(std::istream &istream) {
+    // 32-bit reads
+    romBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
+    ramBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
+
+    // 16-bit reads
+    preliminaryRomBank = Util::Stream::read16BitIgnoreEndianness(istream);
+    romBank = Util::Stream::read16BitIgnoreEndianness(istream);
+
+    // 8-bit reads
+    istream
+        >> ramBank
+        >> ramEnabled;
 }
 
 bool MBC5::hasBattery() {

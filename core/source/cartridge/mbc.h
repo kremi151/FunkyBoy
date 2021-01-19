@@ -35,6 +35,9 @@ namespace FunkyBoy {
         virtual void saveBattery(std::ostream &stream, u8 *ram, size_t l) = 0;
         virtual void loadBattery(std::istream &stream, u8 *ram, size_t l) = 0;
 
+        virtual void serialize(std::ostream &ostream) const = 0;
+        virtual void deserialize(std::istream &istream) = 0;
+
         virtual bool hasBattery() = 0;
 
         virtual void getDebugInfo(const char **outName, unsigned &outRomBank) = 0;
