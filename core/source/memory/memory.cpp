@@ -530,6 +530,7 @@ void Memory::deserialize(std::istream &istream) {
     if (ramSizeInBytes > 0) {
         if (ramSizeInBytes != this->ramSizeInBytes) {
             delete[] cram;
+            cram = nullptr;
             cram = new u8[ramSizeInBytes];
         }
         istream.read(reinterpret_cast<char*>(cram), ramSizeInBytes);
@@ -538,6 +539,7 @@ void Memory::deserialize(std::istream &istream) {
         }
     } else {
         delete[] cram;
+        cram = nullptr;
     }
     this->ramSizeInBytes = ramSizeInBytes;
 }
