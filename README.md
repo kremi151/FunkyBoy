@@ -24,7 +24,7 @@ Most of the games are already playable, albeit with some minor graphical glitche
 |MBC7|:x: Not supported|
 |Real-time clock (RTC) as part of MBC3[0]|:heavy_check_mark: Supported|
 |Save games|:heavy_check_mark: Supported in SDL, libretro and Android implementations|
-|Save states|:x: Not started ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
+|Save states|:eyes: Experimental support in SDL ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
 
 ## Compatible games
 See [Compatible games](./docs/COMPATIBLE_GAMES.md)

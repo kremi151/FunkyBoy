@@ -13,6 +13,22 @@ This is the implementation of FunkyBoy for Windows, Linux and macOS
 | Ubuntu              | :heavy_check_mark: | SDL2, GTK3                     |
 | Other Linux distros | :question:         | SDL2, GTK3                     |
 
+## Controls
+
+|Action|Key|
+|------|---|
+|A button|Q|
+|B button|W|
+|Start button|O|
+|Select button|P|
+|DPad Up|Up|
+|DPad Down|Down|
+|DPad Left|Left|
+|DPad Right|Right|
+|Toggle fullscreen|F|
+|Create save state|H|
+|Load save state|J|
+
 ## Build on Ubuntu
 
 1. Install SDL2, GTK3 and CMake:
