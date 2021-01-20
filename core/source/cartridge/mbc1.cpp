@@ -198,12 +198,11 @@ void MBC1::serialize(std::ostream &ostream) const {
     Util::Stream::write32BitIgnoreEndianness(ramBankOffset, ostream);
 
     // 8-bit writes
-    ostream
-        << preliminaryRomBank
-        << romBank
-        << ramBank
-        << ramBankingMode
-        << ramEnabled;
+    ostream.put(preliminaryRomBank);
+    ostream.put(romBank);
+    ostream.put(ramBank);
+    ostream.put(ramBankingMode);
+    ostream.put(ramEnabled);
 }
 
 void MBC1::deserialize(std::istream &istream) {
@@ -213,12 +212,11 @@ void MBC1::deserialize(std::istream &istream) {
     ramBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
 
     // 8-bit reads
-    istream
-        >> preliminaryRomBank
-        >> romBank
-        >> ramBank
-        >> ramBankingMode
-        >> ramEnabled;
+    preliminaryRomBank = istream.get();
+    romBank = istream.get();
+    ramBank = istream.get();
+    ramBankingMode = istream.get();
+    ramEnabled = istream.get();
 }
 
 bool MBC1::hasBattery() {

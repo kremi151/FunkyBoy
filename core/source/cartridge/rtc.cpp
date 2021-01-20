@@ -217,11 +217,10 @@ void RTC::serialize(std::ostream &ostream) const {
     Util::Stream::write16BitIgnoreEndianness(haltedDays, ostream);
 
     // 8-bit writes
-    ostream
-        << haltedHours
-        << haltedMinutes
-        << haltedSeconds
-        << halted;
+    ostream.put(haltedHours);
+    ostream.put(haltedMinutes);
+    ostream.put(haltedSeconds);
+    ostream.put(halted);
 }
 
 void RTC::deserialize(std::istream &istream) {
@@ -234,9 +233,8 @@ void RTC::deserialize(std::istream &istream) {
     haltedDays = Util::Stream::read16BitIgnoreEndianness(istream);
 
     // 8-bit reads
-    istream
-        >> haltedHours
-        >> haltedMinutes
-        >> haltedSeconds
-        >> halted;
+    haltedHours = istream.get();
+    haltedMinutes = istream.get();
+    haltedSeconds = istream.get();
+    halted = istream.get();
 }

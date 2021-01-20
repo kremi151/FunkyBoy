@@ -116,9 +116,8 @@ void MBC2::serialize(std::ostream &ostream) const {
     Util::Stream::write32BitIgnoreEndianness(romBankOffset, ostream);
 
     // 8-bit writes
-    ostream
-        << romBank
-        << ramEnabled;
+    ostream.put(romBank);
+    ostream.put(ramEnabled);
 }
 
 void MBC2::deserialize(std::istream &istream) {
@@ -126,9 +125,8 @@ void MBC2::deserialize(std::istream &istream) {
     romBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
 
     // 8-bit reads
-    istream
-        >> romBank
-        >> ramEnabled;
+    romBank = istream.get();
+    ramEnabled = istream.get();
 }
 
 bool MBC2::hasBattery() {

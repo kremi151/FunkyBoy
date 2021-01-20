@@ -150,9 +150,8 @@ void MBC5::serialize(std::ostream &ostream) const {
     Util::Stream::write16BitIgnoreEndianness(romBank, ostream);
 
     // 8-bit writes
-    ostream
-        << ramBank
-        << ramEnabled;
+    ostream.put(ramBank);
+    ostream.put(ramEnabled);
 }
 
 void MBC5::deserialize(std::istream &istream) {
@@ -165,9 +164,8 @@ void MBC5::deserialize(std::istream &istream) {
     romBank = Util::Stream::read16BitIgnoreEndianness(istream);
 
     // 8-bit reads
-    istream
-        >> ramBank
-        >> ramEnabled;
+    ramBank = istream.get();
+    ramEnabled = istream.get();
 }
 
 bool MBC5::hasBattery() {
