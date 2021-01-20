@@ -124,6 +124,26 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     }
 }
 
+void Window::saveState() {
+    fs::path statePath = savePath;
+    statePath.replace_extension(".fbs");
+    std::ofstream ostream(statePath);
+    emulator.saveState(ostream);
+    printf("Save state saved to %s\n", statePath.c_str());
+}
+
+void Window::loadState() {
+    fs::path statePath = savePath;
+    statePath.replace_extension(".fbs");
+    if (!fs::exists(statePath)) {
+        fprintf(stderr, "No existing save state found at %s\n", statePath.c_str());
+        return;
+    }
+    std::ifstream istream(statePath);
+    emulator.loadState(istream);
+    printf("Save state loaded from %s\n", statePath.c_str());
+}
+
 void Window::updateInputs() {
     // Poll keyboard inputs once per frame
     SDL_PollEvent(&sdlEvents);
@@ -188,8 +208,20 @@ void Window::doFrame() {
             toggleFullscreen();
         }
         fullscreenRequestedPreviously = true;
+    } else if (keyboardState[SDL_SCANCODE_H]) {
+        if (!saveStateRequestedPreviously) {
+            saveState();
+        }
+        saveStateRequestedPreviously = true;
+    } else if (keyboardState[SDL_SCANCODE_J]) {
+        if (!loadStateRequestedPreviously) {
+            loadState();
+        }
+        loadStateRequestedPreviously = true;
     } else {
         fullscreenRequestedPreviously = false;
+        saveStateRequestedPreviously = false;
+        loadStateRequestedPreviously = false;
     }
 }
 

@@ -38,6 +38,8 @@ namespace FunkyBoy::SDL {
         // Memory is managed by SDL, so we do not free it
         const Uint8 *keyboardState;
         bool fullscreenRequestedPreviously;
+        bool saveStateRequestedPreviously;
+        bool loadStateRequestedPreviously;
 
         Controller::ControllersPtr controllers;
         Emulator emulator;
@@ -54,6 +56,9 @@ namespace FunkyBoy::SDL {
         bool btnRightWasPressed;
 
         void updateInputs();
+
+        void saveState();
+        void loadState();
 
         void loadSave();
         void writeSave();
