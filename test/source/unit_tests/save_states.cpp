@@ -18,13 +18,11 @@
 
 #include <emulator/emulator.h>
 #include <memory/memory.h>
+#include <util/ramsizes.h>
 #include <cstring>
 #include "../controllers/serial_test.h"
 #include "../util/rom_commons.h"
 #include "../util/membuf.h"
-
-// Buffer size needs to be large enough, exact size doesn't matter
-#define SAVE_STATE_BUFFER_SIZE (64 * 1024)
 
 TEST_SUITE(saveStates) {
 
@@ -61,7 +59,7 @@ TEST_SUITE(saveStates) {
             }
         }
 
-        FunkyBoy::u8 saveState[SAVE_STATE_BUFFER_SIZE]{};
+        FunkyBoy::u8 saveState[FB_SAVE_STATE_MAX_BUFFER_SIZE]{};
         membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
         std::ostream outStream(&outBuf);
         emulator1.saveState(outStream);
@@ -116,6 +114,60 @@ TEST_SUITE(saveStates) {
         // Mooneye ROMs will output some magic number sequences depending of the success
         assertStandardOutputHasNot("Failed");
         assertStandardOutputHas("Passed");
+    }
+
+    void testMBCSaveStateSize(const char *romTitle, FunkyBoy::u8 cartridgeType, FunkyBoy::RAMSize ramSize) {
+        FunkyBoy::Emulator emulator(FunkyBoy::GameBoyDMG);
+
+        char rom[0x150]{};
+        auto *header = reinterpret_cast<FunkyBoy::ROMHeader *>(rom);
+
+        std::memcpy(header->title, romTitle, std::strlen(romTitle));
+        header->cartridgeType = cartridgeType;
+        header->ramSize = ramSize;
+
+        membuf inBuf(reinterpret_cast<char *>(rom), sizeof(rom), true);
+        std::istream inStream(&inBuf);
+
+        emulator.loadGame(inStream);
+        assertEquals(emulator.getCartridgeStatus(), FunkyBoy::CartridgeStatus::Loaded);
+
+        emulator.cpu->instrContext.instr = 0x00;
+
+        assertEquals(0x100, emulator.cpu->instrContext.progCounter);
+
+        char saveState[FB_SAVE_STATE_MAX_BUFFER_SIZE];
+
+        // Save the state
+        membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
+        std::ostream outStream(&outBuf);
+        emulator.saveState(outStream);
+
+        // Now load it back to check whether the buffer is large enough
+        membuf inBuf1(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
+        std::istream inStream1(&inBuf1);
+        emulator.loadState(inStream1);
+    }
+
+    // TODO: https://github.com/kremi151/FunkyBoy/issues/63
+    /*TEST(testNoMBCMaxStateSize) {
+        testMBCSaveStateSize("NO MBC TEST", 0x09, FunkyBoy::RAMSize::RAM_SIZE_128KB);
+    }*/
+
+    TEST(testMBC1MaxStateSize) {
+        testMBCSaveStateSize("MBC1 TEST", 0x03, FunkyBoy::RAMSize::RAM_SIZE_32KB);
+    }
+
+    TEST(testMBC2MaxStateSize) {
+        testMBCSaveStateSize("MBC2 TEST", 0x06, FunkyBoy::RAMSize::RAM_SIZE_128KB);
+    }
+
+    TEST(testMBC3MaxStateSize) {
+        testMBCSaveStateSize("MBC3 TEST", 0x10, FunkyBoy::RAMSize::RAM_SIZE_64KB);
+    }
+
+    TEST(testMBC5MaxStateSize) {
+        testMBCSaveStateSize("MBC5 TEST", 0x1E, FunkyBoy::RAMSize::RAM_SIZE_32KB);
     }
 
 }

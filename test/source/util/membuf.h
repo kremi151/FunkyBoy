@@ -28,6 +28,21 @@ public:
             setp(buffer, buffer + size);
         }
     }
+
+    std::streampos seekoff(std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which) override {
+        if (way == std::ios_base::cur) {
+            gbump(off);
+        } else if (way == std::ios_base::end) {
+            setg(eback(), egptr() + off, egptr());
+        } else if (way == std::ios_base::beg) {
+            setg(eback(), eback() + off, egptr());
+        }
+        return gptr() - eback();
+    }
+
+    pos_type seekpos(pos_type sp, std::ios_base::openmode which) override {
+        return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
+    }
 };
 
 #endif //FB_TESTS_MEMBUF_H

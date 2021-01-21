@@ -24,6 +24,9 @@
 
 #define FB_TARGET_FPS 59.7154
 
+// Buffer size which is guaranteed to be large enough to fit a save state in it
+#define FB_SAVE_STATE_MAX_BUFFER_SIZE (105 * 1024)
+
 namespace FunkyBoy {
 
     typedef uint8_t u8;
