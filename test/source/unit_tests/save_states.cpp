@@ -22,7 +22,7 @@
 #include <cstring>
 #include "../controllers/serial_test.h"
 #include "../util/rom_commons.h"
-#include "../util/membuf.h"
+#include <util/membuf.h>
 
 TEST_SUITE(saveStates) {
 
@@ -60,12 +60,12 @@ TEST_SUITE(saveStates) {
         }
 
         FunkyBoy::u8 saveState[FB_SAVE_STATE_MAX_BUFFER_SIZE]{};
-        membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
         std::ostream outStream(&outBuf);
         emulator1.saveState(outStream);
 
         // Reset emulator
-        membuf inBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
         std::istream inStream(&inBuf);
         FunkyBoy::Emulator emulator2(
                 TEST_GB_TYPE,
@@ -126,7 +126,7 @@ TEST_SUITE(saveStates) {
         header->cartridgeType = cartridgeType;
         header->ramSize = ramSize;
 
-        membuf inBuf(reinterpret_cast<char *>(rom), sizeof(rom), true);
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(rom), sizeof(rom), true);
         std::istream inStream(&inBuf);
 
         emulator.loadGame(inStream);
@@ -139,12 +139,12 @@ TEST_SUITE(saveStates) {
         char saveState[FB_SAVE_STATE_MAX_BUFFER_SIZE];
 
         // Save the state
-        membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
         std::ostream outStream(&outBuf);
         emulator.saveState(outStream);
 
         // Now load it back to check whether the buffer is large enough
-        membuf inBuf1(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
+        FunkyBoy::Util::membuf inBuf1(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
         std::istream inStream1(&inBuf1);
         emulator.loadState(inStream1);
     }

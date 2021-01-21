@@ -18,6 +18,7 @@
 #include <emulator/emulator.h>
 #include <controllers/display.h>
 #include <util/frame_executor.h>
+#include <util/membuf.h>
 
 #include <cstdarg>
 #include <cstring>
@@ -299,17 +300,26 @@ extern "C" {
     }
 
     size_t retro_serialize_size(void) {
-        //TODO
-        return 0;
+        return FB_SAVE_STATE_MAX_BUFFER_SIZE;
     }
 
     bool retro_serialize(void *data_, size_t size) {
-        //TODO
+        if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
+            return false;
+        }
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(data_), sizeof(data_), false);
+        std::ostream outStream(&outBuf);
+        emulator->saveState(outStream);
         return true;
     }
 
     bool retro_unserialize(const void *data_, size_t size) {
-        //TODO
+        if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
+            return false;
+        }
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(const_cast<void *>(data_)), sizeof(data_), true);
+        std::istream inStream(&inBuf);
+        emulator->loadState(inStream);
         return true;
     }
 

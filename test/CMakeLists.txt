@@ -32,7 +32,6 @@ set(HEADERS
         source/controllers/serial_test.h
         source/util/rom_commons.h
         source/util/mock_time.h
-        source/util/membuf.h
         ${ACACIA_TEST_HEADERS}
         source/mooneye/commons.h
         source/blargg/commons.h

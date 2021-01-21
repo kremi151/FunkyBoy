@@ -26,7 +26,7 @@
 #include <cartridge/mbc1.h>
 #include <cartridge/mbc2.h>
 #include <cartridge/mbc3.h>
-#include "../util/membuf.h"
+#include <util/membuf.h>
 
 bool doFullMachineCycle(FunkyBoy::CPU &cpu, FunkyBoy::Memory &memory) {
     cpu.instructionCompleted = false;
@@ -468,7 +468,7 @@ TEST_SUITE(unitTests) {
         size_t originalHash = calc_quick_hash(memory.cram, memory.ramSizeInBytes);
 
         u8 *saveFile = new u8[memory.ramSizeInBytes];
-        membuf outBuf(reinterpret_cast<char *>(saveFile), memory.ramSizeInBytes, false);
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveFile), memory.ramSizeInBytes, false);
         std::ostream outStream(&outBuf);
         memory.writeRam(outStream);
 
@@ -485,7 +485,7 @@ TEST_SUITE(unitTests) {
         delete[] memory.cram;
         memory.cram = new u8[memory.ramSizeInBytes]; // Gets freed by Memory's destructor
 
-        membuf inBuf(reinterpret_cast<char *>(saveFile), memory.ramSizeInBytes, true);
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(saveFile), memory.ramSizeInBytes, true);
         std::istream inStream(&inBuf);
         memory.loadRam(inStream);
 
