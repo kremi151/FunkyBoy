@@ -33,14 +33,15 @@ namespace FunkyBoy::Util::Stream {
     }
 
     inline uint64_t read64Bits(std::istream &istream) {
-        return uint64_t(istream.get() & 0xff)
-               | (uint64_t(istream.get() & 0xff) << 8)
-               | (uint64_t(istream.get() & 0xff) << 16)
-               | (uint64_t(istream.get() & 0xff) << 24)
-               | (uint64_t(istream.get() & 0xff) << 32)
-               | (uint64_t(istream.get() & 0xff) << 40)
-               | (uint64_t(istream.get() & 0xff) << 48)
-               | (uint64_t(istream.get() & 0xff) << 56);
+        uint64_t value = istream.get() & 0xff;
+        value |= uint64_t(istream.get() & 0xff) << 8;
+        value |= uint64_t(istream.get() & 0xff) << 16;
+        value |= uint64_t(istream.get() & 0xff) << 24;
+        value |= uint64_t(istream.get() & 0xff) << 32;
+        value |= uint64_t(istream.get() & 0xff) << 40;
+        value |= uint64_t(istream.get() & 0xff) << 48;
+        value |= uint64_t(istream.get() & 0xff) << 56;
+        return value;
     }
 
     inline void write32Bits(uint32_t val, std::ostream &ostream) {
@@ -51,10 +52,11 @@ namespace FunkyBoy::Util::Stream {
     }
 
     inline uint32_t read32Bits(std::istream &istream) {
-        return (istream.get() & 0xff)
-                | ((istream.get() & 0xff) << 8)
-                | ((istream.get() & 0xff) << 16)
-                | ((istream.get() & 0xff) << 24);
+        uint32_t value = istream.get() & 0xff;
+        value |= (istream.get() & 0xff) << 8;
+        value |= (istream.get() & 0xff) << 16;
+        value |= (istream.get() & 0xff) << 24;
+        return value;
     }
 
     inline void write16Bits(uint16_t val, std::ostream &ostream) {
@@ -63,7 +65,9 @@ namespace FunkyBoy::Util::Stream {
     }
 
     inline uint16_t read16Bits(std::istream &istream) {
-        return (istream.get() & 0xff) | ((istream.get() & 0xff) << 8);
+        uint16_t value = istream.get() & 0xff;
+        value |= (istream.get() & 0xff) << 8;
+        return value;
     }
 
 }
