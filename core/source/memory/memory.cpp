@@ -497,7 +497,7 @@ void Memory::serialize(std::ostream &ostream) const {
     ostream.put(dmaStarted);
     ostream.put(status);
     mbc->serialize(ostream);
-    Util::Stream::write64BitIgnoreEndianness(ramSizeInBytes, ostream);
+    Util::Stream::write64Bits(ramSizeInBytes, ostream);
     if (ramSizeInBytes > 0) {
         ostream.write(reinterpret_cast<char*>(cram), ramSizeInBytes);
     }
@@ -525,7 +525,7 @@ void Memory::deserialize(std::istream &istream) {
 
     mbc->deserialize(istream);
 
-    uint64_t ramSizeInBytes = Util::Stream::read64BitIgnoreEndianness(istream);
+    uint64_t ramSizeInBytes = Util::Stream::read64Bits(istream);
 
     if (ramSizeInBytes > 0) {
         if (ramSizeInBytes != this->ramSizeInBytes) {

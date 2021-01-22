@@ -193,9 +193,9 @@ void MBC1::loadBattery(std::istream &stream, u8 *ram, size_t l) {
 
 void MBC1::serialize(std::ostream &ostream) const {
     // 32-bit writes
-    Util::Stream::write32BitIgnoreEndianness(romBankOffsetLower, ostream);
-    Util::Stream::write32BitIgnoreEndianness(romBankOffset, ostream);
-    Util::Stream::write32BitIgnoreEndianness(ramBankOffset, ostream);
+    Util::Stream::write32Bits(romBankOffsetLower, ostream);
+    Util::Stream::write32Bits(romBankOffset, ostream);
+    Util::Stream::write32Bits(ramBankOffset, ostream);
 
     // 8-bit writes
     ostream.put(preliminaryRomBank);
@@ -207,9 +207,9 @@ void MBC1::serialize(std::ostream &ostream) const {
 
 void MBC1::deserialize(std::istream &istream) {
     // 32-bit reads
-    romBankOffsetLower = Util::Stream::read32BitIgnoreEndianness(istream);
-    romBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
-    ramBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
+    romBankOffsetLower = Util::Stream::read32Bits(istream);
+    romBankOffset = Util::Stream::read32Bits(istream);
+    ramBankOffset = Util::Stream::read32Bits(istream);
 
     // 8-bit reads
     preliminaryRomBank = istream.get();

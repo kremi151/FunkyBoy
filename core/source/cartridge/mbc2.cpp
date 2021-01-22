@@ -113,7 +113,7 @@ void MBC2::loadBattery(std::istream &stream, u8 *ram, size_t l) {
 
 void MBC2::serialize(std::ostream &ostream) const {
     // 32-bit writes
-    Util::Stream::write32BitIgnoreEndianness(romBankOffset, ostream);
+    Util::Stream::write32Bits(romBankOffset, ostream);
 
     // 8-bit writes
     ostream.put(romBank);
@@ -122,7 +122,7 @@ void MBC2::serialize(std::ostream &ostream) const {
 
 void MBC2::deserialize(std::istream &istream) {
     // 32-bit reads
-    romBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
+    romBankOffset = Util::Stream::read32Bits(istream);
 
     // 8-bit reads
     romBank = istream.get();

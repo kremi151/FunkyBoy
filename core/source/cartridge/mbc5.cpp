@@ -142,12 +142,12 @@ void MBC5::loadBattery(std::istream &stream, u8 *ram, size_t l) {
 
 void MBC5::serialize(std::ostream &ostream) const {
     // 32-bit writes
-    Util::Stream::write32BitIgnoreEndianness(romBankOffset, ostream);
-    Util::Stream::write32BitIgnoreEndianness(ramBankOffset, ostream);
+    Util::Stream::write32Bits(romBankOffset, ostream);
+    Util::Stream::write32Bits(ramBankOffset, ostream);
 
     // 16-bit writes
-    Util::Stream::write16BitIgnoreEndianness(preliminaryRomBank, ostream);
-    Util::Stream::write16BitIgnoreEndianness(romBank, ostream);
+    Util::Stream::write16Bits(preliminaryRomBank, ostream);
+    Util::Stream::write16Bits(romBank, ostream);
 
     // 8-bit writes
     ostream.put(ramBank);
@@ -156,12 +156,12 @@ void MBC5::serialize(std::ostream &ostream) const {
 
 void MBC5::deserialize(std::istream &istream) {
     // 32-bit reads
-    romBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
-    ramBankOffset = Util::Stream::read32BitIgnoreEndianness(istream);
+    romBankOffset = Util::Stream::read32Bits(istream);
+    ramBankOffset = Util::Stream::read32Bits(istream);
 
     // 16-bit reads
-    preliminaryRomBank = Util::Stream::read16BitIgnoreEndianness(istream);
-    romBank = Util::Stream::read16BitIgnoreEndianness(istream);
+    preliminaryRomBank = Util::Stream::read16Bits(istream);
+    romBank = Util::Stream::read16Bits(istream);
 
     // 8-bit reads
     ramBank = istream.get();

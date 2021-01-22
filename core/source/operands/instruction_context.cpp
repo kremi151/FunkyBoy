@@ -79,8 +79,8 @@ void InstrContext::serialize(std::ostream &ostream) const {
     ostream.put(cpuState);
     ostream.put(interruptMasterEnable);
     ostream.put(haltBugRequested);
-    Util::Stream::write16BitIgnoreEndianness(progCounter, ostream);
-    Util::Stream::write16BitIgnoreEndianness(stackPointer, ostream);
+    Util::Stream::write16Bits(progCounter, ostream);
+    Util::Stream::write16Bits(stackPointer, ostream);
 }
 
 void InstrContext::deserialize(std::istream &istream) {
@@ -98,6 +98,6 @@ void InstrContext::deserialize(std::istream &istream) {
     cpuState = static_cast<CPUState>(buffer[13]);
     interruptMasterEnable = static_cast<IMEState>(buffer[14]);
     haltBugRequested = buffer[15] != 0;
-    progCounter = Util::Stream::read16BitIgnoreEndianness(istream);
-    stackPointer = Util::Stream::read16BitIgnoreEndianness(istream);
+    progCounter = Util::Stream::read16Bits(istream);
+    stackPointer = Util::Stream::read16Bits(istream);
 }

@@ -209,12 +209,12 @@ void RTC::load(std::istream &stream) {
 
 void RTC::serialize(std::ostream &ostream) const {
     // 64-bit writes
-    Util::Stream::write64BitIgnoreEndianness(startTimestamp, ostream);
-    Util::Stream::write64BitIgnoreEndianness(timestampOffset, ostream);
-    Util::Stream::write64BitIgnoreEndianness(latchTimestamp, ostream);
+    Util::Stream::write64Bits(startTimestamp, ostream);
+    Util::Stream::write64Bits(timestampOffset, ostream);
+    Util::Stream::write64Bits(latchTimestamp, ostream);
 
     // 16-bit writes
-    Util::Stream::write16BitIgnoreEndianness(haltedDays, ostream);
+    Util::Stream::write16Bits(haltedDays, ostream);
 
     // 8-bit writes
     ostream.put(haltedHours);
@@ -225,12 +225,12 @@ void RTC::serialize(std::ostream &ostream) const {
 
 void RTC::deserialize(std::istream &istream) {
     // 64-bit reads
-    startTimestamp = Util::Stream::read64BitIgnoreEndianness(istream);
-    timestampOffset = Util::Stream::read64BitIgnoreEndianness(istream);
-    latchTimestamp = Util::Stream::read64BitIgnoreEndianness(istream);
+    startTimestamp = Util::Stream::read64Bits(istream);
+    timestampOffset = Util::Stream::read64Bits(istream);
+    latchTimestamp = Util::Stream::read64Bits(istream);
 
     // 16-bit reads
-    haltedDays = Util::Stream::read16BitIgnoreEndianness(istream);
+    haltedDays = Util::Stream::read16Bits(istream);
 
     // 8-bit reads
     haltedHours = istream.get();
