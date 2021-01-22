@@ -16,9 +16,23 @@
 
 #include "instruction_context.h"
 
+#include <exception/read_exception.h>
+#include <cstring>
+#include <util/stream_utils.h>
+
 using namespace FunkyBoy;
 
-InstrContext::InstrContext(FunkyBoy::GameBoyType gbType): gbType(gbType) {
+InstrContext::InstrContext(FunkyBoy::GameBoyType gbType)
+    : gbType(gbType)
+{
+    regB = registers;
+    regC = registers + 1;
+    regD = registers + 2;
+    regE = registers + 3;
+    regH = registers + 4;
+    regL = registers + 5;
+    regF = registers + 6;
+    regA = registers + 7;
 }
 
 void InstrContext::push16Bits(Memory &memory, u16 val) {
@@ -53,4 +67,37 @@ void InstrContext::write16BitRegister(u8 position, u16 val) {
 u16 InstrContext::read16BitRegister(u8 position) {
     u8 *reg = registers + (position * 2);
     return (*reg << 8u) | (*(reg + 1u) & 0xffu);
+}
+
+void InstrContext::serialize(std::ostream &ostream) const {
+    ostream.put(instr);
+    ostream.put(cbInstr);
+    ostream.write(reinterpret_cast<const char*>(registers), 8);
+    ostream.put(lsb);
+    ostream.put(msb);
+    ostream.put(signedByte);
+    ostream.put(cpuState);
+    ostream.put(interruptMasterEnable);
+    ostream.put(haltBugRequested);
+    Util::Stream::write16Bits(progCounter, ostream);
+    Util::Stream::write16Bits(stackPointer, ostream);
+}
+
+void InstrContext::deserialize(std::istream &istream) {
+    char buffer[16];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (Instruction context)");
+    }
+    instr = buffer[0];
+    cbInstr = buffer[1];
+    std::memcpy(registers, buffer + 2, 8);
+    lsb = buffer[10];
+    msb = buffer[11];
+    signedByte = buffer[12];
+    cpuState = static_cast<CPUState>(buffer[13]);
+    interruptMasterEnable = static_cast<IMEState>(buffer[14]);
+    haltBugRequested = buffer[15] != 0;
+    progCounter = Util::Stream::read16Bits(istream);
+    stackPointer = Util::Stream::read16Bits(istream);
 }

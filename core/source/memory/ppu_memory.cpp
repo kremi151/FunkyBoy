@@ -16,11 +16,16 @@
 
 #include "ppu_memory.h"
 
+#include <exception/read_exception.h>
+
 using namespace FunkyBoy;
 
+#define FB_VRAM_BYTES 8192
+#define FB_OAM_BYTES 160
+
 PPUMemory::PPUMemory()
-    : vram(new u8[8192]{})
-    , oam(new u8[160]{})
+    : vram(new u8[FB_VRAM_BYTES]{})
+    , oam(new u8[FB_OAM_BYTES]{})
     , vramAccessible(new bool(true))
     , oamAccessible(new bool(true))
     , ptrCounter(new u16(1))
@@ -50,4 +55,31 @@ PPUMemory::~PPUMemory() {
 void PPUMemory::setAccessibilityFromMMU(bool accessVram, bool accessOam) {
     *vramAccessible = accessVram;
     *oamAccessible = accessOam;
+}
+
+void PPUMemory::serialize(std::ostream &ostream) const {
+    ostream.write(reinterpret_cast<const char*>(vram), FB_VRAM_BYTES);
+    ostream.write(reinterpret_cast<const char*>(oam), FB_OAM_BYTES);
+    ostream.put(*vramAccessible);
+    ostream.put(*oamAccessible);
+}
+
+void PPUMemory::deserialize(std::istream &istream) {
+    istream.read(reinterpret_cast<char*>(vram), FB_VRAM_BYTES);
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (Video RAM)");
+    }
+    istream.read(reinterpret_cast<char*>(oam), FB_OAM_BYTES);
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (OAM)");
+    }
+
+    char buffer[2];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (PPU Memory)");
+    }
+
+    *vramAccessible = buffer[0] != 0;
+    *oamAccessible = buffer[1] != 0;
 }

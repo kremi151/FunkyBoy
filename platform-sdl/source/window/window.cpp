@@ -22,6 +22,7 @@
 #include <ui/native_ui.h>
 #include <fstream>
 #include <cstring>
+#include <exception>
 
 using namespace FunkyBoy::SDL;
 
@@ -124,6 +125,38 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     }
 }
 
+void Window::saveState() {
+    try {
+        fs::path statePath = savePath;
+        statePath.replace_extension(".fbs");
+        std::ofstream ostream(statePath, std::ios::binary | std::ios::out);
+        emulator.saveState(ostream);
+        printf("Save state saved to %s\n", statePath.c_str());
+    } catch (const std::exception &exception) {
+        fprintf(stderr, "Saving state failed: %s\n", exception.what());
+    } catch (...) {
+        fprintf(stderr, "Saving state failed\n");
+    }
+}
+
+void Window::loadState() {
+    fs::path statePath = savePath;
+    statePath.replace_extension(".fbs");
+    if (!fs::exists(statePath)) {
+        fprintf(stderr, "No existing save state found at %s\n", statePath.c_str());
+        return;
+    }
+    try {
+        std::ifstream istream(statePath, std::ios::binary | std::ios::in);
+        emulator.loadState(istream);
+        printf("Save state loaded from %s\n", statePath.c_str());
+    } catch (const std::exception &exception) {
+        fprintf(stderr, "Loading state failed: %s\n", exception.what());
+    } catch (...) {
+        fprintf(stderr, "Loading state failed\n");
+    }
+}
+
 void Window::updateInputs() {
     // Poll keyboard inputs once per frame
     SDL_PollEvent(&sdlEvents);
@@ -188,8 +221,20 @@ void Window::doFrame() {
             toggleFullscreen();
         }
         fullscreenRequestedPreviously = true;
+    } else if (keyboardState[SDL_SCANCODE_H]) {
+        if (!saveStateRequestedPreviously) {
+            saveState();
+        }
+        saveStateRequestedPreviously = true;
+    } else if (keyboardState[SDL_SCANCODE_J]) {
+        if (!loadStateRequestedPreviously) {
+            loadState();
+        }
+        loadStateRequestedPreviously = true;
     } else {
         fullscreenRequestedPreviously = false;
+        saveStateRequestedPreviously = false;
+        loadStateRequestedPreviously = false;
     }
 }
 

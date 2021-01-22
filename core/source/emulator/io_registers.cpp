@@ -15,8 +15,12 @@
  */
 
 #include "io_registers.h"
+#include <exception/read_exception.h>
+#include <util/stream_utils.h>
 
 using namespace FunkyBoy;
+
+#define FB_HW_IO_BYTES 128
 
 io_registers::io_registers(const io_registers &registers)
     : sys_counter(registers.sys_counter)
@@ -31,7 +35,7 @@ io_registers::io_registers(const io_registers &registers)
 
 io_registers::io_registers(Controller::ControllersPtr controllers)
     : sys_counter(new u16(0))
-    , hwIO(new u8[128]{})
+    , hwIO(new u8[FB_HW_IO_BYTES]{})
     , controllers(std::move(controllers))
     , inputsDPad(new u8_fast(0b11111111u))
     , inputsButtons(new u8_fast(0b11111111u))
@@ -167,4 +171,27 @@ u8_fast io_registers::updateJoypad() {
     }
     p1 = val;
     return val;
+}
+
+void io_registers::serialize(std::ostream &ostream) const {
+    ostream.write(reinterpret_cast<const char*>(hwIO), FB_HW_IO_BYTES);
+    ostream.put(*inputsDPad & 0xffu);
+    ostream.put(*inputsButtons & 0xffu);
+    Util::Stream::write16Bits(*sys_counter, ostream);
+}
+
+void io_registers::deserialize(std::istream &istream) {
+    istream.read(reinterpret_cast<char*>(hwIO), FB_HW_IO_BYTES);
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (HWIO)");
+    }
+
+    char buffer[2];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (IO registers)");
+    }
+    *inputsDPad = buffer[0];
+    *inputsButtons = buffer[1];
+    *sys_counter = Util::Stream::read16Bits(istream);
 }

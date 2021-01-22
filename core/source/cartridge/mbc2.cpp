@@ -17,6 +17,7 @@
 #include "mbc2.h"
 
 #include <util/debug.h>
+#include <util/stream_utils.h>
 #include <exception/state_exception.h>
 
 #define mbc2_print(...) debug_print_4(__VA_ARGS__)
@@ -108,6 +109,24 @@ void MBC2::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
 
 void MBC2::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     stream.read(reinterpret_cast<char*>(ram), l);
+}
+
+void MBC2::serialize(std::ostream &ostream) const {
+    // 32-bit writes
+    Util::Stream::write32Bits(romBankOffset, ostream);
+
+    // 8-bit writes
+    ostream.put(romBank);
+    ostream.put(ramEnabled);
+}
+
+void MBC2::deserialize(std::istream &istream) {
+    // 32-bit reads
+    romBankOffset = Util::Stream::read32Bits(istream);
+
+    // 8-bit reads
+    romBank = istream.get();
+    ramEnabled = istream.get();
 }
 
 bool MBC2::hasBattery() {

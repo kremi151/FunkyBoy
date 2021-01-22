@@ -20,7 +20,7 @@
 #include <util/ramsizes.h>
 #include <cartridge/mbc3.h>
 #include "../util/mock_time.h"
-#include "../util/membuf.h"
+#include <util/membuf.h>
 
 TEST_SUITE(RTCUnitTests) {
 
@@ -75,14 +75,14 @@ TEST_SUITE(RTCUnitTests) {
         assertEquals(0b01000000u | 1u, rtc.getDH() & 0xffffu);
 
         FunkyBoy::u8 saveFile[48]{};
-        membuf outBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), false);
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), false);
         std::ostream outStream(&outBuf);
         rtc.write(outStream);
 
         // Real-life time passes on
         FunkyBoy::Testing::setMockSeconds(45667);
 
-        membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
         std::istream inStream(&inBuf);
 
         FunkyBoy::RTC rtc2;
@@ -134,14 +134,14 @@ TEST_SUITE(RTCUnitTests) {
         assertEquals(0, rtc.getDH() & 0xffffu);
 
         FunkyBoy::u8 saveFile[48]{};
-        membuf outBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), false);
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), false);
         std::ostream outStream(&outBuf);
         rtc.write(outStream);
 
         // Real-life time passes on
         FunkyBoy::Testing::setMockSeconds(6964865);
 
-        membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
         std::istream inStream(&inBuf);
 
         FunkyBoy::RTC rtc2;
@@ -549,14 +549,14 @@ TEST_SUITE(RTCUnitTests) {
         assertEquals(0, rtc.getSeconds() & 0xffffu);
 
         FunkyBoy::u8 saveFile[48]{};
-        membuf outBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), false);
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), false);
         std::ostream outStream(&outBuf);
         rtc.write(outStream);
 
         // Real-life time passes on
         FunkyBoy::Testing::setMockSeconds(420);
 
-        membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(saveFile), sizeof(saveFile), true);
         std::istream inStream(&inBuf);
 
         FunkyBoy::RTC rtc2;

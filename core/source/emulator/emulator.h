@@ -62,6 +62,9 @@ namespace FunkyBoy {
         void loadCartridgeRam(std::istream &stream);
         void writeCartridgeRam(std::ostream &stream);
 
+        void loadState(std::istream &istream);
+        void saveState(std::ostream &ostream);
+
         inline void setInputState(Controller::JoypadKey key, bool pressed) {
             ioRegisters.setInputState(key, pressed);
         }

@@ -21,6 +21,7 @@
 #include <memory/memory.h>
 #include <emulator/gb_type.h>
 #include <operands/debug.h>
+#include <iostream>
 
 namespace FunkyBoy {
 
@@ -48,7 +49,10 @@ namespace FunkyBoy {
         const GameBoyType gbType;
 
         u8 instr;
-        u8 *registers;
+        u8 cbInstr;
+        u8 registers[8]{};
+
+        // Do not free these pointers, they are proxies to specific locations in the registers array
         u8 *regB;
         u8 *regC;
         u8 *regD;
@@ -84,6 +88,9 @@ namespace FunkyBoy {
 
         void write16BitRegister(u8 position, u16 val);
         u16 read16BitRegister(u8 position);
+
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         std::ofstream *executionLog;

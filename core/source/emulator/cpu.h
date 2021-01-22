@@ -21,6 +21,7 @@
 
 #include <memory/memory.h>
 #include <memory>
+#include <iostream>
 #include <util/testing.h>
 #include <util/debug.h>
 #include <operands/instruction_context.h>
@@ -52,8 +53,6 @@ namespace FunkyBoy {
         std::ofstream file;
 #endif
 
-        u8 registers[8]{};
-
         i8 timerOverflowingCycles;
         bool delayedTIMAIncrease;
 
@@ -77,17 +76,7 @@ namespace FunkyBoy {
         bool instructionCompleted;
 #endif
 
-        // Do not free these pointers, they are proxies to specific locations in the registers array
-        const Operand *operands;
-
-        u8 *regB;
-        u8 *regC;
-        u8 *regD;
-        u8 *regE;
-        u8 *regH;
-        u8 *regL;
-        u8 *regF_do_not_use_directly;
-        u8 *regA;
+        const Operand *operands; // Do not free this pointer
 
     public:
         CPU(GameBoyType gbType, const io_registers& ioRegisters);
@@ -98,6 +87,9 @@ namespace FunkyBoy {
         void requestInterrupt(InterruptType type);
 
         ret_code doMachineCycle(Memory &memory);
+
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
     };
 
     typedef std::shared_ptr<CPU> CPUPtr;

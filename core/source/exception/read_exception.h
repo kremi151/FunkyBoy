@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef FB_TESTS_MEMBUF_H
-#define FB_TESTS_MEMBUF_H
+#ifndef FB_CORE_EXCEPTION_READ_EXCEPTION_H
+#define FB_CORE_EXCEPTION_READ_EXCEPTION_H
 
-#include <iostream>
+#include <exception>
+#include <string>
 
-class membuf: public std::streambuf {
-public:
-    membuf(char *buffer, size_t size, bool read) {
-        if (read) {
-            setg(buffer, buffer, buffer + size);
-        } else {
-            setp(buffer, buffer + size);
-        }
-    }
-};
+namespace FunkyBoy::Exception {
 
-#endif //FB_TESTS_MEMBUF_H
+    class ReadException: public std::exception {
+    private:
+        const std::string message;
+    public:
+        ReadException(std::string message);
+
+        const char *what() const noexcept override;
+    };
+
+}
+
+#endif //FB_CORE_EXCEPTION_READ_EXCEPTION_H

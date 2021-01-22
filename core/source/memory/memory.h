@@ -89,6 +89,9 @@ namespace FunkyBoy {
             return interruptEnableRegister;
         }
 
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
+
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         inline void getMBCDebugInfo(const char **outName, unsigned &outRomBank) {
             mbc->getDebugInfo(outName, outRomBank);

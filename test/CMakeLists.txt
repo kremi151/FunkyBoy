@@ -12,6 +12,7 @@ set_acacia_test_sources(
         source/blargg/rom_cpu_instrs_tests.cpp
         source/unit_tests/unit_tests.cpp
         source/unit_tests/rtc.cpp
+        source/unit_tests/save_states.cpp
         source/mooneye/rom_mooneye_mbc1.cpp
         source/mooneye/rom_mooneye_mbc2.cpp
         source/mooneye/rom_mooneye_mbc5.cpp
@@ -31,7 +32,6 @@ set(HEADERS
         source/controllers/serial_test.h
         source/util/rom_commons.h
         source/util/mock_time.h
-        source/util/membuf.h
         ${ACACIA_TEST_HEADERS}
         source/mooneye/commons.h
         source/blargg/commons.h

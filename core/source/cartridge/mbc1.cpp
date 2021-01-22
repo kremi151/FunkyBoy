@@ -19,6 +19,7 @@
 #include <util/debug.h>
 #include <exception/state_exception.h>
 #include <util/string_polyfills.h>
+#include <util/stream_utils.h>
 #include <algorithm>
 
 #define mbc1_print(...) debug_print_4(__VA_ARGS__)
@@ -188,6 +189,34 @@ void MBC1::saveBattery(std::ostream &stream, u8 *ram, size_t l) {
 
 void MBC1::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     stream.read(reinterpret_cast<char*>(ram), l);
+}
+
+void MBC1::serialize(std::ostream &ostream) const {
+    // 32-bit writes
+    Util::Stream::write32Bits(romBankOffsetLower, ostream);
+    Util::Stream::write32Bits(romBankOffset, ostream);
+    Util::Stream::write32Bits(ramBankOffset, ostream);
+
+    // 8-bit writes
+    ostream.put(preliminaryRomBank);
+    ostream.put(romBank);
+    ostream.put(ramBank);
+    ostream.put(ramBankingMode);
+    ostream.put(ramEnabled);
+}
+
+void MBC1::deserialize(std::istream &istream) {
+    // 32-bit reads
+    romBankOffsetLower = Util::Stream::read32Bits(istream);
+    romBankOffset = Util::Stream::read32Bits(istream);
+    ramBankOffset = Util::Stream::read32Bits(istream);
+
+    // 8-bit reads
+    preliminaryRomBank = istream.get();
+    romBank = istream.get();
+    ramBank = istream.get();
+    ramBankingMode = istream.get();
+    ramEnabled = istream.get();
 }
 
 bool MBC1::hasBattery() {

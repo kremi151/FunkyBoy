@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cartridge/mbc1.h>
 #include <util/string_polyfills.h>
+#include <util/stream_utils.h>
 
 #define mbc3_print(...) debug_print_4(__VA_ARGS__)
 
@@ -253,6 +254,36 @@ void MBC3::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     if (useRtc) {
         rtc.load(stream);
     }
+}
+
+void MBC3::serialize(std::ostream &ostream) const {
+    // 32-bit writes
+    Util::Stream::write32Bits(romBankOffsetLower, ostream);
+    Util::Stream::write32Bits(romBankOffset, ostream);
+    Util::Stream::write32Bits(ramBankOffset, ostream);
+
+    // 8-bit reads
+    ostream.put(preliminaryRomBank);
+    ostream.put(romBank);
+    ostream.put(ramBank);
+    ostream.put(ramEnabled);
+
+    rtc.serialize(ostream);
+}
+
+void MBC3::deserialize(std::istream &istream) {
+    // 32-bit reads
+    romBankOffsetLower = Util::Stream::read32Bits(istream);
+    romBankOffset = Util::Stream::read32Bits(istream);
+    ramBankOffset = Util::Stream::read32Bits(istream);
+
+    // 8-bit reads
+    preliminaryRomBank = istream.get();
+    romBank = istream.get();
+    ramBank = istream.get();
+    ramEnabled = istream.get();
+
+    rtc.deserialize(istream);
 }
 
 bool MBC3::hasBattery() {

@@ -18,10 +18,12 @@
 #include <emulator/emulator.h>
 #include <controllers/display.h>
 #include <util/frame_executor.h>
+#include <util/membuf.h>
 
 #include <cstdarg>
 #include <cstring>
 #include <fstream>
+#include <exception>
 
 #include "display_libretro.h"
 
@@ -299,18 +301,43 @@ extern "C" {
     }
 
     size_t retro_serialize_size(void) {
-        //TODO
-        return 0;
+        return FB_SAVE_STATE_MAX_BUFFER_SIZE;
     }
 
     bool retro_serialize(void *data_, size_t size) {
-        //TODO
-        return true;
+        if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
+            return false;
+        }
+        try {
+            FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(data_), FB_SAVE_STATE_MAX_BUFFER_SIZE, false);
+            std::ostream outStream(&outBuf);
+            emulator->saveState(outStream);
+            return true;
+        } catch (const std::exception &exception) {
+            log_cb(retro_log_level::RETRO_LOG_ERROR, "Saving state failed: %s\n", exception.what());
+            return false;
+        } catch (...) {
+            log_cb(retro_log_level::RETRO_LOG_ERROR, "Saving state failed\n");
+            return false;
+        }
     }
 
     bool retro_unserialize(const void *data_, size_t size) {
-        //TODO
-        return true;
+        if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
+            return false;
+        }
+        try {
+            FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(const_cast<void *>(data_)), FB_SAVE_STATE_MAX_BUFFER_SIZE, true);
+            std::istream inStream(&inBuf);
+            emulator->loadState(inStream);
+            return true;
+        } catch (const std::exception &exception) {
+            log_cb(retro_log_level::RETRO_LOG_ERROR, "Loading state failed: %s\n", exception.what());
+            return false;
+        } catch (...) {
+            log_cb(retro_log_level::RETRO_LOG_ERROR, "Loading state failed\n");
+            return false;
+        }
     }
 
     void *retro_get_memory_data(unsigned id) {

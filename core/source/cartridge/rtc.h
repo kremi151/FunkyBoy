@@ -65,6 +65,9 @@ namespace FunkyBoy {
         void write(std::ostream &stream);
         void load(std::istream &stream);
 
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
+
 #ifdef FB_TESTING
         inline bool isHalted() const {
             return halted;

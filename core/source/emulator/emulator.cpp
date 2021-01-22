@@ -20,6 +20,8 @@
 #include <fstream>
 #include <emulator/gb_type.h>
 #include <cartridge/header.h>
+#include <exception/read_exception.h>
+#include <cstring>
 
 using namespace FunkyBoy;
 
@@ -84,6 +86,61 @@ void Emulator::loadCartridgeRam(std::istream &stream) {
 
 void Emulator::writeCartridgeRam(std::ostream &stream) {
     memory.writeRam(stream);
+}
+
+#define FB_SAVE_STATE_VERSION 1
+
+void Emulator::saveState(std::ostream &ostream) {
+    ostream.put(FB_SAVE_STATE_VERSION);
+
+    if (memory.getCartridgeStatus() == CartridgeStatus::Loaded) {
+        ostream.put(true);
+        char romTitle[FB_ROM_HEADER_TITLE_BYTES + 1]{};
+        std::memcpy(romTitle, memory.getROMHeader()->title, FB_ROM_HEADER_TITLE_BYTES);
+        size_t titleLen = std::strlen(romTitle);
+        ostream.put(titleLen & 0xff);
+        ostream.write(romTitle, titleLen);
+    } else {
+        ostream.put(false);
+    }
+
+    cpu->serialize(ostream);
+    ioRegisters.serialize(ostream);
+    ppuMemory.serialize(ostream);
+    memory.serialize(ostream);
+}
+
+void Emulator::loadState(std::istream &istream) {
+    int version = istream.get();
+    if (version != FB_SAVE_STATE_VERSION) {
+        throw Exception::ReadException("Save state version mismatch");
+    }
+
+    bool hasRom = istream.get();
+    if (hasRom) {
+        int titleLen = istream.get();
+        if (titleLen == std::char_traits<char>::eof()) {
+            throw Exception::ReadException("Stream too short (ROM title)");
+        } else if (titleLen > 15) {
+            throw Exception::ReadException("Unable to parse ROM title");
+        } else {
+            char stateRomTitle[FB_ROM_HEADER_TITLE_BYTES + 1]{};
+            istream.read(stateRomTitle, titleLen);
+            char romTitle[FB_ROM_HEADER_TITLE_BYTES + 1]{};
+            std::memcpy(romTitle, memory.getROMHeader()->title, FB_ROM_HEADER_TITLE_BYTES);
+            if (std::strcmp(romTitle, stateRomTitle) != 0) {
+                throw Exception::ReadException(std::string("ROM mismatch, save state was taken with another ROM: ") + stateRomTitle);
+            }
+        }
+    }
+
+    cpu->deserialize(istream);
+    ioRegisters.deserialize(istream);
+    ppuMemory.deserialize(istream);
+    memory.deserialize(istream);
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (Emulator)");
+    }
 }
 
 #ifdef FB_USE_AUTOSAVE

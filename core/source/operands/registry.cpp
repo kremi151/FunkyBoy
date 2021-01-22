@@ -552,7 +552,9 @@ namespace FunkyBoy::Operands::Registry {
 
     const Operand decodePrefix[3] = {
             Operands::decodePrefix,
-            Operands::nop, // This is a workaround, the decodePrefix operand will fetch the effective operand list to use
+            // This is a workaround, the decodePrefix operand will fetch the effective operand list to use
+            // When changing this, please also adapt CPU::serialize and CPU::deserialize
+            Operands::prefixPlaceholder,
             nullptr
     };
 }

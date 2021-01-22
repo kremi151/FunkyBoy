@@ -22,6 +22,9 @@
 #include <emulator/io_registers.h>
 #include <operands/registry.h>
 #include <operands/tables.h>
+#include <operands/prefix.h>
+#include <exception/read_exception.h>
+#include <exception/state_exception.h>
 
 using namespace FunkyBoy;
 
@@ -40,24 +43,6 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     , instructionCompleted(false)
 #endif
 {
-    regB = registers;
-    regC = registers + 1;
-    regD = registers + 2;
-    regE = registers + 3;
-    regH = registers + 4;
-    regL = registers + 5;
-    regF_do_not_use_directly = registers + 6;
-    regA = registers + 7;
-
-    instrContext.registers = registers;
-    instrContext.regB = regB;
-    instrContext.regC = regC;
-    instrContext.regD = regD;
-    instrContext.regE = regE;
-    instrContext.regH = regH;
-    instrContext.regL = regL;
-    instrContext.regF = regF_do_not_use_directly;
-    instrContext.regA = regA;
     instrContext.operandsPtr = &operands;
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
@@ -79,23 +64,23 @@ void CPU::powerUpInit(Memory &memory) {
 
     // AF -> 0x01b0
     if (gbType == GameBoyType::GameBoyCGB) {
-        *regA = 0x11;
+        *instrContext.regA = 0x11;
     } else {
-        *regA = 0x01;
+        *instrContext.regA = 0x01;
     }
-    *regF_do_not_use_directly = 0xb0;
+    *instrContext.regF = 0xb0;
 
     // BC -> 0x0013
-    *regB = 0x00;
-    *regC = 0x13;
+    *instrContext.regB = 0x00;
+    *instrContext.regC = 0x13;
 
     // DE -> 0x00d8
-    *regD = 0x00;
-    *regE = 0xd8;
+    *instrContext.regD = 0x00;
+    *instrContext.regE = 0xd8;
 
     // HL -> 0x014d
-    *regH = 0x01;
-    *regL = 0x4d;
+    *instrContext.regH = 0x01;
+    *instrContext.regL = 0x4d;
 
     instrContext.stackPointer = 0xFFFE;
 
@@ -376,10 +361,77 @@ void CPU::setProgramCounter(u16 offset) {
 }
 
 u16 CPU::readAF() {
-    return (*regF_do_not_use_directly & 0b11110000) | (*regA << 8);
+    return (*instrContext.regF & 0b11110000) | (*instrContext.regA << 8);
 }
 
 void CPU::writeAF(FunkyBoy::u16 val) {
-    *regF_do_not_use_directly = val & 0b11110000; // Only the 4 most significant bits are written to register F
-    *regA = (val >> 8) & 0xff;
+    *instrContext.regF = val & 0b11110000; // Only the 4 most significant bits are written to register F
+    *instrContext.regA = (val >> 8) & 0xff;
+}
+
+void CPU::serialize(std::ostream &ostream) const {
+    instrContext.serialize(ostream);
+
+    const Operand *operandTable;
+    u8 operandIndex;
+    if (instrContext.instr == 0xCB) {
+        if (*operands == Operands::decodePrefix) {
+            operandIndex = 0;
+        } else if (*operands == Operands::prefixPlaceholder) {
+            operandIndex = 1;
+        } else {
+            operandTable = Operands::Tables::prefixInstructions[instrContext.cbInstr];
+            for (int i = 0 ;; i++) {
+                if (*(operandTable++) == *operands) {
+                    operandIndex = i + 2; // For Operands::decodePrefix and Operands::prefixPlaceholder
+                    break;
+                } else if (*operandTable == nullptr) {
+                    throw Exception::WrongStateException("Prefix operand index could not be determined");
+                }
+            }
+        }
+    } else {
+        operandTable = Operands::Tables::instructions[instrContext.instr];
+        for (int i = 0 ;; i++) {
+            auto &operand = *(operandTable++);
+            if (operand == *operands) {
+                operandIndex = i;
+                break;
+            } else if (operand == nullptr) {
+                throw Exception::WrongStateException("Operand index could not be determined");
+            }
+        }
+    }
+    ostream.put(operandIndex);
+
+    ostream.put(timerOverflowingCycles);
+    ostream.put(delayedTIMAIncrease);
+    ostream.put(joypadWasNotPressed);
+}
+
+void CPU::deserialize(std::istream &istream) {
+    instrContext.deserialize(istream);
+
+    char buffer[4];
+    istream.read(buffer, sizeof(buffer));
+    if (!istream) {
+        throw Exception::ReadException("Stream is too short (CPU)");
+    }
+
+    u8 operandIndex = buffer[0];
+    if (instrContext.instr == 0xCB) {
+        if (operandIndex == 0) {
+            operands = Operands::Tables::instructions[0xCB];
+        } else if (operandIndex == 1) {
+            operands = Operands::Tables::instructions[0xCB] + 1;
+        } else {
+            operands = Operands::Tables::prefixInstructions[instrContext.cbInstr] + (operandIndex - 2);
+        }
+    } else {
+        operands = Operands::Tables::instructions[instrContext.instr] + operandIndex;
+    }
+
+    timerOverflowingCycles = buffer[1];
+    delayedTIMAIncrease = buffer[2];
+    joypadWasNotPressed = buffer[3];
 }
