@@ -308,7 +308,7 @@ extern "C" {
             return false;
         }
         FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(data_), sizeof(data_), false);
-        std::ostream outStream(&outBuf);
+        std::ostream outStream(&outBuf, std::ios::binary | std::ios::out);
         emulator->saveState(outStream);
         return true;
     }
@@ -318,7 +318,7 @@ extern "C" {
             return false;
         }
         FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(const_cast<void *>(data_)), sizeof(data_), true);
-        std::istream inStream(&inBuf);
+        std::istream inStream(&inBuf, std::ios::binary | std::ios::in);
         emulator->loadState(inStream);
         return true;
     }

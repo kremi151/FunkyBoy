@@ -127,7 +127,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 void Window::saveState() {
     fs::path statePath = savePath;
     statePath.replace_extension(".fbs");
-    std::ofstream ostream(statePath);
+    std::ofstream ostream(statePath, std::ios::binary | std::ios::out);
     emulator.saveState(ostream);
     printf("Save state saved to %s\n", statePath.c_str());
 }
@@ -139,7 +139,7 @@ void Window::loadState() {
         fprintf(stderr, "No existing save state found at %s\n", statePath.c_str());
         return;
     }
-    std::ifstream istream(statePath);
+    std::ifstream istream(statePath, std::ios::binary | std::ios::in);
     emulator.loadState(istream);
     printf("Save state loaded from %s\n", statePath.c_str());
 }
