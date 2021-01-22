@@ -307,8 +307,8 @@ extern "C" {
         if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
             return false;
         }
-        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(data_), sizeof(data_), false);
-        std::ostream outStream(&outBuf, std::ios::binary | std::ios::out);
+        FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(data_), FB_SAVE_STATE_MAX_BUFFER_SIZE, false);
+        std::ostream outStream(&outBuf);
         emulator->saveState(outStream);
         return true;
     }
@@ -317,8 +317,8 @@ extern "C" {
         if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
             return false;
         }
-        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(const_cast<void *>(data_)), sizeof(data_), true);
-        std::istream inStream(&inBuf, std::ios::binary | std::ios::in);
+        FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(const_cast<void *>(data_)), FB_SAVE_STATE_MAX_BUFFER_SIZE, true);
+        std::istream inStream(&inBuf);
         emulator->loadState(inStream);
         return true;
     }
