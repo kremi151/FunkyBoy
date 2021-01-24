@@ -249,7 +249,8 @@ void PPU::renderScanline(u8 ly) {
         const u8 objPalette1 = ioRegisters.getOBP1();
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
         memory_address objAddr = 0x0000; // 0x0000 ~> 0xFE00 (start of OAM)
-        u8 objY, objX, objFlags;
+        int objY, objX;
+        u8 objFlags;
         bool hide, flipX, flipY;
         u8 yInObj;
         u8 &objIdx = it; // alias for it
