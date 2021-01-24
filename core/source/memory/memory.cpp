@@ -31,6 +31,7 @@
 
 #include <cstring>
 #include <exception/read_exception.h>
+#include <exception/state_exception.h>
 
 using namespace FunkyBoy;
 
@@ -146,8 +147,8 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
 #endif
 
     // Next, let's load the rest of the ROM
-    size_t newRomSize = std::max(romSize, length);
-    u8 *newRomBytes = new u8[newRomSize]{};
+    romLength = std::max(romSize, length);
+    u8 *newRomBytes = new u8[romLength]{};
     std::memcpy(newRomBytes, romBytes.get(), FB_CARTRIDGE_HEADER_SIZE);
     romBytes.reset(newRomBytes);
     header = reinterpret_cast<ROMHeader*>(newRomBytes);
@@ -284,6 +285,19 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
     cram = new u8[ramSizeInBytes];
 
     status = CartridgeStatus::Loaded;
+}
+
+u8 * Memory::releaseROM(size_t *size) {
+    if (rom == nullptr) {
+        throw Exception::WrongStateException("No ROM is loaded");
+    }
+    if (size != nullptr) {
+        *size = romLength;
+    }
+    status = CartridgeStatus::NoROMLoaded;
+    u8 *romPtr = rom;
+    rom = nullptr;
+    return romPtr;
 }
 
 void Memory::loadRam(std::istream &stream) {

@@ -52,6 +52,7 @@ namespace FunkyBoy {
         u8 *rom;
         u8 *cram;
         size_t ramSizeInBytes;
+        size_t romLength;
 
         std::unique_ptr<MBC> mbc;
 
@@ -88,6 +89,8 @@ namespace FunkyBoy {
         inline u8 getIE() {
             return interruptEnableRegister;
         }
+
+        u8 *releaseROM(size_t *size);
 
         void serialize(std::ostream &ostream) const;
         void deserialize(std::istream &istream);

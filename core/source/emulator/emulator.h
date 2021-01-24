@@ -77,6 +77,10 @@ namespace FunkyBoy {
             return memory.getROMHeader();
         }
 
+        inline u8 *releaseROM(size_t *size) {
+            return memory.releaseROM(size);
+        }
+
         inline size_t getCartridgeRamSize() {
             return memory.getCartridgeRamSize();
         }
