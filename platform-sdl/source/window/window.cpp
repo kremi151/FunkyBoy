@@ -203,6 +203,8 @@ void Window::updateInputs() {
             if (wasPressed != pressed) {
                 emulator.setInputState(key, pressed);
             }
+        } else if (sdlEvents.type == SDL_QUIT) {
+            break;
         }
     }
 }
