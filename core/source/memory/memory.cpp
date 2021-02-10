@@ -154,8 +154,17 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
     header = reinterpret_cast<ROMHeader*>(newRomBytes);
     stream.read(reinterpret_cast<char*>(newRomBytes) + FB_CARTRIDGE_HEADER_SIZE, length - FB_CARTRIDGE_HEADER_SIZE);
 
-    auto type = static_cast<RAMSize>(header->ramSize);
-    switch (type) {
+    RAMSize ramSizeType;
+    if (header->ramSize > 0x5) {
+        status = CartridgeStatus::RAMSizeUnsupported;
+        return;
+    }
+    u8 ramSize = header->ramSize;
+    if (ramSize == 0 && FunkyBoy::Util::hasCartridgeRam(header->cartridgeType)) {
+        ramSize = 1;
+    }
+    ramSizeType = static_cast<RAMSize>(ramSize);
+    switch (ramSizeType) {
         case RAMSize::RAM_SIZE_2KB:
             ramSizeInBytes = 2048;
             break;
@@ -175,17 +184,6 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
             ramSizeInBytes = 0;
             break;
     }
-
-    RAMSize ramSizeType;
-    if (header->ramSize > 0x5) {
-        status = CartridgeStatus::RAMSizeUnsupported;
-        return;
-    }
-    u8 ramSize = header->ramSize;
-    if (ramSize == 0 && FunkyBoy::Util::hasCartridgeRam(header->cartridgeType)) {
-        ramSize = 1;
-    }
-    ramSizeType = static_cast<RAMSize>(ramSize);
 
     switch (header->cartridgeType) {
         case 0x00:
@@ -282,7 +280,12 @@ void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
 
     rom = romBytes.release();
 
-    cram = new u8[ramSizeInBytes];
+    delete[] cram;
+    if (ramSizeInBytes > 0) {
+        cram = new u8[ramSizeInBytes];
+    } else {
+        cram = nullptr;
+    }
 
     status = CartridgeStatus::Loaded;
 }
