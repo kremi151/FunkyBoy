@@ -149,6 +149,10 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_3;
                 ppuMemory.setAccessibilityFromMMU(false, false);
+                if (ly == 0 && __fb_stat_isLYCInterrupt(stat) && ioRegisters.getLYC() == 0) {
+                    // [Workaround] Trigger LYC=LY interrupt early for LY=0
+                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                }
             }
             break;
         }
