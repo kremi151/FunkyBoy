@@ -28,7 +28,6 @@ namespace FunkyBoy {
 
     class PPU {
     private:
-        CPUPtr cpu;
         Controller::ControllersPtr controllers;
         io_registers ioRegisters;
         PPUMemory ppuMemory;
@@ -43,10 +42,10 @@ namespace FunkyBoy {
         void renderScanline(u8 ly);
         void updateStat(u8 &stat, u8 ly, bool lcdOn);
     public:
-        PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
+        PPU(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~PPU();
 
-        ret_code doClocks(u8 clocks);
+        ret_code doClocks(CPU &cpu, u8 clocks);
     };
 
 }

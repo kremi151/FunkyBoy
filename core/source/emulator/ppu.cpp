@@ -52,9 +52,8 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(CPUPtr cpu, Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
-    : cpu(std::move(cpu))
-    , controllers(std::move(controllers))
+PPU::PPU(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+    : controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
     , gpuMode(GPUMode::GPUMode_2)
@@ -83,7 +82,7 @@ PPU::~PPU() {
 //
 // In total for 155 scanlines => 70224 clocks
 
-ret_code PPU::doClocks(u8 clocks) {
+ret_code PPU::doClocks(CPU &cpu, u8 clocks) {
     // TODO: Finish implementation
     // See https://gbdev.gg8.se/wiki/articles/Video_Display#VRAM_Tile_Data
     // See http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf (pages 22-27)
@@ -108,21 +107,21 @@ ret_code PPU::doClocks(u8 clocks) {
                 if (++ly >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
                     controllers->getDisplay()->drawScreen();
-                    cpu->requestInterrupt(InterruptType::VBLANK);
+                    cpu.requestInterrupt(InterruptType::VBLANK);
                     if (__fb_stat_isVBlankInterrupt(stat)) {
-                        cpu->requestInterrupt(InterruptType::LCD_STAT);
+                        cpu.requestInterrupt(InterruptType::LCD_STAT);
                     }
                     ppuMemory.setAccessibilityFromMMU(true, true);
                     result |= FB_RET_NEW_FRAME;
                 } else {
                     gpuMode = GPUMode::GPUMode_2;
                     if (__fb_stat_isOAMInterrupt(stat)) {
-                        cpu->requestInterrupt(InterruptType::LCD_STAT);
+                        cpu.requestInterrupt(InterruptType::LCD_STAT);
                     }
                     ppuMemory.setAccessibilityFromMMU(true, false);
                 }
                 if (__fb_stat_isLYCInterrupt(stat) && ly == ioRegisters.getLYC()) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    cpu.requestInterrupt(InterruptType::LCD_STAT);
                 }
             }
             break;
@@ -132,14 +131,14 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_2;
                 if (__fb_stat_isOAMInterrupt(stat)) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    cpu.requestInterrupt(InterruptType::LCD_STAT);
                 }
                 ppuMemory.setAccessibilityFromMMU(true, false);
                 ly = 0;
             } else if (modeClocks % 204 == 0) {
                 ly++;
                 if (__fb_stat_isLYCInterrupt(stat) && ly == ioRegisters.getLYC()) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    cpu.requestInterrupt(InterruptType::LCD_STAT);
                 }
             }
             break;
@@ -151,7 +150,7 @@ ret_code PPU::doClocks(u8 clocks) {
                 ppuMemory.setAccessibilityFromMMU(false, false);
                 if (ly == 0 && __fb_stat_isLYCInterrupt(stat) && ioRegisters.getLYC() == 0) {
                     // [Workaround] Trigger LYC=LY interrupt early for LY=0
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    cpu.requestInterrupt(InterruptType::LCD_STAT);
                 }
             }
             break;
@@ -161,7 +160,7 @@ ret_code PPU::doClocks(u8 clocks) {
                 modeClocks = 0;
                 gpuMode = GPUMode::GPUMode_0;
                 if (__fb_stat_isHBlankInterrupt(stat)) {
-                    cpu->requestInterrupt(InterruptType::LCD_STAT);
+                    cpu.requestInterrupt(InterruptType::LCD_STAT);
                 }
                 ppuMemory.setAccessibilityFromMMU(true, true);
                 renderScanline(ly);

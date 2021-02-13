@@ -30,15 +30,15 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , ioRegisters(controllers)
     , ppuMemory()
     , memory(controllers, ioRegisters, ppuMemory)
-    , cpu(std::make_shared<CPU>(gbType, ioRegisters))
-    , ppu(cpu, controllers, ioRegisters, ppuMemory)
+    , cpu(gbType, ioRegisters)
+    , ppu(controllers, ioRegisters, ppuMemory)
 #ifdef FB_USE_AUTOSAVE
     , cramLastWritten(-1)
     , savePath()
 #endif
 {
     // Initialize registers
-    cpu->powerUpInit(memory);
+    cpu.powerUpInit(memory);
 }
 
 Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
@@ -59,7 +59,7 @@ CartridgeStatus Emulator::loadGame(std::istream &stream) {
         return memory.getCartridgeStatus();
     }
 
-    cpu->setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
+    cpu.setProgramCounter(FB_ROM_HEADER_ENTRY_POINT);
 
 #ifdef FB_DEBUG
     auto header = memory.getROMHeader();
@@ -104,7 +104,7 @@ void Emulator::saveState(std::ostream &ostream) {
         ostream.put(false);
     }
 
-    cpu->serialize(ostream);
+    cpu.serialize(ostream);
     ioRegisters.serialize(ostream);
     ppuMemory.serialize(ostream);
     memory.serialize(ostream);
@@ -134,7 +134,7 @@ void Emulator::loadState(std::istream &istream) {
         }
     }
 
-    cpu->deserialize(istream);
+    cpu.deserialize(istream);
     ioRegisters.deserialize(istream);
     ppuMemory.deserialize(istream);
     memory.deserialize(istream);
@@ -157,11 +157,11 @@ void Emulator::doAutosave() {
 #endif
 
 ret_code Emulator::doTick() {
-    auto result = cpu->doMachineCycle(memory);
+    auto result = cpu.doMachineCycle(memory);
     if (!result) {
         return 0;
     }
-    result |= ppu.doClocks(4);
+    result |= ppu.doClocks(cpu, 4);
 #ifdef FB_USE_AUTOSAVE
     if (result & FB_RET_NEW_FRAME) {
         if (memory.cartridgeRAMWritten) {

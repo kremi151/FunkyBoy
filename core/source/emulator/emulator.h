@@ -46,7 +46,7 @@ namespace FunkyBoy {
         io_registers ioRegisters;
         PPUMemory ppuMemory;
         Memory memory;
-        CPUPtr cpu;
+        CPU cpu;
         PPU ppu;
     public:
 #ifdef FB_USE_AUTOSAVE

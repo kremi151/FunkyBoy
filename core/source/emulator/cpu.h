@@ -20,7 +20,6 @@
 #include "util/typedefs.h"
 
 #include <memory/memory.h>
-#include <memory>
 #include <iostream>
 #include <util/testing.h>
 #include <util/debug.h>
@@ -91,8 +90,6 @@ namespace FunkyBoy {
         void serialize(std::ostream &ostream) const;
         void deserialize(std::istream &istream);
     };
-
-    typedef std::shared_ptr<CPU> CPUPtr;
 
 }
 

@@ -79,22 +79,22 @@ TEST_SUITE(saveStates) {
 
         assertEquals(emulator1.memory.ramSizeInBytes, emulator2.memory.ramSizeInBytes);
         assertArrayEquals(emulator1.memory.cram, emulator2.memory.cram, emulator1.memory.ramSizeInBytes);
-        assertEquals(emulator1.cpu->instrContext.instr, emulator2.cpu->instrContext.instr);
-        assertEquals(emulator1.cpu->instrContext.cbInstr, emulator2.cpu->instrContext.cbInstr);
-        assertEquals(emulator1.cpu->instrContext.haltBugRequested, emulator2.cpu->instrContext.haltBugRequested);
-        assertEquals(emulator1.cpu->instrContext.interruptMasterEnable, emulator2.cpu->instrContext.interruptMasterEnable);
-        assertEquals(emulator1.cpu->instrContext.cpuState, emulator2.cpu->instrContext.cpuState);
-        assertEquals(emulator1.cpu->instrContext.lsb, emulator2.cpu->instrContext.lsb);
-        assertEquals(emulator1.cpu->instrContext.msb, emulator2.cpu->instrContext.msb);
-        assertEquals(emulator1.cpu->instrContext.stackPointer, emulator2.cpu->instrContext.stackPointer);
-        assertEquals(emulator1.cpu->instrContext.progCounter, emulator2.cpu->instrContext.progCounter);
-        assertEquals(emulator1.cpu->instrContext.signedByte, emulator2.cpu->instrContext.signedByte);
-        assertEquals(*emulator1.cpu->instrContext.regA, *emulator2.cpu->instrContext.regA);
-        assertEquals(*emulator1.cpu->instrContext.regB, *emulator2.cpu->instrContext.regB);
-        assertEquals(*emulator1.cpu->instrContext.regC, *emulator2.cpu->instrContext.regC);
-        assertEquals(*emulator1.cpu->instrContext.regD, *emulator2.cpu->instrContext.regD);
-        assertEquals(*emulator1.cpu->instrContext.regE, *emulator2.cpu->instrContext.regE);
-        assertEquals(*emulator1.cpu->instrContext.regF, *emulator2.cpu->instrContext.regF);
+        assertEquals(emulator1.cpu.instrContext.instr, emulator2.cpu.instrContext.instr);
+        assertEquals(emulator1.cpu.instrContext.cbInstr, emulator2.cpu.instrContext.cbInstr);
+        assertEquals(emulator1.cpu.instrContext.haltBugRequested, emulator2.cpu.instrContext.haltBugRequested);
+        assertEquals(emulator1.cpu.instrContext.interruptMasterEnable, emulator2.cpu.instrContext.interruptMasterEnable);
+        assertEquals(emulator1.cpu.instrContext.cpuState, emulator2.cpu.instrContext.cpuState);
+        assertEquals(emulator1.cpu.instrContext.lsb, emulator2.cpu.instrContext.lsb);
+        assertEquals(emulator1.cpu.instrContext.msb, emulator2.cpu.instrContext.msb);
+        assertEquals(emulator1.cpu.instrContext.stackPointer, emulator2.cpu.instrContext.stackPointer);
+        assertEquals(emulator1.cpu.instrContext.progCounter, emulator2.cpu.instrContext.progCounter);
+        assertEquals(emulator1.cpu.instrContext.signedByte, emulator2.cpu.instrContext.signedByte);
+        assertEquals(*emulator1.cpu.instrContext.regA, *emulator2.cpu.instrContext.regA);
+        assertEquals(*emulator1.cpu.instrContext.regB, *emulator2.cpu.instrContext.regB);
+        assertEquals(*emulator1.cpu.instrContext.regC, *emulator2.cpu.instrContext.regC);
+        assertEquals(*emulator1.cpu.instrContext.regD, *emulator2.cpu.instrContext.regD);
+        assertEquals(*emulator1.cpu.instrContext.regE, *emulator2.cpu.instrContext.regE);
+        assertEquals(*emulator1.cpu.instrContext.regF, *emulator2.cpu.instrContext.regF);
 
         // Continue executing with second emulator
         for (; i < 2680000 ; i++) {
@@ -132,9 +132,9 @@ TEST_SUITE(saveStates) {
         emulator.loadGame(inStream);
         assertEquals(emulator.getCartridgeStatus(), FunkyBoy::CartridgeStatus::Loaded);
 
-        emulator.cpu->instrContext.instr = 0x00;
+        emulator.cpu.instrContext.instr = 0x00;
 
-        assertEquals(0x100, emulator.cpu->instrContext.progCounter);
+        assertEquals(0x100, emulator.cpu.instrContext.progCounter);
 
         char saveState[FB_SAVE_STATE_MAX_BUFFER_SIZE];
 
