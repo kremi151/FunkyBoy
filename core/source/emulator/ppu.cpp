@@ -188,7 +188,7 @@ void PPU::renderScanline(u8 ly) {
     u16 tileLine;
     u8 palette;
     u8 colorIndex;
-    u8 it;
+    int it;
     if (bgEnabled) {
         const u8 &scx = ioRegisters.getSCX();
         const u8 &scy = ioRegisters.getSCY();
@@ -200,7 +200,7 @@ void PPU::renderScanline(u8 ly) {
         tileMapAddr += ((y & 255u) / 8) * 32;
         palette = ioRegisters.getBGP();
         tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
-        u8 &scanLineX = it; // alias for it
+        int &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
             tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
             colorIndex = (tileLine >> (7 - xInTile)) & 1u
@@ -215,7 +215,7 @@ void PPU::renderScanline(u8 ly) {
         }
     } else {
         // Clear scan line buffer
-        u8 &scanLineX = it; // alias for it
+        int &scanLineX = it; // alias for it
         for (scanLineX = 0 ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
             scanLineBuffer[scanLineX] = 0;
             bgColorIndexes[scanLineX] = 0;
@@ -228,12 +228,12 @@ void PPU::renderScanline(u8 ly) {
             yInTile = y % 8;
             xInTile = 0;
             tileOffsetX = 0;
-            const u8 wx = ioRegisters.getWX() - 7;
+            const int wx = ioRegisters.getWX() - 7;
             memory_address tileMapAddr = __fb_lcdc_windowTileMapDisplaySelect(lcdc);
             tileMapAddr += ((y & 255u) / 8) * 32;
             palette = ioRegisters.getBGP();
             tile = ppuMemory.getVRAMByte(tileMapAddr + tileOffsetX);
-            u8 &scanLineX = it; // alias for it
+            int &scanLineX = it; // alias for it
             for (scanLineX = wx ; scanLineX < FB_GB_DISPLAY_WIDTH ; scanLineX++) {
                 tileLine = ppuMemory.readVRAM16Bits(tileSetAddr + __fb_getTileSetOffset(lcdc, tile) + (yInTile * 2));
                 colorIndex = (tileLine >> (7 - xInTile)) & 1u
@@ -256,7 +256,7 @@ void PPU::renderScanline(u8 ly) {
         u8 objFlags;
         bool hide, flipX, flipY;
         u8 yInObj;
-        u8 &objIdx = it; // alias for it
+        int &objIdx = it; // alias for it
         for (objIdx = 0 ; objIdx < 40 ; objIdx++) {
             objY = ppuMemory.getOAMByte(objAddr++) - 16;
             objX = ppuMemory.getOAMByte(objAddr++);
