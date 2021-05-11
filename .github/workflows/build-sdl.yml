@@ -6,6 +6,7 @@ on:
     paths:
       - 'core/**'
       - 'platform-sdl/**'
+      - '.github/workflows/build-sdl.yml'
   pull_request:
     branches: [ master ]
 
