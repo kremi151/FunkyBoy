@@ -6,6 +6,8 @@ on:
       - master
     paths:
       - 'core/**'
+      - '.github/workflows/update-child-projects.yml'
+      - '.github/workflows/scripts/update-android.sh'
 
 jobs:
   update-android:

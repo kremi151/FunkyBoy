@@ -6,6 +6,7 @@ on:
     paths:
       - 'core/**'
       - 'platform-libretro/**'
+      - '.github/workflows/build-libretro.yml'
   pull_request:
     branches: [ master ]
 

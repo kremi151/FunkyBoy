@@ -6,6 +6,8 @@ on:
     paths:
       - 'core/**'
       - 'platform-psp/**'
+      - '.github/workflows/build-psp.yml'
+      - '.github/workflows/scripts/build-in-docker.sh'
   pull_request:
     branches: [ master ]
 

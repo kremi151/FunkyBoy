@@ -6,6 +6,7 @@ on:
     paths:
       - 'core/**'
       - 'test/**'
+      - '.github/workflows/test.yml'
   pull_request:
     branches: [ master ]
 

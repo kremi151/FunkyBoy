@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     paths:
       - 'core/**'
+      - '.github/workflows/build-core.yml'
   pull_request:
     branches: [ master ]
 

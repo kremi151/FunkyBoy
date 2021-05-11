@@ -6,6 +6,8 @@ on:
     paths:
       - 'core/**'
       - 'platform-3ds/**'
+      - '.github/workflows/build-3ds.yml'
+      - '.github/workflows/scripts/build-in-docker.sh'
   pull_request:
     branches: [ master ]
 
