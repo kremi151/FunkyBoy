@@ -66,6 +66,7 @@ jobs:
           buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeAppendedArgs: -DCMAKE_BUILD_TYPE=Release -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
+          buildWithCMakeArgs: "--config Release"
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
