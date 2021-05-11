@@ -41,11 +41,16 @@ jobs:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
           cmakeBuildType: Release
+      - name: Copy SDL2 library
+        run: cp $(cmake ./platform-sdl/ -L | grep SDL2_LIBRARY | cut -d= -f 2 | cut -d';' -f 1) "${{ github.workspace }}/platform-sdl/cmake-build/"
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.config.artifact }}
-          path: "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl"
+          path: |
+            ${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl
+            ${{ github.workspace }}/platform-sdl/cmake-build/*.so
+            ${{ github.workspace }}/platform-sdl/cmake-build/*.dylib
 
   build-sdl-windows:
     runs-on: windows-latest
@@ -68,8 +73,13 @@ jobs:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeAppendedArgs: -DCMAKE_BUILD_TYPE=Release -DSDL2_DIR="${{ github.workspace }}\sdl2\SDL2-2.0.12"
           buildWithCMakeArgs: "--config Release"
+      - name: Copy SDL2 library
+        run: Copy-Item -Path "${{ github.workspace }}\sdl2\SDL2-2.0.12\lib\x64\SDL2.dll" -Destination "${{ github.workspace }}/platform-sdl/cmake-build/Release/"
+        shell: powershell
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: FunkyBoy-windows
-          path: "${{ github.workspace }}/platform-sdl/cmake-build/*/fb_sdl.exe"
+          path: |
+            ${{ github.workspace }}/platform-sdl/cmake-build/Release/fb_sdl.exe
+            ${{ github.workspace }}/platform-sdl/cmake-build/Release/SDL2.dll
