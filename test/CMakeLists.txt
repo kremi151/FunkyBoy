@@ -5,8 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/../cmake-common)
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/acacia")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/acacia/source")
+set(ACACIA_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/acacia")
+
+add_subdirectory("${ACACIA_SOURCE_DIR}")
+include_directories("${ACACIA_SOURCE_DIR}/source")
 
 set_acacia_test_sources(
         source/blargg/rom_cpu_instrs_tests.cpp
