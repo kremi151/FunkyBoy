@@ -26,9 +26,11 @@
 
 using namespace FunkyBoy::SDL;
 
-inline void __fb_gtk_flushEvents() {
-    while(gtk_events_pending()) {
-        gtk_main_iteration();
+namespace FunkyBoy::SDL {
+    inline void flushGtkEvents() {
+        while(gtk_events_pending()) {
+            gtk_main_iteration();
+        }
     }
 }
 
@@ -86,9 +88,9 @@ void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vec
     }
 
 gtk_quit_file_picker:
-    __fb_gtk_flushEvents();
+    flushGtkEvents();
     gtk_widget_destroy(widget);
-    __fb_gtk_flushEvents();
+    flushGtkEvents();
 }
 
 void NativeUI::deinit() {
