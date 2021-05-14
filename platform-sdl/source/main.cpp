@@ -27,8 +27,17 @@ int main(int argc, char **argv) {
     SDL_Init(SDL_INIT_VIDEO);
 
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
-    bool romLoaded = fbWindow.init(argc, argv, FB_GB_DISPLAY_WIDTH * 3, FB_GB_DISPLAY_HEIGHT * 3);
+    bool romLoaded;
     int retCode = 0;
+    try {
+        romLoaded = fbWindow.init(argc, argv, FB_GB_DISPLAY_WIDTH * 3, FB_GB_DISPLAY_HEIGHT * 3);
+    } catch (const std::exception &ex) {
+        std::cerr
+            << "An error occurred during initialization:" << std::endl
+            << ex.what() << std::endl;
+        romLoaded = false;
+        retCode = 1;
+    }
 
     if (romLoaded) {
         runGame(fbWindow);

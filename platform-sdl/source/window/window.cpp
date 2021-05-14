@@ -70,7 +70,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     options.add_options()
 #if FB_HAS_SOCKETS
             ("server", "Start a server for multiplayer",
-                    cxxopts::value<std::string>()->default_value("localhost:8020"), "Expected format: <hostname>:<port>")
+                    cxxopts::value<int>()->default_value("8020"))
             ("client", "Connect to a server for multiplayer (address:port)",
                     cxxopts::value<std::string>()->default_value("localhost:8020"), "Expected format: <hostname>:<port>")
 #endif
@@ -93,21 +93,17 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     FunkyBoy::SDL::CLIConfig config;
 
 #if FB_HAS_SOCKETS
-    std::regex socketAddressRegex("([a-ZA-Z0-9\\.-_]+):([0-9]+)");
     if (result.count("server")) {
-        std::smatch matches;
-        if (!std::regex_search(result["server"].as<std::string>(), matches, socketAddressRegex)) {
-            std::cerr << "Server address needs to be in <hostname>:<port> format!" << std::endl;
-            return false;
-        }
-        config.socketAddress = matches[1].str();
-        config.socketPort = std::stoi(matches[2].str());
+        config.socketServer = true;
+        config.socketPort = result["server"].as<int>();
     } else if (result.count("client")) {
+        std::regex socketAddressRegex("([a-ZA-Z0-9\\.-_]+):([0-9]+)");
         std::smatch matches;
         if (!std::regex_search(result["client"].as<std::string>(), matches, socketAddressRegex)) {
             std::cerr << "Client address needs to be in <hostname>:<port> format!" << std::endl;
             return false;
         }
+        config.socketServer = false;
         config.socketAddress = matches[1].str();
         config.socketPort = std::stoi(matches[2].str());
     }
@@ -157,7 +153,9 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     }
 
 #if FB_HAS_SOCKETS
-
+    if (config.socketServer) {
+        bsdServer = std::make_unique<Sockets::BSDServer>(config);
+    }
 #endif
 
     std::cout << "Loading ROM from " << config.romPath << "..." << std::endl;
