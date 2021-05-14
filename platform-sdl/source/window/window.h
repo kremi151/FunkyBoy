@@ -22,6 +22,10 @@
 #include <emulator/emulator.h>
 #include <util/fs.h>
 
+#if FB_HAS_SOCKETS
+#include <sys/socket.h>
+#endif
+
 namespace FunkyBoy::SDL {
 
     class Window

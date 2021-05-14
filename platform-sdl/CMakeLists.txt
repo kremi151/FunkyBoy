@@ -26,6 +26,7 @@ set(HEADERS
         source/controllers/display_sdl.h
         source/ui/native_ui.h
         source/window/window.h
+        source/cli/config.h
         )
 
 set(DARWIN_SOURCES
@@ -90,6 +91,20 @@ include_directories(${FB_EXTERNAL_INCLUDE_DIRS})
 if (OS_MACOS)
         set_source_files_properties(${DARWIN_SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
+
+# Check whether we can use sys/socket.h
+string(CONFIGURE [[
+        #include <sys/socket.h>
+
+        int main() {
+            sockaddr_in addr;
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_WITH_SYS_SOCKET_H)
+target_compile_definitions(fb_core PUBLIC -DFB_HAS_SOCKETS=$<BOOL:${CAN_COMPILE_WITH_SYS_SOCKET_H}>)
+
+target_compile_definitions(fb_sdl PRIVATE -DHAS_STD_THIS_THREAD=$<BOOL:${CAN_COMPILE_STD_THIS_THREAD}>)
 
 target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
 
