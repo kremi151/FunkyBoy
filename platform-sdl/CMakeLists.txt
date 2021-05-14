@@ -37,6 +37,8 @@ if (OS_MACOS)
         set(SOURCES ${SOURCES} ${DARWIN_SOURCES})
 endif()
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
+
 find_package(SDL2 REQUIRED)
 
 if (OS_LINUX)
@@ -68,15 +70,33 @@ elseif(OS_LINUX)
     message(FATAL_ERROR "X11 was not found")
 endif()
 
+# Check whether we can use sys/socket.h
+string(CONFIGURE [[
+        #include <sys/socket.h>
+        #include <netinet/in.h>
+        #include <unistd.h>
+
+        int main() {
+            sockaddr addr;
+            sockaddr_in sockaddr;
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_C_SOCKET_API_H)
+if (CAN_COMPILE_C_SOCKET_API_H)
+    set(SOURCES ${SOURCES} source/sockets/bsd_server.cpp source/sockets/socket_exception.cpp)
+    set(HEADERS ${HEADERS} source/sockets/bsd_server.h source/sockets/socket_exception.h)
+endif()
+
 if (OS_MACOS)
     add_executable(fb_sdl MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 
     set_target_properties(fb_sdl PROPERTIES
-        BUNDLE True
-        MACOSX_BUNDLE_GUI_IDENTIFIER lu.kremi151.funkyboy.sdl
-        MACOSX_BUNDLE_BUNDLE_NAME ${FB_NAME}
-        MACOSX_BUNDLE_BUNDLE_VERSION ${FB_VERSION_MAJOR}.${FB_VERSION_MINOR}.${FB_VERSION_PATCH}
-        MACOSX_BUNDLE_SHORT_VERSION_STRING ${FB_VERSION}
+            BUNDLE True
+            MACOSX_BUNDLE_GUI_IDENTIFIER lu.kremi151.funkyboy.sdl
+            MACOSX_BUNDLE_BUNDLE_NAME ${FB_NAME}
+            MACOSX_BUNDLE_BUNDLE_VERSION ${FB_VERSION_MAJOR}.${FB_VERSION_MINOR}.${FB_VERSION_PATCH}
+            MACOSX_BUNDLE_SHORT_VERSION_STRING ${FB_VERSION}
     )
 else()
     add_executable(fb_sdl ${SOURCES} ${HEADERS})
@@ -92,19 +112,7 @@ if (OS_MACOS)
         set_source_files_properties(${DARWIN_SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
 
-# Check whether we can use sys/socket.h
-string(CONFIGURE [[
-        #include <sys/socket.h>
-
-        int main() {
-            sockaddr_in addr;
-            return 0;
-        }
-]] code @ONLY)
-check_cxx_source_compiles("${code}" CAN_COMPILE_WITH_SYS_SOCKET_H)
-target_compile_definitions(fb_core PUBLIC -DFB_HAS_SOCKETS=$<BOOL:${CAN_COMPILE_WITH_SYS_SOCKET_H}>)
-
-target_compile_definitions(fb_sdl PRIVATE -DHAS_STD_THIS_THREAD=$<BOOL:${CAN_COMPILE_STD_THIS_THREAD}>)
+target_compile_definitions(fb_sdl PUBLIC -DFB_HAS_SOCKETS=$<BOOL:${CAN_COMPILE_C_SOCKET_API_H}>)
 
 target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
 
