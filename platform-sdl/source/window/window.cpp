@@ -132,9 +132,6 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
     SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
 
-    controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
-    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
-
     if (result.unmatched().empty()) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
 
@@ -159,11 +156,18 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
 #if FB_HAS_SOCKETS
     if (config.socketServer) {
-        socketInterface = std::make_unique<Sockets::BSDServer>(config);
+        socketInterface = std::make_shared<Sockets::BSDServer>(config);
     } else if (!config.socketAddress.empty()) {
-        socketInterface = std::make_unique<Sockets::BSDClient>(config);
+        socketInterface = std::make_shared<Sockets::BSDClient>(config);
     }
 #endif
+
+    controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>(
+#if FB_HAS_SOCKETS
+        socketInterface
+#endif
+    ));
+    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
 
     std::cout << "Loading ROM from " << config.romPath << "..." << std::endl;
     auto status = emulator.loadGame(fs::path(config.romPath));

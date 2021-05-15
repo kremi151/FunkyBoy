@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-#include "serial_null.h"
+#ifndef FB_CORE_INTERRUPT_TYPE_H
+#define FB_CORE_INTERRUPT_TYPE_H
 
-using namespace FunkyBoy::Controller;
+namespace FunkyBoy {
 
-void SerialControllerVoid::sendBit(FunkyBoy::u8 data, std::function<void(FunkyBoy::u8_fast)> callback) {
-    // Do nothing
+    enum InterruptType {
+        VBLANK      = 0,
+        LCD_STAT    = 1,
+        TIMER       = 2,
+        SERIAL      = 3,
+        JOYPAD      = 4
+    };
+
 }
+
+#endif //FB_CORE_INTERRUPT_TYPE_H

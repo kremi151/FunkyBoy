@@ -18,15 +18,19 @@
 #define FB_SDL_SOCKETS_SOCKET_INTERFACE_H
 
 #include <memory>
+#include <functional>
+#include <util/typedefs.h>
 
 namespace FunkyBoy::SDL::Sockets {
 
     class SocketInterface {
     public:
         virtual ~SocketInterface() = default;
+
+        virtual void transferBit(FunkyBoy::u8_fast bit, std::function<void(u8_fast)> callback) = 0;
     };
 
-    typedef std::unique_ptr<SocketInterface> SocketInterfacePtr;
+    typedef std::shared_ptr<SocketInterface> SocketInterfacePtr;
 
 }
 

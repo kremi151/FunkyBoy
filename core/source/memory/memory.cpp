@@ -471,8 +471,18 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
                 // IO registers
 
                 if (offset == FB_REG_SC) {
-                    if (val == 0x81) {
-                        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+                    if (val & 0b10000000) {
+                        controllers->getSerial()->sendBit(read8BitsAt(FB_REG_SB), [&](u8_fast data) {
+                            std::cout << "Received data: " << (data & 0xFFFF) << std::endl;
+
+                            u8 &sb = ioRegisters.getSB();
+                            sb = (sb << 1) | (data & 0b1);
+
+                            u8 &sc = ioRegisters.getSC();
+                            sc &= 0b01111111;
+
+                            ioRegisters.requestInterrupt(InterruptType::SERIAL);
+                        });
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;

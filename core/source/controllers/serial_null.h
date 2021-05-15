@@ -23,7 +23,7 @@ namespace FunkyBoy::Controller {
 
     class SerialControllerVoid: public SerialController {
     public:
-        void sendByte(u8 data) override;
+        void sendBit(u8 data, std::function<void(u8_fast)> callback) override;
     };
 
 }

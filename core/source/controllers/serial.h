@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <util/typedefs.h>
+#include <functional>
 
 namespace FunkyBoy::Controller {
 
@@ -26,7 +27,7 @@ namespace FunkyBoy::Controller {
     public:
         virtual ~SerialController() = default;
 
-        virtual void sendByte(u8 data) = 0;
+        virtual void sendBit(u8 data, std::function<void(u8_fast)> callback) = 0;
     };
 
     typedef std::shared_ptr<SerialController> SerialControllerPtr;

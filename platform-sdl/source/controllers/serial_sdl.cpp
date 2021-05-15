@@ -20,7 +20,13 @@
 
 using namespace FunkyBoy::Controller;
 
-void SerialControllerSDL::sendByte(FunkyBoy::u8 data) {
-    // TODO: This is only temporary so that I see whether my emulator is doing something, to be removed
-    std::cout << data;
+#if FB_HAS_SOCKETS
+SerialControllerSDL::SerialControllerSDL(SDL::Sockets::SocketInterfacePtr socketInterface): socketInterface(std::move(socketInterface)) {
+}
+#endif
+
+void SerialControllerSDL::sendBit(FunkyBoy::u8 data, std::function<void(FunkyBoy::u8_fast)> callback) {
+#if FB_HAS_SOCKETS
+    socketInterface->transferBit(data, callback);
+#endif
 }
