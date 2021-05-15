@@ -95,7 +95,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         return false;
     }
 
-    FunkyBoy::SDL::CLIConfig config;
+    FunkyBoy::SDL::CLIConfig config{};
 
 #if FB_HAS_SOCKETS
     if (result.count("server")) {
@@ -160,7 +160,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 #if FB_HAS_SOCKETS
     if (config.socketServer) {
         socketInterface = std::make_unique<Sockets::BSDServer>(config);
-    } else if (config.socketAddress != nullptr) {
+    } else if (!config.socketAddress.empty()) {
         socketInterface = std::make_unique<Sockets::BSDClient>(config);
     }
 #endif
