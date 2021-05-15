@@ -30,6 +30,11 @@
 #include <regex>
 #endif
 
+#if FB_HAS_SOCKETS
+#include <sockets/bsd_server.h>
+#include <sockets/bsd_client.h>
+#endif
+
 using namespace FunkyBoy::SDL;
 
 Window::Window(FunkyBoy::GameBoyType gbType)
@@ -154,7 +159,9 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
 #if FB_HAS_SOCKETS
     if (config.socketServer) {
-        bsdServer = std::make_unique<Sockets::BSDServer>(config);
+        socketInterface = std::make_unique<Sockets::BSDServer>(config);
+    } else if (config.socketAddress != nullptr) {
+        socketInterface = std::make_unique<Sockets::BSDClient>(config);
     }
 #endif
 

@@ -23,7 +23,7 @@
 #include <util/fs.h>
 
 #if FB_HAS_SOCKETS
-#include <sockets/bsd_server.h>
+#include <sockets/socket_interface.h>
 #endif
 
 namespace FunkyBoy::SDL {
@@ -60,7 +60,7 @@ namespace FunkyBoy::SDL {
         bool btnRightWasPressed;
 
 #if FB_HAS_SOCKETS
-        Sockets::BSDServerPtr bsdServer;
+        Sockets::SocketInterfacePtr socketInterface;
 #endif
 
         void updateInputs();

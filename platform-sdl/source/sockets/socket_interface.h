@@ -14,31 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FB_SDL_SOCKETS_BSD_SERVER_H
-#define FB_SDL_SOCKETS_BSD_SERVER_H
+#ifndef FB_SDL_SOCKETS_SOCKET_INTERFACE_H
+#define FB_SDL_SOCKETS_SOCKET_INTERFACE_H
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <thread>
-
-#include <cli/config.h>
-
-#include "socket_interface.h"
+#include <memory>
 
 namespace FunkyBoy::SDL::Sockets {
 
-    class BSDServer: public SocketInterface {
-    private:
-        int serverFd;
-        struct sockaddr_in address{};
-        std::thread serverThread;
-
-        void accept();
+    class SocketInterface {
     public:
-        explicit BSDServer(const CLIConfig &config);
-        ~BSDServer() override;
+        virtual ~SocketInterface() = default;
     };
+
+    typedef std::unique_ptr<SocketInterface> SocketInterfacePtr;
 
 }
 
-#endif //FB_SDL_SOCKETS_BSD_SERVER_H
+#endif //FB_SDL_SOCKETS_SOCKET_INTERFACE_H

@@ -64,7 +64,7 @@ BSDServer::~BSDServer() {
 
 void BSDServer::accept() {
     int addrlen = sizeof(address);
-    char buffer[16] = {0}; // TODO: Large enough?
+    char buffer[16] = {0};
     while (serverFd) {
 #ifdef FB_DEBUG
         std::cout << "Accepting on socket..." << std::endl;
@@ -77,6 +77,25 @@ void BSDServer::accept() {
         std::cout << "Got connection from " << clientSocket << std::endl;
 
         size_t bytesRead;
+
+        // Receive and check initial magic bytes
+        bytesRead = read(clientSocket, buffer, sizeof(buffer));
+        if (bytesRead != 5 || buffer[0] != 0x42 || buffer[1] != 0x18 || buffer[2] != 0x69 || buffer[3] != 0x06 || buffer[4] != 0x55) {
+            std::cerr << "Connection from " << clientSocket << " cannot be trusted" << std::endl;
+            shutdown(clientSocket, 2);
+            close(clientSocket);
+            continue;
+        }
+        // Send reversed magic bytes
+        buffer[4] = 0x42;
+        buffer[3] = 0x18;
+        buffer[2] = 0x69;
+        buffer[1] = 0x06;
+        buffer[0] = 0x55;
+        send(clientSocket, buffer, 5, 0);
+
+        std::cout << "Connection from " << clientSocket << " is trusted" << std::endl;
+
         while ((bytesRead = read(clientSocket, buffer, sizeof(buffer))) > 0) {
             // TODO: Transfer bit to serial controller
         }
