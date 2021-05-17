@@ -156,9 +156,12 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
 #if FB_HAS_SOCKETS
     if (config.socketServer) {
-        socketInterface = std::make_shared<Sockets::BSDServer>(config);
+        socketInterface = std::make_shared<Sockets::BSDServer>();
     } else if (!config.socketAddress.empty()) {
-        socketInterface = std::make_shared<Sockets::BSDClient>(config);
+        socketInterface = std::make_shared<Sockets::BSDClient>();
+    }
+    if (socketInterface) {
+        socketInterface->init(config);
     }
 #endif
 

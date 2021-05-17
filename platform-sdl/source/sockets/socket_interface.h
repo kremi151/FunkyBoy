@@ -21,12 +21,15 @@
 #include <functional>
 #include <util/typedefs.h>
 
+#include <cli/config.h>
+
 namespace FunkyBoy::SDL::Sockets {
 
     class SocketInterface {
     public:
         virtual ~SocketInterface() = default;
 
+        virtual void init(const CLIConfig &config) = 0;
         virtual void transferBit(FunkyBoy::u8_fast bit, std::function<void(u8_fast)> callback) = 0;
     };
 

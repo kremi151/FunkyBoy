@@ -18,58 +18,40 @@
 
 #include "socket_exception.h"
 
+#include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
 
 using namespace FunkyBoy::SDL::Sockets;
 
-BSDServer::BSDServer(const CLIConfig &config) {
-    serverFd = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverFd == 0) {
+void BSDServer::setupSocket(const CLIConfig &config) {
+    socketFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketFd == 0) {
         throw SocketException("Unable to create socket");
     }
     /*int opt = 1;
-    if (setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+    if (setsockopt(socketFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
         throw SocketException("Unable to attach to port " + std::to_string(config.socketPort));
     }*/
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(config.socketPort);
-    if (bind(serverFd, reinterpret_cast<const sockaddr *>(&address), sizeof(address)) < 0) {
+    if (bind(socketFd, reinterpret_cast<const sockaddr *>(&address), sizeof(address)) < 0) {
         throw SocketException("Unable to bind to port " + std::to_string(config.socketPort));
     }
-    if (listen(serverFd, 3) < 0) {
+    if (listen(socketFd, 3) < 0) {
         throw SocketException("Unable to listen on port " + std::to_string(config.socketPort));
     }
-    serverThread = std::thread([&] {
-        accept();
-    });
 }
 
-BSDServer::~BSDServer() {
-#ifdef FB_DEBUG
-    std::cout << "Closing socket file descriptor..." << std::endl;
-#endif
-    shutdown(serverFd, 2);
-    close(serverFd);
-    serverFd = 0;
-#ifdef FB_DEBUG
-    std::cout << "Socket file descriptor closed, joining server thread..." << std::endl;
-#endif
-    serverThread.join();
-#ifdef FB_DEBUG
-    std::cout << "Server thread has stopped" << std::endl;
-#endif
-}
-
-void BSDServer::accept() {
+void BSDServer::threadMain() {
     int addrlen = sizeof(address);
     char buffer[16] = {0};
-    while (serverFd) {
+    while (socketFd > 0) {
 #ifdef FB_DEBUG
         std::cout << "Accepting on socket..." << std::endl;
 #endif
-        int clientSocket = ::accept(serverFd, reinterpret_cast<sockaddr *>(&address),
+        int clientSocket = ::accept(socketFd, reinterpret_cast<sockaddr *>(&address),
                                     reinterpret_cast<socklen_t *>(&addrlen));
         if (clientSocket < 0) {
             continue;

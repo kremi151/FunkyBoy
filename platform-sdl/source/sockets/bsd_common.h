@@ -14,21 +14,37 @@
  * limitations under the License.
  */
 
-#ifndef FB_SDL_SOCKETS_BSD_CLIENT_H
-#define FB_SDL_SOCKETS_BSD_CLIENT_H
+#ifndef FB_SDL_SOCKETS_BSD_COMMON_H
+#define FB_SDL_SOCKETS_BSD_COMMON_H
 
+#include "socket_interface.h"
+
+#include <thread>
+#include <mutex>
 #include <netinet/in.h>
-#include <cli/config.h>
-#include "bsd_common.h"
 
 namespace FunkyBoy::SDL::Sockets {
 
-    class BSDClient: public BSDSocketInterface {
+    class BSDSocketInterface : public SocketInterface {
+    private:
+        std::thread thread;
+
     protected:
-        void setupSocket(const CLIConfig &config) override;
-        void threadMain() override;
+        std::mutex mutex;
+        int socketFd;
+        struct sockaddr_in address{};
+
+        virtual void threadMain() = 0;
+        virtual void setupSocket(const CLIConfig &config) = 0;
+
+    public:
+        BSDSocketInterface();
+        ~BSDSocketInterface() override;
+
+        void init(const CLIConfig &config) final;
+        void transferBit(FunkyBoy::u8_fast bit, std::function<void(u8_fast)> callback) final;
     };
 
 }
 
-#endif //FB_SDL_SOCKETS_BSD_CLIENT_H
+#endif //FB_SDL_SOCKETS_BSD_COMMON_H

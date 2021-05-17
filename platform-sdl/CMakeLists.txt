@@ -87,6 +87,7 @@ check_cxx_source_compiles("${code}" CAN_COMPILE_BSD_SOCKET_API_H)
 if (CAN_COMPILE_BSD_SOCKET_API_H)
     set(SOURCES
             ${SOURCES}
+            source/sockets/bsd_common.cpp
             source/sockets/bsd_server.cpp
             source/sockets/bsd_client.cpp
             source/sockets/socket_exception.cpp
@@ -94,6 +95,7 @@ if (CAN_COMPILE_BSD_SOCKET_API_H)
     set(HEADERS
             ${HEADERS}
             source/sockets/socket_interface.h
+            source/sockets/bsd_common.h
             source/sockets/bsd_server.h
             source/sockets/bsd_client.h
             source/sockets/socket_exception.h

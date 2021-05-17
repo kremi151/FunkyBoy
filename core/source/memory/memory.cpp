@@ -91,6 +91,18 @@ namespace FunkyBoy::Util {
 }
 
 void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
+    controllers->getSerial()->setup([&](u8_fast data) {
+        std::cout << "Received data: " << (data & 0xFFFF) << std::endl;
+
+        u8 &sb = ioRegisters.getSB();
+        sb = (sb << 1) | (data & 0b1);
+
+        u8 &sc = ioRegisters.getSC();
+        sc &= 0b01111111;
+
+        ioRegisters.requestInterrupt(InterruptType::SERIAL);
+    });
+
     if (!stream.good()) {
 #ifdef FB_DEBUG
         fprintf(stderr, "Stream is not readable\n");
@@ -472,17 +484,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
 
                 if (offset == FB_REG_SC) {
                     if (val & 0b10000000) {
-                        controllers->getSerial()->sendBit(read8BitsAt(FB_REG_SB), [&](u8_fast data) {
-                            std::cout << "Received data: " << (data & 0xFFFF) << std::endl;
-
-                            u8 &sb = ioRegisters.getSB();
-                            sb = (sb << 1) | (data & 0b1);
-
-                            u8 &sc = ioRegisters.getSC();
-                            sc &= 0b01111111;
-
-                            ioRegisters.requestInterrupt(InterruptType::SERIAL);
-                        });
+                        controllers->getSerial()->sendBit(read8BitsAt(FB_REG_SB));
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;

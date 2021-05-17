@@ -18,6 +18,10 @@
 
 using namespace FunkyBoy::Controller;
 
-void SerialControllerVoid::sendBit(FunkyBoy::u8 data, std::function<void(FunkyBoy::u8_fast)> callback) {
+void SerialControllerVoid::setup(std::function<void(u8_fast)> bitReceived) {
+    // Do nothing
+}
+
+void SerialControllerVoid::sendBit(FunkyBoy::u8 data) {
     // Do nothing
 }

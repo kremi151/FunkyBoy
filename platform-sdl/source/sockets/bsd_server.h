@@ -17,26 +17,14 @@
 #ifndef FB_SDL_SOCKETS_BSD_SERVER_H
 #define FB_SDL_SOCKETS_BSD_SERVER_H
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <thread>
-
-#include <cli/config.h>
-
-#include "socket_interface.h"
+#include "bsd_common.h"
 
 namespace FunkyBoy::SDL::Sockets {
 
-    class BSDServer: public SocketInterface {
-    private:
-        int serverFd;
-        struct sockaddr_in address{};
-        std::thread serverThread;
-
-        void accept();
-    public:
-        explicit BSDServer(const CLIConfig &config);
-        ~BSDServer() override;
+    class BSDServer: public BSDSocketInterface {
+    protected:
+        void setupSocket(const CLIConfig &config) override;
+        void threadMain() override;
     };
 
 }
