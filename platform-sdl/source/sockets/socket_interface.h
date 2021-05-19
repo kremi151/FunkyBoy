@@ -30,7 +30,9 @@ namespace FunkyBoy::SDL::Sockets {
         virtual ~SocketInterface() = default;
 
         virtual void init(const CLIConfig &config) = 0;
-        virtual void transferBit(FunkyBoy::u8_fast bit, std::function<void(u8_fast)> callback) = 0;
+        virtual void setInputByte(FunkyBoy::u8_fast byte) = 0;
+        virtual void setCallback(std::function<void(u8_fast)> bitReceivedCallback) = 0;
+        virtual void transferByte() = 0;
     };
 
     typedef std::shared_ptr<SocketInterface> SocketInterfacePtr;

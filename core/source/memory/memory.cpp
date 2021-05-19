@@ -482,9 +482,11 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
             if (offset < 0xFF80) {
                 // IO registers
 
-                if (offset == FB_REG_SC) {
-                    if (val & 0b10000000) {
-                        controllers->getSerial()->sendBit(read8BitsAt(FB_REG_SB));
+                if (offset == FB_REG_SB) {
+                    controllers->getSerial()->setByte(read8BitsAt(FB_REG_SB));
+                } else if (offset == FB_REG_SC) {
+                    if ((val & 0b10000001) == 0b10000001) {
+                        controllers->getSerial()->transferByte();
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;

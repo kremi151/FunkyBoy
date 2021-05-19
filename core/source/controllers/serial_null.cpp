@@ -22,6 +22,10 @@ void SerialControllerVoid::setup(std::function<void(u8_fast)> bitReceived) {
     // Do nothing
 }
 
-void SerialControllerVoid::sendBit(FunkyBoy::u8 data) {
+void SerialControllerVoid::setByte(FunkyBoy::u8_fast byte) {
     // Do nothing
+}
+
+void SerialControllerVoid::transferByte() {
+
 }

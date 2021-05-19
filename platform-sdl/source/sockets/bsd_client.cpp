@@ -58,10 +58,7 @@ void BSDClient::setupSocket(const CLIConfig &config) {
     std::cout << "Connection is trusted" << std::endl;
 }
 
-void BSDClient::threadMain() {
+void BSDClient::readThreadMain() {
     char buffer[16] = {0};
-    size_t bytesRead;
-    while (socketFd > 0) {
-        // TODO: Handle serial bits
-    }
+    handleSocketRead(socketFd, buffer);
 }

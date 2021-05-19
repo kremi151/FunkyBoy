@@ -26,11 +26,19 @@ SerialControllerSDL::SerialControllerSDL(SDL::Sockets::SocketInterfacePtr socket
 #endif
 
 void SerialControllerSDL::setup(std::function<void(u8_fast)> bitReceivedCallback) {
-    this->bitReceived = bitReceivedCallback;
+#if FB_HAS_SOCKETS
+    socketInterface->setCallback(bitReceivedCallback);
+#endif
 }
 
-void SerialControllerSDL::sendBit(FunkyBoy::u8 data) {
+void SerialControllerSDL::setByte(FunkyBoy::u8_fast data) {
 #if FB_HAS_SOCKETS
-    socketInterface->transferBit(data, bitReceived);
+    socketInterface->setInputByte(data);
+#endif
+}
+
+void SerialControllerSDL::transferByte() {
+#if FB_HAS_SOCKETS
+    socketInterface->transferByte();
 #endif
 }

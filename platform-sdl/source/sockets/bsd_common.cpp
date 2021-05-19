@@ -23,11 +23,14 @@ using namespace FunkyBoy::SDL::Sockets;
 
 BSDSocketInterface::BSDSocketInterface()
     : socketFd(0)
+    , outByte(0)
+    , transferring(false)
+    , running(false)
 {
 }
 
 BSDSocketInterface::~BSDSocketInterface() {
-    if (thread.joinable()) {
+    if (socketFd > 0) {
 #ifdef FB_DEBUG
         std::cout << "Closing socket file descriptor..." << std::endl;
 #endif
@@ -35,23 +38,100 @@ BSDSocketInterface::~BSDSocketInterface() {
         close(socketFd);
         socketFd = 0;
 #ifdef FB_DEBUG
-        std::cout << "Socket file descriptor closed, joining server thread..." << std::endl;
+        std::cout << "Socket file descriptor closed, joining input thread..." << std::endl;
 #endif
-        thread.join();
+        if (readThread.joinable()) {
+            readThread.join();
+        }
 #ifdef FB_DEBUG
-        std::cout << "Server thread has stopped" << std::endl;
+        std::cout << "Joining output thread..." << std::endl;
+#endif
+        if (sendThread.joinable()) {
+            sendThread.join();
+        }
+#ifdef FB_DEBUG
+        std::cout << "Threads have been stopped" << std::endl;
 #endif
     }
 }
 
 void BSDSocketInterface::init(const CLIConfig &config) {
     setupSocket(config);
-    thread = std::thread([&] {
-        threadMain();
+    readThread = std::thread([&] {
+        readThreadMain();
     });
 }
 
-void BSDSocketInterface::transferBit(FunkyBoy::u8_fast bit, std::function<void(u8_fast)> callback) {
+void BSDSocketInterface::handleSocketRead(int fd, char *buffer) {
+    running = true;
+
+    sendThread = std::thread([&]{
+        handleSocketWrite(fd);
+    });
+
+    size_t bytesRead;
+    while ((bytesRead = read(fd, buffer, 1)) > 0) {
+        fprintf(stderr, "LOCK handleSocketRead\n");
+        std::lock_guard<std::mutex> lock(mutex);
+        fprintf(stderr, "LOCK handleSocketRead AQUIRED\n");
+
+        std::cout << "RECEIVED INCOMING BYTE: " << (buffer[0] & 0xffff) << std::endl;
+        bitReceivedCallback(buffer[0]);
+
+        buffer[0] = outByte & 0xff;
+        if (send(fd, buffer, sizeof(buffer), 0) < 1) {
+#ifdef FB_DEBUG
+            std::cerr << "Socket was closed while trying to send a response byte, shutting down read thread..." << std::endl;
+#endif
+            break;
+        }
+    }
+
+    running = false;
+}
+
+void BSDSocketInterface::handleSocketWrite(int fd) {
+    u8 buffer[1] = {0};
+    while (running) {
+        // TODO: Can we suspend the thread until an outgoing byte is available?
+        if (!transferring) {
+            continue;
+        }
+        fprintf(stderr, "LOCK handleSocketWrite\n");
+        std::lock_guard<std::mutex> lock(mutex);
+        fprintf(stderr, "LOCK handleSocketWrite AQUIRED\n");
+        buffer[0] = outByte & 0xff;
+        if (send(fd, buffer, sizeof(buffer), 0) < 1) {
+#ifdef FB_DEBUG
+            std::cerr << "Socket was closed while trying to send a byte, shutting down write thread..." << std::endl;
+#endif
+            return;
+        }
+        if (read(fd, buffer, sizeof(buffer)) <= 0) {
+#ifdef FB_DEBUG
+            std::cerr << "Socket was closed while trying to receive response byte, shutting down write thread..." << std::endl;
+#endif
+            return;
+        }
+
+        std::cout << "RECEIVED RESPONSE BYTE: " << (buffer[0] & 0xffff) << std::endl;
+        bitReceivedCallback(buffer[0]);
+
+        transferring = false;
+    }
+}
+
+void BSDSocketInterface::setInputByte(FunkyBoy::u8_fast byte) {
+    outByte = byte;
+}
+
+void BSDSocketInterface::setCallback(std::function<void(u8_fast)> callback) {
+    bitReceivedCallback = callback;
+}
+
+void BSDSocketInterface::transferByte() {
+    fprintf(stderr, "LOCK transferByte\n");
     std::lock_guard<std::mutex> lock(mutex);
-    // TODO: queue.push(bit);
+    fprintf(stderr, "LOCK transferByte AQUIRED\n");
+    transferring = true;
 }

@@ -44,7 +44,7 @@ void BSDServer::setupSocket(const CLIConfig &config) {
     }
 }
 
-void BSDServer::threadMain() {
+void BSDServer::readThreadMain() {
     int addrlen = sizeof(address);
     char buffer[16] = {0};
     while (socketFd > 0) {
@@ -78,8 +78,6 @@ void BSDServer::threadMain() {
 
         std::cout << "Connection from " << clientSocket << " is trusted" << std::endl;
 
-        while ((bytesRead = read(clientSocket, buffer, sizeof(buffer))) > 0) {
-            // TODO: Transfer bit to serial controller
-        }
+        handleSocketRead(clientSocket, buffer);
     }
 }

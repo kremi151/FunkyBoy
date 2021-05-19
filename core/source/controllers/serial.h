@@ -28,7 +28,8 @@ namespace FunkyBoy::Controller {
         virtual ~SerialController() = default;
 
         virtual void setup(std::function<void(u8_fast)> bitReceived) = 0;
-        virtual void sendBit(u8 data) = 0;
+        virtual void transferByte() = 0;
+        virtual void setByte(u8_fast byte) = 0;
     };
 
     typedef std::shared_ptr<SerialController> SerialControllerPtr;

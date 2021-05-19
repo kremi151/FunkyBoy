@@ -24,7 +24,7 @@ namespace FunkyBoy::SDL::Sockets {
     class BSDServer: public BSDSocketInterface {
     protected:
         void setupSocket(const CLIConfig &config) override;
-        void threadMain() override;
+        void readThreadMain() override;
     };
 
 }

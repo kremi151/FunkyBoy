@@ -27,8 +27,6 @@ namespace FunkyBoy::Controller {
 
     class SerialControllerSDL: public SerialController {
     private:
-        std::function<void(u8_fast)> bitReceived;
-
 #if FB_HAS_SOCKETS
         SDL::Sockets::SocketInterfacePtr socketInterface;
 #endif
@@ -38,7 +36,8 @@ namespace FunkyBoy::Controller {
 #endif
 
         void setup(std::function<void(u8_fast)> bitReceived) override;
-        void sendBit(u8 data) override;
+        void transferByte() override;
+        void setByte(u8_fast byte) override;
     };
 
 }

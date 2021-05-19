@@ -27,14 +27,21 @@ namespace FunkyBoy::SDL::Sockets {
 
     class BSDSocketInterface : public SocketInterface {
     private:
-        std::thread thread;
-
+        bool running;
+        std::thread sendThread, readThread;
+        std::function<void(u8_fast)> bitReceivedCallback;
     protected:
         std::mutex mutex;
         int socketFd;
         struct sockaddr_in address{};
 
-        virtual void threadMain() = 0;
+        bool transferring;
+        u8_fast outByte;
+
+        void handleSocketRead(int fd, char *buffer);
+        void handleSocketWrite(int fd);
+
+        virtual void readThreadMain() = 0;
         virtual void setupSocket(const CLIConfig &config) = 0;
 
     public:
@@ -42,7 +49,9 @@ namespace FunkyBoy::SDL::Sockets {
         ~BSDSocketInterface() override;
 
         void init(const CLIConfig &config) final;
-        void transferBit(FunkyBoy::u8_fast bit, std::function<void(u8_fast)> callback) final;
+        void setInputByte(FunkyBoy::u8_fast byte) final;
+        void setCallback(std::function<void(u8_fast)> bitReceivedCallback) final;
+        void transferByte() final;
     };
 
 }
