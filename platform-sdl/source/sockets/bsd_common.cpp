@@ -21,6 +21,12 @@
 
 using namespace FunkyBoy::SDL::Sockets;
 
+#ifdef FB_DEBUG
+#define lock_println(...) fprintf(stdout, __VA_ARGS__)
+#else
+#define lock_println(...) ((void)0)
+#endif
+
 BSDSocketInterface::BSDSocketInterface()
     : socketFd(0)
     , outByte(0)
@@ -62,7 +68,7 @@ void BSDSocketInterface::init(const CLIConfig &config) {
     });
 }
 
-void BSDSocketInterface::handleSocketRead(int fd, char *buffer) {
+void BSDSocketInterface::handleSocketRead(int fd, u8 *buffer, size_t bufferSize) {
     running = true;
 
     sendThread = std::thread([&]{
@@ -70,16 +76,17 @@ void BSDSocketInterface::handleSocketRead(int fd, char *buffer) {
     });
 
     size_t bytesRead;
-    while ((bytesRead = read(fd, buffer, 1)) > 0) {
-        fprintf(stderr, "LOCK handleSocketRead\n");
+    while ((bytesRead = read(fd, buffer, bufferSize)) > 0) {
+        lock_println("[LOCK] handleSocketRead %zu\n", bytesRead);
         std::lock_guard<std::mutex> lock(mutex);
-        fprintf(stderr, "LOCK handleSocketRead AQUIRED\n");
+        lock_println("[LOCK] handleSocketRead AQUIRED\n");
 
         std::cout << "RECEIVED INCOMING BYTE: " << (buffer[0] & 0xffff) << std::endl;
         bitReceivedCallback(buffer[0]);
 
         buffer[0] = outByte & 0xff;
-        if (send(fd, buffer, sizeof(buffer), 0) < 1) {
+        fprintf(stdout, "send response byte %d\n", outByte);
+        if (send(fd, buffer, 1, 0) < 1) {
 #ifdef FB_DEBUG
             std::cerr << "Socket was closed while trying to send a response byte, shutting down read thread..." << std::endl;
 #endif
@@ -97,11 +104,11 @@ void BSDSocketInterface::handleSocketWrite(int fd) {
         if (!transferring) {
             continue;
         }
-        fprintf(stderr, "LOCK handleSocketWrite\n");
+        lock_println("[LOCK] handleSocketWrite\n");
         std::lock_guard<std::mutex> lock(mutex);
-        fprintf(stderr, "LOCK handleSocketWrite AQUIRED\n");
+        lock_println("[LOCK] handleSocketWrite AQUIRED\n");
         buffer[0] = outByte & 0xff;
-        if (send(fd, buffer, sizeof(buffer), 0) < 1) {
+        if (send(fd, buffer, 1, 0) < 1) {
 #ifdef FB_DEBUG
             std::cerr << "Socket was closed while trying to send a byte, shutting down write thread..." << std::endl;
 #endif
@@ -130,8 +137,6 @@ void BSDSocketInterface::setCallback(std::function<void(u8_fast)> callback) {
 }
 
 void BSDSocketInterface::transferByte() {
-    fprintf(stderr, "LOCK transferByte\n");
-    std::lock_guard<std::mutex> lock(mutex);
-    fprintf(stderr, "LOCK transferByte AQUIRED\n");
+    fprintf(stdout, "transferByte(%d)\n", outByte);
     transferring = true;
 }

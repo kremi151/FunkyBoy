@@ -38,7 +38,7 @@ namespace FunkyBoy::SDL::Sockets {
         bool transferring;
         u8_fast outByte;
 
-        void handleSocketRead(int fd, char *buffer);
+        void handleSocketRead(int fd, u8 *buffer, size_t bufferSize);
         void handleSocketWrite(int fd);
 
         virtual void readThreadMain() = 0;

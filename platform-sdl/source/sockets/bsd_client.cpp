@@ -59,6 +59,6 @@ void BSDClient::setupSocket(const CLIConfig &config) {
 }
 
 void BSDClient::readThreadMain() {
-    char buffer[16] = {0};
-    handleSocketRead(socketFd, buffer);
+    u8 buffer[16] = {0};
+    handleSocketRead(socketFd, buffer, sizeof(buffer));
 }

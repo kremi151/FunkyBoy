@@ -46,7 +46,7 @@ void BSDServer::setupSocket(const CLIConfig &config) {
 
 void BSDServer::readThreadMain() {
     int addrlen = sizeof(address);
-    char buffer[16] = {0};
+    u8 buffer[16] = {0};
     while (socketFd > 0) {
 #ifdef FB_DEBUG
         std::cout << "Accepting on socket..." << std::endl;
@@ -78,6 +78,6 @@ void BSDServer::readThreadMain() {
 
         std::cout << "Connection from " << clientSocket << " is trusted" << std::endl;
 
-        handleSocketRead(clientSocket, buffer);
+        handleSocketRead(clientSocket, buffer, sizeof(buffer));
     }
 }
