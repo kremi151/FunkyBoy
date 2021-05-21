@@ -160,7 +160,7 @@ ret_code CPU::doCycle(Memory &memory) {
     ret_code result = FB_RET_SUCCESS;
 
     if (instrContext.cpuState == CPUState::RUNNING) {
-        memory.doDMA(); // TODO: Implement delay of 2 clocks
+        memory.onTick(); // TODO: Implement delay of 2 clocks
 
         auto op = *operands;
 

@@ -92,6 +92,7 @@ void BSDSocketInterface::handleSocketRead(int fd, u8 *buffer, size_t bufferSize)
 #endif
             break;
         }
+        lock_println("[LOCK] handleSocketRead RELEASED\n");
     }
 
     running = false;
@@ -114,6 +115,7 @@ void BSDSocketInterface::handleSocketWrite(int fd) {
 #endif
             return;
         }
+        fprintf(stdout, "wrote %d, reading...\n", outByte);
         if (read(fd, buffer, sizeof(buffer)) <= 0) {
 #ifdef FB_DEBUG
             std::cerr << "Socket was closed while trying to receive response byte, shutting down write thread..." << std::endl;
@@ -125,6 +127,7 @@ void BSDSocketInterface::handleSocketWrite(int fd) {
         bitReceivedCallback(buffer[0]);
 
         transferring = false;
+        lock_println("[LOCK] handleSocketWrite RELEASED\n");
     }
 }
 
