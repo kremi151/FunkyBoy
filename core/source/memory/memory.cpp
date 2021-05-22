@@ -376,7 +376,11 @@ u8 Memory::read8BitsAt(memory_address offset) {
                    ? ppuMemory.getVRAMByte(offset - 0x8000)
                    : 0xFF;
         FB_MEMORY_CARTRIDGE_RAM:
-            return mbc->readFromRAMAt(offset - 0xA000, cram);
+            if (cram != nullptr) {
+                return mbc->readFromRAMAt(offset - 0xA000, cram);
+            } else {
+                return 0xFF;
+            }
         FB_MEMORY_INTERNAL_RAM:
             return *(internalRam + (offset - 0xC000));
         FB_MEMORY_INTERNAL_RAM_DYNAMIC:
@@ -428,16 +432,13 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
         }
         FB_MEMORY_CARTRIDGE_RAM:
 #ifdef FB_USE_AUTOSAVE
-            if (
-#endif
-                mbc->writeToRAMAt(offset - 0xA000, val, cram)
-#ifdef FB_USE_AUTOSAVE
-            ) {
+            if (cram != nullptr && mbc->writeToRAMAt(offset - 0xA000, val, cram)) {
                 cartridgeRAMWritten = true;
-            }
 #else
-                ;
+            if (cram != nullptr) {
+                mbc->writeToRAMAt(offset - 0xA000, val, cram);
 #endif
+            }
             break;
         FB_MEMORY_INTERNAL_RAM:
             *(internalRam + (offset - 0xC000)) = val;
