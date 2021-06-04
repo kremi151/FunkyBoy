@@ -251,17 +251,19 @@ void PPU::renderScanline(u8 ly) {
         const u8 objPalette0 = ioRegisters.getOBP0();
         const u8 objPalette1 = ioRegisters.getOBP1();
         const u8 objHeight = __fb_lcdc_objSpriteSize(lcdc);
-        memory_address objAddr = 0x0000; // 0x0000 ~> 0xFE00 (start of OAM)
+        // A B C D E F
+        memory_address objAddr = 0x009C; // 0x009C ~> 0xFE9C (last 4 bytes of OAM)
         int objY, objX;
         u8 objFlags;
         bool hide, flipX, flipY;
         u8 yInObj;
         int &objIdx = it; // alias for it
         for (objIdx = 0 ; objIdx < 40 ; objIdx++) {
-            objY = ppuMemory.getOAMByte(objAddr++) - 16;
-            objX = ppuMemory.getOAMByte(objAddr++);
-            tile = ppuMemory.getOAMByte(objAddr++);
-            objFlags = ppuMemory.getOAMByte(objAddr++);
+            objY = ppuMemory.getOAMByte(objAddr) - 16;
+            objX = ppuMemory.getOAMByte(objAddr + 1);
+            tile = ppuMemory.getOAMByte(objAddr + 2);
+            objFlags = ppuMemory.getOAMByte(objAddr + 3);
+            objAddr -= 4;
             if (ly < objY || ly >= objY + objHeight) {
                 continue;
             }
