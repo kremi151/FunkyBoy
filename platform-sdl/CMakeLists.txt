@@ -67,7 +67,19 @@ elseif(OS_LINUX)
     message(FATAL_ERROR "X11 was not found")
 endif()
 
-add_executable(fb_sdl ${SOURCES} ${HEADERS})
+if (OS_MACOS)
+    add_executable(fb_sdl MACOSX_BUNDLE ${SOURCES} ${HEADERS})
+
+    set_target_properties(fb_sdl PROPERTIES
+        BUNDLE True
+        MACOSX_BUNDLE_GUI_IDENTIFIER lu.kremi151.funkyboy.sdl
+        MACOSX_BUNDLE_BUNDLE_NAME ${FB_NAME}
+        MACOSX_BUNDLE_BUNDLE_VERSION ${FB_VERSION_MAJOR}.${FB_VERSION_MINOR}.${FB_VERSION_PATCH}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${FB_VERSION}
+    )
+else()
+    add_executable(fb_sdl ${SOURCES} ${HEADERS})
+endif()
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core" fb_core_build)
 
