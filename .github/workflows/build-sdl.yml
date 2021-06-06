@@ -44,13 +44,15 @@ jobs:
           cmakeBuildType: Release
       - name: Pack Linux binary and libraries
         run: |
-          cp $(cmake ./platform-sdl/ -L | grep SDL2_LIBRARY | cut -d= -f 2 | cut -d';' -f 1) "${{ github.workspace }}/platform-sdl/cmake-build/"
-          tar -cvf "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl.tar" -C "${{ github.workspace }}/platform-sdl/cmake-build" "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl" ${{ github.workspace }}/platform-sdl/cmake-build/*.so
+          cp $(cmake "${{ github.workspace }}/platform-sdl" -L | grep SDL2_LIBRARY | cut -d= -f 2 | cut -d';' -f 1) "${{ github.workspace }}/platform-sdl/cmake-build/"
+          tar -cvf fb_sdl.tar ./fb_sdl ./*.so
+        working-directory: "${{ github.workspace }}/platform-sdl/cmake-build"
         if: ${{ startsWith(matrix.config.os, 'ubuntu-') }}
       - name: Pack macOS app bundle
         run: |
-          ./.github/workflows/scripts/pack-macos-sdl.sh "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl.app"
-          tar -cvf "${{ github.workspace }}/platform-sdl/cmake-build/fb_sdl.tar" -C "${{ github.workspace }}/platform-sdl/cmake-build" "${{ github.workspace }}/platform-sdl/cmake-build/packed/fb_sdl.app"
+          "${{ github.workspace }}/.github/workflows/scripts/pack-macos-sdl.sh" ./fb_sdl.app
+          tar -cvf fb_sdl.tar -C ./packed ./fb_sdl.app
+        working-directory: "${{ github.workspace }}/platform-sdl/cmake-build"
         if: ${{ startsWith(matrix.config.os, 'macos-') }}
       - name: Upload artifact
         uses: actions/upload-artifact@v2
