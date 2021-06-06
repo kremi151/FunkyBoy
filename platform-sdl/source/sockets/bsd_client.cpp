@@ -32,8 +32,8 @@ void BSDClient::setupSocket(const CLIConfig &config) {
     address.sin_family = AF_INET;
     address.sin_port = htons(config.socketPort);
     // TODO: Support domains
-    if (inet_pton(AF_INET, config.socketAddress, &address.sin_addr) <= 0) {
-        throw SocketException("Invalid address or address not supported: " + std::string(config.socketAddress));
+    if (inet_pton(AF_INET, config.socketAddress.c_str(), &address.sin_addr) <= 0) {
+        throw SocketException("Invalid address or address not supported: " + config.socketAddress);
     }
     if (connect(socketFd, reinterpret_cast<const sockaddr *>(&address), sizeof(address)) < 0) {
         throw SocketException("Connection failed");

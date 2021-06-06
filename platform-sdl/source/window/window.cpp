@@ -75,9 +75,9 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     options.add_options()
 #if FB_HAS_SOCKETS
             ("server", "Start a server for multiplayer",
-                    cxxopts::value<int>()->default_value("8020"))
-            ("client", "Connect to a server for multiplayer (address:port)",
-                    cxxopts::value<std::string>()->default_value("localhost:8020"), "Expected format: <hostname>:<port>")
+                    cxxopts::value<int>()->default_value("8020"), "<port>")
+            ("client", "Connect to a server for multiplayer",
+                    cxxopts::value<std::string>()->default_value("localhost:8020"), "<hostname>:<port>")
 #endif
             ("t,test", "Test whether the application can start correctly")
             ("h,help", "Print usage")
@@ -102,7 +102,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         config.socketServer = true;
         config.socketPort = result["server"].as<int>();
     } else if (result.count("client")) {
-        std::regex socketAddressRegex("([a-ZA-Z0-9\\.-_]+):([0-9]+)");
+        std::regex socketAddressRegex("([a-zA-Z0-9\\.\\-_]+):([0-9]+)");
         std::smatch matches;
         if (!std::regex_search(result["client"].as<std::string>(), matches, socketAddressRegex)) {
             std::cerr << "Client address needs to be in <hostname>:<port> format!" << std::endl;
