@@ -23,6 +23,7 @@
 #include <fstream>
 #include <cstring>
 #include <exception>
+#include <thirdparty/cxxopts.hpp>
 
 using namespace FunkyBoy::SDL;
 
@@ -59,6 +60,25 @@ Window::~Window() {
 }
 
 bool Window::init(int argc, char **argv, size_t width, size_t height) {
+    cxxopts::Options options(fs::path(argv[0]).filename().string(), "Game Boy emulator");
+
+    options.add_options()
+            ("t,test", "Test whether the application can start correctly")
+            ("h,help", "Print usage")
+            ;
+    options.custom_help("[OPTION...] [<ROM PATH>]");
+
+    auto result = options.parse(argc, argv);
+
+    if (result.count("help")) {
+        std::cout << options.help() << std::endl;
+        return false;
+    }
+    if (result.count("test")) {
+        std::cout << FB_NAME " started up correctly" << std::endl;
+        return false;
+    }
+
     window = SDL_CreateWindow(
             FB_NAME,
             SDL_WINDOWPOS_UNDEFINED,
@@ -81,7 +101,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
 
     fs::path romPath;
-    if (argc <= 1) {
+    if (result.unmatched().empty()) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
 
         std::vector<NativeUI::file_type> romExtensions;
@@ -96,7 +116,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
             romPath = selectedPaths[0];
         }
     } else {
-        romPath = argv[1];
+        romPath = result.unmatched()[0];
     }
     if (romPath.empty()) {
         std::cerr << "Empty ROM path specified" << std::endl;
