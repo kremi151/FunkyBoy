@@ -93,6 +93,29 @@ gtk_quit_file_picker:
     flushGtkEvents();
 }
 
+void NativeUI::showAlert(SDL_Window*, AlertType type, const char *title, const char *message) {
+    GtkMessageType alertType;
+    switch (type) {
+        case AlertType::Warning:
+            alertType = GTK_MESSAGE_WARNING;
+            break;
+        case AlertType::Error:
+            alertType = GTK_MESSAGE_ERROR;
+            break;
+        default:
+            alertType = GTK_MESSAGE_INFO;
+            break;
+    }
+    GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+    auto dialog = gtk_message_dialog_new (NULL,
+                                     flags,
+                                     alertType,
+                                     GTK_BUTTONS_CLOSE,
+                                     "%s\n%s", title, message);
+    gtk_dialog_run (GTK_DIALOG (dialog));
+    gtk_widget_destroy (dialog);
+}
+
 void NativeUI::deinit() {
 }
 
