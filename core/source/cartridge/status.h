@@ -17,6 +17,8 @@
 #ifndef FB_CORE_CARTRIDGE_STATUS_H
 #define FB_CORE_CARTRIDGE_STATUS_H
 
+#include <string>
+
 namespace FunkyBoy {
 
     enum CartridgeStatus {
@@ -29,6 +31,8 @@ namespace FunkyBoy {
         RAMSizeUnsupported,
         Loaded
     };
+
+    std::string getCartridgeStatusDescription(CartridgeStatus status);
 
 }
 

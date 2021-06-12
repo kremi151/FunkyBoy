@@ -29,6 +29,7 @@ set(SOURCES
         source/cartridge/mbc5.cpp
         source/cartridge/mbc_none.cpp
         source/cartridge/rtc.cpp
+        source/cartridge/status.cpp
         source/memory/ppu_memory.cpp
         source/operands/instruction_context.cpp
         source/operands/alu.cpp
