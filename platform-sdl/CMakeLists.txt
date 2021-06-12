@@ -82,7 +82,12 @@ else()
 endif()
 
 if (OS_WINDOWS)
-    set_property(TARGET fb_sdl PROPERTY WIN32_EXECUTABLE true)
+    if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        # Don't set Win32 app type for debug because we want logging to remain possible
+    else()
+        set_property(TARGET fb_sdl PROPERTY WIN32_EXECUTABLE true)
+        target_compile_definitions(fb_sdl PRIVATE FB_WIN32)
+    endif()
 endif()
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core" fb_core_build)

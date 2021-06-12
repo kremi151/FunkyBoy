@@ -19,13 +19,13 @@
 #include <ui/native_ui.h>
 #include <util/frame_executor.h>
 
-#ifdef OS_WINDOWS
+#ifdef FB_WIN32
 #include <windows.h>
 #endif
 
 void runGame(FunkyBoy::SDL::Window &window);
 
-#ifdef OS_WINDOWS
+#ifdef FB_WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
     int argc = __argc;
     char **argv = __argv;
