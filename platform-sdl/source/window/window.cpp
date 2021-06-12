@@ -141,7 +141,17 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         SDL_SetWindowTitle(window, title.c_str());
         return true;
     } else {
-        std::cerr << "Could not load ROM at " << romPath << " (status=" << status << ")" << std::endl;
+        std::string errorMessage = "ROM could not be loaded from ";
+        errorMessage += romPath.generic_string();
+        errorMessage += "\nReason: ";
+        errorMessage += getCartridgeStatusDescription(status);
+        errorMessage += " (Status: ";
+        errorMessage += std::to_string(status);
+        errorMessage += ")";
+
+        std::cerr << errorMessage << std::endl;
+
+        NativeUI::showAlert(window, NativeUI::AlertType::Error, "Error", errorMessage.c_str());
         return false;
     }
 }

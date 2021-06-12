@@ -30,10 +30,17 @@ namespace FunkyBoy::SDL::NativeUI {
         std::string description;
     } file_type;
 
+    enum AlertType {
+        Info,
+        Warning,
+        Error,
+    };
+
     void init(int &argc, char **argv);
     void deinit();
 
     void selectFiles(SDL_Window *window, const char *title, const std::vector<file_type> &types, bool allowMultiple, std::vector<FunkyBoy::fs::path> &outFiles);
+    void showAlert(SDL_Window *window, AlertType type, const char *title, const char *message);
 
 }
 

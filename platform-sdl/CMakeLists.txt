@@ -81,6 +81,10 @@ else()
     add_executable(fb_sdl ${SOURCES} ${HEADERS})
 endif()
 
+if (OS_WINDOWS)
+    set_property(TARGET fb_sdl PROPERTY WIN32_EXECUTABLE true)
+endif()
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../core" fb_core_build)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")

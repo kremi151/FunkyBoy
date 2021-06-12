@@ -19,9 +19,20 @@
 #include <ui/native_ui.h>
 #include <util/frame_executor.h>
 
+#ifdef OS_WINDOWS
+#include <windows.h>
+#endif
+
 void runGame(FunkyBoy::SDL::Window &window);
 
+#ifdef OS_WINDOWS
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+    int argc = __argc;
+    char **argv = __argv;
+#else
 int main(int argc, char **argv) {
+#endif
+
     FunkyBoy::SDL::NativeUI::init(argc, argv);
 
     SDL_Init(SDL_INIT_VIDEO);

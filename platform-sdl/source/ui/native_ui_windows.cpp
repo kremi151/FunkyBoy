@@ -106,4 +106,24 @@ void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vec
     }
 }
 
+void NativeUI::showAlert(SDL_Window *window, AlertType type, const char *title, const char *message) {
+    SDL_SysWMinfo wmi = {0};
+    SDL_VERSION(&wmi.version);
+    SDL_GetWindowWMInfo(window, &wmi);
+
+    UINT icon;
+    switch (type) {
+        case NativeUI::AlertType::Error:
+            icon = MB_ICONERROR;
+            break;
+        case NativeUI::AlertType::Warning:
+            icon = MB_ICONWARNING;
+            break;
+        default:
+            icon = MB_ICONINFORMATION;
+            break;
+    }
+    int msgBoxId = MessageBox(wmi.info.win.window, message, title, icon);
+}
+
 #endif
