@@ -22,16 +22,24 @@
 #include <thread>
 #include <mutex>
 #include <netinet/in.h>
+#include <future>
 
 namespace FunkyBoy::SDL::Sockets {
+
+    enum BSDSocketMode {
+        IDLE,
+        RESPONDING,
+        AWAITING_RESPONSE,
+    };
 
     class BSDSocketInterface : public SocketInterface {
     private:
         bool running;
         std::thread sendThread, readThread;
         std::function<void(u8_fast)> bitReceivedCallback;
+        std::promise<int> responsePromise;
     protected:
-        std::mutex mutex;
+        BSDSocketMode mode;
         int socketFd;
         struct sockaddr_in address{};
 
