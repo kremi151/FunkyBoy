@@ -21,8 +21,10 @@
 
 #ifdef FB_DEBUG
 #define lock_println(...) fprintf(stdout, __VA_ARGS__)
+#define serial_println(...) fprintf(stdout, __VA_ARGS__)
 #else
 #define lock_println(...) ((void)0)
+#define serial_println(...) ((void)0)
 #endif
 
 using namespace FunkyBoy::SDL::Sockets;
@@ -88,14 +90,13 @@ void BSDSocketInterface::handleSocketRead(int fd, u8 *buffer, size_t bufferSize)
         }
         lock_println("[LOCK] handleSocketRead %zu\n", bytesRead);
         mode = BSDSocketMode::RESPONDING;
-        lock_println("[LOCK] handleSocketRead AQUIRED\n");
+        lock_println("[LOCK] handleSocketRead ACQUIRED\n");
 
         std::cout << "RECEIVED INCOMING BYTE: " << (buffer[0] & 0xffff) << std::endl;
         bitReceivedCallback(buffer[0]);
 
         buffer[0] = outByte & 0xff;
-        fprintf(stdout, "send response byte %d\n", outByte);
-        //mode = BSDSocketMode::SENDING;
+        serial_println("send response byte %d\n", outByte);
         if (send(fd, buffer, 1, 0) < 1) {
 #ifdef FB_DEBUG
             std::cerr << "Socket was closed while trying to send a response byte, shutting down read thread..." << std::endl;
@@ -111,38 +112,28 @@ void BSDSocketInterface::handleSocketRead(int fd, u8 *buffer, size_t bufferSize)
 }
 
 void BSDSocketInterface::handleSocketWrite(int fd) {
-    u8 buffer[1] = {0};
-    u8 response;
+    u8 byte;
     while (running) {
-        // TODO: Can we suspend the thread until an outgoing byte is available?
         if (!transferring || mode != BSDSocketMode::IDLE) {
             continue;
         }
         lock_println("[LOCK] handleSocketWrite\n");
         mode = BSDSocketMode::AWAITING_RESPONSE;
-        lock_println("[LOCK] handleSocketWrite AQUIRED\n");
-        buffer[0] = outByte & 0xff;
-        if (send(fd, buffer, 1, 0) < 1) {
+        lock_println("[LOCK] handleSocketWrite ACQUIRED\n");
+        byte = outByte & 0xff;
+        if (send(fd, &byte, 1, 0) < 1) {
 #ifdef FB_DEBUG
             std::cerr << "Socket was closed while trying to send a byte, shutting down write thread..." << std::endl;
 #endif
             mode = BSDSocketMode::IDLE;
             return;
         }
-        //mode = BSDSocketMode::RECEIVING_RESPONSE;
-        fprintf(stdout, "wrote %d, reading...\n", outByte);
-        /* if (read(fd, buffer, sizeof(buffer)) <= 0) {
-#ifdef FB_DEBUG
-            std::cerr << "Socket was closed while trying to receive response byte, shutting down write thread..." << std::endl;
-#endif
-            mode = BSDSocketMode::IDLE;
-            return;
-        } */
-        response = responsePromise.get_future().get();
+        serial_println("wrote %d, reading...\n", outByte);
+        byte = responsePromise.get_future().get();
         responsePromise = std::promise<int>();
 
-        std::cout << "RECEIVED RESPONSE BYTE: " << response << std::endl;
-        bitReceivedCallback(response);
+        serial_println("RECEIVED RESPONSE BYTE: %d\n", byte & 0xffff);
+        bitReceivedCallback(byte);
 
         transferring = false;
         mode = BSDSocketMode::IDLE;
@@ -159,6 +150,6 @@ void BSDSocketInterface::setCallback(std::function<void(u8_fast)> callback) {
 }
 
 void BSDSocketInterface::transferByte() {
-    fprintf(stdout, "transferByte(%d)\n", outByte);
+    serial_println("transferByte(%d)\n", outByte);
     transferring = true;
 }
