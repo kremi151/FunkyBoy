@@ -19,10 +19,18 @@
 
 using namespace FunkyBoy::Controller;
 
-void SerialControllerTest::sendByte(FunkyBoy::u8 data) {
-    std::cout << data;
+void SerialControllerTest::setup(std::function<void(u8_fast)>) {
+    // No-op
+}
+
+void SerialControllerTest::setByte(u8_fast byte) {
+    outByte = byte;
+}
+
+void SerialControllerTest::transferByte() {
+    std::cout << outByte;
     for (u8 i = 1 ; i < FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE ; i++) {
         lastWord[i - 1] = lastWord[i];
     }
-    lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE - 1] = data;
+    lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE - 1] = outByte;
 }

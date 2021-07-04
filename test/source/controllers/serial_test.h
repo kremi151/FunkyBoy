@@ -25,8 +25,12 @@
 namespace FunkyBoy::Controller {
 
     class SerialControllerTest: public SerialController {
+    private:
+        u8 outByte{};
     public:
-        void sendByte(u8 data) override;
+        void setup(std::function<void(u8_fast)> bitReceived) override;
+        void transferByte() override;
+        void setByte(u8_fast byte) override;
 
         char lastWord[FB_TEST_SERIAL_CONTROLLER_LWORD_SIZE + 1]{};
     };
