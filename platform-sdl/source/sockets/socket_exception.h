@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-#include "serial_null.h"
+#ifndef FB_SDL_SOCKETS_SOCKET_EXCEPTION_H
+#define FB_SDL_SOCKETS_SOCKET_EXCEPTION_H
 
-using namespace FunkyBoy::Controller;
+#include <exception>
+#include <string>
 
-void SerialControllerVoid::setup(std::function<void(u8_fast)> bitReceived) {
-    // Do nothing
+namespace FunkyBoy::SDL::Sockets {
+
+    class SocketException: public std::exception {
+    private:
+        const std::string message;
+    public:
+        SocketException(std::string message);
+
+        const char *what() const noexcept override;
+    };
+
 }
 
-void SerialControllerVoid::setByte(FunkyBoy::u8_fast byte) {
-    // Do nothing
-}
-
-void SerialControllerVoid::transferByte() {
-
-}
+#endif //FB_SDL_SOCKETS_SOCKET_EXCEPTION_H

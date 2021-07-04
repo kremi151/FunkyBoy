@@ -160,7 +160,7 @@ ret_code CPU::doCycle(Memory &memory) {
     ret_code result = FB_RET_SUCCESS;
 
     if (instrContext.cpuState == CPUState::RUNNING) {
-        memory.doDMA(); // TODO: Implement delay of 2 clocks
+        memory.onTick(); // TODO: Implement delay of 2 clocks
 
         auto op = *operands;
 
@@ -223,10 +223,6 @@ inline memory_address getInterruptStartAddress(InterruptType type) {
     // SERIAL   -> 0x0058
     // JOYPAD   -> 0x0060
     return 0x0040 + (static_cast<u8>(type) * 0x8);
-}
-
-inline u8 getInterruptBitMask(InterruptType type) {
-    return 1u << static_cast<u8>(type);
 }
 
 void CPU::doJoypad() {
@@ -351,9 +347,7 @@ void CPU::doTimers(Memory &memory, u8 clocks) {
 }
 
 void CPU::requestInterrupt(InterruptType type) {
-    //fprintf(stdout, "#req int %d\n", type);
-    u8 &_if = ioRegisters.getIF();
-    _if |= getInterruptBitMask(type);
+    ioRegisters.requestInterrupt(type);
 }
 
 void CPU::setProgramCounter(u16 offset) {

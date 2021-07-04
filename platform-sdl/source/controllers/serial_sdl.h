@@ -19,11 +19,25 @@
 
 #include <controllers/serial.h>
 
+#if FB_HAS_SOCKETS
+#include <sockets/socket_interface.h>
+#endif
+
 namespace FunkyBoy::Controller {
 
     class SerialControllerSDL: public SerialController {
+    private:
+#if FB_HAS_SOCKETS
+        SDL::Sockets::SocketInterfacePtr socketInterface;
+#endif
     public:
-        void sendByte(u8 data) override;
+#if FB_HAS_SOCKETS
+        explicit SerialControllerSDL(SDL::Sockets::SocketInterfacePtr socketInterface);
+#endif
+
+        void setup(std::function<void(u8_fast)> bitReceived) override;
+        void transferByte() override;
+        void setByte(u8_fast byte) override;
     };
 
 }

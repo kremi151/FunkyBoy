@@ -23,6 +23,7 @@
 #include <iostream>
 #include <util/testing.h>
 #include <util/debug.h>
+#include <util/interrupt_type.h>
 #include <operands/instruction_context.h>
 #include <operands/debug.h>
 #include <emulator/gb_type.h>
@@ -33,14 +34,6 @@
 #endif
 
 namespace FunkyBoy {
-
-    enum InterruptType {
-        VBLANK      = 0,
-        LCD_STAT    = 1,
-        TIMER       = 2,
-        SERIAL      = 3,
-        JOYPAD      = 4
-    };
 
     class CPU {
     private:

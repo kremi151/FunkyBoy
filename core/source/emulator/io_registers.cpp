@@ -18,6 +18,14 @@
 #include <exception/read_exception.h>
 #include <util/stream_utils.h>
 
+namespace FunkyBoy {
+
+    inline u8 getInterruptBitMask(InterruptType type) {
+        return 1u << static_cast<u8>(type);
+    }
+
+}
+
 using namespace FunkyBoy;
 
 #define FB_HW_IO_BYTES 128
@@ -171,6 +179,11 @@ u8_fast io_registers::updateJoypad() {
     }
     p1 = val;
     return val;
+}
+
+void io_registers::requestInterrupt(InterruptType type) {
+    u8 &_if = getIF();
+    _if |= getInterruptBitMask(type);
 }
 
 void io_registers::serialize(std::ostream &ostream) const {
