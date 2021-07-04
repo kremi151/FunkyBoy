@@ -51,3 +51,24 @@ void NativeUI::selectFiles(SDL_Window *window, const char *title, const std::vec
         }
     }
 }
+
+void NativeUI::showAlert(SDL_Window*, AlertType type, const char *title, const char *message) {
+    @autoreleasepool {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:[NSString stringWithUTF8String:title]];
+        [alert setInformativeText:[NSString stringWithUTF8String:message]];
+        [alert addButtonWithTitle:@"Ok"];
+        switch (type) {
+            case AlertType::Warning:
+                [alert setAlertStyle:NSAlertStyleWarning];
+                break;
+            case AlertType::Error:
+                [alert setAlertStyle:NSAlertStyleCritical];
+                break;
+            default:
+                [alert setAlertStyle:NSAlertStyleInformational];
+                break;
+        }
+        [alert runModal];
+    }
+}

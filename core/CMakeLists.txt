@@ -29,6 +29,7 @@ set(SOURCES
         source/cartridge/mbc5.cpp
         source/cartridge/mbc_none.cpp
         source/cartridge/rtc.cpp
+        source/cartridge/status.cpp
         source/memory/ppu_memory.cpp
         source/operands/instruction_context.cpp
         source/operands/alu.cpp
@@ -103,6 +104,7 @@ set(HEADERS
         source/util/stream_utils.h
         source/util/membuf.h
         source/util/interrupt_type.h
+        source/util/os_specific.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         source/exception/read_exception.h

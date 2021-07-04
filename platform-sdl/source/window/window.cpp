@@ -17,6 +17,7 @@
 #include "window.h"
 
 #include <util/fs.h>
+#include <util/os_specific.h>
 #include <controllers/serial_sdl.h>
 #include <controllers/display_sdl.h>
 #include <ui/native_ui.h>
@@ -70,7 +71,7 @@ Window::~Window() {
 }
 
 bool Window::init(int argc, char **argv, size_t width, size_t height) {
-    cxxopts::Options options(fs::path(argv[0]).filename().string(), "Game Boy emulator");
+    cxxopts::Options options(fs::path(argv[0]).filename().string(), FB_NAME " - A Game Boy emulator" FB_OS_LINE_FEED "Version " FB_VERSION);
 
     options.add_options()
 #if FB_HAS_SOCKETS
@@ -136,12 +137,12 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
 
         std::vector<NativeUI::file_type> romExtensions;
-        romExtensions.push_back({ "gb", "GameBoy ROM" });
-        romExtensions.push_back({ "bin", "GameBoy ROM" });
+        romExtensions.push_back({ "gb", "Game Boy ROM" });
+        romExtensions.push_back({ "bin", "Game Boy ROM" });
 
         std::vector<fs::path> selectedPaths;
 
-        NativeUI::selectFiles(window, "Select a Gameboy ROM", romExtensions, false, selectedPaths);
+        NativeUI::selectFiles(window, "Select a Game Boy ROM", romExtensions, false, selectedPaths);
 
         if (!selectedPaths.empty()) {
             config.romPath = selectedPaths[0];
@@ -190,7 +191,17 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         SDL_SetWindowTitle(window, title.c_str());
         return true;
     } else {
-        std::cerr << "Could not load ROM at " << config.romPath << " (status=" << status << ")" << std::endl;
+        std::string errorMessage = "ROM could not be loaded from ";
+        errorMessage += romPath.generic_string();
+        errorMessage += "\nReason: ";
+        errorMessage += getCartridgeStatusDescription(status);
+        errorMessage += " (Status: ";
+        errorMessage += std::to_string(status);
+        errorMessage += ")";
+
+        std::cerr << errorMessage << std::endl;
+
+        NativeUI::showAlert(window, NativeUI::AlertType::Error, "Error", errorMessage.c_str());
         return false;
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CARTRIDGE_STATUS_H
-#define FB_CORE_CARTRIDGE_STATUS_H
+#ifndef FB_CORE_UTIL_OS_SPECIFIC_H
+#define FB_CORE_UTIL_OS_SPECIFIC_H
 
-#include <string>
+#ifdef OS_WINDOWS
+#define FB_OS_LINE_FEED "\r\n"
+#else
+#define FB_OS_LINE_FEED "\n"
+#endif
 
-namespace FunkyBoy {
-
-    enum CartridgeStatus {
-        NoROMLoaded,
-        ROMFileNotReadable,
-        ROMParseError,
-        ROMTooBig,
-        ROMSizeMismatch,
-        ROMUnsupportedMBC,
-        RAMSizeUnsupported,
-        Loaded
-    };
-
-    std::string getCartridgeStatusDescription(CartridgeStatus status);
-
-}
-
-#endif //FB_CORE_CARTRIDGE_STATUS_H
+#endif //FB_CORE_UTIL_OS_SPECIFIC_H
