@@ -192,7 +192,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         return true;
     } else {
         std::string errorMessage = "ROM could not be loaded from ";
-        errorMessage += romPath.generic_string();
+        errorMessage += config.romPath.generic_string();
         errorMessage += "\nReason: ";
         errorMessage += getCartridgeStatusDescription(status);
         errorMessage += " (Status: ";
