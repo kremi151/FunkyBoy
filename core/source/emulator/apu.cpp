@@ -18,7 +18,7 @@
 
 #define FB_INCREASE_BIT 0b00001000u
 
-namespace FunkyBoy::APUInternal {
+namespace FunkyBoy::Sound {
 
     const FunkyBoy::u8 DutyWaveforms[4] = {
             0b00000001,
@@ -46,13 +46,13 @@ namespace FunkyBoy::APUInternal {
     };
 
     template <int maxLength>
-    inline void setLengthTimer(u8_fast nrx1, APUChannel &channel) {
+    inline void setLengthTimer(u8_fast nrx1, BaseChannel &channel) {
         channel.lengthTimer = maxLength - (nrx1 & (maxLength - 1));
     }
 
 }
 
-using namespace FunkyBoy;
+using namespace FunkyBoy::Sound;
 
 APU::APU(GameBoyType gbType, const io_registers &ioRegisters)
     : ioRegisters(ioRegisters)
@@ -68,17 +68,17 @@ APU::APU(GameBoyType gbType, const io_registers &ioRegisters)
 }
 
 void APU::initChannels() {
-    for (auto &channel : channels) {
-        channel = {0};
-        channel.freqTimer = 1;
-    }
+    channelOne.freqTimer = 1;
+    channelTwo.freqTimer = 1;
+    channelThree.freqTimer = 1;
+    channelFour.freqTimer = 1;
 }
 
 void APU::doTick() {
     u8 &div = ioRegisters.getDIV();
 
-    tickChannel1Or2(channels[0], ioRegisters.getNR13(), ioRegisters.getNR14());
-    tickChannel1Or2(channels[1], ioRegisters.getNR23(), ioRegisters.getNR24());
+    tickChannel1Or2(channelOne, ioRegisters.getNR13(), ioRegisters.getNR14());
+    tickChannel1Or2(channelTwo, ioRegisters.getNR23(), ioRegisters.getNR24());
     tickChannel3();
     tickChannel4();
 
@@ -86,18 +86,18 @@ void APU::doTick() {
     if ((lastDiv & frameSeqMask) && !(div & frameSeqMask)) {
         frameSeqStep = (frameSeqStep + 1) % 8;
         if (frameSeqStep % 2 == 0) {
-            doLength(ioRegisters.getNR14(), channels[0]);
-            doLength(ioRegisters.getNR24(), channels[1]);
-            doLength(ioRegisters.getNR34(), channels[2]);
-            doLength(ioRegisters.getNR44(), channels[3]);
+            doLength(ioRegisters.getNR14(), channelOne);
+            doLength(ioRegisters.getNR24(), channelTwo);
+            doLength(ioRegisters.getNR34(), channelThree);
+            doLength(ioRegisters.getNR44(), channelFour);
         }
         if (frameSeqStep == 7) {
-            doEnvelope(APUInternal::DutyWaveforms[ioRegisters.getNR11() >> 6], ioRegisters.getNR12(), channels[0]);
-            doEnvelope(APUInternal::DutyWaveforms[ioRegisters.getNR21() >> 6], ioRegisters.getNR22(), channels[1]);
-            doEnvelope(0, ioRegisters.getNR42(), channels[3]);
+            doEnvelope(DutyWaveforms[ioRegisters.getNR11() >> 6], ioRegisters.getNR12(), channelOne);
+            doEnvelope(DutyWaveforms[ioRegisters.getNR21() >> 6], ioRegisters.getNR22(), channelTwo);
+            doEnvelope(0 /* TODO */, ioRegisters.getNR42(), channelFour);
         }
         if (frameSeqStep == 2 || frameSeqStep == 6) {
-            doSweep(channels[0]);
+            doSweepOnChannel1();
         }
     }
 
@@ -107,7 +107,7 @@ void APU::doTick() {
 
 // TODO: Read wave duties / wave RAM when sampling (use channel.wavePosition)
 
-void APU::tickChannel1Or2(APUChannel &channel, u8_fast nrx3, u8_fast nrx4) {
+void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx3, u8_fast nrx4) {
     if (--channel.freqTimer > 0) {
         return;
     }
@@ -116,7 +116,7 @@ void APU::tickChannel1Or2(APUChannel &channel, u8_fast nrx3, u8_fast nrx4) {
 }
 
 void APU::tickChannel3() {
-    APUChannel &channel = channels[2];
+    auto &channel = channelThree;
     if (--channel.freqTimer > 0) {
         return;
     }
@@ -128,13 +128,13 @@ void APU::tickChannel3() {
 }
 
 void APU::tickChannel4() {
-    APUChannel &channel = channels[3];
+    auto &channel = channelFour;
     if (--channel.freqTimer > 0) {
         return;
     }
     const u8_fast nr43 = ioRegisters.getNR43();
     const u8_fast shift = (nr43 & 0b11110000) >> 4;
-    channel.freqTimer = APUInternal::Divisors[nr43 & 0b00000111] << shift;
+    channel.freqTimer = Divisors[nr43 & 0b00000111] << shift;
 
     const u16_fast xorResult = (channel.lfsr % 0b01) ^ ((channel.lfsr & 0b10) >> 1);
     channel.lfsr = (channel.lfsr >> 1) | (xorResult << 14);
@@ -147,35 +147,34 @@ void APU::tickChannel4() {
 }
 
 void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
-    APUChannel &channel = channels[channelNbr];
     switch (channelNbr) {
         case 0: {
             const u8_fast nr10 = ioRegisters.getNR10();
             const u8_fast nr12 = ioRegisters.getNR12();
 
             // Envelope function
-            channel.periodTimer = nr12 & 0b00000111u;
-            channel.currentVolume = (nr12 & 0b11110000u) >> 4;
+            channelOne.periodTimer = nr12 & 0b00000111u;
+            channelOne.currentVolume = (nr12 & 0b11110000u) >> 4;
 
             // Sweep function
-            channel.shadowFrequency = channel.currentFrequencyOut;
+            channelOne.shadowFrequency = channelOne.currentFrequencyOut;
             const u8_fast sweepPeriod = (nr10 & 0b01110000) >> 4;
             const u8_fast sweepShift = nr10 & 0b00000111u;
             if (sweepPeriod == 0) {
-                channel.sweepTimer = 8;
-                channel.sweepEnabled = sweepShift != 0;
+                channelOne.sweepTimer = 8;
+                channelOne.sweepEnabled = sweepShift != 0;
             } else {
-                channel.sweepTimer = sweepPeriod;
-                channel.sweepEnabled = true;
+                channelOne.sweepTimer = sweepPeriod;
+                channelOne.sweepEnabled = true;
             }
             if (sweepShift != 0) {
                 // Re-run overflow check
-                calculateSweepFrequency(sweepShift, nr10 & FB_INCREASE_BIT, channel);
+                calculateSweepFrequency(sweepShift, nr10 & FB_INCREASE_BIT, channelOne);
             }
 
             // Length function
-            if (channel.lengthTimer == 0) {
-                APUInternal::setLengthTimer<64>(ioRegisters.getNR11(), channel);
+            if (channelOne.lengthTimer == 0) {
+                setLengthTimer<64>(ioRegisters.getNR11(), channelOne);
             }
             break;
         }
@@ -183,14 +182,14 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             const u8_fast nr22 = ioRegisters.getNR22();
 
             // Envelope function
-            channel.periodTimer = nr22 & 0b00000111u;
-            channel.currentVolume = (nr22 & 0b11110000u) >> 4;
+            channelTwo.periodTimer = nr22 & 0b00000111u;
+            channelTwo.currentVolume = (nr22 & 0b11110000u) >> 4;
 
             // No sweep function
 
             // Length function
-            if (channel.lengthTimer == 0) {
-                APUInternal::setLengthTimer<64>(ioRegisters.getNR21(), channel);
+            if (channelTwo.lengthTimer == 0) {
+                setLengthTimer<64>(ioRegisters.getNR21(), channelTwo);
             }
             break;
         }
@@ -200,25 +199,25 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             // No sweep function
 
             // Length function
-            if (channel.lengthTimer == 0) {
-                APUInternal::setLengthTimer<256>(ioRegisters.getNR31(), channel);
+            if (channelThree.lengthTimer == 0) {
+                setLengthTimer<256>(ioRegisters.getNR31(), channelThree);
             }
             break;
         }
         case 3: {
             const u8_fast nr42 = ioRegisters.getNR42();
 
-            channel.lfsr = ~0;
+            channelFour.lfsr = ~0;
 
             // No sweep function
 
             // Envelope function
-            channel.periodTimer = nr42 & 0b00000111u;
-            channel.currentVolume = (nr42 & 0b11110000u) >> 4;
+            channelFour.periodTimer = nr42 & 0b00000111u;
+            channelFour.currentVolume = (nr42 & 0b11110000u) >> 4;
 
             // Length function
-            if (channel.lengthTimer == 0) {
-                APUInternal::setLengthTimer<64>(ioRegisters.getNR41(), channel);
+            if (channelFour.lengthTimer == 0) {
+                setLengthTimer<64>(ioRegisters.getNR41(), channelFour);
             }
             break;
         }
@@ -228,7 +227,7 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
     }
 }
 
-void APU::doEnvelope(float waveDuty, u8_fast nrx2, APUChannel &channel) {
+void APU::doEnvelope(float waveDuty, u8_fast nrx2, EnvelopeChannel &channel) {
     if (!channel.channelEnabled) {
         return;
     }
@@ -256,38 +255,38 @@ void APU::doEnvelope(float waveDuty, u8_fast nrx2, APUChannel &channel) {
     channel.dacOut = (dacInput / 7.5) - 1.0; // TODO: Do anything with dacOutput
 }
 
-void APU::doSweep(APUChannel &channel) {
-    if (!channel.channelEnabled) {
+void APU::doSweepOnChannel1() {
+    if (!channelOne.channelEnabled) {
         return;
     }
-    if (channel.sweepTimer > 0) {
-        channel.sweepTimer--;
+    if (channelOne.sweepTimer > 0) {
+        channelOne.sweepTimer--;
     }
-    if (channel.sweepTimer != 0) {
+    if (channelOne.sweepTimer != 0) {
         return;
     }
     const u8_fast nr10 = ioRegisters.getNR10();
     const u8_fast sweepPeriod = (nr10 & 0b01110000) >> 4;
     if (sweepPeriod > 0) {
-        channel.sweepTimer = sweepPeriod;
+        channelOne.sweepTimer = sweepPeriod;
     } else {
-        channel.sweepTimer = 8;
+        channelOne.sweepTimer = 8;
     }
-    if (!channel.sweepEnabled || sweepPeriod <= 0) {
+    if (!channelOne.sweepEnabled || sweepPeriod <= 0) {
         return;
     }
     const u8_fast shift = nr10 & 0b00000111u;
-    u16_fast newFrequency = calculateSweepFrequency(shift, nr10 & FB_INCREASE_BIT, channel);
+    u16_fast newFrequency = calculateSweepFrequency(shift, nr10 & FB_INCREASE_BIT, channelOne);
     if (newFrequency <= 2047 && shift > 0) {
-        channel.currentFrequencyOut = newFrequency; // TODO: Do anything with frequency
-        channel.shadowFrequency = newFrequency;
+        channelOne.currentFrequencyOut = newFrequency; // TODO: Do anything with frequency
+        channelOne.shadowFrequency = newFrequency;
 
         // Re-run overflow check
-        calculateSweepFrequency(shift, nr10 & FB_INCREASE_BIT, channel);
+        calculateSweepFrequency(shift, nr10 & FB_INCREASE_BIT, channelOne);
     }
 }
 
-u16_fast APU::calculateSweepFrequency(u8_fast shift, bool increase, APUChannel &channel) {
+FunkyBoy::u16_fast APU::calculateSweepFrequency(u8_fast shift, bool increase, ChannelOne &channel) {
     u16_fast newFrequency = channel.shadowFrequency >> shift;
     if (increase) {
         newFrequency = channel.shadowFrequency + newFrequency;
@@ -300,7 +299,7 @@ u16_fast APU::calculateSweepFrequency(u8_fast shift, bool increase, APUChannel &
     return newFrequency;
 }
 
-void APU::doLength(u8_fast nrx4, APUChannel &channel) {
+void APU::doLength(u8_fast nrx4, BaseChannel &channel) {
     if (!channel.channelEnabled) {
         return;
     }

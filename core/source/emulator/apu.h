@@ -21,33 +21,44 @@
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
 
-namespace FunkyBoy {
+namespace FunkyBoy::Sound {
 
     typedef struct {
-        u8_fast periodTimer;
-        u8_fast currentVolume;
-
         bool channelEnabled;
+
         u8_fast lengthTimer;
+        u16_fast freqTimer;
 
-        // Channel 1+2
-        bool sweepEnabled;
-        u8_fast shadowFrequency;
-        u8_fast sweepTimer;
-
-        // Channel 3
-        u8_fast volumeShift;
-
-        // Channel 4
-        u16_fast lfsr;
-
-        // General output
         u8_fast currentFrequencyOut;
         float dacOut; // = amplitude
+    } BaseChannel;
 
-        u16_fast freqTimer;
+    typedef struct : BaseChannel {
+        u8_fast periodTimer;
+        u8_fast currentVolume;
+    } EnvelopeChannel;
+
+    typedef struct {
         u8_fast wavePosition;
-    } APUChannel;
+    } WaveChannel;
+
+    typedef struct : EnvelopeChannel, WaveChannel {
+        bool sweepEnabled;
+        u8_fast shadowFrequency;
+    } ToneChannel;
+
+    typedef struct : ToneChannel {
+        u8_fast sweepTimer;
+    } ChannelOne;
+
+    typedef ToneChannel ChannelTwo;
+
+    typedef struct : BaseChannel, WaveChannel {
+    } ChannelThree;
+
+    typedef struct : EnvelopeChannel {
+        u16_fast lfsr;
+    } ChannelFour;
 
     class APU {
     private:
@@ -58,17 +69,20 @@ namespace FunkyBoy {
 
         u8_fast lastDiv;
 
-        APUChannel channels[4]{};
+        ChannelOne channelOne{};
+        ChannelTwo channelTwo{};
+        ChannelThree channelThree{};
+        ChannelFour channelFour{};
 
         void initChannels();
 
-        void doSweep(APUChannel &channel);
+        void doSweepOnChannel1();
 
-        static void doEnvelope(float waveDuty, u8_fast nrx2, APUChannel &channel);
-        static u16_fast calculateSweepFrequency(u8_fast shift, bool increase, APUChannel &channel);
-        static void doLength(u8_fast nrx4, APUChannel &channel);
+        static void doEnvelope(float waveDuty, u8_fast nrx2, EnvelopeChannel &channel);
+        static u16_fast calculateSweepFrequency(u8_fast shift, bool increase, ChannelOne &channel);
+        static void doLength(u8_fast nrx4, BaseChannel &channel);
 
-        static void tickChannel1Or2(APUChannel &channel, u8_fast nrx3, u8_fast nrx4);
+        static void tickChannel1Or2(ToneChannel &channel, u8_fast nrx3, u8_fast nrx4);
         void tickChannel3();
         void tickChannel4();
 
