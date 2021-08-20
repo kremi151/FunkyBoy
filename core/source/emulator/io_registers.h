@@ -63,6 +63,9 @@
 #define FB_REG_WX 0xFF4B
 #define FB_REG_IE 0xFFFF
 
+#define FB_REG_WAVE_RAM_START 0xFF30
+#define __FB_REG_OFFSET_WAVE_RAM_START (FB_REG_WAVE_RAM_START - 0xFF00)
+
 #define __FB_REG_OFFSET_P1 (FB_REG_P1 - 0xFF00)
 #define __FB_REG_OFFSET_DIV (FB_REG_DIV - 0xFF00)
 #define __FB_REG_OFFSET_TIMA (FB_REG_TIMA - 0xFF00)
@@ -124,6 +127,10 @@ namespace FunkyBoy {
         void setInputState(Controller::JoypadKey key, bool pressed);
 
         u8_fast updateJoypad();
+
+        inline u8 *getWaveRAM() {
+            return hwIO + __FB_REG_OFFSET_WAVE_RAM_START;
+        }
 
         inline u8 &getP1() {
             return *(hwIO + __FB_REG_OFFSET_P1);

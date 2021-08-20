@@ -45,6 +45,13 @@ namespace FunkyBoy::Sound {
             112,
     };
 
+    const FunkyBoy::u8 ChannelThreeShifts[4] = {
+            4,
+            0,
+            1,
+            2,
+    };
+
     template <int maxLength>
     inline void setLengthTimer(u8_fast nrx1, BaseChannel &channel) {
         channel.lengthTimer = maxLength - (nrx1 & (maxLength - 1));
@@ -123,8 +130,11 @@ void APU::tickChannel3() {
     channel.freqTimer = (2048 - (ioRegisters.getNR33() | ((ioRegisters.getNR34() & 0b111) << 8))) * 4;
     channel.wavePosition = (channel.wavePosition + 1) % 32;
 
-    // TODO: Handle volume shift
-    // TODO: Set amplitude (as no envelope function)
+    u8_fast sample = ioRegisters.getWaveRAM()[channel.wavePosition / 2];
+    sample = sample >> ((((channel.wavePosition & 1) != 0) ? 4 : 0)) & 0b00001111;
+
+    // Set DAC output here because channel 3 doesn't have an envelope function
+    channel.dacOut = ((sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5]) / 7.5) - 1.0;
 }
 
 void APU::tickChannel4() {
@@ -252,7 +262,7 @@ void APU::doEnvelope(float waveDuty, u8_fast nrx2, EnvelopeChannel &channel) {
     }
 
     float dacInput = waveDuty * channel.currentVolume;
-    channel.dacOut = (dacInput / 7.5) - 1.0; // TODO: Do anything with dacOutput
+    channel.dacOut = (dacInput / 7.5) - 1.0;
 }
 
 void APU::doSweepOnChannel1() {
