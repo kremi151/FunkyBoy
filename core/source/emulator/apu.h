@@ -43,7 +43,7 @@ namespace FunkyBoy {
 
         // General output
         u8_fast currentFrequencyOut;
-        float dacOut;
+        float dacOut; // = amplitude
 
         u16_fast freqTimer;
         u8_fast wavePosition;

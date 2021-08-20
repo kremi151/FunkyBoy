@@ -47,3 +47,7 @@ Those performance issues will be tackled at a later stage of development.
 |[Nintendo 3DS](https://github.com/kremi151/FunkyBoy/tree/master/platform-3ds)|Secondary|![Build 3DS platform](https://github.com/kremi151/FunkyBoy/workflows/Build%203DS%20platform/badge.svg)|
 |[PlayStation Portable](https://github.com/kremi151/FunkyBoy/tree/master/platform-psp)|Secondary|![Build PSP platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20PSP%20platform/badge.svg)|
 |[Tests](https://github.com/kremi151/FunkyBoy/tree/master/test)| |![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)|
+
+## References
+
+See [References used during development](./docs/REFERENCES.md)

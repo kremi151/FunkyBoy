@@ -115,8 +115,6 @@ void APU::tickChannel1Or2(APUChannel &channel, u8_fast nrx3, u8_fast nrx4) {
     channel.wavePosition = (channel.wavePosition + 1) % 8;
 }
 
-// https://nightshade256.github.io/2021/03/27/gb-sound-emulation.html
-
 void APU::tickChannel3() {
     APUChannel &channel = channels[2];
     if (--channel.freqTimer > 0) {
@@ -126,6 +124,7 @@ void APU::tickChannel3() {
     channel.wavePosition = (channel.wavePosition + 1) % 32;
 
     // TODO: Handle volume shift
+    // TODO: Set amplitude (as no envelope function)
 }
 
 void APU::tickChannel4() {
