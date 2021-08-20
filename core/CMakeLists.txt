@@ -18,6 +18,7 @@ set(SOURCES
         source/emulator/io_registers.cpp
         source/emulator/cpu.cpp
         source/emulator/ppu.cpp
+        source/emulator/apu.cpp
         source/controllers/controllers.cpp
         source/controllers/serial_null.cpp
         source/controllers/display_void.cpp
@@ -57,6 +58,7 @@ set(HEADERS
         source/emulator/io_registers.h
         source/emulator/cpu.h
         source/emulator/ppu.h
+        source/emulator/apu.h
         source/controllers/controllers.h
         source/controllers/serial.h
         source/controllers/serial_null.h

@@ -32,6 +32,20 @@
 #define FB_REG_TMA 0xFF06
 #define FB_REG_TAC 0xFF07
 #define FB_REG_IF 0xFF0F
+#define FB_REG_NR10 0xFF10
+#define FB_REG_NR11 0xFF11
+#define FB_REG_NR12 0xFF12
+#define FB_REG_NR14 0xFF14
+#define FB_REG_NR21 0xFF16
+#define FB_REG_NR22 0xFF17
+#define FB_REG_NR23 0xFF18
+#define FB_REG_NR24 0xFF19
+#define FB_REG_NR31 0xFF1B
+#define FB_REG_NR32 0xFF1C
+#define FB_REG_NR34 0xFF1E
+#define FB_REG_NR41 0xFF20
+#define FB_REG_NR42 0xFF21
+#define FB_REG_NR44 0xFF23
 #define FB_REG_LCDC 0xFF40
 #define FB_REG_STAT 0xFF41
 #define FB_REG_SCY 0xFF42
@@ -63,6 +77,14 @@
 #define __FB_REG_OFFSET_OBP1 (FB_REG_OBP1 - 0xFF00)
 #define __FB_REG_OFFSET_WY (FB_REG_WY - 0xFF00)
 #define __FB_REG_OFFSET_WX (FB_REG_WX - 0xFF00)
+
+#define __FB_REG_GETTER(name, offset) \
+inline u8 &get ## name () { \
+    return *(hwIO + offset - 0xFF00); \
+} \
+inline u8 get ## name () const { \
+    return *(hwIO + offset - 0xFF00); \
+}
 
 namespace FunkyBoy {
 
@@ -103,6 +125,8 @@ namespace FunkyBoy {
         inline u8 &getP1() {
             return *(hwIO + __FB_REG_OFFSET_P1);
         }
+
+        __FB_REG_GETTER(DIV, FB_REG_DIV)
 
         inline u8 &getTIMA() {
             return *(hwIO + __FB_REG_OFFSET_TIMA);
@@ -164,6 +188,21 @@ namespace FunkyBoy {
             return *(hwIO + __FB_REG_OFFSET_WY);
         }
 
+        __FB_REG_GETTER(NR10, FB_REG_NR10)
+        __FB_REG_GETTER(NR11, FB_REG_NR11)
+        __FB_REG_GETTER(NR12, FB_REG_NR12)
+        __FB_REG_GETTER(NR14, FB_REG_NR14)
+        __FB_REG_GETTER(NR21, FB_REG_NR21)
+        __FB_REG_GETTER(NR22, FB_REG_NR22)
+        __FB_REG_GETTER(NR23, FB_REG_NR23)
+        __FB_REG_GETTER(NR24, FB_REG_NR24)
+        __FB_REG_GETTER(NR31, FB_REG_NR31)
+        __FB_REG_GETTER(NR32, FB_REG_NR32)
+        __FB_REG_GETTER(NR34, FB_REG_NR34)
+        __FB_REG_GETTER(NR41, FB_REG_NR41)
+        __FB_REG_GETTER(NR42, FB_REG_NR42)
+        __FB_REG_GETTER(NR44, FB_REG_NR44)
+
         void serialize(std::ostream &ostream) const;
         void deserialize(std::istream &istream);
 
@@ -171,5 +210,7 @@ namespace FunkyBoy {
     };
 
 }
+
+#undef __FB_REG_GETTER
 
 #endif //FB_CORE_IO_REGISTERS_H
