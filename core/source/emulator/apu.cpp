@@ -66,8 +66,8 @@ void APU::initChannels() {
 void APU::doTick() {
     u8 &div = ioRegisters.getDIV();
 
-    tickChannel1Or2(channels[0]);
-    tickChannel1Or2(channels[1]);
+    tickChannel1Or2(channels[0], ioRegisters.getNR13(), ioRegisters.getNR14());
+    tickChannel1Or2(channels[1], ioRegisters.getNR23(), ioRegisters.getNR24());
     tickChannel3();
     tickChannel4();
 
@@ -94,19 +94,27 @@ void APU::doTick() {
     lastDiv = div;
 }
 
-void APU::tickChannel1Or2(APUChannel &channel) {
+// TODO: Read wave duties / wave RAM when sampling (use channel.wavePosition)
+
+void APU::tickChannel1Or2(APUChannel &channel, u8_fast nrx3, u8_fast nrx4) {
     if (--channel.freqTimer > 0) {
         return;
     }
-    u8 &nr24 = ioRegisters.getNR24();
-    channel.freqTimer = (2048 - (ioRegisters.getNR23() | ((nr24 & 0b111) << 8))) * 4;
-    channel.waveDutyPos = (channel.waveDutyPos + 1) % 8;
+    channel.freqTimer = (2048 - (nrx3 | ((nrx4 & 0b111) << 8))) * 4;
+    channel.wavePosition = (channel.wavePosition + 1) % 8;
 }
 
 // https://nightshade256.github.io/2021/03/27/gb-sound-emulation.html
 
 void APU::tickChannel3() {
-    // TODO: Implement
+    APUChannel &channel = channels[2];
+    if (--channel.freqTimer > 0) {
+        return;
+    }
+    channel.freqTimer = (2048 - (ioRegisters.getNR33() | ((ioRegisters.getNR34() & 0b111) << 8))) * 4;
+    channel.wavePosition = (channel.wavePosition + 1) % 32;
+
+    // TODO: Handle volume shift
 }
 
 void APU::tickChannel4() {

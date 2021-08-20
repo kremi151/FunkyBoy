@@ -30,17 +30,20 @@ namespace FunkyBoy {
         bool channelEnabled;
         u8_fast lengthTimer;
 
-        // Channel 1 exclusive
+        // Channel 1+2
         bool sweepEnabled;
         u8_fast shadowFrequency;
         u8_fast sweepTimer;
+
+        // Channel 3
+        u8_fast volumeShift;
 
         // General output
         u8_fast currentFrequencyOut;
         float dacOut;
 
         u16_fast freqTimer;
-        u8_fast waveDutyPos;
+        u8_fast wavePosition;
     } APUChannel;
 
     class APU {
@@ -62,7 +65,7 @@ namespace FunkyBoy {
         static u16_fast calculateSweepFrequency(u8_fast shift, bool increase, APUChannel &channel);
         static void doLength(u8_fast nrx4, APUChannel &channel);
 
-        void tickChannel1Or2(APUChannel &channel);
+        static void tickChannel1Or2(APUChannel &channel, u8_fast nrx3, u8_fast nrx4);
         void tickChannel3();
         void tickChannel4();
 
