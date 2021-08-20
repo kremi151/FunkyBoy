@@ -123,34 +123,32 @@ void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx3, u8_fast nrx4) {
 }
 
 void APU::tickChannel3() {
-    auto &channel = channelThree;
-    if (--channel.freqTimer > 0) {
+    if (--channelThree.freqTimer > 0) {
         return;
     }
-    channel.freqTimer = (2048 - (ioRegisters.getNR33() | ((ioRegisters.getNR34() & 0b111) << 8))) * 4;
-    channel.wavePosition = (channel.wavePosition + 1) % 32;
+    channelThree.freqTimer = (2048 - (ioRegisters.getNR33() | ((ioRegisters.getNR34() & 0b111) << 8))) * 4;
+    channelThree.wavePosition = (channelThree.wavePosition + 1) % 32;
 
-    u8_fast sample = ioRegisters.getWaveRAM()[channel.wavePosition / 2];
-    sample = sample >> ((((channel.wavePosition & 1) != 0) ? 4 : 0)) & 0b00001111;
+    u8_fast sample = ioRegisters.getWaveRAM()[channelThree.wavePosition / 2];
+    sample = sample >> ((((channelThree.wavePosition & 1) != 0) ? 4 : 0)) & 0b00001111;
 
     // Set DAC output here because channel 3 doesn't have an envelope function
-    channel.dacOut = ((sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5]) / 7.5) - 1.0;
+    channelThree.dacOut = ((sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5]) / 7.5) - 1.0;
 }
 
 void APU::tickChannel4() {
-    auto &channel = channelFour;
-    if (--channel.freqTimer > 0) {
+    if (--channelFour.freqTimer > 0) {
         return;
     }
     const u8_fast nr43 = ioRegisters.getNR43();
     const u8_fast shift = (nr43 & 0b11110000) >> 4;
-    channel.freqTimer = Divisors[nr43 & 0b00000111] << shift;
+    channelFour.freqTimer = Divisors[nr43 & 0b00000111] << shift;
 
-    const u16_fast xorResult = (channel.lfsr % 0b01) ^ ((channel.lfsr & 0b10) >> 1);
-    channel.lfsr = (channel.lfsr >> 1) | (xorResult << 14);
+    const u16_fast xorResult = (channelFour.lfsr % 0b01) ^ ((channelFour.lfsr & 0b10) >> 1);
+    channelFour.lfsr = (channelFour.lfsr >> 1) | (xorResult << 14);
     if (nr43 & 0b00001000) {
-        channel.lfsr &= ~(1 << 6);
-        channel.lfsr |= xorResult << 6;
+        channelFour.lfsr &= ~(1 << 6);
+        channelFour.lfsr |= xorResult << 6;
     }
 
     // TODO: Amplitude = ~LFSR & 0x01;
