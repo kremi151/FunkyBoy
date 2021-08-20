@@ -38,6 +38,9 @@ namespace FunkyBoy {
         // Channel 3
         u8_fast volumeShift;
 
+        // Channel 4
+        u16_fast lfsr;
+
         // General output
         u8_fast currentFrequencyOut;
         float dacOut;

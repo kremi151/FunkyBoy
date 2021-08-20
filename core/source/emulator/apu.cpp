@@ -34,6 +34,17 @@ namespace FunkyBoy::APUInternal {
             75.0,
     };
 
+    const FunkyBoy::u8 Divisors[8] = {
+            0,
+            16,
+            32,
+            48,
+            64,
+            80,
+            96,
+            112,
+    };
+
     template <int maxLength>
     inline void setLengthTimer(u8_fast nrx1, APUChannel &channel) {
         channel.lengthTimer = maxLength - (nrx1 & (maxLength - 1));
@@ -118,7 +129,22 @@ void APU::tickChannel3() {
 }
 
 void APU::tickChannel4() {
-    // TODO: Implement
+    APUChannel &channel = channels[3];
+    if (--channel.freqTimer > 0) {
+        return;
+    }
+    const u8_fast nr43 = ioRegisters.getNR43();
+    const u8_fast shift = (nr43 & 0b11110000) >> 4;
+    channel.freqTimer = APUInternal::Divisors[nr43 & 0b00000111] << shift;
+
+    const u16_fast xorResult = (channel.lfsr % 0b01) ^ ((channel.lfsr & 0b10) >> 1);
+    channel.lfsr = (channel.lfsr >> 1) | (xorResult << 14);
+    if (nr43 & 0b00001000) {
+        channel.lfsr &= ~(1 << 6);
+        channel.lfsr |= xorResult << 6;
+    }
+
+    // TODO: Amplitude = ~LFSR & 0x01;
 }
 
 void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
@@ -182,6 +208,8 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
         }
         case 3: {
             const u8_fast nr42 = ioRegisters.getNR42();
+
+            channel.lfsr = ~0;
 
             // No sweep function
 
