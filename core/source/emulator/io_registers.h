@@ -49,6 +49,7 @@
 #define FB_REG_NR42 0xFF21
 #define FB_REG_NR43 0xFF22
 #define FB_REG_NR44 0xFF23
+#define FB_REG_NR52 0xFF26
 #define FB_REG_LCDC 0xFF40
 #define FB_REG_STAT 0xFF41
 #define FB_REG_SCY 0xFF42
@@ -215,6 +216,7 @@ namespace FunkyBoy {
         __FB_REG_GETTER(NR42, FB_REG_NR42)
         __FB_REG_GETTER(NR43, FB_REG_NR43)
         __FB_REG_GETTER(NR44, FB_REG_NR44)
+        __FB_REG_GETTER(NR52, FB_REG_NR52)
 
         void serialize(std::ostream &ostream) const;
         void deserialize(std::istream &istream);

@@ -40,10 +40,20 @@ using namespace FunkyBoy;
 #define FB_CARTRIDGE_HEADER_SIZE 336
 #define FB_HRAM_SIZE 127
 
-Memory::Memory(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+Memory::Memory(
+        Controller::ControllersPtr controllers
+        , const io_registers& ioRegisters
+        , const PPUMemory &ppuMemory
+#ifdef FB_USE_SOUND
+        , Sound::APU *apu
+#endif
+)
     : controllers(std::move(controllers))
     , ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
+#ifdef FB_USE_SOUND
+    , apu(apu)
+#endif
     , interruptEnableRegister(0)
     , dmaStarted(false)
     , rom(nullptr)
@@ -479,6 +489,11 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
                     dmaMsb = val % 0xF1u;
                     dmaLsb = 0x00;
                 }
+#ifdef FB_USE_SOUND
+                else if (offset >= FB_REG_NR10 && offset <= FB_REG_NR52) {
+                    apu->handleWrite(offset, val);
+                }
+#endif
 
                 ioRegisters.handleMemoryWrite(offset - 0xFF00u, val);
             } else {

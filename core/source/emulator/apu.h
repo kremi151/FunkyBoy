@@ -17,6 +17,8 @@
 #ifndef FB_CORE_APU_H
 #define FB_CORE_APU_H
 
+#ifdef FB_USE_SOUND
+
 #include <util/typedefs.h>
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
@@ -33,30 +35,30 @@ namespace FunkyBoy::Sound {
         float dacOut; // = amplitude
     } BaseChannel;
 
-    typedef struct : BaseChannel {
+    typedef struct BaseChannelType : BaseChannel {
         u8_fast periodTimer;
         u8_fast currentVolume;
     } EnvelopeChannel;
 
-    typedef struct {
+    typedef struct WaveChannelType {
         u8_fast wavePosition;
     } WaveChannel;
 
-    typedef struct : EnvelopeChannel, WaveChannel {
+    typedef struct ToneChannelType : EnvelopeChannel, WaveChannel {
         bool sweepEnabled;
         u8_fast shadowFrequency;
     } ToneChannel;
 
-    typedef struct : ToneChannel {
+    typedef struct ChannelOneType : ToneChannel {
         u8_fast sweepTimer;
     } ChannelOne;
 
     typedef ToneChannel ChannelTwo;
 
-    typedef struct : BaseChannel, WaveChannel {
+    typedef struct ChannelThreeType : BaseChannel, WaveChannel {
     } ChannelThree;
 
-    typedef struct : EnvelopeChannel {
+    typedef struct ChannelFourType : EnvelopeChannel {
         u16_fast lfsr;
     } ChannelFour;
 
@@ -86,15 +88,19 @@ namespace FunkyBoy::Sound {
         void tickChannel3();
         void tickChannel4();
 
+        // TODO: Call this from memory while intercepting writes to bit 7 of NRx4
+        void doTriggerEvent(int channelNbr, u8_fast nrx4);
+
     public:
         APU(GameBoyType gbType, const io_registers &ioRegisters);
 
         void doTick();
 
-        // TODO: Call this from memory while intercepting writes to bit 7 of NRx4
-        void doTriggerEvent(int channelNbr, u8_fast nrx4);
+        void handleWrite(memory_address addr, u8_fast value);
     };
 
 }
+
+#endif //FB_USE_SOUND
 
 #endif //FB_CORE_APU_H

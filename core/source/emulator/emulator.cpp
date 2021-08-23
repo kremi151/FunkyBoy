@@ -29,7 +29,17 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     : controllers(controllers)
     , ioRegisters(controllers)
     , ppuMemory()
-    , memory(controllers, ioRegisters, ppuMemory)
+#ifdef FB_USE_SOUND
+    , apu(gbType, ioRegisters)
+#endif
+    , memory(
+            controllers
+            , ioRegisters
+            , ppuMemory
+#ifdef FB_USE_SOUND
+            , &apu
+#endif
+    )
     , cpu(gbType, ioRegisters)
     , ppu(controllers, ioRegisters, ppuMemory)
 #ifdef FB_USE_AUTOSAVE
@@ -162,6 +172,9 @@ ret_code Emulator::doTick() {
         return 0;
     }
     result |= ppu.doClocks(cpu, 4);
+#ifdef FB_USE_SOUND
+    apu.doTick();
+#endif
 #ifdef FB_USE_AUTOSAVE
     if (result & FB_RET_NEW_FRAME) {
         if (memory.cartridgeRAMWritten) {

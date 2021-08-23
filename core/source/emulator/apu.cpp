@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+#ifdef FB_USE_SOUND
+
 #include "apu.h"
 
 #define FB_INCREASE_BIT 0b00001000u
+#define FB_TRIGGER_BIT 0b10000000u
 
 namespace FunkyBoy::Sound {
 
@@ -315,3 +318,34 @@ void APU::doLength(u8_fast nrx4, BaseChannel &channel) {
         channel.channelEnabled = false;
     }
 }
+
+void APU::handleWrite(memory_address addr, u8_fast value) {
+    // TODO: Sync channel states here
+
+    switch (addr) {
+        case FB_REG_NR14:
+            if (value & FB_TRIGGER_BIT) {
+                doTriggerEvent(0, ioRegisters.getNR14());
+            }
+            break;
+        case FB_REG_NR24:
+            if (value & FB_TRIGGER_BIT) {
+                doTriggerEvent(1, ioRegisters.getNR24());
+            }
+            break;
+        case FB_REG_NR34:
+            if (value & FB_TRIGGER_BIT) {
+                doTriggerEvent(2, ioRegisters.getNR34());
+            }
+            break;
+        case FB_REG_NR44:
+            if (value & FB_TRIGGER_BIT) {
+                doTriggerEvent(3, ioRegisters.getNR44());
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+#endif

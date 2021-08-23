@@ -103,5 +103,6 @@ endif()
 target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
 
 fb_use_autosave(fb_core)
+fb_use_sound(fb_core)
 
 add_definitions(-DSDL_MAIN_HANDLED)
