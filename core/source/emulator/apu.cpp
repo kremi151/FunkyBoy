@@ -87,8 +87,8 @@ void APU::initChannels() {
 void APU::doTick() {
     u8 &div = ioRegisters.getDIV();
 
-    tickChannel1Or2(channelOne, ioRegisters.getNR13(), ioRegisters.getNR14());
-    tickChannel1Or2(channelTwo, ioRegisters.getNR23(), ioRegisters.getNR24());
+    tickChannel1Or2(channelOne, ioRegisters.getNR11(), ioRegisters.getNR13(), ioRegisters.getNR14());
+    tickChannel1Or2(channelTwo, ioRegisters.getNR21(), ioRegisters.getNR23(), ioRegisters.getNR24());
     tickChannel3();
     tickChannel4();
 
@@ -102,9 +102,9 @@ void APU::doTick() {
             doLength(ioRegisters.getNR44(), channelFour);
         }
         if (frameSeqStep == 7) {
-            doEnvelope(DutyWaveforms[ioRegisters.getNR11() >> 6], ioRegisters.getNR12(), channelOne);
-            doEnvelope(DutyWaveforms[ioRegisters.getNR21() >> 6], ioRegisters.getNR22(), channelTwo);
-            doEnvelope(0 /* TODO */, ioRegisters.getNR42(), channelFour);
+            doEnvelope(ioRegisters.getNR12(), channelOne);
+            doEnvelope(ioRegisters.getNR22(), channelTwo);
+            doEnvelope(ioRegisters.getNR42(), channelFour);
         }
         if (frameSeqStep == 2 || frameSeqStep == 6) {
             doSweepOnChannel1();
@@ -115,14 +115,14 @@ void APU::doTick() {
     lastDiv = div;
 }
 
-// TODO: Read wave duties / wave RAM when sampling (use channel.wavePosition)
-
-void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx3, u8_fast nrx4) {
+void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_fast nrx4) {
     if (--channel.freqTimer > 0) {
         return;
     }
     channel.freqTimer = (2048 - (nrx3 | ((nrx4 & 0b111) << 8))) * 4;
     channel.wavePosition = (channel.wavePosition + 1) % 8;
+
+    channel.dacIn = DutyWaveforms[(nrx1 >> 6) & 0b11];
 }
 
 void APU::tickChannel3() {
@@ -135,8 +135,8 @@ void APU::tickChannel3() {
     u8_fast sample = ioRegisters.getWaveRAM()[channelThree.wavePosition / 2];
     sample = sample >> ((((channelThree.wavePosition & 1) != 0) ? 4 : 0)) & 0b00001111;
 
-    // Set DAC output here because channel 3 doesn't have an envelope function
-    channelThree.dacOut = ((sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5]) / 7.5) - 1.0;
+    // Set DAC input here because channel 3 doesn't have an envelope function
+    channelThree.dacIn = sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5];
 }
 
 void APU::tickChannel4() {
@@ -155,6 +155,7 @@ void APU::tickChannel4() {
     }
 
     // TODO: Amplitude = ~LFSR & 0x01;
+    channelFour.dacIn = ~channelFour.lfsr & 0b01;
 }
 
 void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
@@ -238,7 +239,7 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
     }
 }
 
-void APU::doEnvelope(float waveDuty, u8_fast nrx2, EnvelopeChannel &channel) {
+void APU::doEnvelope(u8_fast nrx2, EnvelopeChannel &channel) {
     if (!channel.channelEnabled) {
         return;
     }
@@ -261,9 +262,6 @@ void APU::doEnvelope(float waveDuty, u8_fast nrx2, EnvelopeChannel &channel) {
             }
         }
     }
-
-    float dacInput = waveDuty * channel.currentVolume;
-    channel.dacOut = (dacInput / 7.5) - 1.0;
 }
 
 void APU::doSweepOnChannel1() {
@@ -317,6 +315,34 @@ void APU::doLength(u8_fast nrx4, BaseChannel &channel) {
     if (nrx4 & 0b01000000u && --channel.lengthTimer == 0) {
         channel.channelEnabled = false;
     }
+}
+
+float APU::getChannel1DACOut() {
+    if (channelOne.channelEnabled /* TODO: && channelOne.dacEnabled */) {
+        return (channelOne.dacIn * channelOne.currentVolume / 7.5f) - 1.0f;
+    }
+    return 0.0f;
+}
+
+float APU::getChannel2DACOut() {
+    if (channelTwo.channelEnabled /* TODO: && channelTwo.dacEnabled */) {
+        return (channelTwo.dacIn * channelOne.currentVolume / 7.5f) - 1.0f;
+    }
+    return 0.0f;
+}
+
+float APU::getChannel3DACOut() {
+    if (channelThree.channelEnabled /* TODO: && channelThree.dacEnabled */) {
+        return (channelTwo.dacIn / 7.5f) - 1.0f;
+    }
+    return 0.0f;
+}
+
+float APU::getChannel4DACOut() {
+    if (channelFour.channelEnabled /* TODO: && channelFour.dacEnabled */) {
+        return (channelFour.dacIn * channelFour.currentVolume / 7.5f) - 1.0f;
+    }
+    return 0.0f;
 }
 
 void APU::handleWrite(memory_address addr, u8_fast value) {

@@ -32,7 +32,7 @@ namespace FunkyBoy::Sound {
         u16_fast freqTimer;
 
         u8_fast currentFrequencyOut;
-        float dacOut; // = amplitude
+        float dacIn;
     } BaseChannel;
 
     typedef struct BaseChannelType : BaseChannel {
@@ -80,16 +80,21 @@ namespace FunkyBoy::Sound {
 
         void doSweepOnChannel1();
 
-        static void doEnvelope(float waveDuty, u8_fast nrx2, EnvelopeChannel &channel);
+        static void doEnvelope(u8_fast nrx2, EnvelopeChannel &channel);
         static u16_fast calculateSweepFrequency(u8_fast shift, bool increase, ChannelOne &channel);
         static void doLength(u8_fast nrx4, BaseChannel &channel);
 
-        static void tickChannel1Or2(ToneChannel &channel, u8_fast nrx3, u8_fast nrx4);
+        static void tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_fast nrx4);
         void tickChannel3();
         void tickChannel4();
 
-        // TODO: Call this from memory while intercepting writes to bit 7 of NRx4
+
         void doTriggerEvent(int channelNbr, u8_fast nrx4);
+
+        float getChannel1DACOut();
+        float getChannel2DACOut();
+        float getChannel3DACOut();
+        float getChannel4DACOut();
 
     public:
         APU(GameBoyType gbType, const io_registers &ioRegisters);
