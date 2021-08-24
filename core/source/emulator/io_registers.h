@@ -49,6 +49,8 @@
 #define FB_REG_NR42 0xFF21
 #define FB_REG_NR43 0xFF22
 #define FB_REG_NR44 0xFF23
+#define FB_REG_NR50 0xFF24
+#define FB_REG_NR51 0xFF25
 #define FB_REG_NR52 0xFF26
 #define FB_REG_LCDC 0xFF40
 #define FB_REG_STAT 0xFF41
@@ -137,7 +139,9 @@ namespace FunkyBoy {
             return *(hwIO + __FB_REG_OFFSET_P1);
         }
 
-        __FB_REG_GETTER(DIV, FB_REG_DIV)
+        inline u8_fast getDIV() {
+            return *sys_counter >> 8;
+        }
 
         inline u8 &getTIMA() {
             return *(hwIO + __FB_REG_OFFSET_TIMA);
@@ -216,6 +220,8 @@ namespace FunkyBoy {
         __FB_REG_GETTER(NR42, FB_REG_NR42)
         __FB_REG_GETTER(NR43, FB_REG_NR43)
         __FB_REG_GETTER(NR44, FB_REG_NR44)
+        __FB_REG_GETTER(NR50, FB_REG_NR50)
+        __FB_REG_GETTER(NR51, FB_REG_NR51)
         __FB_REG_GETTER(NR52, FB_REG_NR52)
 
         void serialize(std::ostream &ostream) const;

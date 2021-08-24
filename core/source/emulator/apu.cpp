@@ -21,6 +21,13 @@
 #define FB_INCREASE_BIT 0b00001000u
 #define FB_TRIGGER_BIT 0b10000000u
 
+#define FB_FRAME_SEQ_MOD_DMG 0b0010000000000000
+#define FB_FRAME_SEQ_MOD_CGB 0b0100000000000000
+
+#define FB_CPU_CLOCK 4194304
+#define FB_SAMPLE_RATE 48000
+#define FB_SAMPLE_CLOCKS (FB_CPU_CLOCK / FB_SAMPLE_RATE)
+
 namespace FunkyBoy::Sound {
 
     const FunkyBoy::u8 DutyWaveforms[4] = {
@@ -66,14 +73,9 @@ using namespace FunkyBoy::Sound;
 
 APU::APU(GameBoyType gbType, const io_registers &ioRegisters)
     : ioRegisters(ioRegisters)
-    , lastDiv(0)
+    , frameSeqMod(gbType == GameBoyDMG ? FB_FRAME_SEQ_MOD_DMG : FB_FRAME_SEQ_MOD_CGB)
     , frameSeqStep(7)
 {
-    if (gbType == GameBoyDMG) {
-        frameSeqMask = 0b00100000;
-    } else {
-        frameSeqMask = 0b01000000;
-    }
     initChannels();
 }
 
@@ -85,7 +87,7 @@ void APU::initChannels() {
 }
 
 void APU::doTick() {
-    u8 &div = ioRegisters.getDIV();
+    u16_fast sysCounter = ioRegisters.getSysCounter();
 
     tickChannel1Or2(channelOne, ioRegisters.getNR11(), ioRegisters.getNR13(), ioRegisters.getNR14());
     tickChannel1Or2(channelTwo, ioRegisters.getNR21(), ioRegisters.getNR23(), ioRegisters.getNR24());
@@ -93,7 +95,7 @@ void APU::doTick() {
     tickChannel4();
 
     // Frame sequencer
-    if ((lastDiv & frameSeqMask) && !(div & frameSeqMask)) {
+    if (sysCounter % frameSeqMod == 0) {
         frameSeqStep = (frameSeqStep + 1) % 8;
         if (frameSeqStep % 2 == 0) {
             doLength(ioRegisters.getNR14(), channelOne);
@@ -111,9 +113,31 @@ void APU::doTick() {
         }
     }
 
-    // Post
-    lastDiv = div;
+    if (sysCounter % FB_SAMPLE_CLOCKS) {
+        u8_fast nr50 = ioRegisters.getNR50();
+        u8_fast nr51 = ioRegisters.getNR51();
+        u8_fast leftVolume = (nr50 & 0b01110000u) >> 4;
+        u8_fast rightVolume = nr50 & 0b00000111u;
+        buffer[bufferPosition++] = leftVolume * (
+                  ((nr51 & 0b10000000) ? getChannel4DACOut() : 0.0f)
+                  + ((nr51 & 0b01000000) ? getChannel3DACOut() : 0.0f)
+                  + ((nr51 & 0b00100000) ? getChannel2DACOut() : 0.0f)
+                  + ((nr51 & 0b00010000) ? getChannel1DACOut() : 0.0f)
+                ) / 4.0f;
+        buffer[bufferPosition++] = rightVolume * (
+                  ((nr51 & 0b00001000) ? getChannel4DACOut() : 0.0f)
+                  + ((nr51 & 0b00000100) ? getChannel3DACOut() : 0.0f)
+                  + ((nr51 & 0b00000010) ? getChannel2DACOut() : 0.0f)
+                  + ((nr51 & 0b00000001) ? getChannel1DACOut() : 0.0f)
+                ) / 4.0f;
+        if (bufferPosition >= FB_APU_BUFFER_SIZE) {
+            // TODO: Call buffer callback -> outputs audio to device
+            bufferPosition = 0;
+        }
+    }
 }
+
+// TODO: Implement NR52 (master switch)
 
 void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_fast nrx4) {
     if (--channel.freqTimer > 0) {

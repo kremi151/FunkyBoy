@@ -23,6 +23,8 @@
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
 
+#define FB_APU_BUFFER_SIZE 1024
+
 namespace FunkyBoy::Sound {
 
     typedef struct {
@@ -66,10 +68,11 @@ namespace FunkyBoy::Sound {
     private:
         io_registers ioRegisters;
 
-        u8_fast frameSeqMask;
+        const u16_fast frameSeqMod;
         u8_fast frameSeqStep;
 
-        u8_fast lastDiv;
+        float buffer[FB_APU_BUFFER_SIZE]{};
+        size_t bufferPosition{};
 
         ChannelOne channelOne{};
         ChannelTwo channelTwo{};
