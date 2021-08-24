@@ -185,6 +185,8 @@ void APU::tickChannel4() {
 void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
     switch (channelNbr) {
         case 0: {
+            channelOne.channelEnabled = true;
+
             const u8_fast nr10 = ioRegisters.getNR10();
             const u8_fast nr12 = ioRegisters.getNR12();
 
@@ -215,6 +217,8 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             break;
         }
         case 1: {
+            channelTwo.channelEnabled = true;
+
             const u8_fast nr22 = ioRegisters.getNR22();
 
             // Envelope function
@@ -230,6 +234,8 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             break;
         }
         case 2: {
+            channelThree.channelEnabled = true;
+
             // No envelope function
 
             // No sweep function
@@ -241,6 +247,8 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             break;
         }
         case 3: {
+            channelFour.channelEnabled = true;
+
             const u8_fast nr42 = ioRegisters.getNR42();
 
             channelFour.lfsr = ~0;
