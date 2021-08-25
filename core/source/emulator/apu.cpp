@@ -18,6 +18,8 @@
 
 #include "apu.h"
 
+#include <utility>
+
 #define FB_INCREASE_BIT 0b00001000u
 #define FB_TRIGGER_BIT 0b10000000u
 
@@ -30,11 +32,11 @@
 
 namespace FunkyBoy::Sound {
 
-    const FunkyBoy::u8 DutyWaveforms[4] = {
-            0b00000001,
-            0b10000001,
-            0b10000111,
-            0b01111110
+    const FunkyBoy::u8 DutyWaveforms[4][8] = {
+            {0, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 0, 0, 1},
+            {1, 0, 0, 0, 0, 1, 1, 1},
+            {0, 1, 1, 1, 1, 1, 1, 0}
     };
 
     const float DutyRatios[4] = {
@@ -71,8 +73,9 @@ namespace FunkyBoy::Sound {
 
 using namespace FunkyBoy::Sound;
 
-APU::APU(GameBoyType gbType, const io_registers &ioRegisters)
+APU::APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::ControllersPtr controllers)
     : ioRegisters(ioRegisters)
+    , controllers(std::move(controllers))
     , frameSeqMod(gbType == GameBoyDMG ? FB_FRAME_SEQ_MOD_DMG : FB_FRAME_SEQ_MOD_CGB)
     , frameSeqStep(7)
 {
@@ -116,25 +119,28 @@ void APU::doTick() {
     if (sysCounter % FB_SAMPLE_CLOCKS) {
         u8_fast nr50 = ioRegisters.getNR50();
         u8_fast nr51 = ioRegisters.getNR51();
-        u8_fast leftVolume = (nr50 & 0b01110000u) >> 4;
-        u8_fast rightVolume = nr50 & 0b00000111u;
-        buffer[bufferPosition++] = leftVolume * (
+        float leftVolume = ((nr50 & 0b01110000u) >> 4) / 7.0f;
+        float rightVolume = (nr50 & 0b00000111u) / 7.0f;
+        buffer.buffer[buffer.bufferPosition++] = 0.75f + leftVolume * (
                   ((nr51 & 0b10000000) ? getChannel4DACOut() : 0.0f)
                   + ((nr51 & 0b01000000) ? getChannel3DACOut() : 0.0f)
                   + ((nr51 & 0b00100000) ? getChannel2DACOut() : 0.0f)
                   + ((nr51 & 0b00010000) ? getChannel1DACOut() : 0.0f)
                 ) / 4.0f;
-        buffer[bufferPosition++] = rightVolume * (
+        buffer.buffer[buffer.bufferPosition++] = 0.75f + rightVolume * (
                   ((nr51 & 0b00001000) ? getChannel4DACOut() : 0.0f)
                   + ((nr51 & 0b00000100) ? getChannel3DACOut() : 0.0f)
                   + ((nr51 & 0b00000010) ? getChannel2DACOut() : 0.0f)
                   + ((nr51 & 0b00000001) ? getChannel1DACOut() : 0.0f)
                 ) / 4.0f;
-        if (bufferPosition >= FB_APU_BUFFER_SIZE) {
+        if (buffer.bufferPosition >= FB_AUDIO_BUFFER_SIZE) {
             // TODO: Call buffer callback -> outputs audio to device
-            bufferPosition = 0;
+            buffer.bufferPosition = 0;
         }
     }
+
+    // TODO: This is only temporary
+    controllers->getAudio()->bufferCallback(&buffer);
 }
 
 // TODO: Implement NR52 (master switch)
@@ -146,7 +152,7 @@ void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_f
     channel.freqTimer = (2048 - (nrx3 | ((nrx4 & 0b111) << 8))) * 4;
     channel.wavePosition = (channel.wavePosition + 1) % 8;
 
-    channel.dacIn = DutyWaveforms[(nrx1 >> 6) & 0b11];
+    channel.dacIn = DutyWaveforms[(nrx1 >> 6) & 0b11][channel.wavePosition];
 }
 
 void APU::tickChannel3() {
@@ -185,29 +191,31 @@ void APU::tickChannel4() {
 void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
     switch (channelNbr) {
         case 0: {
-            channelOne.channelEnabled = true;
+            if (channelOne.dacEnabled) {
+                channelOne.channelEnabled = true;
 
-            const u8_fast nr10 = ioRegisters.getNR10();
-            const u8_fast nr12 = ioRegisters.getNR12();
+                const u8_fast nr10 = ioRegisters.getNR10();
+                const u8_fast nr12 = ioRegisters.getNR12();
 
-            // Envelope function
-            channelOne.periodTimer = nr12 & 0b00000111u;
-            channelOne.currentVolume = (nr12 & 0b11110000u) >> 4;
+                // Envelope function
+                channelOne.periodTimer = nr12 & 0b00000111u;
+                channelOne.currentVolume = (nr12 & 0b11110000u) >> 4;
 
-            // Sweep function
-            channelOne.shadowFrequency = channelOne.currentFrequencyOut;
-            const u8_fast sweepPeriod = (nr10 & 0b01110000) >> 4;
-            const u8_fast sweepShift = nr10 & 0b00000111u;
-            if (sweepPeriod == 0) {
-                channelOne.sweepTimer = 8;
-                channelOne.sweepEnabled = sweepShift != 0;
-            } else {
-                channelOne.sweepTimer = sweepPeriod;
-                channelOne.sweepEnabled = true;
-            }
-            if (sweepShift != 0) {
-                // Re-run overflow check
-                calculateSweepFrequency(sweepShift, nr10 & FB_INCREASE_BIT, channelOne);
+                // Sweep function
+                channelOne.shadowFrequency = channelOne.currentFrequencyOut;
+                const u8_fast sweepPeriod = (nr10 & 0b01110000) >> 4;
+                const u8_fast sweepShift = nr10 & 0b00000111u;
+                if (sweepPeriod == 0) {
+                    channelOne.sweepTimer = 8;
+                    channelOne.sweepEnabled = sweepShift != 0;
+                } else {
+                    channelOne.sweepTimer = sweepPeriod;
+                    channelOne.sweepEnabled = true;
+                }
+                if (sweepShift != 0) {
+                    // Re-run overflow check
+                    calculateSweepFrequency(sweepShift, nr10 & FB_INCREASE_BIT, channelOne);
+                }
             }
 
             // Length function
@@ -217,13 +225,15 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             break;
         }
         case 1: {
-            channelTwo.channelEnabled = true;
+            if (channelTwo.dacEnabled) {
+                channelTwo.channelEnabled = true;
 
-            const u8_fast nr22 = ioRegisters.getNR22();
+                const u8_fast nr22 = ioRegisters.getNR22();
 
-            // Envelope function
-            channelTwo.periodTimer = nr22 & 0b00000111u;
-            channelTwo.currentVolume = (nr22 & 0b11110000u) >> 4;
+                // Envelope function
+                channelTwo.periodTimer = nr22 & 0b00000111u;
+                channelTwo.currentVolume = (nr22 & 0b11110000u) >> 4;
+            }
 
             // No sweep function
 
@@ -234,7 +244,9 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             break;
         }
         case 2: {
-            channelThree.channelEnabled = true;
+            if (channelThree.dacEnabled) {
+                channelThree.channelEnabled = true;
+            }
 
             // No envelope function
 
@@ -247,7 +259,9 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
             break;
         }
         case 3: {
-            channelFour.channelEnabled = true;
+            if (channelFour.dacEnabled) {
+                channelFour.channelEnabled = true;
+            }
 
             const u8_fast nr42 = ioRegisters.getNR42();
 
@@ -350,28 +364,28 @@ void APU::doLength(u8_fast nrx4, BaseChannel &channel) {
 }
 
 float APU::getChannel1DACOut() {
-    if (channelOne.channelEnabled /* TODO: && channelOne.dacEnabled */) {
+    if (channelOne.channelEnabled && channelOne.dacEnabled) {
         return (channelOne.dacIn * channelOne.currentVolume / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
 
 float APU::getChannel2DACOut() {
-    if (channelTwo.channelEnabled /* TODO: && channelTwo.dacEnabled */) {
+    if (channelTwo.channelEnabled && channelTwo.dacEnabled) {
         return (channelTwo.dacIn * channelOne.currentVolume / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
 
 float APU::getChannel3DACOut() {
-    if (channelThree.channelEnabled /* TODO: && channelThree.dacEnabled */) {
-        return (channelTwo.dacIn / 7.5f) - 1.0f;
+    if (channelThree.dacEnabled) {
+        return (channelThree.dacIn / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
 
 float APU::getChannel4DACOut() {
-    if (channelFour.channelEnabled /* TODO: && channelFour.dacEnabled */) {
+    if (channelFour.channelEnabled && channelFour.dacEnabled) {
         return (channelFour.dacIn * channelFour.currentVolume / 7.5f) - 1.0f;
     }
     return 0.0f;
@@ -381,23 +395,47 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
     // TODO: Sync channel states here
 
     switch (addr) {
+        case FB_REG_NR12:
+            channelOne.dacEnabled = (value & 0b11111000) != 0;
+            if (!channelOne.dacEnabled) {
+                channelOne.channelEnabled = false;
+            }
+            break;
         case FB_REG_NR14:
-            if (value & FB_TRIGGER_BIT) {
+            if ((value & FB_TRIGGER_BIT) && channelOne.dacEnabled) {
                 doTriggerEvent(0, ioRegisters.getNR14());
             }
             break;
+        case FB_REG_NR22:
+            channelTwo.dacEnabled = (value & 0b11111000) != 0;
+            if (!channelTwo.dacEnabled) {
+                channelTwo.channelEnabled = false;
+            }
+            break;
         case FB_REG_NR24:
-            if (value & FB_TRIGGER_BIT) {
+            if ((value & FB_TRIGGER_BIT) && channelTwo.dacEnabled) {
                 doTriggerEvent(1, ioRegisters.getNR24());
             }
             break;
+        case FB_REG_NR30:
+            channelThree.dacEnabled = (value & 0b10000000) != 0;
+            if (!channelThree.dacEnabled) {
+                channelThree.channelEnabled = false;
+            }
+            break;
         case FB_REG_NR34:
-            if (value & FB_TRIGGER_BIT) {
+            if ((value & FB_TRIGGER_BIT) && channelThree.dacEnabled) {
                 doTriggerEvent(2, ioRegisters.getNR34());
             }
             break;
+        case FB_REG_NR42:
+            channelFour.dacEnabled = (value & 0b11111000) != 0;
+            if (!channelFour.dacEnabled) {
+                channelFour.channelEnabled = false;
+            }
+            break;
         case FB_REG_NR44:
-            if (value & FB_TRIGGER_BIT) {
+            if ((value & FB_TRIGGER_BIT) && channelFour.dacEnabled) {
                 doTriggerEvent(3, ioRegisters.getNR44());
             }
             break;

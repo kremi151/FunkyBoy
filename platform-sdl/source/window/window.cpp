@@ -20,6 +20,7 @@
 #include <util/os_specific.h>
 #include <controllers/serial_sdl.h>
 #include <controllers/display_sdl.h>
+#include <controllers/audio_sdl.h>
 #include <ui/native_ui.h>
 #include <fstream>
 #include <cstring>
@@ -100,6 +101,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
     controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
     controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
+    controllers->setAudio(std::make_shared<Controller::AudioControllerSDL>());
 
     fs::path romPath;
     if (result.unmatched().empty()) {

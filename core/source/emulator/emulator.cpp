@@ -30,7 +30,7 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , ioRegisters(controllers)
     , ppuMemory()
 #ifdef FB_USE_SOUND
-    , apu(gbType, ioRegisters)
+    , apu(gbType, ioRegisters, controllers)
 #endif
     , memory(
             controllers

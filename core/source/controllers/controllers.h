@@ -20,6 +20,7 @@
 #include "serial.h"
 #include "joypad.h"
 #include "display.h"
+#include "audio.h"
 
 #include <util/typedefs.h>
 
@@ -31,9 +32,10 @@ namespace FunkyBoy::Controller {
     private:
         SerialControllerPtr serial;
         DisplayControllerPtr display;
+        AudioControllerPtr audio;
 
     public:
-        Controllers(SerialControllerPtr serial, DisplayControllerPtr display);
+        Controllers(SerialControllerPtr serial, DisplayControllerPtr display, AudioControllerPtr audio);
         Controllers();
 
         inline SerialControllerPtr &getSerial() {
@@ -47,6 +49,12 @@ namespace FunkyBoy::Controller {
         }
 
         void setDisplay(const DisplayControllerPtr &displayController);
+
+        inline AudioControllerPtr &getAudio() {
+            return audio;
+        }
+
+        void setAudio(const AudioControllerPtr &audioController);
     };
 
     typedef std::shared_ptr<Controllers> ControllersPtr;

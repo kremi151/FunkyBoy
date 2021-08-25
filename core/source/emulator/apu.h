@@ -22,8 +22,7 @@
 #include <util/typedefs.h>
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
-
-#define FB_APU_BUFFER_SIZE 1024
+#include <controllers/controllers.h>
 
 namespace FunkyBoy::Sound {
 
@@ -34,6 +33,8 @@ namespace FunkyBoy::Sound {
         u16_fast freqTimer;
 
         u8_fast currentFrequencyOut;
+
+        bool dacEnabled;
         float dacIn;
     } BaseChannel;
 
@@ -66,13 +67,14 @@ namespace FunkyBoy::Sound {
 
     class APU {
     private:
+        Controller::ControllersPtr controllers;
+
         io_registers ioRegisters;
 
         const u16_fast frameSeqMod;
         u8_fast frameSeqStep;
 
-        float buffer[FB_APU_BUFFER_SIZE]{};
-        size_t bufferPosition{};
+        AudioBuffer buffer{};
 
         ChannelOne channelOne{};
         ChannelTwo channelTwo{};
@@ -100,7 +102,7 @@ namespace FunkyBoy::Sound {
         float getChannel4DACOut();
 
     public:
-        APU(GameBoyType gbType, const io_registers &ioRegisters);
+        APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::ControllersPtr controllers);
 
         void doTick();
 

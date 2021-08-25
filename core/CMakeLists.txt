@@ -22,6 +22,7 @@ set(SOURCES
         source/controllers/controllers.cpp
         source/controllers/serial_null.cpp
         source/controllers/display_void.cpp
+        source/controllers/audio_void.cpp
         source/util/romsizes.cpp
         source/memory/memory.cpp
         source/cartridge/mbc1.cpp
@@ -65,6 +66,8 @@ set(HEADERS
         source/controllers/joypad.h
         source/controllers/display.h
         source/controllers/display_void.h
+        source/controllers/audio.h
+        source/controllers/audio_void.h
         source/util/typedefs.h
         source/cartridge/header.h
         source/util/romsizes.h
