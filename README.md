@@ -24,15 +24,16 @@ Most of the games are already playable, albeit with some minor graphical glitche
 |MBC7|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|
 |Real-time clock (RTC)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:question:|:question:|
 |Save games|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|
-|Save states ([#39](https://github.com/kremi151/FunkyBoy/issues/39))|:heavy_check_mark:|:eyes:|:eyes:|:x:|:x:|:x:|
+|Save states ([#39](https://github.com/kremi151/FunkyBoy/issues/39))|:heavy_check_mark:|:eyes:|:eyes:|:x:**|:x:|:x:|
 
 Legend:
-:heavy_check_mark:: Supported
-:eyes:: Experimental support, may be unstable and/or might be changed in the future
-:question:: In theory supported, but untested
-:x:: Not supported for now, but planned
-:no_entry_sign:: Not supported with no current plans to do so
-\*: Supported with some minor graphical glitches
+- :heavy_check_mark:: Supported
+- :eyes:: Experimental support, may be unstable and/or might be changed in the future
+- :question:: In theory supported, but untested
+- :x:: Not supported for now, but planned
+- :no_entry_sign:: Not supported with no current plans to do so
+- \*: Supported with some minor graphical glitches
+- \*\*: Android uses save states for resuming the app state from the task manager, but there is currently no way to create save states manually
 
 ## Compatible games
 See [Compatible games](./docs/COMPATIBLE_GAMES.md)
@@ -55,3 +56,7 @@ Those performance issues will be tackled at a later stage of development.
 |[Nintendo 3DS](https://github.com/kremi151/FunkyBoy/tree/master/platform-3ds)|Secondary|![Build 3DS platform](https://github.com/kremi151/FunkyBoy/workflows/Build%203DS%20platform/badge.svg)|
 |[PlayStation Portable](https://github.com/kremi151/FunkyBoy/tree/master/platform-psp)|Secondary|![Build PSP platform](https://github.com/kremi151/FunkyBoy/workflows/Build%20PSP%20platform/badge.svg)|
 |[Tests](https://github.com/kremi151/FunkyBoy/tree/master/test)| |![Test](https://github.com/kremi151/FunkyBoy/workflows/Test/badge.svg)|
+
+## References
+
+See [References used during development](./docs/REFERENCES.md)
