@@ -32,8 +32,6 @@ namespace FunkyBoy::Sound {
         u16_fast lengthTimer; // 16 bits because channel 3 can go up to 256
         u16_fast freqTimer;
 
-        u8_fast currentFrequencyOut;
-
         bool dacEnabled;
         float dacIn;
     } BaseChannel;
@@ -48,12 +46,12 @@ namespace FunkyBoy::Sound {
     } WaveChannel;
 
     typedef struct ToneChannelType : EnvelopeChannel, WaveChannel {
-        u8_fast shadowFrequency;
     } ToneChannel;
 
     typedef struct ChannelOneType : ToneChannel {
         bool sweepEnabled;
         u8_fast sweepTimer;
+        u8_fast shadowFrequency;
     } ChannelOne;
 
     typedef ToneChannel ChannelTwo;
@@ -100,6 +98,27 @@ namespace FunkyBoy::Sound {
         float getChannel2DACOut();
         float getChannel3DACOut();
         float getChannel4DACOut();
+
+        static inline u16_fast getChannelFrequency(u8_fast nrx3, u8_fast nrx4) {
+            return ((nrx4 & 0b00000111) << 8) | nrx3;
+        }
+
+        inline u16_fast getChannel1Frequency() {
+            return ((ioRegisters.getNR14() & 0b00000111) << 8) | ioRegisters.getNR13();
+        }
+
+        inline void setChannel1Frequency(u16_fast freq) {
+            ioRegisters.getNR13() = freq & 0b11111111u;
+            ioRegisters.getNR14() = (freq >> 8) & 0b111;
+        }
+
+        inline u16_fast getChannel2Frequency() {
+            return ((ioRegisters.getNR24() & 0b00000111) << 8) | ioRegisters.getNR23();
+        }
+
+        inline u16_fast getChannel3Frequency() {
+            return ((ioRegisters.getNR34() & 0b00000111) << 8) | ioRegisters.getNR33();
+        }
 
     public:
         APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::ControllersPtr controllers);

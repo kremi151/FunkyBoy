@@ -145,7 +145,7 @@ void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_f
     if (--channel.freqTimer > 0) {
         return;
     }
-    channel.freqTimer = (2048 - (nrx3 | ((nrx4 & 0b111) << 8))) * 4;
+    channel.freqTimer = (2048 - getChannelFrequency(nrx3, nrx4));
     channel.wavePosition = (channel.wavePosition + 1) % 8;
 
     channel.dacIn = DutyWaveforms[(nrx1 >> 6) & 0b11][channel.wavePosition];
@@ -155,7 +155,7 @@ void APU::tickChannel3() {
     if (--channelThree.freqTimer > 0) {
         return;
     }
-    channelThree.freqTimer = (2048 - (ioRegisters.getNR33() | ((ioRegisters.getNR34() & 0b111) << 8))) * 4;
+    channelThree.freqTimer = (2048 - getChannel3Frequency()) * 4;
     channelThree.wavePosition = (channelThree.wavePosition + 1) % 32;
 
     u8_fast sample = ioRegisters.getWaveRAM()[channelThree.wavePosition / 2];
@@ -198,7 +198,7 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
                 channelOne.currentVolume = (nr12 & 0b11110000u) >> 4;
 
                 // Sweep function
-                channelOne.shadowFrequency = channelOne.currentFrequencyOut;
+                channelOne.shadowFrequency = getChannel1Frequency();
                 const u8_fast sweepPeriod = (nr10 & 0b01110000) >> 4;
                 const u8_fast sweepShift = nr10 & 0b00000111u;
                 if (sweepPeriod == 0) {
@@ -329,7 +329,7 @@ void APU::doSweepOnChannel1() {
     const u8_fast shift = nr10 & 0b00000111u;
     u16_fast newFrequency = calculateSweepFrequency(shift, nr10 & FB_INCREASE_BIT, channelOne);
     if (newFrequency <= 2047 && shift > 0) {
-        channelOne.currentFrequencyOut = newFrequency; // TODO: Do anything with frequency
+        setChannel1Frequency(newFrequency);
         channelOne.shadowFrequency = newFrequency;
 
         // Re-run overflow check
