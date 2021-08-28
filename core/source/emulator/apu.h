@@ -29,7 +29,7 @@ namespace FunkyBoy::Sound {
     typedef struct {
         bool channelEnabled;
 
-        u8_fast lengthTimer;
+        u16_fast lengthTimer; // 16 bits because channel 3 can go up to 256
         u16_fast freqTimer;
 
         u8_fast currentFrequencyOut;
@@ -48,11 +48,11 @@ namespace FunkyBoy::Sound {
     } WaveChannel;
 
     typedef struct ToneChannelType : EnvelopeChannel, WaveChannel {
-        bool sweepEnabled;
         u8_fast shadowFrequency;
     } ToneChannel;
 
     typedef struct ChannelOneType : ToneChannel {
+        bool sweepEnabled;
         u8_fast sweepTimer;
     } ChannelOne;
 

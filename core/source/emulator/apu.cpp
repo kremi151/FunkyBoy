@@ -22,6 +22,7 @@
 
 #define FB_INCREASE_BIT 0b00001000u
 #define FB_TRIGGER_BIT 0b10000000u
+#define FB_LENGTH_DATA_BITS 0b00111111
 
 #define FB_FRAME_SEQ_MOD_DMG 0b0010000000000000
 #define FB_FRAME_SEQ_MOD_CGB 0b0100000000000000
@@ -63,11 +64,6 @@ namespace FunkyBoy::Sound {
             1,
             2,
     };
-
-    template <int maxLength>
-    inline void setLengthTimer(u8_fast nrx1, BaseChannel &channel) {
-        channel.lengthTimer = maxLength - (nrx1 & (maxLength - 1));
-    }
 
 }
 
@@ -220,7 +216,7 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
 
             // Length function
             if (channelOne.lengthTimer == 0) {
-                setLengthTimer<64>(ioRegisters.getNR11(), channelOne);
+                channelOne.lengthTimer = 64;
             }
             break;
         }
@@ -239,7 +235,7 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
 
             // Length function
             if (channelTwo.lengthTimer == 0) {
-                setLengthTimer<64>(ioRegisters.getNR21(), channelTwo);
+                channelTwo.lengthTimer = 64;
             }
             break;
         }
@@ -254,7 +250,7 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
 
             // Length function
             if (channelThree.lengthTimer == 0) {
-                setLengthTimer<256>(ioRegisters.getNR31(), channelThree);
+                channelThree.lengthTimer = 256;
             }
             break;
         }
@@ -275,7 +271,7 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
 
             // Length function
             if (channelFour.lengthTimer == 0) {
-                setLengthTimer<64>(ioRegisters.getNR41(), channelFour);
+                channelFour.lengthTimer = 64;
             }
             break;
         }
@@ -358,8 +354,10 @@ void APU::doLength(u8_fast nrx4, BaseChannel &channel) {
     if (!channel.channelEnabled) {
         return;
     }
-    if (nrx4 & 0b01000000u && --channel.lengthTimer == 0) {
-        channel.channelEnabled = false;
+    if (nrx4 & 0b01000000u && channel.lengthTimer > 0) {
+        if (--channel.lengthTimer == 0) {
+            channel.channelEnabled = false;
+        }
     }
 }
 
@@ -372,7 +370,7 @@ float APU::getChannel1DACOut() {
 
 float APU::getChannel2DACOut() {
     if (channelTwo.channelEnabled && channelTwo.dacEnabled) {
-        return (channelTwo.dacIn * channelOne.currentVolume / 7.5f) - 1.0f;
+        return (channelTwo.dacIn * channelTwo.currentVolume / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
@@ -393,8 +391,12 @@ float APU::getChannel4DACOut() {
 
 void APU::handleWrite(memory_address addr, u8_fast value) {
     // TODO: Sync channel states here
+    // TODO: Check for missing channel state updates here
 
     switch (addr) {
+        case FB_REG_NR11:
+            channelOne.lengthTimer = 64 - (value & FB_LENGTH_DATA_BITS);
+            break;
         case FB_REG_NR12:
             channelOne.dacEnabled = (value & 0b11111000) != 0;
             if (!channelOne.dacEnabled) {
@@ -405,6 +407,9 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
             if ((value & FB_TRIGGER_BIT) && channelOne.dacEnabled) {
                 doTriggerEvent(0, ioRegisters.getNR14());
             }
+            break;
+        case FB_REG_NR21:
+            channelTwo.lengthTimer = 64 - (value & FB_LENGTH_DATA_BITS);
             break;
         case FB_REG_NR22:
             channelTwo.dacEnabled = (value & 0b11111000) != 0;
@@ -423,10 +428,16 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
                 channelThree.channelEnabled = false;
             }
             break;
+        case FB_REG_NR31:
+            channelThree.lengthTimer = 256 - value;
+            break;
         case FB_REG_NR34:
             if ((value & FB_TRIGGER_BIT) && channelThree.dacEnabled) {
                 doTriggerEvent(2, ioRegisters.getNR34());
             }
+            break;
+        case FB_REG_NR41:
+            channelFour.lengthTimer = 64 - (value & FB_LENGTH_DATA_BITS);
             break;
         case FB_REG_NR42:
             channelFour.dacEnabled = (value & 0b11111000) != 0;
