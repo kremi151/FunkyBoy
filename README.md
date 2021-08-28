@@ -10,21 +10,29 @@ A Game Boy emulator written in C++.
 FunkyBoy is currently at advanced stage.
 Most of the games are already playable, albeit with some minor graphical glitches and currently without sound.
 
-|Feature name|Status|
-|------------|------|
-|Graphical output|:heavy_check_mark: Supported with some minor graphical glitches|
-|Button inputs|:heavy_check_mark: Supported|
-|Sound|:x: Not started ([Issue #51](https://github.com/kremi151/FunkyBoy/issues/51))|
-|MBC1|:heavy_check_mark: Supported|
-|MBC1 Multicard|:x: Not started ([Issue #53](https://github.com/kremi151/FunkyBoy/issues/53))|
-|MBC2|:heavy_check_mark: Supported|
-|MBC3 / MBC30|:heavy_check_mark: Supported|
-|MBC5|:heavy_check_mark: Supported|
-|MBC6|:x: Not supported|
-|MBC7|:x: Not supported|
-|Real-time clock (RTC) as part of MBC3[0]|:heavy_check_mark: Supported|
-|Save games|:heavy_check_mark: Supported in SDL, libretro and Android implementations|
-|Save states|:eyes: Experimental support in SDL and libretro ([Issue #39](https://github.com/kremi151/FunkyBoy/issues/39))|
+|Feature|Core|SDL|Libretro|Android|3DS|PSP|
+|-|-|-|-|-|-|-|
+|Graphical output|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|
+|Button inputs|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|Sound ([#51](https://github.com/kremi151/FunkyBoy/issues/51))|:x:|:x:|:x:|:x:|:x:|:x:|
+|MBC1|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|MBC1 Multicard ([#53](https://github.com/kremi151/FunkyBoy/issues/53))|:x:|:x:|:x:|:x:|:x:|:x:|
+|MBC2|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|MBC3 / MBC30|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|MBC5|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
+|MBC6|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|
+|MBC7|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|:no_entry_sign:|
+|Real-time clock (RTC)|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:question:|:question:|
+|Save games|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|
+|Save states ([#39](https://github.com/kremi151/FunkyBoy/issues/39))|:heavy_check_mark:|:eyes:|:eyes:|:x:|:x:|:x:|
+
+Legend:
+:heavy_check_mark:: Supported
+:eyes:: Experimental support, may be unstable and/or might be changed in the future
+:question:: In theory supported, but untested
+:x:: Not supported for now, but planned
+:no_entry_sign:: Not supported with no current plans to do so
+\*: Supported with some minor graphical glitches
 
 ## Compatible games
 See [Compatible games](./docs/COMPATIBLE_GAMES.md)
