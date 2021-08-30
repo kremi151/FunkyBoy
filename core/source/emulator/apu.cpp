@@ -112,7 +112,7 @@ void APU::doTick() {
         }
     }
 
-    if (sysCounter % FB_SAMPLE_CLOCKS) {
+    if (sysCounter % FB_SAMPLE_CLOCKS == 0) {
         u8_fast nr50 = ioRegisters.getNR50();
         u8_fast nr51 = ioRegisters.getNR51();
         float leftVolume = ((nr50 & 0b01110000u) >> 4) / 7.0f;
@@ -130,13 +130,13 @@ void APU::doTick() {
                   + ((nr51 & 0b00000001) ? getChannel1DACOut() : 0.0f)
                 ) / 4.0f;
         if (buffer.bufferPosition >= FB_AUDIO_BUFFER_SIZE) {
+            // TODO: This is only temporary
+            controllers->getAudio()->bufferCallback(&buffer);
             // TODO: Call buffer callback -> outputs audio to device
             buffer.bufferPosition = 0;
         }
     }
 
-    // TODO: This is only temporary
-    controllers->getAudio()->bufferCallback(&buffer);
 }
 
 // TODO: Implement NR52 (master switch)

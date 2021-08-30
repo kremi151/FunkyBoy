@@ -44,11 +44,10 @@ AudioControllerSDL::AudioControllerSDL() {
     wanted.freq = 48000; // TODO: Verify
     wanted.format = AUDIO_F32SYS;
     wanted.channels = 2;
-    wanted.samples = FB_AUDIO_BUFFER_SIZE / 2;
-    wanted.callback = FunkyBoySDL::Controller::SoundInternal::fill_audio;
+    wanted.samples = FB_AUDIO_BUFFER_SIZE / sizeof(float) / 2; // TODO: Needed?
     wanted.userdata = this;
     fprintf(stdout, "Opening audio...\n");
-    deviceId = SDL_OpenAudioDevice(NULL, 0, &wanted, &obtained, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
+    deviceId = SDL_OpenAudioDevice(NULL, 0, &wanted, &obtained, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
     if (deviceId <= 0) {
         fprintf(stderr, "Opening audio failed: %s\n", SDL_GetError());
         throw FunkyBoy::Exception::WrongStateException(std::string("Could not open audio: ") + SDL_GetError());
@@ -64,5 +63,5 @@ AudioControllerSDL::~AudioControllerSDL() {
 // TODO: Refactor this by having an open method that provides a callback function pointer
 void AudioControllerSDL::bufferCallback(const AudioBuffer *bufferPtr) {
     this->lastBuffer = bufferPtr;
-    obtained.samples = bufferPtr->bufferPosition / 2;
+    SDL_QueueAudio(deviceId, static_cast<const void*>(bufferPtr->buffer), bufferPtr->bufferPosition * sizeof(float));
 }
