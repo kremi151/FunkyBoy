@@ -29,7 +29,9 @@
 
 #define FB_CPU_CLOCK 4194304
 #define FB_SAMPLE_RATE 48000
-#define FB_SAMPLE_CLOCKS (FB_CPU_CLOCK / FB_SAMPLE_RATE)
+
+// TODO: Solve the mystery of the magic number "4" (Seriously though, why doesn't it work without it ?!?)
+#define FB_SAMPLE_CLOCKS (FB_CPU_CLOCK / FB_SAMPLE_RATE / 4)
 
 namespace FunkyBoy::Sound {
 
@@ -76,6 +78,7 @@ APU::APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::Contro
     , frameSeqStep(7)
 {
     initChannels();
+    fprintf(stdout, "Queue audio every %d ticks\n", FB_SAMPLE_CLOCKS);
 }
 
 void APU::initChannels() {

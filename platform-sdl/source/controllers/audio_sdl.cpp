@@ -64,4 +64,5 @@ AudioControllerSDL::~AudioControllerSDL() {
 void AudioControllerSDL::bufferCallback(const AudioBuffer *bufferPtr) {
     this->lastBuffer = bufferPtr;
     SDL_QueueAudio(deviceId, static_cast<const void*>(bufferPtr->buffer), bufferPtr->bufferPosition * sizeof(float));
+    while (SDL_GetQueuedAudioSize(deviceId) > FB_AUDIO_BUFFER_SIZE * sizeof(float)) {}
 }
