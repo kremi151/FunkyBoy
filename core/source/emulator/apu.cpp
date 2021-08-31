@@ -33,6 +33,9 @@
 // TODO: Solve the mystery of the magic number "4" (Seriously though, why doesn't it work without it ?!?)
 #define FB_SAMPLE_CLOCKS (FB_CPU_CLOCK / FB_SAMPLE_RATE / 4)
 
+//#define FB_SAMPLE_BASE_VALUE 0.75f
+#define FB_SAMPLE_BASE_VALUE 0.0f
+
 namespace FunkyBoy::Sound {
 
     const FunkyBoy::u8 DutyWaveforms[4][8] = {
@@ -120,13 +123,14 @@ void APU::doTick() {
         u8_fast nr51 = ioRegisters.getNR51();
         float leftVolume = ((nr50 & 0b01110000u) >> 4) / 7.0f;
         float rightVolume = (nr50 & 0b00000111u) / 7.0f;
-        buffer.buffer[buffer.bufferPosition++] = 0.75f + leftVolume * (
+
+        buffer.buffer[buffer.bufferPosition++] = FB_SAMPLE_BASE_VALUE + leftVolume * (
                   ((nr51 & 0b10000000) ? getChannel4DACOut() : 0.0f)
                   + ((nr51 & 0b01000000) ? getChannel3DACOut() : 0.0f)
                   + ((nr51 & 0b00100000) ? getChannel2DACOut() : 0.0f)
                   + ((nr51 & 0b00010000) ? getChannel1DACOut() : 0.0f)
                 ) / 4.0f;
-        buffer.buffer[buffer.bufferPosition++] = 0.75f + rightVolume * (
+        buffer.buffer[buffer.bufferPosition++] = FB_SAMPLE_BASE_VALUE + rightVolume * (
                   ((nr51 & 0b00001000) ? getChannel4DACOut() : 0.0f)
                   + ((nr51 & 0b00000100) ? getChannel3DACOut() : 0.0f)
                   + ((nr51 & 0b00000010) ? getChannel2DACOut() : 0.0f)
