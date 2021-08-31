@@ -30,8 +30,12 @@
 #define FB_CPU_CLOCK 4194304
 #define FB_SAMPLE_RATE 48000
 
-// TODO: Solve the mystery of the magic number "4" (Seriously though, why doesn't it work without it ?!?)
-#define FB_SAMPLE_CLOCKS (FB_CPU_CLOCK / FB_SAMPLE_RATE / 4)
+// Increasing this will lead to more samples being collected in a shorter time frame.
+// Samples will also be collected more frequently.
+// Increase this if you notice gaps in the audio output.
+#define FB_SAMPLE_FACTOR 4
+
+#define FB_SAMPLE_CLOCKS (FB_CPU_CLOCK / FB_SAMPLE_RATE / FB_SAMPLE_FACTOR)
 
 //#define FB_SAMPLE_BASE_VALUE 0.75f
 #define FB_SAMPLE_BASE_VALUE 0.0f
@@ -152,7 +156,7 @@ void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_f
     if (--channel.freqTimer > 0) {
         return;
     }
-    channel.freqTimer = (2048 - getChannelFrequency(nrx3, nrx4));
+    channel.freqTimer = ((2048 - getChannelFrequency(nrx3, nrx4)) * 4) / FB_SAMPLE_FACTOR;
     channel.wavePosition = (channel.wavePosition + 1) % 8;
 
     channel.dacIn = DutyWaveforms[(nrx1 >> 6) & 0b11][channel.wavePosition];
@@ -162,13 +166,12 @@ void APU::tickChannel3() {
     if (--channelThree.freqTimer > 0) {
         return;
     }
-    channelThree.freqTimer = (2048 - getChannel3Frequency()) * 4;
+    channelThree.freqTimer = ((2048 - getChannel3Frequency()) * 2) / FB_SAMPLE_FACTOR;
     channelThree.wavePosition = (channelThree.wavePosition + 1) % 32;
 
     u8_fast sample = ioRegisters.getWaveRAM()[channelThree.wavePosition / 2];
-    sample = sample >> ((((channelThree.wavePosition & 1) != 0) ? 4 : 0)) & 0b00001111;
+    sample = (sample >> (((channelThree.wavePosition & 1u) != 0) ? 4u : 0u)) & 0b00001111u;
 
-    // Set DAC input here because channel 3 doesn't have an envelope function
     channelThree.dacIn = sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5];
 }
 
@@ -178,7 +181,7 @@ void APU::tickChannel4() {
     }
     const u8_fast nr43 = ioRegisters.getNR43();
     const u8_fast shift = (nr43 & 0b11110000) >> 4;
-    channelFour.freqTimer = Divisors[nr43 & 0b00000111] << shift;
+    channelFour.freqTimer = (Divisors[nr43 & 0b00000111] << shift) / FB_SAMPLE_FACTOR;
 
     const u16_fast xorResult = (channelFour.lfsr % 0b01) ^ ((channelFour.lfsr & 0b10) >> 1);
     channelFour.lfsr = (channelFour.lfsr >> 1) | (xorResult << 14);
