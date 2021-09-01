@@ -23,7 +23,7 @@ namespace FunkyBoy::Controller {
 
     class AudioControllerVoid: public AudioController {
     public:
-        void bufferCallback(const AudioBuffer *bufferPtr) override;
+        void pushSample(float left, float right) override;
     };
 
 }

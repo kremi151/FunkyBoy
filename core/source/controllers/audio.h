@@ -21,22 +21,13 @@
 
 #define FB_AUDIO_BUFFER_SIZE 4096
 
-namespace FunkyBoy {
-
-    typedef struct {
-        float buffer[FB_AUDIO_BUFFER_SIZE];
-        size_t bufferPosition;
-    } AudioBuffer;
-
-}
-
 namespace FunkyBoy::Controller {
 
     class AudioController {
     public:
         virtual ~AudioController() = default;
 
-        virtual void bufferCallback(const AudioBuffer *bufferPtr) = 0;
+        virtual void pushSample(float left, float right) = 0;
     };
 
     typedef std::shared_ptr<AudioController> AudioControllerPtr;

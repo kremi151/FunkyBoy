@@ -72,8 +72,6 @@ namespace FunkyBoy::Sound {
         const u16_fast frameSeqMod;
         u8_fast frameSeqStep;
 
-        AudioBuffer buffer{};
-
         ChannelOne channelOne{};
         ChannelTwo channelTwo{};
         ChannelThree channelThree{};

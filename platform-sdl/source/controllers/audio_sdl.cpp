@@ -19,25 +19,6 @@
 #include <string>
 #include <exception/state_exception.h>
 
-namespace FunkyBoySDL::Controller::SoundInternal {
-
-    void fill_audio(void *udata, Uint8 *stream, int len) {
-        // FunkyBoy::Controller::AudioControllerSDL &audio = *static_cast<FunkyBoy::Controller::AudioControllerSDL*>(udata);
-        if (udata == nullptr) {
-            return;
-        }
-        auto audio = static_cast<FunkyBoy::Controller::AudioControllerSDL*>(udata);
-        if (audio->lastBuffer != nullptr) {
-            const auto &bufferObj = *audio->lastBuffer;
-            auto buffer = static_cast<const Uint8*>(static_cast<const void*>(bufferObj.buffer));
-            //fprintf(stdout, "# fill_audio A %f %f\n", audio->lastBuffer[0], audio->lastBuffer[1]);
-            fprintf(stdout, "# fill_audio A %d %d\n", buffer[0], buffer[1]);
-            memcpy(stream, buffer, len);
-        }
-    }
-
-}
-
 using namespace FunkyBoy::Controller;
 
 AudioControllerSDL::AudioControllerSDL() {
@@ -60,9 +41,14 @@ AudioControllerSDL::~AudioControllerSDL() {
     SDL_CloseAudioDevice(deviceId);
 }
 
-// TODO: Refactor this by having an open method that provides a callback function pointer
-void AudioControllerSDL::bufferCallback(const AudioBuffer *bufferPtr) {
-    this->lastBuffer = bufferPtr;
-    SDL_QueueAudio(deviceId, static_cast<const void*>(bufferPtr->buffer), bufferPtr->bufferPosition * sizeof(float));
-    while (SDL_GetQueuedAudioSize(deviceId) > FB_AUDIO_BUFFER_SIZE * sizeof(float)) {}
+void AudioControllerSDL::pushSample(float left, float right) {
+    buffer[bufferPosition++] = left;
+    buffer[bufferPosition++] = right;
+    if (bufferPosition >= FB_AUDIO_BUFFER_SIZE) {
+        SDL_QueueAudio(deviceId, static_cast<const void*>(buffer), bufferPosition * sizeof(float));
+        bufferPosition = 0;
+        while (SDL_GetQueuedAudioSize(deviceId) > FB_AUDIO_BUFFER_SIZE * sizeof(float)) {
+            // Wait for Audio to be played to reduce latency
+        }
+    }
 }

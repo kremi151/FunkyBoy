@@ -128,24 +128,20 @@ void APU::doTick() {
         float leftVolume = ((nr50 & 0b01110000u) >> 4) / 7.0f;
         float rightVolume = (nr50 & 0b00000111u) / 7.0f;
 
-        buffer.buffer[buffer.bufferPosition++] = FB_SAMPLE_BASE_VALUE + leftVolume * (
-                  ((nr51 & 0b10000000) ? getChannel4DACOut() : 0.0f)
-                  + ((nr51 & 0b01000000) ? getChannel3DACOut() : 0.0f)
-                  + ((nr51 & 0b00100000) ? getChannel2DACOut() : 0.0f)
-                  + ((nr51 & 0b00010000) ? getChannel1DACOut() : 0.0f)
-                ) / 4.0f;
-        buffer.buffer[buffer.bufferPosition++] = FB_SAMPLE_BASE_VALUE + rightVolume * (
-                  ((nr51 & 0b00001000) ? getChannel4DACOut() : 0.0f)
-                  + ((nr51 & 0b00000100) ? getChannel3DACOut() : 0.0f)
-                  + ((nr51 & 0b00000010) ? getChannel2DACOut() : 0.0f)
-                  + ((nr51 & 0b00000001) ? getChannel1DACOut() : 0.0f)
-                ) / 4.0f;
-        if (buffer.bufferPosition >= FB_AUDIO_BUFFER_SIZE) {
-            // TODO: This is only temporary
-            controllers->getAudio()->bufferCallback(&buffer);
-            // TODO: Call buffer callback -> outputs audio to device
-            buffer.bufferPosition = 0;
-        }
+        controllers->getAudio()->pushSample(
+                FB_SAMPLE_BASE_VALUE + leftVolume * (
+                        ((nr51 & 0b10000000) ? getChannel4DACOut() : 0.0f)
+                        + ((nr51 & 0b01000000) ? getChannel3DACOut() : 0.0f)
+                        + ((nr51 & 0b00100000) ? getChannel2DACOut() : 0.0f)
+                        + ((nr51 & 0b00010000) ? getChannel1DACOut() : 0.0f)
+                ) / 4.0f,
+                FB_SAMPLE_BASE_VALUE + rightVolume * (
+                        ((nr51 & 0b00001000) ? getChannel4DACOut() : 0.0f)
+                        + ((nr51 & 0b00000100) ? getChannel3DACOut() : 0.0f)
+                        + ((nr51 & 0b00000010) ? getChannel2DACOut() : 0.0f)
+                        + ((nr51 & 0b00000001) ? getChannel1DACOut() : 0.0f)
+                ) / 4.0f
+        );
     }
 
 }

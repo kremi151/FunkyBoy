@@ -18,6 +18,6 @@
 
 using namespace FunkyBoy::Controller;
 
-void AudioControllerVoid::bufferCallback(const AudioBuffer*) {
+void AudioControllerVoid::pushSample(float, float) {
     // Do nothing
 }

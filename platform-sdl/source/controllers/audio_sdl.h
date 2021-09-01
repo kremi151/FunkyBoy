@@ -27,13 +27,14 @@ namespace FunkyBoy::Controller {
         SDL_AudioSpec wanted{};
         SDL_AudioSpec obtained{};
         SDL_AudioDeviceID deviceId;
-    public:
-        const AudioBuffer *lastBuffer{};
 
+        float buffer[FB_AUDIO_BUFFER_SIZE]{};
+        size_t bufferPosition{};
+    public:
         explicit AudioControllerSDL();
         ~AudioControllerSDL() override;
 
-        void bufferCallback(const AudioBuffer *bufferPtr) override;
+        void pushSample(float left, float right) override;
     };
 
 }
