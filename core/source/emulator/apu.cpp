@@ -83,6 +83,7 @@ APU::APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::Contro
     , controllers(std::move(controllers))
     , frameSeqMod(gbType == GameBoyDMG ? FB_FRAME_SEQ_MOD_DMG : FB_FRAME_SEQ_MOD_CGB)
     , frameSeqStep(7)
+    , apuEnabled(false)
 {
     initChannels();
     fprintf(stdout, "Queue audio every %d ticks\n", FB_SAMPLE_CLOCKS);
@@ -96,6 +97,9 @@ void APU::initChannels() {
 }
 
 void APU::doTick() {
+    if (!apuEnabled) {
+        return;
+    }
     u16_fast sysCounter = ioRegisters.getSysCounter();
 
     tickChannel1Or2(channelOne, ioRegisters.getNR11(), ioRegisters.getNR13(), ioRegisters.getNR14());
@@ -186,7 +190,6 @@ void APU::tickChannel4() {
         channelFour.lfsr |= xorResult << 6;
     }
 
-    // TODO: Amplitude = ~LFSR & 0x01;
     channelFour.dacIn = ~channelFour.lfsr & 0b01;
 }
 
@@ -456,6 +459,26 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
                 doTriggerEvent(3, ioRegisters.getNR44());
             }
             break;
+        case FB_REG_NR52: {
+            // TODO: Implement read of sound ON flags
+            bool enabled = value & 0b10000000u;
+            if (!enabled && apuEnabled) {
+                for (memory_address addr = FB_REG_NR10 ; addr <= FB_REG_NR51 ; addr++) {
+                    writeToMemory(addr, 0x00);
+                }
+
+                apuEnabled = false;
+            } else if (enabled && !apuEnabled) {
+                frameSeqStep = 0;
+
+                channelOne.wavePosition = 0;
+                channelTwo.wavePosition = 0;
+                channelThree.wavePosition = 0;
+
+                apuEnabled = true;
+            }
+            break;
+        }
         default:
             break;
     }

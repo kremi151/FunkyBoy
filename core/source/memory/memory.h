@@ -79,6 +79,8 @@ namespace FunkyBoy {
         Memory(const Memory &other) = delete;
         Memory &operator= (const Memory &other) = delete;
 
+        void init();
+
         void loadROM(std::istream &stream);
         void loadROM(std::istream &stream, bool strictSizeCheck);
 

@@ -100,6 +100,14 @@ namespace FunkyBoy::Util {
     }
 }
 
+void Memory::init() {
+#ifdef FB_USE_SOUND
+    this->apu->writeToMemory = [&](memory_address address, u8_fast value) {
+        this->write8BitsTo(address, value);
+    };
+#endif}
+}
+
 void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
     if (!stream.good()) {
 #ifdef FB_DEBUG

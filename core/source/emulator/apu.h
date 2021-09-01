@@ -19,10 +19,17 @@
 
 #ifdef FB_USE_SOUND
 
+#include <functional>
 #include <util/typedefs.h>
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
 #include <controllers/controllers.h>
+
+namespace FunkyBoy {
+
+    FB_FORWARD_DECLARE Memory;
+
+}
 
 namespace FunkyBoy::Sound {
 
@@ -69,8 +76,12 @@ namespace FunkyBoy::Sound {
 
         io_registers ioRegisters;
 
+        std::function<void(memory_address, u8_fast)> writeToMemory;
+
         const u16_fast frameSeqMod;
         u8_fast frameSeqStep;
+
+        bool apuEnabled;
 
         ChannelOne channelOne{};
         ChannelTwo channelTwo{};
@@ -124,6 +135,8 @@ namespace FunkyBoy::Sound {
         void doTick();
 
         void handleWrite(memory_address addr, u8_fast value);
+
+        friend Memory;
     };
 
 }

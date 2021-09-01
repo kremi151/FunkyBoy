@@ -24,6 +24,8 @@
 
 #define FB_TARGET_FPS 59.7154
 
+#define FB_FORWARD_DECLARE class
+
 // Buffer size which is guaranteed to be large enough to fit a save state in it
 #define FB_SAVE_STATE_MAX_BUFFER_SIZE (105 * 1024)
 

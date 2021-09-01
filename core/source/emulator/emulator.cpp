@@ -47,6 +47,8 @@ Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& control
     , savePath()
 #endif
 {
+    memory.init();
+
     // Initialize registers
     cpu.powerUpInit(memory);
 }
