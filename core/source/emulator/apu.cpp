@@ -57,7 +57,7 @@ namespace FunkyBoy::Sound {
     };
 
     const FunkyBoy::u8 Divisors[8] = {
-            0,
+            8,
             16,
             32,
             48,
