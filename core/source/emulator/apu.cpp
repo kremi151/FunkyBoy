@@ -183,7 +183,7 @@ void APU::tickChannel4() {
     const u8_fast shift = (nr43 & 0b11110000) >> 4;
     channelFour.freqTimer = (Divisors[nr43 & 0b00000111] << shift) / FB_SAMPLE_FACTOR;
 
-    const u16_fast xorResult = (channelFour.lfsr % 0b01) ^ ((channelFour.lfsr & 0b10) >> 1);
+    const u16_fast xorResult = (channelFour.lfsr & 0b01) ^ ((channelFour.lfsr & 0b10) >> 1);
     channelFour.lfsr = (channelFour.lfsr >> 1) | (xorResult << 14);
     if (nr43 & 0b00001000) {
         channelFour.lfsr &= ~(1 << 6);
