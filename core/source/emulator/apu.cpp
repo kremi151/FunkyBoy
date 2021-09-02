@@ -291,10 +291,6 @@ void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
 }
 
 void APU::doEnvelope(u8_fast nrx2, EnvelopeChannel &channel) {
-    if (!channel.channelEnabled) {
-        return;
-    }
-
     if (channel.periodTimer == 0) {
         return;
     }
@@ -316,9 +312,6 @@ void APU::doEnvelope(u8_fast nrx2, EnvelopeChannel &channel) {
 }
 
 void APU::doSweepOnChannel1() {
-    if (!channelOne.channelEnabled) {
-        return;
-    }
     if (channelOne.sweepTimer > 0) {
         channelOne.sweepTimer--;
     }
@@ -360,9 +353,6 @@ FunkyBoy::u16_fast APU::calculateSweepFrequency(u8_fast shift, bool increase, Ch
 }
 
 void APU::doLength(u8_fast nrx4, BaseChannel &channel) {
-    if (!channel.channelEnabled) {
-        return;
-    }
     if (nrx4 & 0b01000000u && channel.lengthTimer > 0) {
         if (--channel.lengthTimer == 0) {
             channel.channelEnabled = false;
