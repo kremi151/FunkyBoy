@@ -40,7 +40,6 @@ namespace FunkyBoy::Sound {
         u16_fast freqTimer;
 
         bool dacEnabled;
-        float dacIn;
     } BaseChannel;
 
     typedef struct BaseChannelType : BaseChannel {
@@ -96,7 +95,7 @@ namespace FunkyBoy::Sound {
         static u16_fast calculateSweepFrequency(u8_fast shift, bool increase, ChannelOne &channel);
         static void doLength(u8_fast nrx4, BaseChannel &channel);
 
-        static void tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_fast nrx4);
+        static void tickChannel1Or2(ToneChannel &channel, u8_fast nrx3, u8_fast nrx4);
         void tickChannel3();
         void tickChannel4();
 

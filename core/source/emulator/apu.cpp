@@ -49,13 +49,6 @@ namespace FunkyBoy::Sound {
             {0, 1, 1, 1, 1, 1, 1, 0}
     };
 
-    const float DutyRatios[4] = {
-            12.5,
-            25.0,
-            50.0,
-            75.0,
-    };
-
     const FunkyBoy::u8 Divisors[8] = {
             8,
             16,
@@ -102,8 +95,8 @@ void APU::doTick() {
     }
     u16_fast sysCounter = ioRegisters.getSysCounter();
 
-    tickChannel1Or2(channelOne, ioRegisters.getNR11(), ioRegisters.getNR13(), ioRegisters.getNR14());
-    tickChannel1Or2(channelTwo, ioRegisters.getNR21(), ioRegisters.getNR23(), ioRegisters.getNR24());
+    tickChannel1Or2(channelOne, ioRegisters.getNR13(), ioRegisters.getNR14());
+    tickChannel1Or2(channelTwo, ioRegisters.getNR23(), ioRegisters.getNR24());
     tickChannel3();
     tickChannel4();
 
@@ -152,14 +145,12 @@ void APU::doTick() {
 
 // TODO: Implement NR52 (master switch)
 
-void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx1, u8_fast nrx3, u8_fast nrx4) {
+void APU::tickChannel1Or2(ToneChannel &channel, u8_fast nrx3, u8_fast nrx4) {
     if (--channel.freqTimer > 0) {
         return;
     }
     channel.freqTimer = ((2048 - getChannelFrequency(nrx3, nrx4)) * 4) / FB_SAMPLE_FACTOR;
     channel.wavePosition = (channel.wavePosition + 1) % 8;
-
-    channel.dacIn = DutyWaveforms[(nrx1 >> 6) & 0b11][channel.wavePosition];
 }
 
 void APU::tickChannel3() {
@@ -168,11 +159,6 @@ void APU::tickChannel3() {
     }
     channelThree.freqTimer = ((2048 - getChannel3Frequency()) * 2) / FB_SAMPLE_FACTOR;
     channelThree.wavePosition = (channelThree.wavePosition + 1) % 32;
-
-    u8_fast sample = ioRegisters.getWaveRAM()[channelThree.wavePosition / 2];
-    sample = (sample >> (((channelThree.wavePosition & 1u) != 0) ? 4u : 0u)) & 0b00001111u;
-
-    channelThree.dacIn = sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5];
 }
 
 void APU::tickChannel4() {
@@ -189,8 +175,6 @@ void APU::tickChannel4() {
         channelFour.lfsr &= ~(1 << 6);
         channelFour.lfsr |= xorResult << 6;
     }
-
-    channelFour.dacIn = ~channelFour.lfsr & 0b01;
 }
 
 void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
@@ -362,28 +346,35 @@ void APU::doLength(u8_fast nrx4, BaseChannel &channel) {
 
 float APU::getChannel1DACOut() {
     if (channelOne.channelEnabled && channelOne.dacEnabled) {
-        return (channelOne.dacIn * channelOne.currentVolume / 7.5f) - 1.0f;
+        float dacIn = DutyWaveforms[(ioRegisters.getNR11() >> 6) & 0b11][channelOne.wavePosition];
+        return (dacIn * channelOne.currentVolume / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
 
 float APU::getChannel2DACOut() {
     if (channelTwo.channelEnabled && channelTwo.dacEnabled) {
-        return (channelTwo.dacIn * channelTwo.currentVolume / 7.5f) - 1.0f;
+        float dacIn = DutyWaveforms[(ioRegisters.getNR21() >> 6) & 0b11][channelTwo.wavePosition];
+        return (dacIn * channelTwo.currentVolume / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
 
 float APU::getChannel3DACOut() {
     if (channelThree.dacEnabled) {
-        return (channelThree.dacIn / 7.5f) - 1.0f;
+        u8_fast sample = ioRegisters.getWaveRAM()[channelThree.wavePosition / 2];
+        sample = (sample >> (((channelThree.wavePosition & 1u) != 0) ? 4u : 0u)) & 0b00001111u;
+
+        float dacIn = sample >> ChannelThreeShifts[(ioRegisters.getNR32() & 0b01100000) >> 5];
+        return (dacIn / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
 
 float APU::getChannel4DACOut() {
     if (channelFour.channelEnabled && channelFour.dacEnabled) {
-        return (channelFour.dacIn * channelFour.currentVolume / 7.5f) - 1.0f;
+        float dacIn = ~channelFour.lfsr & 0b01;
+        return (dacIn * channelFour.currentVolume / 7.5f) - 1.0f;
     }
     return 0.0f;
 }
