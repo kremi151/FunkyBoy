@@ -100,7 +100,7 @@ namespace FunkyBoy::Sound {
         void tickChannel4();
 
 
-        void doTriggerEvent(int channelNbr, u8_fast nrx4);
+        void doTriggerEvent(int channelNbr);
 
         float getChannel1DACOut();
         float getChannel2DACOut();

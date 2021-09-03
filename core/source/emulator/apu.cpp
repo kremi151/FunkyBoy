@@ -177,7 +177,7 @@ void APU::tickChannel4() {
     }
 }
 
-void APU::doTriggerEvent(int channelNbr, u8_fast nrx4) {
+void APU::doTriggerEvent(int channelNbr) {
     switch (channelNbr) {
         case 0: {
             if (channelOne.dacEnabled) {
@@ -395,7 +395,7 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
             break;
         case FB_REG_NR14:
             if ((value & FB_TRIGGER_BIT) && channelOne.dacEnabled) {
-                doTriggerEvent(0, ioRegisters.getNR14());
+                doTriggerEvent(0);
             }
             break;
         case FB_REG_NR21:
@@ -409,7 +409,7 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
             break;
         case FB_REG_NR24:
             if ((value & FB_TRIGGER_BIT) && channelTwo.dacEnabled) {
-                doTriggerEvent(1, ioRegisters.getNR24());
+                doTriggerEvent(1);
             }
             break;
         case FB_REG_NR30:
@@ -423,7 +423,7 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
             break;
         case FB_REG_NR34:
             if ((value & FB_TRIGGER_BIT) && channelThree.dacEnabled) {
-                doTriggerEvent(2, ioRegisters.getNR34());
+                doTriggerEvent(2);
             }
             break;
         case FB_REG_NR41:
@@ -437,7 +437,7 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
             break;
         case FB_REG_NR44:
             if ((value & FB_TRIGGER_BIT) && channelFour.dacEnabled) {
-                doTriggerEvent(3, ioRegisters.getNR44());
+                doTriggerEvent(3);
             }
             break;
         case FB_REG_NR52: {
