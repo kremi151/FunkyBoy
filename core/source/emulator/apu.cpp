@@ -465,4 +465,24 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
     }
 }
 
+void APU::serialize(std::ostream &ostream) const {
+    channelOne.serialize(ostream);
+    channelTwo.serialize(ostream);
+    channelThree.serialize(ostream);
+    channelFour.serialize(ostream);
+
+    ostream.put(frameSeqStep);
+    ostream.put(apuEnabled);
+}
+
+void APU::deserialize(std::istream &istream) {
+    channelOne.deserialize(istream);
+    channelTwo.deserialize(istream);
+    channelThree.deserialize(istream);
+    channelFour.deserialize(istream);
+
+    frameSeqStep = istream.get();
+    apuEnabled = istream.get();
+}
+
 #endif

@@ -19,6 +19,13 @@ set(SOURCES
         source/emulator/cpu.cpp
         source/emulator/ppu.cpp
         source/emulator/apu.cpp
+        source/emulator/audio/channel_base.cpp
+        source/emulator/audio/channel_envelope.cpp
+        source/emulator/audio/channel_wave.cpp
+        source/emulator/audio/channel_tone.cpp
+        source/emulator/audio/channel_one.cpp
+        source/emulator/audio/channel_three.cpp
+        source/emulator/audio/channel_four.cpp
         source/controllers/controllers.cpp
         source/controllers/serial_null.cpp
         source/controllers/display_void.cpp
@@ -60,6 +67,14 @@ set(HEADERS
         source/emulator/cpu.h
         source/emulator/ppu.h
         source/emulator/apu.h
+        source/emulator/audio/channel_base.h
+        source/emulator/audio/channel_envelope.h
+        source/emulator/audio/channel_wave.h
+        source/emulator/audio/channel_tone.h
+        source/emulator/audio/channel_one.h
+        source/emulator/audio/channel_two.h
+        source/emulator/audio/channel_three.h
+        source/emulator/audio/channel_four.h
         source/controllers/controllers.h
         source/controllers/serial.h
         source/controllers/serial_null.h

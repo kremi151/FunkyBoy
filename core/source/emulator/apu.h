@@ -20,9 +20,14 @@
 #ifdef FB_USE_SOUND
 
 #include <functional>
+#include <iostream>
 #include <util/typedefs.h>
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
+#include <emulator/audio/channel_one.h>
+#include <emulator/audio/channel_two.h>
+#include <emulator/audio/channel_three.h>
+#include <emulator/audio/channel_four.h>
 #include <controllers/controllers.h>
 
 namespace FunkyBoy {
@@ -32,42 +37,6 @@ namespace FunkyBoy {
 }
 
 namespace FunkyBoy::Sound {
-
-    typedef struct {
-        bool channelEnabled;
-
-        u16_fast lengthTimer; // 16 bits because channel 3 can go up to 256
-        u16_fast freqTimer;
-
-        bool dacEnabled;
-    } BaseChannel;
-
-    typedef struct BaseChannelType : BaseChannel {
-        u8_fast periodTimer;
-        u8_fast currentVolume;
-    } EnvelopeChannel;
-
-    typedef struct WaveChannelType {
-        u8_fast wavePosition;
-    } WaveChannel;
-
-    typedef struct ToneChannelType : EnvelopeChannel, WaveChannel {
-    } ToneChannel;
-
-    typedef struct ChannelOneType : ToneChannel {
-        bool sweepEnabled;
-        u8_fast sweepTimer;
-        u8_fast shadowFrequency;
-    } ChannelOne;
-
-    typedef ToneChannel ChannelTwo;
-
-    typedef struct ChannelThreeType : BaseChannel, WaveChannel {
-    } ChannelThree;
-
-    typedef struct ChannelFourType : EnvelopeChannel {
-        u16_fast lfsr;
-    } ChannelFour;
 
     class APU {
     private:
@@ -134,6 +103,9 @@ namespace FunkyBoy::Sound {
         void doTick();
 
         void handleWrite(memory_address addr, u8_fast value);
+
+        void serialize(std::ostream &ostream) const;
+        void deserialize(std::istream &istream);
 
         friend Memory;
     };

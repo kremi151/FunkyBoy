@@ -23,6 +23,18 @@
 #include <exception/read_exception.h>
 #include <cstring>
 
+namespace FunkyBoy {
+
+    inline u8 getFeatureBitmap() {
+        u8 features = 0;
+#ifdef FB_USE_SOUND
+        features |= 0b00000001u;
+#endif
+        return features;
+    }
+
+}
+
 using namespace FunkyBoy;
 
 Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
@@ -100,10 +112,11 @@ void Emulator::writeCartridgeRam(std::ostream &stream) {
     memory.writeRam(stream);
 }
 
-#define FB_SAVE_STATE_VERSION 1
+#define FB_SAVE_STATE_VERSION 2
 
 void Emulator::saveState(std::ostream &ostream) {
     ostream.put(FB_SAVE_STATE_VERSION);
+    ostream.put(getFeatureBitmap());
 
     if (memory.getCartridgeStatus() == CartridgeStatus::Loaded) {
         ostream.put(true);
@@ -120,12 +133,20 @@ void Emulator::saveState(std::ostream &ostream) {
     ioRegisters.serialize(ostream);
     ppuMemory.serialize(ostream);
     memory.serialize(ostream);
+#ifdef FB_USE_SOUND
+    apu.serialize(ostream);
+#endif
 }
 
 void Emulator::loadState(std::istream &istream) {
     int version = istream.get();
     if (version != FB_SAVE_STATE_VERSION) {
         throw Exception::ReadException("Save state version mismatch");
+    }
+
+    u8 features = istream.get();
+    if (features != getFeatureBitmap()) {
+        throw Exception::ReadException("Features mismatch");
     }
 
     bool hasRom = istream.get();
@@ -150,6 +171,9 @@ void Emulator::loadState(std::istream &istream) {
     ioRegisters.deserialize(istream);
     ppuMemory.deserialize(istream);
     memory.deserialize(istream);
+#ifdef FB_USE_SOUND
+    apu.deserialize(istream);
+#endif
     if (!istream) {
         throw Exception::ReadException("Stream is too short (Emulator)");
     }
