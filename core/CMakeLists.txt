@@ -18,9 +18,18 @@ set(SOURCES
         source/emulator/io_registers.cpp
         source/emulator/cpu.cpp
         source/emulator/ppu.cpp
+        source/emulator/apu.cpp
+        source/emulator/audio/channel_base.cpp
+        source/emulator/audio/channel_envelope.cpp
+        source/emulator/audio/channel_wave.cpp
+        source/emulator/audio/channel_tone.cpp
+        source/emulator/audio/channel_one.cpp
+        source/emulator/audio/channel_three.cpp
+        source/emulator/audio/channel_four.cpp
         source/controllers/controllers.cpp
         source/controllers/serial_null.cpp
         source/controllers/display_void.cpp
+        source/controllers/audio_void.cpp
         source/util/romsizes.cpp
         source/memory/memory.cpp
         source/cartridge/mbc1.cpp
@@ -57,12 +66,23 @@ set(HEADERS
         source/emulator/io_registers.h
         source/emulator/cpu.h
         source/emulator/ppu.h
+        source/emulator/apu.h
+        source/emulator/audio/channel_base.h
+        source/emulator/audio/channel_envelope.h
+        source/emulator/audio/channel_wave.h
+        source/emulator/audio/channel_tone.h
+        source/emulator/audio/channel_one.h
+        source/emulator/audio/channel_two.h
+        source/emulator/audio/channel_three.h
+        source/emulator/audio/channel_four.h
         source/controllers/controllers.h
         source/controllers/serial.h
         source/controllers/serial_null.h
         source/controllers/joypad.h
         source/controllers/display.h
         source/controllers/display_void.h
+        source/controllers/audio.h
+        source/controllers/audio_void.h
         source/util/typedefs.h
         source/cartridge/header.h
         source/util/romsizes.h
@@ -148,6 +168,9 @@ target_compile_definitions(fb_core PUBLIC -DHAS_UNISTD_USLEEP=$<BOOL:${CAN_COMPI
 # Macros
 macro(fb_use_autosave target)
     target_compile_definitions(${target} PUBLIC -DFB_USE_AUTOSAVE)
+endmacro()
+macro(fb_use_sound target)
+    target_compile_definitions(${target} PUBLIC -DFB_USE_SOUND)
 endmacro()
 
 target_link_libraries(fb_core CXX::Filesystem)

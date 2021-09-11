@@ -17,6 +17,7 @@
 #include <libretro.h>
 #include <emulator/emulator.h>
 #include <controllers/display.h>
+#include <controllers/audio.h>
 #include <util/frame_executor.h>
 #include <util/membuf.h>
 
@@ -26,6 +27,7 @@
 #include <exception>
 
 #include "display_libretro.h"
+#include "audio_libretro.h"
 
 using namespace FunkyBoy;
 
@@ -52,6 +54,7 @@ extern "C" {
 
     static std::unique_ptr<Emulator> emulator;
     static std::shared_ptr<Controller::DisplayController> displayController;
+    static std::shared_ptr<Controller::AudioController> audioController;
 
     static FunkyBoy::Util::FrameExecutor executeFrame(nullptr, 1.0);
 
@@ -74,11 +77,14 @@ extern "C" {
         currentControllerPort = 0;
 
         displayController = std::make_shared<Controller::DisplayControllerLibretro>();
+        audioController = std::make_shared<Controller::AudioControllerLibretro>();
 
         dynamic_cast<Controller::DisplayControllerLibretro&>(*displayController).setVideoCallback(video_cb);
+        dynamic_cast<Controller::AudioControllerLibretro&>(*audioController).setAudioCallback(audio_cb);
 
         auto controllers = std::make_shared<Controller::Controllers>();
         controllers->setDisplay(displayController);
+        controllers->setAudio(audioController);
         emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
 
         executeFrame = FunkyBoy::Util::FrameExecutor([&]() {
@@ -122,8 +128,7 @@ extern "C" {
         info->timing.fps = FB_TARGET_FPS;
         info->timing.sample_rate = 0.0;
 
-        // TODO: Implement sound
-        // info->timing.sample_rate = sampling_rate;
+        info->timing.sample_rate = 48000;
 
         info->geometry.base_width = FB_GB_DISPLAY_WIDTH;
         info->geometry.base_height = FB_GB_DISPLAY_HEIGHT;
@@ -144,6 +149,9 @@ extern "C" {
 
     void retro_set_audio_sample(retro_audio_sample_t cb) {
         audio_cb = cb;
+        if (audioController) {
+            dynamic_cast<Controller::AudioControllerLibretro&>(*audioController).setAudioCallback(cb);
+        }
     }
 
     void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb) {

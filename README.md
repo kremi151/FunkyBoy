@@ -14,7 +14,7 @@ Most of the games are already playable, albeit with some minor graphical glitche
 |-|-|-|-|-|-|-|
 |Graphical output|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|
 |Button inputs|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Sound ([#51](https://github.com/kremi151/FunkyBoy/issues/51))|:x:|:x:|:x:|:x:|:x:|:x:|
+|Sound ([#51](https://github.com/kremi151/FunkyBoy/issues/51))|:heavy_check_mark:|:heavy_check_mark:\*\*\*|:heavy_check_mark:|:x:|:no_entry_sign:|:no_entry_sign:|
 |MBC1|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |MBC1 Multicard ([#53](https://github.com/kremi151/FunkyBoy/issues/53))|:x:|:x:|:x:|:x:|:x:|:x:|
 |MBC2|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
@@ -34,6 +34,7 @@ Legend:
 - :no_entry_sign:: Not supported with no current plans to do so
 - \*: Supported with some minor graphical glitches
 - \*\*: Android uses save states for resuming the app state from the task manager, but there is currently no way to create save states manually
+- \*\*\*: Sound may have some cracks here and there during playback
 
 ## Compatible games
 See [Compatible games](./docs/COMPATIBLE_GAMES.md)

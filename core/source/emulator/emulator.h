@@ -31,6 +31,10 @@
 #include <memory>
 #include <iostream>
 
+#ifdef FB_USE_SOUND
+#include <emulator/apu.h>
+#endif
+
 namespace FunkyBoy {
 
     class Emulator {
@@ -48,6 +52,9 @@ namespace FunkyBoy {
         Memory memory;
         CPU cpu;
         PPU ppu;
+#ifdef FB_USE_SOUND
+        Sound::APU apu;
+#endif
     public:
 #ifdef FB_USE_AUTOSAVE
         fs::path savePath;

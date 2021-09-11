@@ -20,6 +20,7 @@
 #include <util/os_specific.h>
 #include <controllers/serial_sdl.h>
 #include <controllers/display_sdl.h>
+#include <controllers/audio_sdl.h>
 #include <ui/native_ui.h>
 #include <fstream>
 #include <cstring>
@@ -103,8 +104,19 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
     SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
 
-    controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
-    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
+    try {
+        controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
+        controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
+        controllers->setAudio(std::make_shared<Controller::AudioControllerSDL>());
+    } catch (const std::exception &ex) {
+        std::string message = FB_NAME " failed to start up correctly. Reason: ";
+        message += ex.what();
+        NativeUI::showAlert(window, NativeUI::AlertType::Error, "Error during initialization", message.c_str());
+        return false;
+    } catch (...) {
+        NativeUI::showAlert(window, NativeUI::AlertType::Error, "Error during initialization", FB_NAME " failed to start up correctly due to an unknown error");
+        return false;
+    }
 
     fs::path romPath;
     if (result.unmatched().empty()) {
