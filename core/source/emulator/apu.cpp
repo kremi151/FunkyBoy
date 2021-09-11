@@ -79,7 +79,9 @@ APU::APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::Contro
     , apuEnabled(false)
 {
     initChannels();
+#ifdef FB_DEBUG
     fprintf(stdout, "Queue audio every %d ticks\n", FB_SAMPLE_CLOCKS);
+#endif
 }
 
 void APU::initChannels() {

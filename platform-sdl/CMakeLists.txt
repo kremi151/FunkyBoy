@@ -38,6 +38,8 @@ if (OS_MACOS)
         set(SOURCES ${SOURCES} ${DARWIN_SOURCES})
 endif()
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
+
 find_package(SDL2 REQUIRED)
 
 if (OS_LINUX)

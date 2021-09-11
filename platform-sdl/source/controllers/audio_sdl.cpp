@@ -27,13 +27,17 @@ AudioControllerSDL::AudioControllerSDL() {
     wanted.channels = 2;
     wanted.samples = FB_AUDIO_BUFFER_SIZE / sizeof(float) / 2; // TODO: Needed?
     wanted.userdata = this;
+#ifdef FB_DEBUG
     fprintf(stdout, "Opening audio...\n");
+#endif
     deviceId = SDL_OpenAudioDevice(NULL, 0, &wanted, &obtained, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
     if (deviceId <= 0) {
         fprintf(stderr, "Opening audio failed: %s\n", SDL_GetError());
         throw FunkyBoy::Exception::WrongStateException(std::string("Could not open audio: ") + SDL_GetError());
     }
+#ifdef FB_DEBUG
     fprintf(stdout, "Audio opened on device %d\n", deviceId);
+#endif
     SDL_PauseAudioDevice(deviceId, 0);
 }
 
