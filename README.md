@@ -14,7 +14,7 @@ Most of the games are already playable, albeit with some minor graphical glitche
 |-|-|-|-|-|-|-|
 |Graphical output|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|:heavy_check_mark:*|
 |Button inputs|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
-|Sound ([#51](https://github.com/kremi151/FunkyBoy/issues/51))|:heavy_check_mark:|:heavy_check_mark:\*\*\*|:heavy_check_mark:|:x:|:no_entry_sign:|:no_entry_sign:|
+|Sound ([#51](https://github.com/kremi151/FunkyBoy/issues/51))|:heavy_check_mark:|:heavy_check_mark:\*\*\*|:heavy_check_mark:|:heavy_check_mark:\*\*\*|:no_entry_sign:|:no_entry_sign:|
 |MBC1|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
 |MBC1 Multicard ([#53](https://github.com/kremi151/FunkyBoy/issues/53))|:x:|:x:|:x:|:x:|:x:|:x:|
 |MBC2|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|
