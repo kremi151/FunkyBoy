@@ -28,6 +28,7 @@ set(HEADERS
         source/controllers/audio_sdl.h
         source/ui/native_ui.h
         source/window/window.h
+        source/cli/config.h
         )
 
 set(DARWIN_SOURCES
@@ -71,15 +72,47 @@ elseif(OS_LINUX)
     message(FATAL_ERROR "X11 was not found")
 endif()
 
+# Check whether we can use sys/socket.h
+string(CONFIGURE [[
+        #include <sys/socket.h>
+        #include <netinet/in.h>
+        #include <unistd.h>
+        #include <arpa/inet.h>
+
+        int main() {
+            sockaddr addr;
+            sockaddr_in sockaddr;
+            return 0;
+        }
+]] code @ONLY)
+check_cxx_source_compiles("${code}" CAN_COMPILE_BSD_SOCKET_API_H)
+if (CAN_COMPILE_BSD_SOCKET_API_H)
+    set(SOURCES
+            ${SOURCES}
+            source/sockets/bsd_common.cpp
+            source/sockets/bsd_server.cpp
+            source/sockets/bsd_client.cpp
+            source/sockets/socket_exception.cpp
+            )
+    set(HEADERS
+            ${HEADERS}
+            source/sockets/socket_interface.h
+            source/sockets/bsd_common.h
+            source/sockets/bsd_server.h
+            source/sockets/bsd_client.h
+            source/sockets/socket_exception.h
+            )
+endif()
+
 if (OS_MACOS)
     add_executable(fb_sdl MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 
     set_target_properties(fb_sdl PROPERTIES
-        BUNDLE True
-        MACOSX_BUNDLE_GUI_IDENTIFIER lu.kremi151.funkyboy.sdl
-        MACOSX_BUNDLE_BUNDLE_NAME ${FB_NAME}
-        MACOSX_BUNDLE_BUNDLE_VERSION ${FB_VERSION_MAJOR}.${FB_VERSION_MINOR}.${FB_VERSION_PATCH}
-        MACOSX_BUNDLE_SHORT_VERSION_STRING ${FB_VERSION}
+            BUNDLE True
+            MACOSX_BUNDLE_GUI_IDENTIFIER lu.kremi151.funkyboy.sdl
+            MACOSX_BUNDLE_BUNDLE_NAME ${FB_NAME}
+            MACOSX_BUNDLE_BUNDLE_VERSION ${FB_VERSION_MAJOR}.${FB_VERSION_MINOR}.${FB_VERSION_PATCH}
+            MACOSX_BUNDLE_SHORT_VERSION_STRING ${FB_VERSION}
     )
 else()
     add_executable(fb_sdl ${SOURCES} ${HEADERS})
@@ -103,6 +136,8 @@ include_directories(${FB_EXTERNAL_INCLUDE_DIRS})
 if (OS_MACOS)
         set_source_files_properties(${DARWIN_SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
 endif()
+
+target_compile_definitions(fb_sdl PUBLIC -DFB_HAS_SOCKETS=$<BOOL:${CAN_COMPILE_BSD_SOCKET_API_H}>)
 
 target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
 

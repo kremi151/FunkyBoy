@@ -64,6 +64,8 @@ Memory::Memory(
 #ifdef FB_USE_AUTOSAVE
     , cartridgeRAMWritten(false)
 #endif
+    , serialTransferClocks(-2)
+    , receivedByte(-1)
 {
     internalRam = new u8[FB_INTERNAL_RAM_SIZE]{};
     hram = new u8[FB_HRAM_SIZE]{};
@@ -109,6 +111,12 @@ void Memory::init() {
 }
 
 void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
+    controllers->getSerial()->setup([&](u8_fast data) {
+        std::cout << "Received data: " << (data & 0xFFFF) << std::endl;
+        receivedByte = data;
+        serialTransferClocks = 7;
+    });
+
     if (!stream.good()) {
 #ifdef FB_DEBUG
         fprintf(stderr, "Stream is not readable\n");
@@ -488,9 +496,11 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
             if (offset < 0xFF80) {
                 // IO registers
 
-                if (offset == FB_REG_SC) {
-                    if (val == 0x81) {
-                        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+                if (offset == FB_REG_SB) {
+                    controllers->getSerial()->setByte(val);
+                } else if (offset == FB_REG_SC) {
+                    if ((val & 0b10000001) == 0b10000001) {
+                        controllers->getSerial()->transferByte();
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;
@@ -519,14 +529,37 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
     }
 }
 
-void Memory::doDMA() {
-    if (!dmaStarted) {
+void Memory::onTick() {
+    if (dmaStarted) {
+        ppuMemory.getOAMByte(dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
+        if (++dmaLsb > 0x9F) {
+            dmaStarted = false;
+        }
+    }
+    if (serialTransferClocks > -2) {
+        if (serialTransferClocks == -1 || (serialTransferClocks > -1 && --serialTransferClocks == -1)) {
+            handleReceivedByte();
+        }
+    }
+}
+
+void Memory::handleReceivedByte() {
+    if (receivedByte < 0) {
         return;
     }
-    ppuMemory.getOAMByte(dmaLsb) = read8BitsAt(Util::compose16Bits(dmaLsb, dmaMsb));
-    if (++dmaLsb > 0x9F) {
-        dmaStarted = false;
-    }
+
+    /*u8 &sb = ioRegisters.getSB();
+    sb = (sb << 1) | (receivedByte & 0b1);*/
+    ioRegisters.getSB() = receivedByte;
+
+    u8 &sc = ioRegisters.getSC();
+    sc &= 0b01111111;
+
+    receivedByte = -1;
+    serialTransferClocks = -2;
+
+    fprintf(stdout, "[INTR] Serial\n");
+    ioRegisters.requestInterrupt(InterruptType::SERIAL);
 }
 
 void Memory::serialize(std::ostream &ostream) const {

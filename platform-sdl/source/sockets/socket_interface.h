@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_CONTROLLERS_SERIAL_H
-#define FB_CORE_CONTROLLERS_SERIAL_H
+#ifndef FB_SDL_SOCKETS_SOCKET_INTERFACE_H
+#define FB_SDL_SOCKETS_SOCKET_INTERFACE_H
 
 #include <memory>
-#include <util/typedefs.h>
 #include <functional>
+#include <util/typedefs.h>
 
-namespace FunkyBoy::Controller {
+#include <cli/config.h>
 
-    class SerialController {
+namespace FunkyBoy::SDL::Sockets {
+
+    class SocketInterface {
     public:
-        virtual ~SerialController() = default;
+        virtual ~SocketInterface() = default;
 
-        virtual void setup(std::function<void(u8_fast)> bitReceived) = 0;
+        virtual void init(const CLIConfig &config) = 0;
+        virtual void setInputByte(FunkyBoy::u8_fast byte) = 0;
+        virtual void setCallback(std::function<void(u8_fast)> bitReceivedCallback) = 0;
         virtual void transferByte() = 0;
-        virtual void setByte(u8_fast byte) = 0;
     };
 
-    typedef std::shared_ptr<SerialController> SerialControllerPtr;
+    typedef std::shared_ptr<SocketInterface> SocketInterfacePtr;
 
 }
 
-#endif //FB_CORE_CONTROLLERS_SERIAL_H
+#endif //FB_SDL_SOCKETS_SOCKET_INTERFACE_H

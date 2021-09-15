@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2021 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-#include "serial_null.h"
+#ifndef FB_SDL_SOCKETS_BSD_CLIENT_H
+#define FB_SDL_SOCKETS_BSD_CLIENT_H
 
-using namespace FunkyBoy::Controller;
+#include <netinet/in.h>
+#include <cli/config.h>
+#include "bsd_common.h"
 
-void SerialControllerVoid::setup(std::function<void(u8_fast)> bitReceived) {
-    // Do nothing
+namespace FunkyBoy::SDL::Sockets {
+
+    class BSDClient: public BSDSocketInterface {
+    protected:
+        void setupSocket(const CLIConfig &config) override;
+        void readThreadMain() override;
+    };
+
 }
 
-void SerialControllerVoid::setByte(FunkyBoy::u8_fast byte) {
-    // Do nothing
-}
-
-void SerialControllerVoid::transferByte() {
-
-}
+#endif //FB_SDL_SOCKETS_BSD_CLIENT_H

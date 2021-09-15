@@ -26,6 +26,16 @@
 #include <cstring>
 #include <exception>
 #include <thirdparty/cxxopts.hpp>
+#include <cli/config.h>
+
+#if FB_HAS_SOCKETS
+#include <regex>
+#endif
+
+#if FB_HAS_SOCKETS
+#include <sockets/bsd_server.h>
+#include <sockets/bsd_client.h>
+#endif
 
 using namespace FunkyBoy::SDL;
 
@@ -69,6 +79,14 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     cxxopts::Options options(fs::path(argv[0]).filename().string(), FB_NAME " - A Game Boy emulator" FB_OS_LINE_FEED "Version " FB_VERSION);
 
     options.add_options()
+#if FB_HAS_SOCKETS
+            ("server", "Start a server for multiplayer",
+                    cxxopts::value<int>()->default_value("8020"), "<port>")
+            ("client", "Connect to a server for multiplayer",
+                    cxxopts::value<std::string>()->default_value("localhost:8020"), "<hostname>:<port>")
+#endif
+            ("t,test", "Test whether the application can start correctly")
+            ("h,help", "Print usage")
             ("t," FB_CMD_TEST, "Test whether the application can start correctly")
             ("f," FB_CMD_FULL_SCREEN, "Launch emulator in full screen mode")
             ("h," FB_CMD_HELP, "Print usage")
@@ -85,6 +103,25 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         std::cout << FB_NAME " started up correctly" << std::endl;
         return false;
     }
+
+    FunkyBoy::SDL::CLIConfig config{};
+
+#if FB_HAS_SOCKETS
+    if (result.count("server")) {
+        config.socketServer = true;
+        config.socketPort = result["server"].as<int>();
+    } else if (result.count("client")) {
+        std::regex socketAddressRegex("([a-zA-Z0-9\\.\\-_]+):([0-9]+)");
+        std::smatch matches;
+        if (!std::regex_search(result["client"].as<std::string>(), matches, socketAddressRegex)) {
+            std::cerr << "Client address needs to be in <hostname>:<port> format!" << std::endl;
+            return false;
+        }
+        config.socketServer = false;
+        config.socketAddress = matches[1].str();
+        config.socketPort = std::stoi(matches[2].str());
+    }
+#endif
 
     window = SDL_CreateWindow(
             FB_NAME,
@@ -119,6 +156,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     }
 
     fs::path romPath;
+
     if (result.unmatched().empty()) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
 
@@ -131,21 +169,40 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         NativeUI::selectFiles(window, "Select a Game Boy ROM", romExtensions, false, selectedPaths);
 
         if (!selectedPaths.empty()) {
-            romPath = selectedPaths[0];
+            config.romPath = selectedPaths[0];
         }
     } else {
-        romPath = result.unmatched()[0];
+        config.romPath = result.unmatched()[0];
     }
-    if (romPath.empty()) {
+    if (config.romPath.empty()) {
         std::cerr << "Empty ROM path specified" << std::endl;
         return false;
     }
-    std::cout << "Loading ROM from " << romPath << "..." << std::endl;
-    auto status = emulator.loadGame(fs::path(romPath));
-    if (status == CartridgeStatus::Loaded) {
-        std::cout << "Loaded ROM at " << romPath << std::endl;
 
-        savePath = romPath;
+#if FB_HAS_SOCKETS
+    if (config.socketServer) {
+        socketInterface = std::make_shared<Sockets::BSDServer>();
+    } else if (!config.socketAddress.empty()) {
+        socketInterface = std::make_shared<Sockets::BSDClient>();
+    }
+    if (socketInterface) {
+        socketInterface->init(config);
+    }
+#endif
+
+    controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>(
+#if FB_HAS_SOCKETS
+        socketInterface
+#endif
+    ));
+    controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
+
+    std::cout << "Loading ROM from " << config.romPath << "..." << std::endl;
+    auto status = emulator.loadGame(fs::path(config.romPath));
+    if (status == CartridgeStatus::Loaded) {
+        std::cout << "Loaded ROM at " << config.romPath << std::endl;
+
+        savePath = config.romPath;
         savePath.replace_extension(".sav");
         emulator.savePath = savePath;
 
@@ -163,7 +220,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         return true;
     } else {
         std::string errorMessage = "ROM could not be loaded from ";
-        errorMessage += romPath.generic_string();
+        errorMessage += config.romPath.generic_string();
         errorMessage += "\nReason: ";
         errorMessage += getCartridgeStatusDescription(status);
         errorMessage += " (Status: ";

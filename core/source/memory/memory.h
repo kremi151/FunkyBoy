@@ -57,6 +57,11 @@ namespace FunkyBoy {
         // Do not free these pointers, they are proxies to the ones above:
         u8 *dynamicRamBank;
 
+        int serialTransferClocks;
+        int_fast16_t receivedByte;
+
+        void handleReceivedByte();
+
     test_public:
         u8 *rom;
         u8 *cram;
@@ -102,7 +107,7 @@ namespace FunkyBoy {
 
         void write8BitsTo(memory_address offset, u8 val);
 
-        void doDMA();
+        void onTick();
 
         inline u8 getIE() {
             return interruptEnableRegister;

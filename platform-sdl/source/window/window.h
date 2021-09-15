@@ -22,6 +22,10 @@
 #include <emulator/emulator.h>
 #include <util/fs.h>
 
+#if FB_HAS_SOCKETS
+#include <sockets/socket_interface.h>
+#endif
+
 namespace FunkyBoy::SDL {
 
     class Window
@@ -54,6 +58,10 @@ namespace FunkyBoy::SDL {
         bool btnDownWasPressed;
         bool btnLeftWasPressed;
         bool btnRightWasPressed;
+
+#if FB_HAS_SOCKETS
+        Sockets::SocketInterfacePtr socketInterface;
+#endif
 
         void updateInputs();
 
