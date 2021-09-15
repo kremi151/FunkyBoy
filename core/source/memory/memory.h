@@ -25,6 +25,10 @@
 #include <cartridge/mbc.h>
 #include <operands/debug.h>
 
+#ifdef FB_USE_SOUND
+#include <emulator/apu.h>
+#endif
+
 #include <iostream>
 #include <cartridge/header.h>
 
@@ -35,6 +39,11 @@ namespace FunkyBoy {
         Controller::ControllersPtr controllers;
         io_registers ioRegisters;
         PPUMemory ppuMemory;
+
+#ifdef FB_USE_SOUND
+        // This pointer is not managed by this class and therefore it shouldn't be cleaned up!!!
+        Sound::APU *apu;
+#endif
 
         u8 *internalRam;
         u8 *hram;
@@ -62,11 +71,20 @@ namespace FunkyBoy {
         std::unique_ptr<MBC> mbc;
 
     public:
-        Memory(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
+        Memory(
+                Controller::ControllersPtr controllers
+                , const io_registers& ioRegisters
+                , const PPUMemory &ppuMemory
+#ifdef FB_USE_SOUND
+                , Sound::APU *apu
+#endif
+        );
         ~Memory();
 
         Memory(const Memory &other) = delete;
         Memory &operator= (const Memory &other) = delete;
+
+        void init();
 
         void loadROM(std::istream &stream);
         void loadROM(std::istream &stream, bool strictSizeCheck);

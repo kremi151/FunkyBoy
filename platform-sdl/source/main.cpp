@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 
     FunkyBoy::SDL::NativeUI::init(argc, argv);
 
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
     FunkyBoy::SDL::Window fbWindow(FunkyBoy::GameBoyType::GameBoyDMG);
     bool romLoaded;

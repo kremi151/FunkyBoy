@@ -20,6 +20,7 @@
 #include <util/os_specific.h>
 #include <controllers/serial_sdl.h>
 #include <controllers/display_sdl.h>
+#include <controllers/audio_sdl.h>
 #include <ui/native_ui.h>
 #include <fstream>
 #include <cstring>
@@ -37,6 +38,10 @@
 #endif
 
 using namespace FunkyBoy::SDL;
+
+#define FB_CMD_TEST "test"
+#define FB_CMD_HELP "help"
+#define FB_CMD_FULL_SCREEN "full-screen"
 
 Window::Window(FunkyBoy::GameBoyType gbType)
     : gbType(gbType)
@@ -82,16 +87,19 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 #endif
             ("t,test", "Test whether the application can start correctly")
             ("h,help", "Print usage")
+            ("t," FB_CMD_TEST, "Test whether the application can start correctly")
+            ("f," FB_CMD_FULL_SCREEN, "Launch emulator in full screen mode")
+            ("h," FB_CMD_HELP, "Print usage")
             ;
     options.custom_help("[OPTION...] [<ROM PATH>]");
 
     auto result = options.parse(argc, argv);
 
-    if (result.count("help")) {
+    if (result.count(FB_CMD_HELP)) {
         std::cout << options.help() << std::endl;
         return false;
     }
-    if (result.count("test")) {
+    if (result.count(FB_CMD_TEST)) {
         std::cout << FB_NAME " started up correctly" << std::endl;
         return false;
     }
@@ -132,6 +140,22 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     SDL_RenderPresent(renderer);
 
     SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
+
+    try {
+        controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
+        controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
+        controllers->setAudio(std::make_shared<Controller::AudioControllerSDL>());
+    } catch (const std::exception &ex) {
+        std::string message = FB_NAME " failed to start up correctly. Reason: ";
+        message += ex.what();
+        NativeUI::showAlert(window, NativeUI::AlertType::Error, "Error during initialization", message.c_str());
+        return false;
+    } catch (...) {
+        NativeUI::showAlert(window, NativeUI::AlertType::Error, "Error during initialization", FB_NAME " failed to start up correctly due to an unknown error");
+        return false;
+    }
+
+    fs::path romPath;
 
     if (result.unmatched().empty()) {
         std::cerr << "No ROM specified as command line argument" << std::endl;
@@ -189,6 +213,10 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         std::string title = romTitleSafe;
         title += " - " FB_NAME;
         SDL_SetWindowTitle(window, title.c_str());
+
+        if (result.count(FB_CMD_FULL_SCREEN)) {
+            toggleFullscreen();
+        }
         return true;
     } else {
         std::string errorMessage = "ROM could not be loaded from ";

@@ -18,20 +18,25 @@
 
 #include "serial_null.h"
 #include "display_void.h"
+#include "audio_void.h"
 
 using namespace FunkyBoy::Controller;
 
 Controllers::Controllers(
         SerialControllerPtr serial,
-        DisplayControllerPtr display
-): serial(std::move(serial))
-, display(std::move(display))
+        DisplayControllerPtr display,
+        AudioControllerPtr audio
+)
+    : serial(std::move(serial))
+    , display(std::move(display))
+    , audio(std::move(audio))
 {
 }
 
 Controllers::Controllers(): Controllers(
         std::make_shared<SerialControllerVoid>(),
-        std::make_shared<DisplayControllerVoid>()
+        std::make_shared<DisplayControllerVoid>(),
+        std::make_shared<AudioControllerVoid>()
 ) {
 }
 
@@ -41,4 +46,8 @@ void Controllers::setSerial(const SerialControllerPtr &serialController) {
 
 void Controllers::setDisplay(const DisplayControllerPtr &displayController) {
     this->display = displayController;
+}
+
+void Controllers::setAudio(const AudioControllerPtr &audioController) {
+    this->audio = audioController;
 }

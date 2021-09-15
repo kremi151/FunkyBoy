@@ -16,6 +16,7 @@ set(SOURCES
         source/main.cpp
         source/controllers/serial_sdl.cpp
         source/controllers/display_sdl.cpp
+        source/controllers/audio_sdl.cpp
         source/ui/native_ui_windows.cpp
         source/ui/native_ui_gtk.cpp
         source/window/window.cpp
@@ -24,6 +25,7 @@ set(SOURCES
 set(HEADERS
         source/controllers/serial_sdl.h
         source/controllers/display_sdl.h
+        source/controllers/audio_sdl.h
         source/ui/native_ui.h
         source/window/window.h
         source/cli/config.h
@@ -140,5 +142,6 @@ target_compile_definitions(fb_sdl PUBLIC -DFB_HAS_SOCKETS=$<BOOL:${CAN_COMPILE_B
 target_link_libraries(fb_sdl fb_core ${FB_EXTERNAL_LIBS})
 
 fb_use_autosave(fb_core)
+fb_use_sound(fb_core)
 
 add_definitions(-DSDL_MAIN_HANDLED)

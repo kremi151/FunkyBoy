@@ -17,11 +17,13 @@ endif()
 set(SOURCES
         source/main.cpp
         source/display_libretro.cpp
+        source/audio_libretro.cpp
         )
 
 set(HEADERS
         include/libretro.h
         source/display_libretro.h
+        source/audio_libretro.h
         )
 
 add_library(fb_libretro SHARED ${SOURCES} ${HEADERS})
@@ -39,5 +41,6 @@ set_target_properties(fb_libretro PROPERTIES PREFIX "") # no "lib" prefix for bu
 set_property(TARGET fb_core PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 fb_use_autosave(fb_core)
+fb_use_sound(fb_core)
 
 target_link_libraries(fb_libretro fb_core)
