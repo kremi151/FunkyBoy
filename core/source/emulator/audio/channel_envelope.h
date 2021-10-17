@@ -19,14 +19,15 @@
 
 #include "channel_base.h"
 
+#include <util/serialization.h>
+
 namespace FunkyBoy::Sound {
 
     typedef struct EnvelopeChannelType : BaseChannel {
         u8_fast periodTimer{};
         u8_fast currentVolume{};
 
-        void serialize(std::ostream &stream) const override;
-        void deserialize(std::istream &stream) override;
+        FB_DECLARE_SERIALIZATION(override)
     } EnvelopeChannel;
 
 }

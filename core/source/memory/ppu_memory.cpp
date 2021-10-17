@@ -57,6 +57,12 @@ void PPUMemory::setAccessibilityFromMMU(bool accessVram, bool accessOam) {
     *oamAccessible = accessOam;
 }
 
+size_t PPUMemory::serializationSize(bool) const {
+    return FB_VRAM_BYTES
+            + FB_OAM_BYTES
+            + 2; // vramAccessible + oamAccessible
+}
+
 void PPUMemory::serialize(std::ostream &ostream) const {
     ostream.write(reinterpret_cast<const char*>(vram), FB_VRAM_BYTES);
     ostream.write(reinterpret_cast<const char*>(oam), FB_OAM_BYTES);

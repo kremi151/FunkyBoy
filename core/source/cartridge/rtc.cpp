@@ -207,6 +207,12 @@ void RTC::load(std::istream &stream) {
     startTimestamp = ((buffer[43] << 24) | (buffer[42] << 16) | (buffer[41] << 8) | buffer[40]) * secondFactor;
 }
 
+size_t RTC::serializationSize(bool) const {
+    return (3 * 8)    // 64-bit writes
+            + (1 * 2) // 16-bit writes
+            + 4;      // 8-bit writes
+}
+
 void RTC::serialize(std::ostream &ostream) const {
     // 64-bit writes
     Util::Stream::write64Bits(startTimestamp, ostream);

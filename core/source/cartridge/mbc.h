@@ -18,6 +18,7 @@
 #define FB_CORE_MBC_H
 
 #include <util/typedefs.h>
+#include <util/serialization.h>
 #include <iostream>
 
 namespace FunkyBoy {
@@ -35,8 +36,7 @@ namespace FunkyBoy {
         virtual void saveBattery(std::ostream &stream, u8 *ram, size_t l) = 0;
         virtual void loadBattery(std::istream &stream, u8 *ram, size_t l) = 0;
 
-        virtual void serialize(std::ostream &ostream) const = 0;
-        virtual void deserialize(std::istream &istream) = 0;
+        FB_DECLARE_SERIALIZATION_VIRTUAL(= 0)
 
         virtual bool hasBattery() = 0;
 

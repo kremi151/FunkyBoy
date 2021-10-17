@@ -18,6 +18,10 @@
 
 using namespace FunkyBoy::Sound;
 
+size_t WaveChannelType::serializationSize(bool) const {
+    return 1; // wavePosition
+}
+
 void WaveChannelType::serialize(std::ostream &stream) const {
     stream.put(wavePosition);
 }

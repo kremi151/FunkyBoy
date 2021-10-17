@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_EMULATOR_CHANNEL_BASE_H
-#define FB_CORE_EMULATOR_CHANNEL_BASE_H
+#ifndef FB_CORE_UTIL_SERIALIZATION_H
+#define FB_CORE_UTIL_SERIALIZATION_H
 
 #include <iostream>
-#include <util/typedefs.h>
-#include <util/serialization.h>
 
-namespace FunkyBoy::Sound {
+#define FB_DECLARE_SERIALIZATION(...) \
+size_t serializationSize(bool full) const __VA_ARGS__; \
+void serialize(std::ostream &ostream) const __VA_ARGS__; \
+void deserialize(std::istream &istream) __VA_ARGS__;
 
-    typedef struct BaseChannelType {
-        bool channelEnabled{};
+#define FB_DECLARE_SERIALIZATION_VIRTUAL(...) \
+virtual size_t serializationSize(bool full) const __VA_ARGS__; \
+virtual void serialize(std::ostream &ostream) const __VA_ARGS__; \
+virtual void deserialize(std::istream &istream) __VA_ARGS__;
 
-        u16_fast lengthTimer{}; // 16 bits because channel 3 can go up to 256
-        u16_fast freqTimer{};
-
-        bool dacEnabled{};
-
-        FB_DECLARE_SERIALIZATION_VIRTUAL()
-    } BaseChannel;
-
-}
-
-#endif //FB_CORE_EMULATOR_CHANNEL_BASE_H
+#endif //FB_CORE_UTIL_SERIALIZATION_H

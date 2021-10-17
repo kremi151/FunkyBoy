@@ -20,6 +20,7 @@
 #include <cartridge/mbc.h>
 #include <util/testing.h>
 #include <util/romsizes.h>
+#include <util/serialization.h>
 
 namespace FunkyBoy {
 
@@ -43,8 +44,7 @@ namespace FunkyBoy {
         void saveBattery(std::ostream &stream, u8 *ram, size_t l) override;
         void loadBattery(std::istream &stream, u8 *ram, size_t l) override;
 
-        void serialize(std::ostream &ostream) const override;
-        void deserialize(std::istream &istream) override;
+        FB_DECLARE_SERIALIZATION(override)
 
         bool hasBattery() override;
 

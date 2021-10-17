@@ -173,6 +173,12 @@ u8_fast io_registers::updateJoypad() {
     return val;
 }
 
+size_t io_registers::serializationSize(bool) const {
+    return FB_HW_IO_BYTES
+        + 2        // inputsDPad + inputsButtons
+        + (1 * 2); // sys_counter
+}
+
 void io_registers::serialize(std::ostream &ostream) const {
     ostream.write(reinterpret_cast<const char*>(hwIO), FB_HW_IO_BYTES);
     ostream.put(*inputsDPad & 0xffu);

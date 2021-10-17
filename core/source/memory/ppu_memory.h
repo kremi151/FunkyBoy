@@ -19,6 +19,7 @@
 
 #include <util/typedefs.h>
 #include <util/endianness.h>
+#include <util/serialization.h>
 
 #include <iostream>
 
@@ -60,8 +61,7 @@ namespace FunkyBoy {
 
         void setAccessibilityFromMMU(bool accessVram, bool accessOam);
 
-        void serialize(std::ostream &ostream) const;
-        void deserialize(std::istream &istream);
+        FB_DECLARE_SERIALIZATION()
     };
 
 }

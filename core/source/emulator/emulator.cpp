@@ -114,7 +114,33 @@ void Emulator::writeCartridgeRam(std::ostream &stream) {
 
 #define FB_SAVE_STATE_VERSION 2
 
-void Emulator::saveState(std::ostream &ostream) {
+size_t Emulator::serializationSize(bool full) const {
+    size_t len = 2 // FB_SAVE_STATE_VERSION + getFeatureBitmap()
+            + 1;   // flag whether cartridge is loaded
+
+    if (full) {
+        len += 1   // title length byte
+                + FB_ROM_HEADER_TITLE_BYTES;
+    } else if (memory.getCartridgeStatus() == CartridgeStatus::Loaded) {
+        char romTitle[FB_ROM_HEADER_TITLE_BYTES + 1]{};
+        std::memcpy(romTitle, memory.getROMHeader()->title, FB_ROM_HEADER_TITLE_BYTES);
+
+        len += 1   // title length byte
+                + std::strlen(romTitle);
+    }
+
+    return len
+        + cpu.serializationSize(full)
+        + ioRegisters.serializationSize(full)
+        + ppuMemory.serializationSize(full)
+        + memory.serializationSize(full)
+#ifdef FB_USE_SOUND
+        + apu.serializationSize(full)
+#endif
+        ;
+}
+
+void Emulator::serialize(std::ostream &ostream) const {
     ostream.put(FB_SAVE_STATE_VERSION);
     ostream.put(getFeatureBitmap());
 
@@ -138,7 +164,7 @@ void Emulator::saveState(std::ostream &ostream) {
 #endif
 }
 
-void Emulator::loadState(std::istream &istream) {
+void Emulator::deserialize(std::istream &istream) {
     int version = istream.get();
     if (version != FB_SAVE_STATE_VERSION) {
         throw Exception::ReadException("Save state version mismatch");

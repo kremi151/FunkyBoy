@@ -23,6 +23,7 @@
 #include <iostream>
 #include <util/testing.h>
 #include <util/debug.h>
+#include <util/serialization.h>
 #include <operands/instruction_context.h>
 #include <operands/debug.h>
 #include <emulator/gb_type.h>
@@ -87,8 +88,7 @@ namespace FunkyBoy {
 
         ret_code doMachineCycle(Memory &memory);
 
-        void serialize(std::ostream &ostream) const;
-        void deserialize(std::istream &istream);
+        FB_DECLARE_SERIALIZATION()
     };
 
 }

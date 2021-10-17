@@ -18,6 +18,11 @@
 
 using namespace FunkyBoy::Sound;
 
+size_t ChannelOneType::serializationSize(bool full) const {
+    return ToneChannelType::serializationSize(full)
+            + 3; // sweepEnabled + sweepTimer + shadowFrequency
+}
+
 void ChannelOneType::serialize(std::ostream &stream) const {
     ToneChannelType::serialize(stream);
 

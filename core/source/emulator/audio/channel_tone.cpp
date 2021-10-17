@@ -18,6 +18,11 @@
 
 using namespace FunkyBoy::Sound;
 
+size_t ToneChannelType::serializationSize(bool full) const {
+    return EnvelopeChannelType::serializationSize(full)
+            + WaveChannelType::serializationSize(full);
+}
+
 void ToneChannelType::serialize(std::ostream &stream) const {
     EnvelopeChannelType::serialize(stream);
     WaveChannelType::serialize(stream);

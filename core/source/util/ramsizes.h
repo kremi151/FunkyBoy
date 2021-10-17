@@ -30,6 +30,8 @@ namespace FunkyBoy {
         RAM_SIZE_64KB = 0x5
     };
 
+    auto RAMSizeMax = RAMSize::RAM_SIZE_128KB;
+
     inline size_t getRAMSizeInBytes(RAMSize ramSize) {
         switch (ramSize) {
             case RAMSize::RAM_SIZE_None:

@@ -69,6 +69,12 @@ u16 InstrContext::read16BitRegister(u8 position) {
     return (*reg << 8u) | (*(reg + 1u) & 0xffu);
 }
 
+size_t InstrContext::serializationSize(bool) const {
+    return 8           // instr + cbInstr + lsb + msb + signedByte + cpuState + interruptMasterEnable + haltBugRequested
+            + 8        // registers
+            + (2 * 2); // progCounter + stackPointer
+}
+
 void InstrContext::serialize(std::ostream &ostream) const {
     ostream.put(instr);
     ostream.put(cbInstr);
