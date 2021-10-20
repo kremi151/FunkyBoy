@@ -177,10 +177,6 @@ extern "C" {
         // TODO: Reset
     }
 
-    void render_audio(retro_audio_sample_batch_t cb) {
-        // TODO: Implement sound
-    }
-
 #define IS_PRESSED(key) input_state_cb(currentControllerPort, currentControllerDevice, 0, key)
 
     void update_inputs() {
