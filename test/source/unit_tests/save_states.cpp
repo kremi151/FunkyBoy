@@ -62,7 +62,7 @@ TEST_SUITE(saveStates) {
         FunkyBoy::u8 saveState[FB_SAVE_STATE_MAX_BUFFER_SIZE]{};
         FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
         std::ostream outStream(&outBuf);
-        emulator1.saveState(outStream);
+        emulator1.serialize(outStream);
 
         // Reset emulator
         FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
@@ -75,7 +75,7 @@ TEST_SUITE(saveStates) {
         if (status != FunkyBoy::CartridgeStatus::Loaded) {
             testFailure("Loading ROM in second emulator failed");
         }
-        emulator2.loadState(inStream);
+        emulator2.deserialize(inStream);
 
         assertEquals(emulator1.memory.ramSizeInBytes, emulator2.memory.ramSizeInBytes);
         assertArrayEquals(emulator1.memory.cram, emulator2.memory.cram, emulator1.memory.ramSizeInBytes);
@@ -141,12 +141,12 @@ TEST_SUITE(saveStates) {
         // Save the state
         FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), false);
         std::ostream outStream(&outBuf);
-        emulator.saveState(outStream);
+        emulator.serialize(outStream);
 
         // Now load it back to check whether the buffer is large enough
         FunkyBoy::Util::membuf inBuf1(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
         std::istream inStream1(&inBuf1);
-        emulator.loadState(inStream1);
+        emulator.deserialize(inStream1);
     }
 
     // TODO: https://github.com/kremi151/FunkyBoy/issues/63
