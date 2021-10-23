@@ -182,7 +182,7 @@ void Window::saveState() {
         fs::path statePath = savePath;
         statePath.replace_extension(".fbs");
         std::ofstream ostream(statePath, std::ios::binary | std::ios::out);
-        emulator.saveState(ostream);
+        emulator.serialize(ostream);
         printf("Save state saved to %s\n", statePath.c_str());
     } catch (const std::exception &exception) {
         fprintf(stderr, "Saving state failed: %s\n", exception.what());
@@ -200,7 +200,7 @@ void Window::loadState() {
     }
     try {
         std::ifstream istream(statePath, std::ios::binary | std::ios::in);
-        emulator.loadState(istream);
+        emulator.deserialize(istream);
         printf("Save state loaded from %s\n", statePath.c_str());
     } catch (const std::exception &exception) {
         fprintf(stderr, "Loading state failed: %s\n", exception.what());
