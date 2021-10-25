@@ -19,13 +19,14 @@
 
 #include "channel_envelope.h"
 
+#include <util/serialization.h>
+
 namespace FunkyBoy::Sound {
 
     typedef struct ChannelFourType : EnvelopeChannel {
         u16_fast lfsr{};
 
-        void serialize(std::ostream &stream) const override;
-        void deserialize(std::istream &stream) override;
+        FB_DECLARE_SERIALIZATION(override)
     } ChannelFour;
 
 }

@@ -256,6 +256,12 @@ void MBC3::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     }
 }
 
+size_t MBC3::serializationSize() {
+    return (3 * 4) // 32-bit writes
+            + 4    // 8-bit writes
+            + RTC::serializationSize();
+}
+
 void MBC3::serialize(std::ostream &ostream) const {
     // 32-bit writes
     Util::Stream::write32Bits(romBankOffsetLower, ostream);

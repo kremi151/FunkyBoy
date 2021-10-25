@@ -20,11 +20,12 @@
 #include "channel_envelope.h"
 #include "channel_wave.h"
 
+#include <util/serialization.h>
+
 namespace FunkyBoy::Sound {
 
     typedef struct ToneChannelType : EnvelopeChannel, WaveChannel {
-        void serialize(std::ostream &stream) const override;
-        void deserialize(std::istream &stream) override;
+        FB_DECLARE_SERIALIZATION(override)
     } ToneChannel;
 
 }

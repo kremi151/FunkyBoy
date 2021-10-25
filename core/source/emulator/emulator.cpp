@@ -114,7 +114,22 @@ void Emulator::writeCartridgeRam(std::ostream &stream) {
 
 #define FB_SAVE_STATE_VERSION 2
 
-void Emulator::saveState(std::ostream &ostream) {
+size_t Emulator::serializationSize() {
+    return 2 // FB_SAVE_STATE_VERSION + getFeatureBitmap()
+        + 1    // flag whether cartridge is loaded
+        + 1    // title length byte
+        + FB_ROM_HEADER_TITLE_BYTES
+        + CPU::serializationSize()
+        + io_registers::serializationSize()
+        + PPUMemory::serializationSize()
+        + Memory::serializationSize()
+#ifdef FB_USE_SOUND
+        + Sound::APU::serializationSize()
+#endif
+        ;
+}
+
+void Emulator::serialize(std::ostream &ostream) const {
     ostream.put(FB_SAVE_STATE_VERSION);
     ostream.put(getFeatureBitmap());
 
@@ -138,7 +153,7 @@ void Emulator::saveState(std::ostream &ostream) {
 #endif
 }
 
-void Emulator::loadState(std::istream &istream) {
+void Emulator::deserialize(std::istream &istream) {
     int version = istream.get();
     if (version != FB_SAVE_STATE_VERSION) {
         throw Exception::ReadException("Save state version mismatch");

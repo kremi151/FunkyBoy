@@ -19,6 +19,7 @@
 
 #include <util/fs.h>
 #include <util/return_codes.h>
+#include <util/serialization.h>
 #include <memory>
 #include <emulator/cpu.h>
 #include <emulator/ppu.h>
@@ -69,8 +70,7 @@ namespace FunkyBoy {
         void loadCartridgeRam(std::istream &stream);
         void writeCartridgeRam(std::ostream &stream);
 
-        void loadState(std::istream &istream);
-        void saveState(std::ostream &ostream);
+        FB_DECLARE_SERIALIZATION()
 
         inline void setInputState(Controller::JoypadKey key, bool pressed) {
             ioRegisters.setInputState(key, pressed);

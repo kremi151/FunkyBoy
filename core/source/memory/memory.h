@@ -18,6 +18,7 @@
 #define FUNKYBOY_CORE_MEMORY_H
 
 #include <util/typedefs.h>
+#include <util/serialization.h>
 #include <cartridge/status.h>
 #include <controllers/controllers.h>
 #include <emulator/io_registers.h>
@@ -91,8 +92,8 @@ namespace FunkyBoy {
             return ramSizeInBytes;
         }
 
-        const ROMHeader *getROMHeader();
-        CartridgeStatus getCartridgeStatus();
+        const ROMHeader *getROMHeader() const;
+        CartridgeStatus getCartridgeStatus() const;
 
         u8 read8BitsAt(memory_address offset);
 
@@ -110,8 +111,7 @@ namespace FunkyBoy {
 
         u8 *releaseROM(size_t *size);
 
-        void serialize(std::ostream &ostream) const;
-        void deserialize(std::istream &istream);
+        FB_DECLARE_SERIALIZATION()
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         inline void getMBCDebugInfo(const char **outName, unsigned &outRomBank) {

@@ -369,6 +369,11 @@ void CPU::writeAF(FunkyBoy::u16 val) {
     *instrContext.regA = (val >> 8) & 0xff;
 }
 
+size_t CPU::serializationSize() {
+    return InstrContext::serializationSize()
+            + 4; // operandIndex + timerOverflowingCycles + delayedTIMAIncrease + joypadWasNotPressed
+}
+
 void CPU::serialize(std::ostream &ostream) const {
     instrContext.serialize(ostream);
 

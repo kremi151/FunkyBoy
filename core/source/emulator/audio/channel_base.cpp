@@ -20,6 +20,11 @@
 
 using namespace FunkyBoy::Sound;
 
+size_t BaseChannelType::serializationSize() {
+    return 2           // channelEnabled + dacEnabled
+            + (2 * 2); // lengthTimer + freqTimer
+}
+
 void BaseChannelType::serialize(std::ostream &stream) const {
     stream.put(channelEnabled);
     Util::Stream::write16Bits(lengthTimer, stream);

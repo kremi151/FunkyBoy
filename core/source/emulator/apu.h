@@ -22,6 +22,7 @@
 #include <functional>
 #include <iostream>
 #include <util/typedefs.h>
+#include <util/serialization.h>
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
 #include <emulator/audio/channel_one.h>
@@ -104,8 +105,7 @@ namespace FunkyBoy::Sound {
 
         void handleWrite(memory_address addr, u8_fast value);
 
-        void serialize(std::ostream &ostream) const;
-        void deserialize(std::istream &istream);
+        FB_DECLARE_SERIALIZATION()
 
         friend Memory;
     };

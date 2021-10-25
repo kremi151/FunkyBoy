@@ -191,6 +191,11 @@ void MBC1::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     stream.read(reinterpret_cast<char*>(ram), l);
 }
 
+size_t MBC1::serializationSize() {
+    return (3 * 4) // 32-bit writes
+            + 5;   // 8-bit writes
+}
+
 void MBC1::serialize(std::ostream &ostream) const {
     // 32-bit writes
     Util::Stream::write32Bits(romBankOffsetLower, ostream);

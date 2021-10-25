@@ -19,6 +19,7 @@
 
 #include <util/typedefs.h>
 #include <util/testing.h>
+#include <util/serialization.h>
 #include <controllers/controllers.h>
 #include <util/gpumode.h>
 
@@ -226,8 +227,7 @@ namespace FunkyBoy {
         __FB_REG_GETTER(NR51, FB_REG_NR51)
         __FB_REG_GETTER(NR52, FB_REG_NR52)
 
-        void serialize(std::ostream &ostream) const;
-        void deserialize(std::istream &istream);
+        FB_DECLARE_SERIALIZATION()
 
         friend class CPU;
     };

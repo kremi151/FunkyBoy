@@ -467,6 +467,14 @@ void APU::handleWrite(memory_address addr, u8_fast value) {
     }
 }
 
+size_t APU::serializationSize() {
+    return ChannelOne::serializationSize()
+            + ChannelTwo::serializationSize()
+            + ChannelThree::serializationSize()
+            + ChannelFour::serializationSize()
+            + 2; // frameSeqStep + apuEnabled
+}
+
 void APU::serialize(std::ostream &ostream) const {
     channelOne.serialize(ostream);
     channelTwo.serialize(ostream);

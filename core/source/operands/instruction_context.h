@@ -18,6 +18,7 @@
 #define FB_CORE_OPERANDS_CONTEXT_H
 
 #include <util/typedefs.h>
+#include <util/serialization.h>
 #include <memory/memory.h>
 #include <emulator/gb_type.h>
 #include <operands/debug.h>
@@ -89,8 +90,7 @@ namespace FunkyBoy {
         void write16BitRegister(u8 position, u16 val);
         u16 read16BitRegister(u8 position);
 
-        void serialize(std::ostream &ostream) const;
-        void deserialize(std::istream &istream);
+        FB_DECLARE_SERIALIZATION()
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         std::ofstream *executionLog;

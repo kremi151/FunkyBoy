@@ -18,15 +18,15 @@
 #define FB_CORE_EMULATOR_CHANNEL_WAVE_H
 
 #include <util/typedefs.h>
-#include <iostream>
+#include <util/serialization.h>
 
 namespace FunkyBoy::Sound {
 
     typedef struct WaveChannelType {
         u8_fast wavePosition{};
 
-        virtual void serialize(std::ostream &stream) const;
-        virtual void deserialize(std::istream &stream);
+        FB_DECLARE_SERIALIZATION_ESTIMATABLE()
+        FB_DECLARE_SERIALIZATION_VIRTUAL()
     } WaveChannel;
 
 }

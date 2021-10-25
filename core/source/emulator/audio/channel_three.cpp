@@ -18,6 +18,11 @@
 
 using namespace FunkyBoy::Sound;
 
+size_t ChannelThreeType::serializationSize() {
+    return BaseChannelType::serializationSize()
+            + WaveChannelType::serializationSize();
+}
+
 void ChannelThreeType::serialize(std::ostream &stream) const {
     BaseChannelType::serialize(stream);
     WaveChannelType::serialize(stream);

@@ -19,6 +19,8 @@
 
 #include "channel_tone.h"
 
+#include <util/serialization.h>
+
 namespace FunkyBoy::Sound {
 
     typedef struct ChannelOneType : ToneChannel {
@@ -26,8 +28,7 @@ namespace FunkyBoy::Sound {
         u8_fast sweepTimer{};
         u8_fast shadowFrequency{};
 
-        void serialize(std::ostream &stream) const override;
-        void deserialize(std::istream &stream) override;
+        FB_DECLARE_SERIALIZATION(override)
     } ChannelOne;
 
 }

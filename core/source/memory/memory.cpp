@@ -16,6 +16,7 @@
 
 #include "memory.h"
 
+#include <algorithm>
 #include <util/endianness.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
@@ -105,7 +106,7 @@ void Memory::init() {
     this->apu->writeToMemory = [&](memory_address address, u8_fast value) {
         this->write8BitsTo(address, value);
     };
-#endif}
+#endif
 }
 
 void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {
@@ -335,11 +336,11 @@ void Memory::writeRam(std::ostream &stream) {
     mbc->saveBattery(stream, cram, ramSizeInBytes);
 }
 
-const ROMHeader * Memory::getROMHeader() {
+const ROMHeader * Memory::getROMHeader() const {
     return reinterpret_cast<ROMHeader*>(rom);
 }
 
-CartridgeStatus Memory::getCartridgeStatus() {
+CartridgeStatus Memory::getCartridgeStatus() const {
     return status;
 }
 
@@ -527,6 +528,20 @@ void Memory::doDMA() {
     if (++dmaLsb > 0x9F) {
         dmaStarted = false;
     }
+}
+
+size_t Memory::serializationSize() {
+    return FB_INTERNAL_RAM_SIZE
+           + FB_HRAM_SIZE
+           + 13 /* interruptEnableRegister + dmaLsb + dmaMsb + dmaStarted + status + ramSizeInBytes */
+           + std::max({
+               MBCNone::serializationSize(),
+               MBC1::serializationSize(),
+               MBC2::serializationSize(),
+               MBC3::serializationSize(),
+               MBC5::serializationSize()
+           })
+           + getRAMSizeInBytes(RAMSizeMax);
 }
 
 void Memory::serialize(std::ostream &ostream) const {

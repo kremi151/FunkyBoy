@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <util/typedefs.h>
+#include <util/serialization.h>
 
 namespace FunkyBoy::Sound {
 
@@ -30,8 +31,8 @@ namespace FunkyBoy::Sound {
 
         bool dacEnabled{};
 
-        virtual void serialize(std::ostream &stream) const;
-        virtual void deserialize(std::istream &stream);
+        FB_DECLARE_SERIALIZATION_ESTIMATABLE()
+        FB_DECLARE_SERIALIZATION_VIRTUAL()
     } BaseChannel;
 
 }

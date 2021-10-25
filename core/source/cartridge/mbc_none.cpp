@@ -43,6 +43,10 @@ void MBCNone::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     // Do nothing
 }
 
+size_t MBCNone::serializationSize() {
+    return 0; // Nothing to serialize
+}
+
 void MBCNone::serialize(std::ostream &ostream) const {
     // Do nothing
 }

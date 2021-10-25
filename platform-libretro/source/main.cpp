@@ -305,17 +305,18 @@ extern "C" {
     }
 
     size_t retro_serialize_size(void) {
-        return FB_SAVE_STATE_MAX_BUFFER_SIZE;
+        return FunkyBoy::Emulator::serializationSize();
     }
 
     bool retro_serialize(void *data_, size_t size) {
-        if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
+        const size_t serializationSize = FunkyBoy::Emulator::serializationSize();
+        if (size < serializationSize) {
             return false;
         }
         try {
-            FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(data_), FB_SAVE_STATE_MAX_BUFFER_SIZE, false);
+            FunkyBoy::Util::membuf outBuf(reinterpret_cast<char *>(data_), serializationSize, false);
             std::ostream outStream(&outBuf);
-            emulator->saveState(outStream);
+            emulator->serialize(outStream);
             return true;
         } catch (const std::exception &exception) {
             log_cb(retro_log_level::RETRO_LOG_ERROR, "Saving state failed: %s\n", exception.what());
@@ -327,13 +328,14 @@ extern "C" {
     }
 
     bool retro_unserialize(const void *data_, size_t size) {
-        if (size < FB_SAVE_STATE_MAX_BUFFER_SIZE) {
+        const size_t serializationSize = FunkyBoy::Emulator::serializationSize();
+        if (size < serializationSize) {
             return false;
         }
         try {
-            FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(const_cast<void *>(data_)), FB_SAVE_STATE_MAX_BUFFER_SIZE, true);
+            FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(const_cast<void *>(data_)), serializationSize, true);
             std::istream inStream(&inBuf);
-            emulator->loadState(inStream);
+            emulator->deserialize(inStream);
             return true;
         } catch (const std::exception &exception) {
             log_cb(retro_log_level::RETRO_LOG_ERROR, "Loading state failed: %s\n", exception.what());

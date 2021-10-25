@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#include "channel_tone.h"
+#ifndef FB_CORE_UTIL_SERIALIZATION_H
+#define FB_CORE_UTIL_SERIALIZATION_H
 
-using namespace FunkyBoy::Sound;
+#include <iostream>
 
-size_t ToneChannelType::serializationSize() {
-    return EnvelopeChannelType::serializationSize()
-            + WaveChannelType::serializationSize();
-}
+#define FB_DECLARE_SERIALIZATION_ESTIMATABLE() \
+static size_t serializationSize();
 
-void ToneChannelType::serialize(std::ostream &stream) const {
-    EnvelopeChannelType::serialize(stream);
-    WaveChannelType::serialize(stream);
-}
+#define FB_DECLARE_SERIALIZATION(...) \
+FB_DECLARE_SERIALIZATION_ESTIMATABLE() \
+void serialize(std::ostream &ostream) const __VA_ARGS__; \
+void deserialize(std::istream &istream) __VA_ARGS__;
 
-void ToneChannelType::deserialize(std::istream &stream) {
-    EnvelopeChannelType::deserialize(stream);
-    WaveChannelType::deserialize(stream);
-}
+#define FB_DECLARE_SERIALIZATION_VIRTUAL(...) \
+virtual void serialize(std::ostream &ostream) const __VA_ARGS__; \
+virtual void deserialize(std::istream &istream) __VA_ARGS__;
+
+#endif //FB_CORE_UTIL_SERIALIZATION_H

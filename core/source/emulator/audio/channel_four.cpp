@@ -20,6 +20,11 @@
 
 using namespace FunkyBoy::Sound;
 
+size_t ChannelFourType::serializationSize() {
+    return EnvelopeChannelType::serializationSize()
+            + (1 * 2); // lfsr
+}
+
 void ChannelFourType::serialize(std::ostream &stream) const {
     EnvelopeChannelType::serialize(stream);
 
