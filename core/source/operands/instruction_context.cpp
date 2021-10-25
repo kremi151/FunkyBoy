@@ -69,7 +69,7 @@ u16 InstrContext::read16BitRegister(u8 position) {
     return (*reg << 8u) | (*(reg + 1u) & 0xffu);
 }
 
-size_t InstrContext::serializationSize(bool) const {
+size_t InstrContext::serializationSize() {
     return 8           // instr + cbInstr + lsb + msb + signedByte + cpuState + interruptMasterEnable + haltBugRequested
             + 8        // registers
             + (2 * 2); // progCounter + stackPointer

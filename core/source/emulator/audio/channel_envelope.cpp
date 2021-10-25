@@ -18,8 +18,8 @@
 
 using namespace FunkyBoy::Sound;
 
-size_t EnvelopeChannelType::serializationSize(bool full) const {
-    return BaseChannelType::serializationSize(full)
+size_t EnvelopeChannelType::serializationSize() {
+    return BaseChannelType::serializationSize()
             + 2; // periodTimer + currentVolume;
 }
 

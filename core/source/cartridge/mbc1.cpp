@@ -191,7 +191,7 @@ void MBC1::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     stream.read(reinterpret_cast<char*>(ram), l);
 }
 
-size_t MBC1::serializationSize(bool) const {
+size_t MBC1::serializationSize() {
     return (3 * 4) // 32-bit writes
             + 5;   // 8-bit writes
 }

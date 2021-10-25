@@ -31,6 +31,7 @@ namespace FunkyBoy::Sound {
 
         bool dacEnabled{};
 
+        FB_DECLARE_SERIALIZATION_ESTIMATABLE()
         FB_DECLARE_SERIALIZATION_VIRTUAL()
     } BaseChannel;
 

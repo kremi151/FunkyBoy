@@ -256,10 +256,10 @@ void MBC3::loadBattery(std::istream &stream, u8 *ram, size_t l) {
     }
 }
 
-size_t MBC3::serializationSize(bool full) const {
+size_t MBC3::serializationSize() {
     return (3 * 4) // 32-bit writes
             + 4    // 8-bit writes
-            + rtc.serializationSize(full);
+            + RTC::serializationSize();
 }
 
 void MBC3::serialize(std::ostream &ostream) const {

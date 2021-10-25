@@ -20,7 +20,7 @@
 
 using namespace FunkyBoy::Sound;
 
-size_t BaseChannelType::serializationSize(bool) const {
+size_t BaseChannelType::serializationSize() {
     return 2           // channelEnabled + dacEnabled
             + (2 * 2); // lengthTimer + freqTimer
 }

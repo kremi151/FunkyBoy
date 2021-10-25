@@ -25,6 +25,7 @@ namespace FunkyBoy::Sound {
     typedef struct WaveChannelType {
         u8_fast wavePosition{};
 
+        FB_DECLARE_SERIALIZATION_ESTIMATABLE()
         FB_DECLARE_SERIALIZATION_VIRTUAL()
     } WaveChannel;
 

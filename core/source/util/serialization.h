@@ -19,13 +19,15 @@
 
 #include <iostream>
 
+#define FB_DECLARE_SERIALIZATION_ESTIMATABLE() \
+static size_t serializationSize();
+
 #define FB_DECLARE_SERIALIZATION(...) \
-size_t serializationSize(bool full) const __VA_ARGS__; \
+FB_DECLARE_SERIALIZATION_ESTIMATABLE() \
 void serialize(std::ostream &ostream) const __VA_ARGS__; \
 void deserialize(std::istream &istream) __VA_ARGS__;
 
 #define FB_DECLARE_SERIALIZATION_VIRTUAL(...) \
-virtual size_t serializationSize(bool full) const __VA_ARGS__; \
 virtual void serialize(std::ostream &ostream) const __VA_ARGS__; \
 virtual void deserialize(std::istream &istream) __VA_ARGS__;
 

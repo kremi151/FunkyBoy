@@ -114,28 +114,17 @@ void Emulator::writeCartridgeRam(std::ostream &stream) {
 
 #define FB_SAVE_STATE_VERSION 2
 
-size_t Emulator::serializationSize(bool full) const {
-    size_t len = 2 // FB_SAVE_STATE_VERSION + getFeatureBitmap()
-            + 1;   // flag whether cartridge is loaded
-
-    if (full) {
-        len += 1   // title length byte
-                + FB_ROM_HEADER_TITLE_BYTES;
-    } else if (memory.getCartridgeStatus() == CartridgeStatus::Loaded) {
-        char romTitle[FB_ROM_HEADER_TITLE_BYTES + 1]{};
-        std::memcpy(romTitle, memory.getROMHeader()->title, FB_ROM_HEADER_TITLE_BYTES);
-
-        len += 1   // title length byte
-                + std::strlen(romTitle);
-    }
-
-    return len
-        + cpu.serializationSize(full)
-        + ioRegisters.serializationSize(full)
-        + ppuMemory.serializationSize(full)
-        + memory.serializationSize(full)
+size_t Emulator::serializationSize() {
+    return 2 // FB_SAVE_STATE_VERSION + getFeatureBitmap()
+        + 1    // flag whether cartridge is loaded
+        + 1    // title length byte
+        + FB_ROM_HEADER_TITLE_BYTES
+        + CPU::serializationSize()
+        + io_registers::serializationSize()
+        + PPUMemory::serializationSize()
+        + Memory::serializationSize()
 #ifdef FB_USE_SOUND
-        + apu.serializationSize(full)
+        + Sound::APU::serializationSize()
 #endif
         ;
 }

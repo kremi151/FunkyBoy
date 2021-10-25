@@ -18,7 +18,7 @@
 
 using namespace FunkyBoy::Sound;
 
-size_t WaveChannelType::serializationSize(bool) const {
+size_t WaveChannelType::serializationSize() {
     return 1; // wavePosition
 }
 

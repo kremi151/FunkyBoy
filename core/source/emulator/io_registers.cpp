@@ -173,7 +173,7 @@ u8_fast io_registers::updateJoypad() {
     return val;
 }
 
-size_t io_registers::serializationSize(bool) const {
+size_t io_registers::serializationSize() {
     return FB_HW_IO_BYTES
         + 2        // inputsDPad + inputsButtons
         + (1 * 2); // sys_counter

@@ -57,7 +57,7 @@ void PPUMemory::setAccessibilityFromMMU(bool accessVram, bool accessOam) {
     *oamAccessible = accessOam;
 }
 
-size_t PPUMemory::serializationSize(bool) const {
+size_t PPUMemory::serializationSize() {
     return FB_VRAM_BYTES
             + FB_OAM_BYTES
             + 2; // vramAccessible + oamAccessible

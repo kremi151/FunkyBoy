@@ -20,8 +20,8 @@
 
 using namespace FunkyBoy::Sound;
 
-size_t ChannelFourType::serializationSize(bool full) const {
-    return EnvelopeChannelType::serializationSize(full)
+size_t ChannelFourType::serializationSize() {
+    return EnvelopeChannelType::serializationSize()
             + (1 * 2); // lfsr
 }
 

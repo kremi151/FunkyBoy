@@ -16,6 +16,7 @@
 
 #include "memory.h"
 
+#include <algorithm>
 #include <util/endianness.h>
 #include <util/typedefs.h>
 #include <util/debug.h>
@@ -529,12 +530,18 @@ void Memory::doDMA() {
     }
 }
 
-size_t Memory::serializationSize(bool full) const {
+size_t Memory::serializationSize() {
     return FB_INTERNAL_RAM_SIZE
            + FB_HRAM_SIZE
            + 13 /* interruptEnableRegister + dmaLsb + dmaMsb + dmaStarted + status + ramSizeInBytes */
-           + mbc->serializationSize(full)
-           + (full ? getRAMSizeInBytes(RAMSizeMax) : ramSizeInBytes);
+           + std::max({
+               MBCNone::serializationSize(),
+               MBC1::serializationSize(),
+               MBC2::serializationSize(),
+               MBC3::serializationSize(),
+               MBC5::serializationSize()
+           })
+           + getRAMSizeInBytes(RAMSizeMax);
 }
 
 void Memory::serialize(std::ostream &ostream) const {
