@@ -62,6 +62,11 @@ void runGame(FunkyBoy::SDL::Window &window) {
         }
     }, FB_TARGET_FPS);
 
+    // Due to a strange bug on Windows causing a memory violation exception, we need to actually
+    // perform some game cycles before doing stuff like loading the game state
+    executeFrame();
+    window.onGameLaunched();
+
     while (running) {
         executeFrame();
     }

@@ -40,7 +40,7 @@ namespace FunkyBoy::SDL {
         bool fullscreenRequestedPreviously;
         bool saveStateRequestedPreviously;
         bool loadStateRequestedPreviously;
-        bool saveStateOnExit;
+        bool autoResume;
 
         Controller::ControllersPtr controllers;
         Emulator emulator;
@@ -68,6 +68,7 @@ namespace FunkyBoy::SDL {
         ~Window();
 
         bool init(int argc, char **argv, size_t width, size_t height);
+        void onGameLaunched();
         void doFrame();
         void deinit();
 

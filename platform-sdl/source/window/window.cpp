@@ -43,7 +43,7 @@ Window::Window(FunkyBoy::GameBoyType gbType)
     , frameBuffer(nullptr)
     , keyboardState(SDL_GetKeyboardState(nullptr))
     , fullscreenRequestedPreviously(false)
-    , saveStateOnExit(false)
+    , autoResume(false)
     , btnAWasPressed(false)
     , btnBWasPressed(false)
     , btnStartWasPressed(false)
@@ -155,8 +155,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         loadSave();
 
         if (result.count(FB_CMD_AUTO_RESUME)) {
-            loadState();
-            saveStateOnExit = true;
+            autoResume = true;
         }
 
         char romTitleSafe[FB_ROM_HEADER_TITLE_BYTES + 1]{};
@@ -182,6 +181,12 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
 
         NativeUI::showAlert(window, NativeUI::AlertType::Error, "Error", errorMessage.c_str());
         return false;
+    }
+}
+
+void Window::onGameLaunched() {
+    if (autoResume) {
+        loadState();
     }
 }
 
@@ -326,7 +331,7 @@ void Window::toggleFullscreen() {
 void Window::deinit() {
     writeSave();
 
-    if (saveStateOnExit) {
+    if (autoResume) {
         saveState();
     }
 }
