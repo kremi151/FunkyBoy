@@ -29,6 +29,22 @@ This is the implementation of FunkyBoy for Windows, Linux and macOS
 |Create save state|H|
 |Load save state|J|
 
+## Command line arguments
+
+Usage:
+```shell
+fb_sdl [options] [path to rom]
+```
+
+Options:
+
+|Argument|Argument (short)|Description|
+|---|---|---|
+|--test|-t|Test whether the application can start correctly|
+|--full-screen|-f|Launch emulator in full screen mode|
+|--auto-resume|-a|Automatically saves the game state and resumes the next time when emulator is opened again using this flag|
+|--help|-h|Print usage|
+
 ## Build on Ubuntu
 
 1. Install SDL2, GTK3 and CMake:
