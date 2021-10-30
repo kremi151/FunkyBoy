@@ -32,6 +32,7 @@ using namespace FunkyBoy::SDL;
 #define FB_CMD_TEST "test"
 #define FB_CMD_HELP "help"
 #define FB_CMD_FULL_SCREEN "full-screen"
+#define FB_CMD_AUTO_RESUME "auto-resume"
 
 Window::Window(FunkyBoy::GameBoyType gbType)
     : gbType(gbType)
@@ -42,6 +43,7 @@ Window::Window(FunkyBoy::GameBoyType gbType)
     , frameBuffer(nullptr)
     , keyboardState(SDL_GetKeyboardState(nullptr))
     , fullscreenRequestedPreviously(false)
+    , saveStateOnExit(false)
     , btnAWasPressed(false)
     , btnBWasPressed(false)
     , btnStartWasPressed(false)
@@ -71,6 +73,7 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     options.add_options()
             ("t," FB_CMD_TEST, "Test whether the application can start correctly")
             ("f," FB_CMD_FULL_SCREEN, "Launch emulator in full screen mode")
+            ("a," FB_CMD_AUTO_RESUME, "Automatically saves the game state and resumes the next time when emulator is opened again using this flag")
             ("h," FB_CMD_HELP, "Print usage")
             ;
     options.custom_help("[OPTION...] [<ROM PATH>]");
@@ -150,6 +153,11 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
         emulator.savePath = savePath;
 
         loadSave();
+
+        if (result.count(FB_CMD_AUTO_RESUME)) {
+            loadState();
+            saveStateOnExit = true;
+        }
 
         char romTitleSafe[FB_ROM_HEADER_TITLE_BYTES + 1]{};
         std::memcpy(romTitleSafe, reinterpret_cast<const char*>(emulator.getROMHeader()->title), FB_ROM_HEADER_TITLE_BYTES);
@@ -317,4 +325,8 @@ void Window::toggleFullscreen() {
 
 void Window::deinit() {
     writeSave();
+
+    if (saveStateOnExit) {
+        saveState();
+    }
 }

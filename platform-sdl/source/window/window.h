@@ -40,6 +40,7 @@ namespace FunkyBoy::SDL {
         bool fullscreenRequestedPreviously;
         bool saveStateRequestedPreviously;
         bool loadStateRequestedPreviously;
+        bool saveStateOnExit;
 
         Controller::ControllersPtr controllers;
         Emulator emulator;
