@@ -72,7 +72,17 @@ elseif(OS_LINUX)
 endif()
 
 if (OS_MACOS)
-    add_executable(fb_sdl MACOSX_BUNDLE ${SOURCES} ${HEADERS})
+    set(MACOSX_BUNDLE_ICON_FILE funkyboy.icns)
+    set(fb_macos_ICON ${CMAKE_CURRENT_BINARY_DIR}/funkyboy.icns)
+    set_source_files_properties(${fb_macos_ICON} PROPERTIES
+       MACOSX_PACKAGE_LOCATION "Resources")
+
+    add_custom_command(
+        OUTPUT ${fb_macos_ICON}
+        COMMAND ${CMAKE_SOURCE_DIR}/scripts/mac_os_create_icon.sh "${CMAKE_SOURCE_DIR}/../resources" "${CMAKE_CURRENT_BINARY_DIR}"
+    )
+
+    add_executable(fb_sdl MACOSX_BUNDLE ${fb_macos_ICON} ${SOURCES} ${HEADERS})
 
     set_target_properties(fb_sdl PROPERTIES
         BUNDLE True
