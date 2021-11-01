@@ -19,8 +19,10 @@ jobs:
             config:
               - os: ubuntu-latest
                 artifact: FunkyBoy-linux
+                makeArgs: ''
               - os: macos-latest
                 artifact: FunkyBoy-macOS
+                makeArgs: app_bundle
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -41,6 +43,7 @@ jobs:
           cmakeListsTxtPath: "${{ github.workspace }}/platform-sdl/CMakeLists.txt"
           buildDirectory: "${{ github.workspace }}/platform-sdl/cmake-build"
           cmakeBuildType: Release
+          buildWithCMakeArgs: "-- ${{ matrix.config.makeArgs }}"
       - name: Pack Linux binary and libraries
         run: |
           cp $(cmake "${{ github.workspace }}/platform-sdl" -L | grep SDL2_LIBRARY | cut -d= -f 2 | cut -d';' -f 1) "${{ github.workspace }}/platform-sdl/cmake-build/"
@@ -48,9 +51,7 @@ jobs:
         working-directory: "${{ github.workspace }}/platform-sdl/cmake-build"
         if: ${{ startsWith(matrix.config.os, 'ubuntu-') }}
       - name: Pack macOS app bundle
-        run: |
-          make app_bundle
-          tar -cvf fb_sdl.tar -C ./packed ./fb_sdl.app
+        run: tar -cvf fb_sdl.tar -C ./packed ./fb_sdl.app
         working-directory: "${{ github.workspace }}/platform-sdl/cmake-build"
         if: ${{ startsWith(matrix.config.os, 'macos-') }}
       - name: Upload artifact
