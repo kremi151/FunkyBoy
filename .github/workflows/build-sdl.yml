@@ -7,7 +7,6 @@ on:
       - 'core/**'
       - 'platform-sdl/**'
       - '.github/workflows/build-sdl.yml'
-      - '.github/workflows/scripts/pack-macos-sdl.sh'
   pull_request:
     branches: [ master ]
 
@@ -50,7 +49,7 @@ jobs:
         if: ${{ startsWith(matrix.config.os, 'ubuntu-') }}
       - name: Pack macOS app bundle
         run: |
-          "${{ github.workspace }}/.github/workflows/scripts/pack-macos-sdl.sh" ./fb_sdl.app
+          make app_bundle
           tar -cvf fb_sdl.tar -C ./packed ./fb_sdl.app
         working-directory: "${{ github.workspace }}/platform-sdl/cmake-build"
         if: ${{ startsWith(matrix.config.os, 'macos-') }}

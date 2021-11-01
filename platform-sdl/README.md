@@ -49,16 +49,17 @@ Options:
 
 1. Install SDL2, GTK3 and CMake:
 
-```
+```shell
 sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
 sudo apt-get update -y -qq
 sudo apt-get install libsdl2-dev libgtk-3-dev libx11-dev cmake
 ```
 2. Compile:
 
-```
+```shell
 mkdir -p cmake-build && cd cmake-build
-cmake .. && make
+cmake ..
+make
 ```
 
 ## Build on macOS
@@ -67,20 +68,27 @@ cmake .. && make
 
 2. Install SDL2 library and CMake:
 
-```
+```shell
 brew install sdl2 cmake
 ```
 
 3. Compile:
 
-```
+```shell
 mkdir -p cmake-build && cd cmake-build
-cmake .. && make
+cmake ..
+make
+```
+
+Or if you want to create an installable app bundle, you can perform the following instead of just `make`:
+
+```shell
+make app_bundle
 ```
 
 To work in Xcode, generate Xcode project files:
 
-```
+```shell
 mkdir -p xcode && cd xcode
 cmake -G Xcode ..
 ```

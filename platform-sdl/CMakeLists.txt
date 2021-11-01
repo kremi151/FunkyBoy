@@ -91,6 +91,17 @@ if (OS_MACOS)
         MACOSX_BUNDLE_BUNDLE_VERSION ${FB_VERSION_MAJOR}.${FB_VERSION_MINOR}.${FB_VERSION_PATCH}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${FB_VERSION}
     )
+
+    set(fb_macos_PACKED_BINARY "${CMAKE_CURRENT_BINARY_DIR}/packed/fb_sdl.app/Contents/MacOS/fb_sdl")
+
+    add_custom_command(
+        OUTPUT ${fb_macos_PACKED_BINARY}
+        COMMAND ${CMAKE_SOURCE_DIR}/scripts/macos_pack_bundle.sh ./fb_sdl.app
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS fb_sdl
+    )
+
+    add_custom_target(app_bundle DEPENDS ${fb_macos_PACKED_BINARY})
 else()
     add_executable(fb_sdl ${SOURCES} ${HEADERS})
 endif()
