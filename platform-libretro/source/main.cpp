@@ -82,10 +82,10 @@ extern "C" {
         dynamic_cast<Controller::DisplayControllerLibretro&>(*displayController).setVideoCallback(video_cb);
         dynamic_cast<Controller::AudioControllerLibretro&>(*audioController).setAudioCallback(audio_cb);
 
-        auto controllers = std::make_shared<Controller::Controllers>();
-        controllers->setDisplay(displayController);
-        controllers->setAudio(audioController);
-        emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG, controllers);
+        emulator = std::make_unique<Emulator>(GameBoyType::GameBoyDMG);
+        emulator->setControllers(Controller::Controllers()
+                .withAudio(audioController)
+                .withDisplay(displayController));
 
         executeFrame = FunkyBoy::Util::FrameExecutor([&]() {
             ret_code result;
