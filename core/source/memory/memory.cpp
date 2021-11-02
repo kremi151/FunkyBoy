@@ -41,15 +41,13 @@ using namespace FunkyBoy;
 #define FB_HRAM_SIZE 127
 
 Memory::Memory(
-        Controller::ControllersPtr controllers
-        , const io_registers& ioRegisters
+        const io_registers& ioRegisters
         , const PPUMemory &ppuMemory
 #ifdef FB_USE_SOUND
         , Sound::APU *apu
 #endif
 )
-    : controllers(std::move(controllers))
-    , ioRegisters(ioRegisters)
+    : ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
 #ifdef FB_USE_SOUND
     , apu(apu)
@@ -76,6 +74,10 @@ Memory::~Memory() {
     delete[] hram;
     delete[] rom;
     delete[] cram;
+}
+
+void Memory::onControllersUpdated(const Controller::Controllers &controllers) {
+    serialController = controllers.getSerial();
 }
 
 void Memory::loadROM(std::istream &stream) {
@@ -490,7 +492,7 @@ void Memory::write8BitsTo(memory_address offset, u8 val) {
 
                 if (offset == FB_REG_SC) {
                     if (val == 0x81) {
-                        controllers->getSerial()->sendByte(read8BitsAt(FB_REG_SB));
+                        serialController->sendByte(read8BitsAt(FB_REG_SB));
                     }
                 } else if (offset == FB_REG_DMA) {
                     dmaStarted = true;

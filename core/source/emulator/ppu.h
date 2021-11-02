@@ -17,18 +17,19 @@
 #ifndef FB_CORE_PPU_H
 #define FB_CORE_PPU_H
 
-#include <controllers/controllers.h>
+#include <controllers/display.h>
 #include <emulator/cpu.h>
 #include <emulator/io_registers.h>
 #include <memory/ppu_memory.h>
 #include <util/gpumode.h>
+#include <util/configurable.h>
 #include <util/typedefs.h>
 
 namespace FunkyBoy {
 
-    class PPU {
+    class PPU : public Reconfigurable {
     private:
-        Controller::ControllersPtr controllers;
+        Controller::DisplayControllerPtr displayController;
         io_registers ioRegisters;
         PPUMemory ppuMemory;
 
@@ -42,8 +43,10 @@ namespace FunkyBoy {
         void renderScanline(u8 ly);
         void updateStat(u8 &stat, u8 ly, bool lcdOn);
     public:
-        PPU(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory);
+        PPU(const io_registers& ioRegisters, const PPUMemory &ppuMemory);
         ~PPU();
+
+        void onControllersUpdated(const Controller::Controllers &controllers) override;
 
         ret_code doClocks(CPU &cpu, u8 clocks);
     };

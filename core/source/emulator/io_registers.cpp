@@ -25,7 +25,6 @@ using namespace FunkyBoy;
 io_registers::io_registers(const io_registers &registers)
     : sys_counter(registers.sys_counter)
     , hwIO(registers.hwIO)
-    , controllers(registers.controllers)
     , inputsDPad(registers.inputsDPad)
     , inputsButtons(registers.inputsButtons)
     , ptrCounter(registers.ptrCounter)
@@ -33,10 +32,9 @@ io_registers::io_registers(const io_registers &registers)
     (*ptrCounter)++;
 }
 
-io_registers::io_registers(Controller::ControllersPtr controllers)
+io_registers::io_registers()
     : sys_counter(new u16(0))
     , hwIO(new u8[FB_HW_IO_BYTES]{})
-    , controllers(std::move(controllers))
     , inputsDPad(new u8_fast(0b11111111u))
     , inputsButtons(new u8_fast(0b11111111u))
     , ptrCounter(new u16(1))

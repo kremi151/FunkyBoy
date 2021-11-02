@@ -30,31 +30,29 @@ namespace FunkyBoy::Controller {
 
     class Controllers {
     private:
-        SerialControllerPtr serial;
-        DisplayControllerPtr display;
-        AudioControllerPtr audio;
+        const SerialControllerPtr serial;
+        const DisplayControllerPtr display;
+        const AudioControllerPtr audio;
 
     public:
         Controllers(SerialControllerPtr serial, DisplayControllerPtr display, AudioControllerPtr audio);
         Controllers();
 
-        inline SerialControllerPtr &getSerial() {
+        inline const SerialControllerPtr &getSerial() const {
             return serial;
         }
 
-        void setSerial(const SerialControllerPtr &serialController);
-
-        inline DisplayControllerPtr &getDisplay() {
+        inline const DisplayControllerPtr &getDisplay() const {
             return display;
         }
 
-        void setDisplay(const DisplayControllerPtr &displayController);
-
-        inline AudioControllerPtr &getAudio() {
+        inline const AudioControllerPtr &getAudio() const {
             return audio;
         }
 
-        void setAudio(const AudioControllerPtr &audioController);
+        Controllers withSerial(SerialControllerPtr serial);
+        Controllers withDisplay(DisplayControllerPtr display);
+        Controllers withAudio(AudioControllerPtr audio);
     };
 
     typedef std::shared_ptr<Controllers> ControllersPtr;

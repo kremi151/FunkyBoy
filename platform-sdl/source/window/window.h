@@ -42,7 +42,6 @@ namespace FunkyBoy::SDL {
         bool loadStateRequestedPreviously;
         bool autoResume;
 
-        Controller::ControllersPtr controllers;
         Emulator emulator;
 
         fs::path savePath;

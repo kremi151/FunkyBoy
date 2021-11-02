@@ -71,9 +71,8 @@ namespace FunkyBoy::Sound {
 
 using namespace FunkyBoy::Sound;
 
-APU::APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::ControllersPtr controllers)
+APU::APU(GameBoyType gbType, const io_registers &ioRegisters)
     : ioRegisters(ioRegisters)
-    , controllers(std::move(controllers))
     , frameSeqMod(gbType == GameBoyDMG ? FB_FRAME_SEQ_MOD_DMG : FB_FRAME_SEQ_MOD_CGB)
     , frameSeqStep(7)
     , apuEnabled(false)
@@ -82,6 +81,10 @@ APU::APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::Contro
 #ifdef FB_DEBUG
     fprintf(stdout, "Queue audio every %d ticks\n", FB_SAMPLE_CLOCKS);
 #endif
+}
+
+void APU::onControllersUpdated(const FunkyBoy::Controller::Controllers &controllers) {
+    audioController = controllers.getAudio();
 }
 
 void APU::initChannels() {
@@ -127,7 +130,7 @@ void APU::doTick() {
         float leftVolume = ((nr50 & 0b01110000u) >> 4) / 7.0f;
         float rightVolume = (nr50 & 0b00000111u) / 7.0f;
 
-        controllers->getAudio()->pushSample(
+        audioController->pushSample(
                 FB_SAMPLE_BASE_VALUE + leftVolume * (
                         ((nr51 & 0b10000000) ? getChannel4DACOut() : 0.0f)
                         + ((nr51 & 0b01000000) ? getChannel3DACOut() : 0.0f)

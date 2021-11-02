@@ -105,7 +105,6 @@ namespace FunkyBoy {
     private:
         u16 *ptrCounter;
         u8 *hwIO;
-        Controller::ControllersPtr controllers;
         void resetSysCounter();
 
         u8_fast *inputsDPad;
@@ -114,7 +113,7 @@ namespace FunkyBoy {
         u16 *sys_counter;
     public:
         io_registers(const io_registers &registers);
-        explicit io_registers(Controller::ControllersPtr controllers);
+        io_registers();
         ~io_registers();
 
         inline u16 &getSysCounter() {

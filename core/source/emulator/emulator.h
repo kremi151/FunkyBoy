@@ -45,8 +45,6 @@ namespace FunkyBoy {
         void doAutosave();
 #endif
     test_public:
-        Controller::ControllersPtr controllers;
-
         io_registers ioRegisters;
         PPUMemory ppuMemory;
         Memory memory;
@@ -61,7 +59,8 @@ namespace FunkyBoy {
 #endif
 
         explicit Emulator(GameBoyType gbType);
-        Emulator(GameBoyType gbType, const Controller::ControllersPtr &controllers);
+
+        void setControllers(const Controller::Controllers &controllers);
 
         CartridgeStatus loadGame(const fs::path &romPath);
         CartridgeStatus loadGame(std::istream &stream);

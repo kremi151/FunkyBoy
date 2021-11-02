@@ -40,14 +40,14 @@ Controllers::Controllers(): Controllers(
 ) {
 }
 
-void Controllers::setSerial(const SerialControllerPtr &serialController) {
-    this->serial = serialController;
+Controllers Controllers::withSerial(SerialControllerPtr inSerial) {
+    return Controllers(std::move(inSerial), display, audio);
 }
 
-void Controllers::setDisplay(const DisplayControllerPtr &displayController) {
-    this->display = displayController;
+Controllers Controllers::withDisplay(DisplayControllerPtr inDisplay) {
+    return Controllers(serial, std::move(inDisplay), audio);
 }
 
-void Controllers::setAudio(const AudioControllerPtr &audioController) {
-    this->audio = audioController;
+Controllers Controllers::withAudio(AudioControllerPtr inAudio) {
+    return Controllers(serial, display, std::move(inAudio));
 }

@@ -52,9 +52,8 @@
 
 using namespace FunkyBoy;
 
-PPU::PPU(Controller::ControllersPtr controllers, const io_registers& ioRegisters, const PPUMemory &ppuMemory)
-    : controllers(std::move(controllers))
-    , ioRegisters(ioRegisters)
+PPU::PPU(const io_registers& ioRegisters, const PPUMemory &ppuMemory)
+    : ioRegisters(ioRegisters)
     , ppuMemory(ppuMemory)
     , gpuMode(GPUMode::GPUMode_2)
     , modeClocks(0)
@@ -70,6 +69,10 @@ PPU::PPU(Controller::ControllersPtr controllers, const io_registers& ioRegisters
 PPU::~PPU() {
     delete[] scanLineBuffer;
     delete[] bgColorIndexes;
+}
+
+void PPU::onControllersUpdated(const Controller::Controllers &controllers) {
+    displayController = controllers.getDisplay();
 }
 
 // GPU Lifecycle:
@@ -106,7 +109,7 @@ ret_code PPU::doClocks(CPU &cpu, u8 clocks) {
                 modeClocks = 0;
                 if (++ly >= FB_GB_DISPLAY_HEIGHT) {
                     gpuMode = GPUMode::GPUMode_1;
-                    controllers->getDisplay()->drawScreen();
+                    displayController->drawScreen();
                     cpu.requestInterrupt(InterruptType::VBLANK);
                     if (__fb_stat_isVBlankInterrupt(stat)) {
                         cpu.requestInterrupt(InterruptType::LCD_STAT);
@@ -303,7 +306,7 @@ void PPU::renderScanline(u8 ly) {
             }
         }
     }
-    controllers->getDisplay()->drawScanLine(ly, scanLineBuffer);
+    displayController->drawScanLine(ly, scanLineBuffer);
 }
 
 void PPU::updateStat(u8 &stat, u8 ly, bool lcdOn) {
