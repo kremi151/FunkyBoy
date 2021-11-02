@@ -34,13 +34,9 @@ TEST_SUITE(saveStates) {
     }
 
     TEST(testBasicSaveState) {
-        auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
         auto serial = std::make_shared<FunkyBoy::Controller::SerialControllerTest>();
-        controllers->setSerial(serial);
-        FunkyBoy::Emulator emulator1(
-                TEST_GB_TYPE,
-                controllers
-        );
+        FunkyBoy::Emulator emulator1(TEST_GB_TYPE);
+        emulator1.setControllers(FunkyBoy::Controller::Controllers().withSerial(serial));
         FunkyBoy::fs::path romPath =
                 FunkyBoy::fs::path("..") / "gb-test-roms" / "cpu_instrs" / "individual" / "01-special.gb";
         auto status = emulator1.loadGame(romPath);
@@ -67,10 +63,8 @@ TEST_SUITE(saveStates) {
         // Reset emulator
         FunkyBoy::Util::membuf inBuf(reinterpret_cast<char *>(saveState), sizeof(saveState), true);
         std::istream inStream(&inBuf);
-        FunkyBoy::Emulator emulator2(
-                TEST_GB_TYPE,
-                controllers
-        );
+        FunkyBoy::Emulator emulator2(TEST_GB_TYPE);
+        emulator2.setControllers(FunkyBoy::Controller::Controllers().withSerial(serial));
         status = emulator2.loadGame(romPath);
         if (status != FunkyBoy::CartridgeStatus::Loaded) {
             testFailure("Loading ROM in second emulator failed");

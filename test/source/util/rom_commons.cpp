@@ -24,13 +24,9 @@
 
 void testUsingROM(const FunkyBoy::fs::path &romPath, unsigned int expectedTicks, const char *successWord, const char *failureWord) {
     expectedTicks *= 4;
-    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
     auto serial = std::make_shared<FunkyBoy::Controller::SerialControllerTest>();
-    controllers->setSerial(serial);
-    FunkyBoy::Emulator emulator(
-            TEST_GB_TYPE,
-            controllers
-    );
+    FunkyBoy::Emulator emulator(TEST_GB_TYPE);
+    emulator.setControllers(FunkyBoy::Controller::Controllers().withSerial(serial));
     auto status = emulator.loadGame(romPath);
     if (status != FunkyBoy::CartridgeStatus::Loaded) {
       std::cout << "Loading test ROM at " << romPath << " failed" << std::endl;
