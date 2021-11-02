@@ -36,8 +36,7 @@ using namespace FunkyBoy::SDL;
 
 Window::Window(FunkyBoy::GameBoyType gbType)
     : gbType(gbType)
-    , controllers(new Controller::Controllers)
-    , emulator(GameBoyType::GameBoyDMG, controllers)
+    , emulator(GameBoyType::GameBoyDMG)
     , window(nullptr)
     , renderer(nullptr)
     , frameBuffer(nullptr)
@@ -108,9 +107,11 @@ bool Window::init(int argc, char **argv, size_t width, size_t height) {
     SDL_RenderSetLogicalSize(renderer, FB_GB_DISPLAY_WIDTH, FB_GB_DISPLAY_HEIGHT);
 
     try {
-        controllers->setSerial(std::make_shared<Controller::SerialControllerSDL>());
-        controllers->setDisplay(std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer));
-        controllers->setAudio(std::make_shared<Controller::AudioControllerSDL>());
+        emulator.setControllers(Controller::Controllers(
+                std::make_shared<Controller::SerialControllerSDL>(),
+                std::make_shared<Controller::DisplayControllerSDL>(renderer, frameBuffer),
+                std::make_shared<Controller::AudioControllerSDL>()
+        ));
     } catch (const std::exception &ex) {
         std::string message = FB_NAME " failed to start up correctly. Reason: ";
         message += ex.what();
