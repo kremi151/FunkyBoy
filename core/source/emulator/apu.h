@@ -22,13 +22,14 @@
 #include <functional>
 #include <iostream>
 #include <util/typedefs.h>
+#include <util/configurable.h>
 #include <emulator/io_registers.h>
 #include <emulator/gb_type.h>
 #include <emulator/audio/channel_one.h>
 #include <emulator/audio/channel_two.h>
 #include <emulator/audio/channel_three.h>
 #include <emulator/audio/channel_four.h>
-#include <controllers/controllers.h>
+#include <controllers/audio.h>
 
 namespace FunkyBoy {
 
@@ -38,9 +39,9 @@ namespace FunkyBoy {
 
 namespace FunkyBoy::Sound {
 
-    class APU {
+    class APU : public FunkyBoy::Reconfigurable {
     private:
-        Controller::ControllersPtr controllers;
+        Controller::AudioControllerPtr audioController;
 
         io_registers ioRegisters;
 
@@ -98,7 +99,9 @@ namespace FunkyBoy::Sound {
         }
 
     public:
-        APU(GameBoyType gbType, const io_registers &ioRegisters, Controller::ControllersPtr controllers);
+        APU(GameBoyType gbType, const io_registers &ioRegisters);
+
+        void onControllersUpdated(const Controller::Controllers &controllers) override;
 
         void doTick();
 

@@ -37,38 +37,42 @@ namespace FunkyBoy {
 
 using namespace FunkyBoy;
 
-Emulator::Emulator(GameBoyType gbType, const Controller::ControllersPtr& controllers)
-    : controllers(controllers)
-    , ioRegisters(controllers)
+Emulator::Emulator(GameBoyType gbType)
+    : ioRegisters()
     , ppuMemory()
 #ifdef FB_USE_SOUND
-    , apu(gbType, ioRegisters, controllers)
+    , apu(gbType, ioRegisters)
 #endif
     , memory(
-            controllers
-            , ioRegisters
+            ioRegisters
             , ppuMemory
 #ifdef FB_USE_SOUND
             , &apu
 #endif
     )
     , cpu(gbType, ioRegisters)
-    , ppu(controllers, ioRegisters, ppuMemory)
+    , ppu(ioRegisters, ppuMemory)
 #ifdef FB_USE_AUTOSAVE
     , cramLastWritten(-1)
     , savePath()
 #endif
 {
+    // Set default controllers
+    setControllers(Controller::Controllers());
+
     memory.init();
 
     // Initialize registers
     cpu.powerUpInit(memory);
 }
 
-Emulator::Emulator(FunkyBoy::GameBoyType gbType): Emulator(
-        gbType,
-        std::make_shared<Controller::Controllers>()
-) {}
+void Emulator::setControllers(const Controller::Controllers &controllers) {
+#ifdef FB_USE_SOUND
+    apu.onControllersUpdated(controllers);
+#endif
+    memory.onControllersUpdated(controllers);
+    ppu.onControllersUpdated(controllers);
+}
 
 CartridgeStatus Emulator::loadGame(const fs::path &romPath) {
     std::ifstream romFile(romPath.c_str(), std::ios::binary | std::ios::in);

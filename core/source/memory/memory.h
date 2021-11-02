@@ -19,7 +19,8 @@
 
 #include <util/typedefs.h>
 #include <cartridge/status.h>
-#include <controllers/controllers.h>
+#include <controllers/serial.h>
+#include <util/configurable.h>
 #include <emulator/io_registers.h>
 #include <memory/ppu_memory.h>
 #include <cartridge/mbc.h>
@@ -34,9 +35,9 @@
 
 namespace FunkyBoy {
 
-    class Memory {
+    class Memory : public Reconfigurable {
     private:
-        Controller::ControllersPtr controllers;
+        Controller::SerialControllerPtr serialController;
         io_registers ioRegisters;
         PPUMemory ppuMemory;
 
@@ -67,8 +68,7 @@ namespace FunkyBoy {
 
     public:
         Memory(
-                Controller::ControllersPtr controllers
-                , const io_registers& ioRegisters
+                const io_registers& ioRegisters
                 , const PPUMemory &ppuMemory
 #ifdef FB_USE_SOUND
                 , Sound::APU *apu
@@ -80,6 +80,8 @@ namespace FunkyBoy {
         Memory &operator= (const Memory &other) = delete;
 
         void init();
+
+        void onControllersUpdated(const Controller::Controllers &controllers) override;
 
         void loadROM(std::istream &stream);
         void loadROM(std::istream &stream, bool strictSizeCheck);

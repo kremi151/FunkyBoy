@@ -124,6 +124,7 @@ set(HEADERS
         source/util/stream_utils.h
         source/util/membuf.h
         source/util/os_specific.h
+        source/util/configurable.h
         source/palette/dmg_palette.h
         source/exception/state_exception.h
         source/exception/read_exception.h
