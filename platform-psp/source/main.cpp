@@ -76,11 +76,10 @@ int main() {
 
     // Emulator config
     auto displayController = std::make_shared<FunkyBoyPSP::Controller::DisplayController>();
-    auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
-    controllers->setDisplay(displayController);
 
     pspDebugScreenPrintf("Loading game from %s...\n", FB_PSP_ROM_PATH);
-    FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG, controllers);
+    FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG);
+    emulator.setControllers(FunkyBoy::Controller::Controllers().withDisplay(displayController));
     auto status = emulator.loadGame(FB_PSP_ROM_PATH);
 
     if (status == FunkyBoy::CartridgeStatus::Loaded) {

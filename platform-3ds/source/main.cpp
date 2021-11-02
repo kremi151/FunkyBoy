@@ -113,11 +113,9 @@ extern "C" {
             return 0;
         }
 
-        // Emulator config
-        auto controllers = std::make_shared<FunkyBoy::Controller::Controllers>();
-        controllers->setDisplay(std::make_shared<FunkyBoy::Controller::DisplayController3DS>());
-
-        FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG, controllers);
+        FunkyBoy::Emulator emulator(FunkyBoy::GameBoyType::GameBoyDMG);
+        emulator.setControllers(FunkyBoy::Controller::Controllers()
+            .withDisplay(std::make_shared<FunkyBoy::Controller::DisplayController3DS>()));
 
         printf("Launching game...\n");
         auto status = emulator.loadGame(FB_3DS_ROM_PATH);
