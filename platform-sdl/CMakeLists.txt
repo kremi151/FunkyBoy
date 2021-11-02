@@ -34,6 +34,9 @@ set(DARWIN_SOURCES
         source/ui/native_ui_cocoa.mm
         )
 
+set(EXTRA_EXEC_DEPS
+        )
+
 if (OS_MACOS)
         set(SOURCES ${SOURCES} ${DARWIN_SOURCES})
 endif()
@@ -71,9 +74,15 @@ elseif(OS_LINUX)
     message(FATAL_ERROR "X11 was not found")
 endif()
 
+if (OS_WINDOWS)
+    set(fb_win32_ICON ${CMAKE_SOURCE_DIR}/win32_appicon.rc)
+    set(EXTRA_EXEC_DEPS ${EXTRA_EXEC_DEPS} ${fb_win32_ICON})
+endif()
+
 if (OS_MACOS)
     set(MACOSX_BUNDLE_ICON_FILE funkyboy.icns)
     set(fb_macos_ICON ${CMAKE_CURRENT_BINARY_DIR}/funkyboy.icns)
+    set(EXTRA_EXEC_DEPS ${EXTRA_EXEC_DEPS} ${fb_macos_ICON})
     set_source_files_properties(${fb_macos_ICON} PROPERTIES
        MACOSX_PACKAGE_LOCATION "Resources")
 
@@ -82,7 +91,7 @@ if (OS_MACOS)
         COMMAND ${CMAKE_SOURCE_DIR}/scripts/mac_os_create_icon.sh "${CMAKE_SOURCE_DIR}/../resources" "${CMAKE_CURRENT_BINARY_DIR}"
     )
 
-    add_executable(fb_sdl MACOSX_BUNDLE ${fb_macos_ICON} ${SOURCES} ${HEADERS})
+    add_executable(fb_sdl MACOSX_BUNDLE ${EXTRA_EXEC_DEPS} ${SOURCES} ${HEADERS})
 
     set_target_properties(fb_sdl PROPERTIES
         BUNDLE True
@@ -103,7 +112,7 @@ if (OS_MACOS)
 
     add_custom_target(app_bundle DEPENDS ${fb_macos_PACKED_BINARY})
 else()
-    add_executable(fb_sdl ${SOURCES} ${HEADERS})
+    add_executable(fb_sdl ${EXTRA_EXEC_DEPS} ${SOURCES} ${HEADERS})
 endif()
 
 if (OS_WINDOWS)
