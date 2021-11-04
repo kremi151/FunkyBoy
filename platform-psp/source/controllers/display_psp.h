@@ -29,7 +29,7 @@ namespace FunkyBoyPSP::Controller {
 
         uint32_t *frameBuffer{};
 
-        void drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) override;
+        void drawScanLine(FunkyBoy::u8_fast y, FunkyBoy::u8 *buffer) override;
         void drawScreen() override;
     };
 

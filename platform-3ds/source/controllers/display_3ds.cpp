@@ -31,7 +31,7 @@ DisplayController3DS::DisplayController3DS()
 {
 }
 
-void DisplayController3DS::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
+void DisplayController3DS::drawScanLine(FunkyBoy::u8_fast y, FunkyBoy::u8 *buffer) {
     if (!frameBuffer) {
         frameBuffer = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &frameWidth, &frameHeight);
     }

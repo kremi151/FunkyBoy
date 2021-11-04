@@ -27,7 +27,7 @@ DisplayController::DisplayController()
 {
 }
 
-void DisplayController::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
+void DisplayController::drawScanLine(FunkyBoy::u8_fast y, FunkyBoy::u8 *buffer) {
     uint32_t pixel;
     uint_fast8_t x;
     for (x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {

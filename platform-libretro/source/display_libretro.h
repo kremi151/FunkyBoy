@@ -31,7 +31,7 @@ namespace FunkyBoy::Controller {
         DisplayControllerLibretro();
         ~DisplayControllerLibretro() override;
 
-        void drawScanLine(u8 y, u8 *buffer) override;
+        void drawScanLine(u8_fast y, u8 *buffer) override;
         void drawScreen() override;
 
         void setVideoCallback(retro_video_refresh_t cb);

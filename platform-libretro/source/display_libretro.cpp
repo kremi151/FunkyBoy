@@ -30,7 +30,7 @@ DisplayControllerLibretro::~DisplayControllerLibretro() {
     delete[] pixels;
 }
 
-void DisplayControllerLibretro::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
+void DisplayControllerLibretro::drawScanLine(FunkyBoy::u8_fast y, FunkyBoy::u8 *buffer) {
     uint32_t pixel;
     for (u8 x = 0 ; x < FB_GB_DISPLAY_WIDTH ; x++) {
         auto &color = Palette::ARGB8888::DMG[*(buffer + x)];

@@ -31,7 +31,7 @@ namespace FunkyBoy::Controller {
     public:
         DisplayController3DS();
 
-        void drawScanLine(u8 y, u8 *buffer) override;
+        void drawScanLine(u8_fast y, u8 *buffer) override;
         void drawScreen() override;
     };
 
