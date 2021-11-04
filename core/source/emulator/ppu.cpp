@@ -177,20 +177,20 @@ ret_code PPU::doClocks(CPU &cpu, u8 clocks) {
     return result;
 }
 
-void PPU::renderScanline(u8 ly) {
+void PPU::renderScanline(u8_fast ly) {
     const u8 &lcdc = ioRegisters.getLCDC();
     const memory_address tileSetAddr = __fb_getTileDataAddress(lcdc);
     const bool bgEnabled = __fb_lcdc_isBGEnabled(lcdc);
     const bool objEnabled = __fb_lcdc_objEnabled(lcdc);
     const bool windowEnabled = __fb_lcdc_isWindowEnabled(lcdc);
-    u16 y;
-    u8 tileOffsetX;
-    u8 xInTile;
-    u8 yInTile;
-    u16 tile;
-    u16 tileLine;
-    u8 palette;
-    u8 colorIndex;
+    u16_fast y;
+    u8_fast tileOffsetX;
+    u8_fast xInTile;
+    u8_fast yInTile;
+    u16_fast tile;
+    u16_fast tileLine;
+    u8_fast palette;
+    u8_fast colorIndex;
     int it;
     if (bgEnabled) {
         const u8 &scx = ioRegisters.getSCX();

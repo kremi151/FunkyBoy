@@ -18,7 +18,7 @@
 
 using namespace FunkyBoy::Controller;
 
-void DisplayControllerVoid::drawScanLine(FunkyBoy::u8 y, FunkyBoy::u8 *buffer) {
+void DisplayControllerVoid::drawScanLine(FunkyBoy::u8_fast y, FunkyBoy::u8 *buffer) {
     // Do nothing
 }
 

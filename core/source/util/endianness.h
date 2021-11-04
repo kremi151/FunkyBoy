@@ -25,6 +25,10 @@ namespace FunkyBoy::Util {
         return (msb << 8u) | lsb;
     }
 
+    inline u16_fast compose16BitsFast(u8_fast lsb, u8_fast msb) {
+        return (msb << 8u) | (lsb & 0xffu);
+    }
+
 }
 
 #endif //FB_CORE_ENDIANNESS_H

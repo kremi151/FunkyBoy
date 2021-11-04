@@ -26,7 +26,7 @@ namespace FunkyBoy::Controller {
     public:
         virtual ~DisplayController() = default;
 
-        virtual void drawScanLine(u8 y, u8 *buffer) = 0;
+        virtual void drawScanLine(u8_fast y, u8 *buffer) = 0;
         virtual void drawScreen() = 0;
     };
 

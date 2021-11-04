@@ -42,8 +42,8 @@ namespace FunkyBoy {
             return *(vram + vramOffset);
         }
 
-        inline u16 readVRAM16Bits(memory_address vramOffset) {
-            return Util::compose16Bits(*(vram + vramOffset), *(vram + vramOffset + 1));
+        inline u16_fast readVRAM16Bits(memory_address vramOffset) {
+            return Util::compose16BitsFast(*(vram + vramOffset), *(vram + vramOffset + 1));
         }
 
         [[nodiscard]] inline bool isVRAMAccessibleFromMMU() const {
