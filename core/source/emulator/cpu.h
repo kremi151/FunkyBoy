@@ -64,6 +64,8 @@ namespace FunkyBoy {
         bool doInterrupts(Memory &memory);
         void doTimers(Memory &memory, u8 clocks);
 
+        static bool doTimerObscureCheck(u8_fast clocks, u16_fast sysCounter, u8_fast tac);
+
     test_public:
 
         InstrContext instrContext;

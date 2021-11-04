@@ -281,7 +281,7 @@ bool CPU::doInterrupts(Memory &memory) {
     return false;
 }
 
-bool doTimerObscureCheck(u8 clocks, u16 sysCounter, u8 tac) {
+bool CPU::doTimerObscureCheck(u8_fast clocks, u16_fast sysCounter, u8_fast tac) {
     while (clocks > 0) {
         switch (tac & 0b11u) {
             case 0u: {
