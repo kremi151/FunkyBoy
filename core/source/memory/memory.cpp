@@ -107,7 +107,7 @@ void Memory::init() {
     this->apu->writeToMemory = [&](memory_address address, u8_fast value) {
         this->write8BitsTo(address, value);
     };
-#endif}
+#endif
 }
 
 void Memory::loadROM(std::istream &stream, bool strictSizeCheck) {

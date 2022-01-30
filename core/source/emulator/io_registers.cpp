@@ -27,6 +27,7 @@ io_registers::io_registers(const io_registers &registers)
     , hwIO(registers.hwIO)
     , inputsDPad(registers.inputsDPad)
     , inputsButtons(registers.inputsButtons)
+    , inputsChanged(registers.inputsChanged)
     , ptrCounter(registers.ptrCounter)
 {
     (*ptrCounter)++;
@@ -37,6 +38,7 @@ io_registers::io_registers()
     , hwIO(new u8[FB_HW_IO_BYTES]{})
     , inputsDPad(new u8_fast(0b11111111u))
     , inputsButtons(new u8_fast(0b11111111u))
+    , inputsChanged(new bool(false))
     , ptrCounter(new u16(1))
 {
 }
@@ -47,6 +49,7 @@ io_registers::~io_registers() {
         delete[] hwIO;
         delete inputsDPad;
         delete inputsButtons;
+        delete inputsChanged;
         delete ptrCounter;
     }
 }
@@ -65,10 +68,9 @@ void io_registers::handleMemoryWrite(u8 offset, u8 value) {
         case __FB_REG_OFFSET_P1: {
             // Only bits 4 and 5 are writable
             u8 currentP1 = *(hwIO + __FB_REG_OFFSET_P1) & 0b00001111u;
-            value = 0b11000000u           // Bits 6 and 7 always read '1'
-                  | (value & 0b00110000u) // Keep the two writable bits
+            value = (value & 0b00110000u) // Keep the two writable bits (Bits 6 and 7 always read '1' and are set to '1' by calculateP1Value)
                   | currentP1;            // Take the read-only bits from the current P1 value
-            *(hwIO + __FB_REG_OFFSET_P1) = value;
+            *(hwIO + __FB_REG_OFFSET_P1) = calculateP1Value(value);
             break;
         }
         case __FB_REG_OFFSET_STAT: {
@@ -95,79 +97,84 @@ u8 io_registers::handleMemoryRead(u8 offset) {
 }
 
 void io_registers::setInputState(Controller::JoypadKey key, bool pressed) {
+    u8_fast nextInputsButtons = *inputsButtons;
+    u8_fast nextInputsDPad = *inputsDPad;
     switch (key) {
         case Controller::JoypadKey::JOYPAD_A:
             if (pressed) {
-                *inputsButtons &= 0b11111110u;
+                nextInputsButtons &= 0b11111110u;
             } else {
-                *inputsButtons |= 0b00000001u;
+                nextInputsButtons |= 0b00000001u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_B:
             if (pressed) {
-                *inputsButtons &= 0b11111101u;
+                nextInputsButtons &= 0b11111101u;
             } else {
-                *inputsButtons |= 0b00000010u;
+                nextInputsButtons |= 0b00000010u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_SELECT:
             if (pressed) {
-                *inputsButtons &= 0b11111011u;
+                nextInputsButtons &= 0b11111011u;
             } else {
-                *inputsButtons |= 0b00000100u;
+                nextInputsButtons |= 0b00000100u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_START:
             if (pressed) {
-                *inputsButtons &= 0b11110111u;
+                nextInputsButtons &= 0b11110111u;
             } else {
-                *inputsButtons |= 0b00001000u;
+                nextInputsButtons |= 0b00001000u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_RIGHT:
             if (pressed) {
-                *inputsDPad &= 0b11111110u;
+                nextInputsDPad &= 0b11111110u;
             } else {
-                *inputsDPad |= 0b00000001u;
+                nextInputsDPad |= 0b00000001u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_LEFT:
             if (pressed) {
-                *inputsDPad &= 0b11111101u;
+                nextInputsDPad &= 0b11111101u;
             } else {
-                *inputsDPad |= 0b00000010u;
+                nextInputsDPad |= 0b00000010u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_UP:
             if (pressed) {
-                *inputsDPad &= 0b11111011u;
+                nextInputsDPad &= 0b11111011u;
             } else {
-                *inputsDPad |= 0b00000100u;
+                nextInputsDPad |= 0b00000100u;
             }
             break;
         case Controller::JoypadKey::JOYPAD_DOWN:
             if (pressed) {
-                *inputsDPad &= 0b11110111u;
+                nextInputsDPad &= 0b11110111u;
             } else {
-                *inputsDPad |= 0b00001000u;
+                nextInputsDPad |= 0b00001000u;
             }
             break;
     }
+    if (nextInputsButtons != *inputsButtons || nextInputsDPad != *inputsDPad) {
+        *inputsButtons = nextInputsButtons;
+        *inputsDPad = nextInputsDPad;
+        *inputsChanged = true;
+        updateJoypad();
+    }
 }
 
-u8_fast io_registers::updateJoypad() {
-    u8 &p1 = *(hwIO + __FB_REG_OFFSET_P1);
-    u8_fast originalValue = p1;
-    u8_fast val = originalValue | 0b11001111u;
-    if ((originalValue & 0b00100000u) == 0) {
+u8_fast io_registers::calculateP1Value(u8_fast inP1) {
+    u8_fast val = inP1 | 0b11001111u;
+    if ((inP1 & 0b00100000u) == 0) {
         // Select Button keys
         val &= *inputsButtons;
     }
-    if ((originalValue & 0b00010000u) == 0) {
+    if ((inP1 & 0b00010000u) == 0) {
         // Select Direction keys
         val &= *inputsDPad;
     }
-    p1 = val;
     return val;
 }
 
@@ -175,6 +182,7 @@ void io_registers::serialize(std::ostream &ostream) const {
     ostream.write(reinterpret_cast<const char*>(hwIO), FB_HW_IO_BYTES);
     ostream.put(*inputsDPad & 0xffu);
     ostream.put(*inputsButtons & 0xffu);
+    ostream.put(*inputsChanged);
     Util::Stream::write16Bits(*sys_counter, ostream);
 }
 
@@ -184,12 +192,13 @@ void io_registers::deserialize(std::istream &istream) {
         throw Exception::ReadException("Stream is too short (HWIO)");
     }
 
-    char buffer[2];
+    char buffer[3];
     istream.read(buffer, sizeof(buffer));
     if (!istream) {
         throw Exception::ReadException("Stream is too short (IO registers)");
     }
     *inputsDPad = buffer[0];
     *inputsButtons = buffer[1];
+    *inputsChanged = buffer[2];
     *sys_counter = Util::Stream::read16Bits(istream);
 }

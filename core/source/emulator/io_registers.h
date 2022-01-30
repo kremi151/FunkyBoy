@@ -107,8 +107,11 @@ namespace FunkyBoy {
         u8 *hwIO;
         void resetSysCounter();
 
+        u8_fast calculateP1Value(u8_fast inP1);
+
         u8_fast *inputsDPad;
         u8_fast *inputsButtons;
+        bool *inputsChanged;
     test_public:
         u16 *sys_counter;
     public:
@@ -129,7 +132,17 @@ namespace FunkyBoy {
 
         void setInputState(Controller::JoypadKey key, bool pressed);
 
-        u8_fast updateJoypad();
+        inline void updateJoypad() {
+            *(hwIO + __FB_REG_OFFSET_P1) = calculateP1Value(*(hwIO + __FB_REG_OFFSET_P1));
+        }
+
+        inline bool clearInputsChanged() {
+            if (*inputsChanged) {
+                *inputsChanged = false;
+                return true;
+            }
+            return false;
+        }
 
         inline u8 *getWaveRAM() {
             return hwIO + __FB_REG_OFFSET_WAVE_RAM_START;
