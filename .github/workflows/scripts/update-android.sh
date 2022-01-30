@@ -3,6 +3,8 @@
 set -euo pipefail;
 set +x
 
+PARENT_REPO="kremi151/FunkyBoy"
+
 mkdir -p ~/.ssh
 
 mkdir tmp_android_ws
@@ -35,7 +37,7 @@ NEW_COMMIT_HASH=$(git rev-parse HEAD)
 echo "Update FunkyBoy core" > /tmp/fb_git_log.txt
 echo "" >> /tmp/fb_git_log.txt
 git log --pretty="format:%h by %an: %s" ${OLD_COMMIT_HASH}..${NEW_COMMIT_HASH} >> /tmp/fb_git_log.txt
-sed -i -E "s/#([[:digit:]]+)/# \1/" /tmp/fb_git_log.txt
+sed -i -E "s|#([[:digit:]]+)|${PARENT_REPO}#\1|" /tmp/fb_git_log.txt
 
 cd $FBA_WORKSPACE
 
