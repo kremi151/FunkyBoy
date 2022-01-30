@@ -230,16 +230,16 @@ inline u8 getInterruptBitMask(InterruptType type) {
 }
 
 void CPU::doJoypad() {
-    u8_fast oldP1 = ioRegisters.getP1() & 0b00001111u;
-    u8_fast newP1 = ioRegisters.updateJoypad() & 0b00001111u;
-    bool isNotPressed = oldP1 & newP1;
-    if (!isNotPressed && joypadWasNotPressed) {
-        requestInterrupt(InterruptType::JOYPAD);
+    bool isPressed = ioRegisters.clearInputsChanged();
+    if (isPressed) {
+        if (joypadWasNotPressed) {
+            requestInterrupt(InterruptType::JOYPAD);
+        }
+        if (instrContext.cpuState == CPUState::STOPPED) {
+            instrContext.cpuState = CPUState::RUNNING;
+        }
     }
-    if (!isNotPressed && instrContext.cpuState == CPUState::STOPPED) {
-        instrContext.cpuState = CPUState::RUNNING;
-    }
-    joypadWasNotPressed = isNotPressed;
+    joypadWasNotPressed = !isPressed;
 }
 
 bool CPU::doInterrupts(Memory &memory) {

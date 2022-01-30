@@ -116,7 +116,7 @@ void Emulator::writeCartridgeRam(std::ostream &stream) {
     memory.writeRam(stream);
 }
 
-#define FB_SAVE_STATE_VERSION 2
+#define FB_SAVE_STATE_VERSION 3
 
 void Emulator::saveState(std::ostream &ostream) {
     ostream.put(FB_SAVE_STATE_VERSION);
