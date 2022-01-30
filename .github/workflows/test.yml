@@ -37,8 +37,8 @@ jobs:
       - name: Download Mooneye ROM tests (Linux + macOS)
         if: ${{ matrix.config.os != 'windows-latest' }}
         run: |
-          wget https://gekkio.fi/files/mooneye-test-suite/mts-20211031-1956-1ae00bf/mts-20211031-1956-1ae00bf.zip -O "${{ github.workspace }}/test/mooneye-test-roms/mooneye.zip"
-          cd "${{ github.workspace }}/test/mooneye-test-roms" && unzip mooneye.zip
+          wget https://gekkio.fi/files/mooneye-test-suite/mts-20211031-1956-1ae00bf/mts-20211031-1956-1ae00bf.zip -O "${{ github.workspace }}/test/mooneye.zip"
+          cd "${{ github.workspace }}/test" && unzip mooneye.zip && mv ./mts-20211031-1956-1ae00bf/** ./mooneye-test-roms/
       - name: run-cmake
         uses: lukka/run-cmake@v2.5
         with:
