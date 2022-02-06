@@ -33,8 +33,12 @@ jobs:
         run: |
           Invoke-WebRequest 'https://gekkio.fi/files/mooneye-test-suite/mts-20211031-1956-1ae00bf/mts-20211031-1956-1ae00bf.zip' -OutFile "${{ github.workspace }}\mooneye.zip"
           expand-archive -path "${{ github.workspace }}\mooneye.zip" -destinationpath "${{ github.workspace }}\test\mooneye-test-roms-zip"
-          (Robocopy "${{ github.workspace }}\test\mooneye-test-roms-zip\mts-20211031-1956-1ae00bf" "${{ github.workspace }}\test\mooneye-test-roms" /E) ^& IF %ERRORLEVEL% LEQ 1 exit 0
         shell: powershell
+      - name: Extract Mooneye ROM tests (Windows)
+        if: ${{ matrix.config.os == 'windows-latest' }}
+        run: |
+          (Robocopy "${{ github.workspace }}\test\mooneye-test-roms-zip\mts-20211031-1956-1ae00bf" "${{ github.workspace }}\test\mooneye-test-roms" /E) ^& IF %ERRORLEVEL% LEQ 1 exit 0
+        shell: cmd
       - name: Download Mooneye ROM tests (Linux + macOS)
         if: ${{ matrix.config.os != 'windows-latest' }}
         run: |
