@@ -17,6 +17,8 @@
 #ifndef FB_CORE_OPERANDS_PREFIX_PREFIX_H
 #define FB_CORE_OPERANDS_PREFIX_PREFIX_H
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "instruction_context.h"
 
 namespace FunkyBoy::Operands {
@@ -37,5 +39,7 @@ namespace FunkyBoy::Operands {
     bool prefixPlaceholder(InstrContext &context, Memory &memory);
 
 }
+
+#endif
 
 #endif //FB_CORE_OPERANDS_PREFIX_PREFIX_H

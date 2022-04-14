@@ -17,6 +17,8 @@
 #ifndef FB_CORE_OPERANDS__READS_H
 #define FB_CORE_OPERANDS__READS_H
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "instruction_context.h"
 
 namespace FunkyBoy::Operands {
@@ -107,5 +109,7 @@ namespace FunkyBoy::Operands {
     bool readHLMem(InstrContext &context, Memory &memory);
 
 }
+
+#endif
 
 #endif //FB_CORE_OPERANDS__READS_H

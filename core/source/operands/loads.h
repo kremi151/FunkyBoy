@@ -17,6 +17,8 @@
 #ifndef FB_CORE_OPERANDS_LOADS_H
 #define FB_CORE_OPERANDS_LOADS_H
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "instruction_context.h"
 
 namespace FunkyBoy::Operands {
@@ -135,5 +137,7 @@ namespace FunkyBoy::Operands {
     bool load_HL_SPe(InstrContext &context, Memory &memory);
 
 }
+
+#endif
 
 #endif //FB_CORE_OPERANDS_LOADS_H

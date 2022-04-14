@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "reads.h"
 
 #include <util/registers.h>
@@ -87,3 +89,5 @@ bool Operands::readHLMem(InstrContext &context, Memory &memory) {
     context.lsb = memory.read8BitsAt(context.readHL());
     return true;
 }
+
+#endif

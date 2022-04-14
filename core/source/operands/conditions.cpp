@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "conditions.h"
 
 #include <util/flags.h>
@@ -35,3 +37,5 @@ bool Operands::checkIsCarryContextual(InstrContext &context, Memory &memory) {
         return Flags::isCarry(context.regF);
     }
 }
+
+#endif

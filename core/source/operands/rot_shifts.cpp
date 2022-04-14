@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "rot_shifts.h"
 
 #include <util/flags.h>
@@ -53,3 +55,5 @@ bool Operands::rla(InstrContext &context, Memory &memory) {
     Flags::setFlags(context.regF, false, false, false, (a & 128u) != 0);
     return true;
 }
+
+#endif

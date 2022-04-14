@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "alu.h"
 
 #include <util/typedefs.h>
@@ -288,3 +290,5 @@ bool Operands::xor_HL(InstrContext &context, Memory &memory) {
     __alu_xor(context.regF, context.regA, memory.read8BitsAt(context.readHL()));
     return true;
 }
+
+#endif

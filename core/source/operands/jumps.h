@@ -17,6 +17,8 @@
 #ifndef FB_CORE_OPERANDS_JUMPS_H
 #define FB_CORE_OPERANDS_JUMPS_H
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands {
@@ -33,5 +35,7 @@ namespace FunkyBoy::Operands {
     bool rst(InstrContext &context, Memory &memory);
 
 }
+
+#endif
 
 #endif //FB_CORE_OPERANDS_JUMPS_H

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "tables.h"
 
 #include <operands/registry.h>
@@ -280,3 +282,5 @@ namespace FunkyBoy::Operands::Tables {
     };
 
 }
+
+#endif

@@ -17,6 +17,8 @@
 #ifndef FB_CORE_OPERANDS_ALU_H
 #define FB_CORE_OPERANDS_ALU_H
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands {
@@ -232,5 +234,7 @@ namespace FunkyBoy::Operands {
     bool xor_HL(InstrContext &context, Memory &memory);
 
 }
+
+#endif
 
 #endif //FB_CORE_OPERANDS_ALU_H

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "loads.h"
 
 #include <util/endianness.h>
@@ -145,3 +147,5 @@ bool Operands::load_HL_SPe(InstrContext &context, Memory &memory) {
     context.writeHL(Util::addToSP(context.regF, context.stackPointer, context.signedByte));
     return true;
 }
+
+#endif

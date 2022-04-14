@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "misc.h"
 
 #include <util/flags.h>
@@ -104,3 +106,5 @@ bool Operands::ccf(InstrContext &context, Memory &memory) {
     Flags::setFlags(context.regF, Flags::isZero(context.regF), false, false, !Flags::isCarry(context.regF));
     return true;
 }
+
+#endif

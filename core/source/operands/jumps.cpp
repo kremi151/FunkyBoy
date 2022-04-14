@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "jumps.h"
 
 #include <util/endianness.h>
@@ -63,3 +65,5 @@ bool Operands::rst(InstrContext &context, Memory &memory) {
     context.progCounter = rstAddr;
     return true;
 }
+
+#endif

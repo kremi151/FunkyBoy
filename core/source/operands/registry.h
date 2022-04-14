@@ -17,6 +17,8 @@
 #ifndef FB_CORE_OPERANDS_REGISTRY_H
 #define FB_CORE_OPERANDS_REGISTRY_H
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands::Registry {
@@ -141,5 +143,7 @@ namespace FunkyBoy::Operands::Registry {
 
     extern const Operand decodePrefix[3];
 }
+
+#endif
 
 #endif //FB_CORE_OPERANDS_REGISTRY_H

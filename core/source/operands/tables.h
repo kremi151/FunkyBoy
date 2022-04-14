@@ -17,6 +17,8 @@
 #ifndef FB_CORE_OPERANDS_TABLES_H
 #define FB_CORE_OPERANDS_TABLES_H
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include <operands/instruction_context.h>
 
 namespace FunkyBoy::Operands::Tables {
@@ -25,5 +27,7 @@ namespace FunkyBoy::Operands::Tables {
     extern Operand const* const prefixInstructions[256];
 
 }
+
+#endif
 
 #endif //FB_CORE_OPERANDS_TABLES_H

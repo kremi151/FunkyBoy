@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Michel Kremer (kremi151)
+ * Copyright 2022 Michel Kremer (kremi151)
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_OPERANDS_H
-#define FB_CORE_OPERANDS_H
+#ifndef FB_CORE_CPU_INSTRUCTIONS_H
+#define FB_CORE_CPU_INSTRUCTIONS_H
 
-#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+#include <util/typedefs.h>
 
-#include <operands/instruction_context.h>
-#include <operands/misc.h>
-#include <operands/prefix.h>
-#include <operands/alu.h>
-#include <operands/loads.h>
-#include <operands/reads.h>
-#include <operands/writes.h>
-#include <operands/jumps.h>
-#include <operands/rot_shifts.h>
-#include <operands/conditions.h>
+#ifdef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
+namespace FunkyBoy::Instructions {
+
+    bool doInstruction(FunkyBoy::u8_fast opcode);
+    bool doPrefix(FunkyBoy::u8_fast prefix);
+
+}
 
 #endif
 
-#endif //FB_CORE_OPERANDS_H
+#endif //FB_CORE_CPU_INSTRUCTIONS_H

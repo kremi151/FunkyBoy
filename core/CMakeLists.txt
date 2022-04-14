@@ -19,6 +19,7 @@ set(SOURCES
         source/emulator/cpu.cpp
         source/emulator/ppu.cpp
         source/emulator/apu.cpp
+        source/emulator/instructions.cpp
         source/emulator/audio/channel_base.cpp
         source/emulator/audio/channel_envelope.cpp
         source/emulator/audio/channel_wave.cpp
@@ -67,6 +68,7 @@ set(HEADERS
         source/emulator/cpu.h
         source/emulator/ppu.h
         source/emulator/apu.h
+        source/emulator/instructions.h
         source/emulator/audio/channel_base.h
         source/emulator/audio/channel_envelope.h
         source/emulator/audio/channel_wave.h
@@ -173,5 +175,8 @@ endmacro()
 macro(fb_use_sound target)
     target_compile_definitions(${target} PUBLIC -DFB_USE_SOUND)
 endmacro()
+
+# For easy switching between both worlds during the transition
+#target_compile_definitions(fb_core PUBLIC -DFB_USE_SWITCH_FOR_INSTRUCTIONS)
 
 target_link_libraries(fb_core CXX::Filesystem)

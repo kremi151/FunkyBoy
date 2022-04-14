@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "writes.h"
 
 #include <util/registers.h>
@@ -37,3 +39,5 @@ bool Operands::writeLSBIntoHLMem(InstrContext &context, Memory &memory) {
     memory.write8BitsTo(context.readHL(), context.lsb);
     return true;
 }
+
+#endif

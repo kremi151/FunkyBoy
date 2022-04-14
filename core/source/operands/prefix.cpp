@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "prefix.h"
 
 #include <util/debug.h>
@@ -700,3 +702,5 @@ bool Operands::prefixPlaceholder(InstrContext &context, Memory &memory) {
     // No-op
     return true;
 }
+
+#endif

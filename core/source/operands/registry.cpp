@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
+
 #include "registry.h"
 
 #include <operands/instructions.h>
@@ -558,3 +560,5 @@ namespace FunkyBoy::Operands::Registry {
             nullptr
     };
 }
+
+#endif
