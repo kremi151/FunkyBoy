@@ -68,7 +68,6 @@ set(HEADERS
         source/emulator/cpu.h
         source/emulator/ppu.h
         source/emulator/apu.h
-        source/emulator/instructions.h
         source/emulator/audio/channel_base.h
         source/emulator/audio/channel_envelope.h
         source/emulator/audio/channel_wave.h

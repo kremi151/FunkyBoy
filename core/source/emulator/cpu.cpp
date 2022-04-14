@@ -54,9 +54,11 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     instrContext.executionLog = &file;
 #endif
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
     // Fetch/Execute overlapping -> initial fetch is performed without executing any other instruction
     // To simulate this, we set a NOP as the first instruction, which does nothing
     operands = Operands::Registry::nop;
+#endif
 }
 
 void CPU::powerUpInit(Memory &memory) {
@@ -372,6 +374,7 @@ void CPU::writeAF(FunkyBoy::u16 val) {
 void CPU::serialize(std::ostream &ostream) const {
     instrContext.serialize(ostream);
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
     const Operand *operandTable;
     u8 operandIndex;
     if (instrContext.instr == 0xCB) {
@@ -403,6 +406,7 @@ void CPU::serialize(std::ostream &ostream) const {
         }
     }
     ostream.put(operandIndex);
+#endif
 
     ostream.put(timerOverflowingCycles);
     ostream.put(delayedTIMAIncrease);
@@ -418,6 +422,7 @@ void CPU::deserialize(std::istream &istream) {
         throw Exception::ReadException("Stream is too short (CPU)");
     }
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
     u8 operandIndex = buffer[0];
     if (instrContext.instr == 0xCB) {
         if (operandIndex == 0) {
@@ -430,6 +435,7 @@ void CPU::deserialize(std::istream &istream) {
     } else {
         operands = Operands::Tables::instructions[instrContext.instr] + operandIndex;
     }
+#endif
 
     timerOverflowingCycles = buffer[1];
     delayedTIMAIncrease = buffer[2];

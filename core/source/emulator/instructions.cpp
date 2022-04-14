@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "instructions.h"
+#include "cpu.h"
 
 #ifdef FB_USE_SWITCH_FOR_INSTRUCTIONS
 
-bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
+FunkyBoy::u8_fast FunkyBoy::CPU::doInstruction(Memory &memory, FunkyBoy::u8_fast opcode) {
     instrContext.instr = opcode;
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
@@ -41,20 +41,20 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         // ld (ss),A
         case 0x02: case 0x12: {
             debug_print_4("ld (ss),A\n");
-            memory->write8BitsTo(read16BitRegister(opcode >> 4 & 1), *regA);
+            memory.write8BitsTo(read16BitRegister(opcode >> 4 & 1), *regA);
             return true;
         }
             // ld A,(ss)
         case 0x0A: case 0x1A: {
             debug_print_4("ld A,(ss)\n");
-            *regA = memory->read8BitsAt(read16BitRegister(opcode >> 4 & 1));
+            *regA = memory.read8BitsAt(read16BitRegister(opcode >> 4 & 1));
             return true;
         }
             // ld (HLI),A
         case 0x22: {
             debug_print_4("ld (HLI),A\n");
             u16 hl = readHL();
-            memory->write8BitsTo(hl, *regA);
+            memory.write8BitsTo(hl, *regA);
             writeHL(hl + 1);
             return true;
         }
@@ -62,7 +62,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         case 0x32: {
             debug_print_4("ld (HLD),A\n");
             u16 hl = readHL();
-            memory->write8BitsTo(hl, *regA);
+            memory.write8BitsTo(hl, *regA);
             writeHL(hl - 1);
             return true;
         }
@@ -70,7 +70,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         case 0x2A: {
             debug_print_4("ld A,(HLI)\n");
             u16 hl = readHL();
-            *regA = memory->read8BitsAt(hl);
+            *regA = memory.read8BitsAt(hl);
             writeHL(hl + 1);
             return true;
         }
@@ -78,7 +78,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         case 0x3A: {
             debug_print_4("ld A,(HLD)\n");
             u16 hl = readHL();
-            *regA = memory->read8BitsAt(hl);
+            *regA = memory.read8BitsAt(hl);
             writeHL(hl - 1);
             return true;
         }
@@ -94,7 +94,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // 0x70 -> 1110 110 -> A
 
             debug_print_4("ld (HL),s\n");
-            memory->write8BitsTo(readHL(), registers[opcode & 0b111]);
+            memory.write8BitsTo(readHL(), registers[opcode & 0b111]);
             return true;
         }
             // ld s,(HL)
@@ -107,7 +107,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // 0x6E -> 1 101 110 -> L
             // --- Skip F ---
             // 0x7E -> 1 111 110 -> A
-            registers[(opcode >> 3) & 0b111] = memory->read8BitsAt(readHL());
+            registers[(opcode >> 3) & 0b111] = memory.read8BitsAt(readHL());
             return true;
         }
             // ld SP,HL
@@ -117,21 +117,21 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
             // ld HL,SP+e8
         case 0xF8: {
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            auto signedByte = memory.readSigned8BitsAt(progCounter++);
             writeHL(addToSP(signedByte));
             return true;
         }
             // ldh (a8),A
         case 0xE0: {
-            auto addr = memory->read8BitsAt(progCounter++);
+            auto addr = memory.read8BitsAt(progCounter++);
             debug_print_4("ldh (a8),A 0x%04X <- 0x%02X\n", 0xFF00 + addr, *regA);
-            memory->write8BitsTo(0xFF00 + addr, *regA);
+            memory.write8BitsTo(0xFF00 + addr, *regA);
             return true;
         }
             // ldh A,(a8)
         case 0xF0: {
-            auto addr = memory->read8BitsAt(progCounter++);
-            *regA = memory->read8BitsAt(0xFF00 + addr);
+            auto addr = memory.read8BitsAt(progCounter++);
+            *regA = memory.read8BitsAt(0xFF00 + addr);
             debug_print_4("ldh A,(a8) A <- 0x%02X (0x%04X)\n", *regA & 0xff, 0xFF00 + addr);
             return true;
         }
@@ -146,14 +146,14 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // add A,d8
         case 0xC6: {
             debug_print_4("add A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
+            u8 val = memory.read8BitsAt(progCounter++);
             adc(val, false);
             return true;
         }
             // adc A,d8
         case 0xCE: {
             debug_print_4("adc A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
+            u8 val = memory.read8BitsAt(progCounter++);
             adc(val, isCarry());
             return true;
         }
@@ -174,18 +174,18 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
             // add SP,r8
         case 0xE8: {
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            auto signedByte = memory.readSigned8BitsAt(progCounter++);
             stackPointer = addToSP(signedByte);
             return true;
         }
             // add A,(HL)
         case 0x86: {
-            adc(memory->read8BitsAt(readHL()), false);
+            adc(memory.read8BitsAt(readHL()), false);
             return true;
         }
             // adc A,(HL)
         case 0x8E: {
-            adc(memory->read8BitsAt(readHL()), isCarry());
+            adc(memory.read8BitsAt(readHL()), isCarry());
             return true;
         }
         case 0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x97: // sub a,reg
@@ -199,31 +199,31 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // sub A,d8
         case 0xD6: {
             debug_print_4("sub A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
+            u8 val = memory.read8BitsAt(progCounter++);
             sbc(val, false);
             return true;
         }
             // sbc A,d8
         case 0xDE: {
             debug_print_4("sbc A,d8\n");
-            u8 val = memory->read8BitsAt(progCounter++);
+            u8 val = memory.read8BitsAt(progCounter++);
             sbc(val, isCarry());
             return true;
         }
             // sub (HL)
         case 0x96: {
-            sbc(memory->read8BitsAt(readHL()), false);
+            sbc(memory.read8BitsAt(readHL()), false);
             return true;
         }
             // sbc (HL)
         case 0x9E: {
-            sbc(memory->read8BitsAt(readHL()), isCarry());
+            sbc(memory.read8BitsAt(readHL()), isCarry());
             return true;
         }
             // jp (N)Z,a16
         case 0xC2: case 0xCA: {
             bool set = opcode & 0b00001000;
-            u16 address = memory->read16BitsAt(progCounter);
+            u16 address = memory.read16BitsAt(progCounter);
             progCounter += 2;
             if ((!set && !isZero()) || (set && isZero())) {
                 debug_print_4("jp (N)Z a16 from 0x%04X", progCounter - 1);
@@ -235,7 +235,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // jp (N)C,a16
         case 0xD2: case 0xDA: {
             bool set = opcode & 0b00001000;
-            u16 address = memory->read16BitsAt(progCounter);
+            u16 address = memory.read16BitsAt(progCounter);
             progCounter += 2;
             if ((!set && !isCarry()) || (set && isCarry())) {
                 debug_print_4("jp (C)Z a16 from 0x%04X", progCounter - 1);
@@ -248,7 +248,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         case 0xC3:
         {
             debug_print_4("jp (unconditional) a16 from 0x%04X", progCounter);
-            progCounter = memory->read16BitsAt(progCounter);
+            progCounter = memory.read16BitsAt(progCounter);
             debug_print_4(" to 0x%04X\n", progCounter);
             return true;
         }
@@ -262,7 +262,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // jr (N)Z,r8
         case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
             bool set = opcode & 0b00001000;
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            auto signedByte = memory.readSigned8BitsAt(progCounter++);
             debug_print_4("jr (N)Z,r8 set ? %d %d\n", set, isZero());
             if ((!set && !isZero()) || (set && isZero())) {
                 debug_print_4("JR (N)Z from 0x%04X + %d", progCounter - 1, signedByte);
@@ -274,7 +274,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // jr (N)C,r8
         case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
             bool set = opcode & 0b00001000;
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            auto signedByte = memory.readSigned8BitsAt(progCounter++);
             debug_print_4("jr (N)C,r8 set ? %d %d\n", set, isCarry());
             if ((!set && !isCarry()) || (set && isCarry())) {
                 debug_print_4("JR (N)C from 0x%04X + %d", progCounter - 1, signedByte);
@@ -285,7 +285,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
             // unconditional jr
         case 0x18: {
-            auto signedByte = memory->readSigned8BitsAt(progCounter++);
+            auto signedByte = memory.readSigned8BitsAt(progCounter++);
             debug_print_4("JR (unconditional) from 0x%04X + %d", progCounter, signedByte);
             progCounter += signedByte;
             debug_print_4(" to 0x%04X\n", progCounter);
@@ -295,7 +295,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         case 0xC4: case 0xCC: {
             bool set = opcode & 0b00001000;
             debug_print_4("call (N)Z,a16 set ? %d %d\n", set, isZero());
-            u16 address = memory->read16BitsAt(progCounter);
+            u16 address = memory.read16BitsAt(progCounter);
             progCounter += 2;
             if ((!set && !isZero()) || (set && isZero())) {
                 debug_print_4("call from 0x%04X", progCounter - 2);
@@ -309,7 +309,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         case 0xD4: case 0xDC: {
             bool set = opcode & 0b00001000;
             debug_print_4("call (N)C,a16 set ? %d %d\n", set, isCarry());
-            u16 address = memory->read16BitsAt(progCounter);
+            u16 address = memory.read16BitsAt(progCounter);
             progCounter += 2;
             if ((!set && !isCarry()) || (set && isCarry())) {
                 debug_print_4("call from 0x%04X", progCounter - 2);
@@ -320,7 +320,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             return true;
         }
         case 0xCD: {
-            u16 address = memory->read16BitsAt(progCounter);
+            u16 address = memory.read16BitsAt(progCounter);
             progCounter += 2;
             debug_print_4("call from 0x%04X\n", progCounter);
             push16Bits(progCounter);
@@ -373,12 +373,12 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
             // cp HL
         case 0xBE: {
-            cp(memory->read8BitsAt(readHL()));
+            cp(memory.read8BitsAt(readHL()));
             return true;
         }
             // cp d8
         case 0xFE: {
-            cp(memory->read8BitsAt(progCounter++));
+            cp(memory.read8BitsAt(progCounter++));
             return true;
         }
             // inc ss
@@ -396,9 +396,9 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // inc (HL)
         case 0x34: {
             u16 hl = readHL();
-            u8 oldVal = memory->read8BitsAt(hl);
+            u8 oldVal = memory.read8BitsAt(hl);
             u8 newVal = oldVal + 1;
-            memory->write8BitsTo(hl, newVal);
+            memory.write8BitsTo(hl, newVal);
             setZero(newVal == 0);
             setHalfCarry((newVal & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
             setSubstraction(false);
@@ -427,9 +427,9 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
             // dec (HL)
         case 0x35: {
             u16 hl = readHL();
-            u8 oldVal = memory->read8BitsAt(hl);
+            u8 oldVal = memory.read8BitsAt(hl);
             u8 newVal = oldVal - 1;
-            memory->write8BitsTo(hl, newVal);
+            memory.write8BitsTo(hl, newVal);
             setZero(newVal == 0);
             setHalfCarry((newVal & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
             setSubstraction(true);
@@ -482,12 +482,12 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
             // or (HL)
         case 0xB6: {
-            _or(memory->read8BitsAt(readHL()));
+            _or(memory.read8BitsAt(readHL()));
             return true;
         }
             // or d8
         case 0xF6: {
-            _or(memory->read8BitsAt(progCounter++));
+            _or(memory.read8BitsAt(progCounter++));
             return true;
         }
             // and s
@@ -505,12 +505,12 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
             // and (HL)
         case 0xA6: {
-            _and(memory->read8BitsAt(readHL()));
+            _and(memory.read8BitsAt(readHL()));
             return true;
         }
             // and d8
         case 0xE6: {
-            _and(memory->read8BitsAt(progCounter++));
+            _and(memory.read8BitsAt(progCounter++));
             return true;
         }
             // xor s
@@ -520,12 +520,12 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
             // xor (HL)
         case 0xAE: {
-            _xor(memory->read8BitsAt(readHL()));
+            _xor(memory.read8BitsAt(readHL()));
             return true;
         }
             // xor d8
         case 0xEE: {
-            auto val = memory->read8BitsAt(progCounter++);
+            auto val = memory.read8BitsAt(progCounter++);
             _xor(val);
             return true;
         }
@@ -674,7 +674,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
         }
         case 0xCB: {
             // This should already be handled in onTick, so we should never reach this case here
-            return doPrefix(memory->read8BitsAt(progCounter++));
+            return doPrefixInstruction(memory.read8BitsAt(progCounter++));
         }
         default: {
             unknown_instr:
@@ -684,7 +684,7 @@ bool FunkyBoy::Instructions::doInstruction(FunkyBoy::u8_fast opcode) {
     }
 }
 
-bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
+FunkyBoy::u8_fast FunkyBoy::CPU::doPrefixInstruction(Memory &memory, u8_fast prefix) {
     switch(prefix) {
         // rlc reg
         case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x07: {
@@ -696,10 +696,10 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // rlc (HL)
         case 0x06: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory.read8BitsAt(readHL());
             u8 newVal = (oldVal << 1) | ((oldVal >> 7) & 0b1);
             setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            memory.write8BitsTo(readHL(), newVal);
             return true;
         }
             // rrc reg
@@ -712,10 +712,10 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // rrc (HL)
         case 0x0E: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory.read8BitsAt(readHL());
             u8 newVal = (oldVal >> 1) | ((oldVal & 0b1) << 7);
             setFlags(newVal == 0, false, false, (oldVal & 0b1) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            memory.write8BitsTo(readHL(), newVal);
             return true;
         }
             // rl reg
@@ -731,13 +731,13 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // rl (HL)
         case 0x16: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory.read8BitsAt(readHL());
             u8 newVal = (oldVal << 1);
             if (isCarry()) {
                 newVal |= 0b1;
             }
             setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            memory.write8BitsTo(readHL(), newVal);
             return true;
         }
             // rr reg
@@ -761,13 +761,13 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // rr (HL)
         case 0x1E: {
-            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 oldVal = memory.read16BitsAt(readHL());
             u8 newVal = oldVal >> 1;
             if (isCarry()) {
                 newVal |= 0b10000000;
             }
             setFlags(newVal == 0, false, false, oldVal & 0b1);
-            memory->write8BitsTo(readHL(), newVal);
+            memory.write8BitsTo(readHL(), newVal);
             return true;
         }
             // sla reg
@@ -788,10 +788,10 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // sla (HL)
         case 0x26: {
-            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 oldVal = memory.read16BitsAt(readHL());
             u8 newVal = oldVal << 1;
             setFlags(newVal == 0, false, false, (oldVal & 0b10000000) > 0);
-            memory->write8BitsTo(readHL(), newVal);
+            memory.write8BitsTo(readHL(), newVal);
             return true;
         }
             // sra reg
@@ -804,10 +804,10 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // sra (HL)
         case 0x2E: {
-            u8 oldVal = memory->read8BitsAt(readHL());
+            u8 oldVal = memory.read8BitsAt(readHL());
             u8 newVal = (oldVal >> 1) | (oldVal & 0b10000000);
             setFlags(newVal == 0, false, false, oldVal & 0b1);
-            memory->write8BitsTo(readHL(), newVal);
+            memory.write8BitsTo(readHL(), newVal);
             return true;
         }
             // swap reg
@@ -819,9 +819,9 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // swap (HL)
         case 0x36: {
-            u8 val = memory->read8BitsAt(readHL());
+            u8 val = memory.read8BitsAt(readHL());
             val = ((val >> 4) & 0b1111) | ((val & 0b1111) << 4);
-            memory->write8BitsTo(readHL(), val);
+            memory.write8BitsTo(readHL(), val);
             setFlags(val == 0, false, false, false);
             return true;
         }
@@ -843,10 +843,10 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
         }
             // srl (HL)
         case 0x3E: {
-            u8 oldVal = memory->read16BitsAt(readHL());
+            u8 oldVal = memory.read16BitsAt(readHL());
             u8 newVal = oldVal >> 1;
             setFlags(newVal == 0, false, false, oldVal & 0b1);
-            memory->write8BitsTo(readHL(), newVal);
+            memory.write8BitsTo(readHL(), newVal);
             return true;
         }
         case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x47: // bit 0,reg
@@ -908,7 +908,7 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
             u8 bitShift = (prefix >> 3) & 0b111;
             u8 bitMask = 1 << bitShift;
             // Note: We write the opposite of the Nth bit into the Z flag
-            setFlags(!(memory->read8BitsAt(readHL()) & bitMask), false, true, isCarry());
+            setFlags(!(memory.read8BitsAt(readHL()) & bitMask), false, true, isCarry());
             return true;
         }
         case 0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x87: // res 0,reg
@@ -929,9 +929,9 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
             // res n,(HL)
         case 0x86: case 0x8E: case 0x96: case 0x9E: case 0xA6: case 0xAE: case 0xB6: case 0xBE: {
             u8 bitShift = (prefix >> 3) & 0b111;
-            u8 val = memory->read8BitsAt(readHL());
+            u8 val = memory.read8BitsAt(readHL());
             val &= ~(1 << bitShift);
-            memory->write8BitsTo(readHL(), val);
+            memory.write8BitsTo(readHL(), val);
             return true;
         }
         case 0xC0: case 0xC1: case 0xC2: case 0xC3: case 0xC4: case 0xC5: case 0xC7: // set 0,reg
@@ -952,9 +952,9 @@ bool FunkyBoy::Instructions::doPrefix(u8_fast prefix) {
             // set n,(HL)
         case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE: {
             u8 bitMask = (prefix >> 3) & 0b111;
-            u8 val = memory->read8BitsAt(readHL());
+            u8 val = memory.read8BitsAt(readHL());
             val |= (1 << bitMask);
-            memory->write8BitsTo(readHL(), val);
+            memory.write8BitsTo(readHL(), val);
             return true;
         }
         default: {

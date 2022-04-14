@@ -60,6 +60,11 @@ namespace FunkyBoy {
         ret_code doCycle(Memory &memory);
         ret_code doFetchAndDecode(Memory &memory);
 
+#ifdef FB_USE_SWITCH_FOR_INSTRUCTIONS
+        FunkyBoy::u8_fast doInstruction(Memory &memory, u8_fast opcode);
+        FunkyBoy::u8_fast doPrefixInstruction(Memory &memory, u8_fast prefix);
+#endif
+
         void doJoypad();
         bool doInterrupts(Memory &memory);
         void doTimers(Memory &memory, u8 clocks);
