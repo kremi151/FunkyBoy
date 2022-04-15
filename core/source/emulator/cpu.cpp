@@ -43,7 +43,9 @@ CPU::CPU(GameBoyType gbType, const io_registers& ioRegisters)
     , instructionCompleted(false)
 #endif
 {
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
     instrContext.operandsPtr = &operands;
+#endif
     instrContext.progCounter = 0;
     instrContext.stackPointer = 0xFFFE;
     instrContext.interruptMasterEnable = IMEState::DISABLED;
@@ -164,6 +166,7 @@ ret_code CPU::doCycle(Memory &memory) {
     if (instrContext.cpuState == CPUState::RUNNING) {
         memory.doDMA(); // TODO: Implement delay of 2 clocks
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
         auto op = *operands;
 
         if (*(++operands) == nullptr) {
@@ -175,6 +178,9 @@ ret_code CPU::doCycle(Memory &memory) {
             shouldFetch = true;
         }
         shouldDoInterrupts = shouldFetch;
+#else
+#error To be implemented (execution of instruction)
+#endif
     }
 
 #if defined(FB_TESTING)
@@ -210,11 +216,15 @@ ret_code CPU::doFetchAndDecode(Memory &memory) {
     instr++;
 #endif
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
     operands = Operands::Tables::instructions[instrContext.instr];
     if (operands == nullptr) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
         return 0;
     }
+#else
+#error To be implemented (check for illegal instruction)
+#endif
     return FB_RET_SUCCESS;
 }
 

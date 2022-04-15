@@ -80,7 +80,9 @@ namespace FunkyBoy {
         bool instructionCompleted;
 #endif
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
         const Operand *operands; // Do not free this pointer
+#endif
 
     public:
         CPU(GameBoyType gbType, const io_registers& ioRegisters);

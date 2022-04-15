@@ -40,7 +40,9 @@ namespace FunkyBoy {
 
     class InstrContext;
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
     typedef bool (*Operand)(InstrContext &context, Memory &memory);
+#endif
 
     class InstrContext {
     public:
@@ -62,7 +64,9 @@ namespace FunkyBoy {
         u8 *regF;
         u8 *regA;
 
+#ifndef FB_USE_SWITCH_FOR_INSTRUCTIONS
         const Operand **operandsPtr;
+#endif
 
         u8 lsb;
         u8 msb;
