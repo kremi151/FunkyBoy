@@ -18,7 +18,7 @@
 
 #include "alu.h"
 
-#include <emulator/instructions.h>
+#include <operands/common.h>
 #include <util/typedefs.h>
 #include <util/registers.h>
 #include <util/flags.h>

@@ -19,7 +19,6 @@ set(SOURCES
         source/emulator/cpu.cpp
         source/emulator/ppu.cpp
         source/emulator/apu.cpp
-        source/emulator/instructions.cpp
         source/emulator/audio/channel_base.cpp
         source/emulator/audio/channel_envelope.cpp
         source/emulator/audio/channel_wave.cpp
@@ -42,6 +41,7 @@ set(SOURCES
         source/cartridge/status.cpp
         source/memory/ppu_memory.cpp
         source/operands/instruction_context.cpp
+        source/operands/instruction_context_with_instructions.cpp
         source/operands/alu.cpp
         source/operands/loads.cpp
         source/operands/misc.cpp
@@ -67,7 +67,6 @@ set(HEADERS
         source/emulator/cpu.h
         source/emulator/ppu.h
         source/emulator/apu.h
-        source/emulator/instructions.h
         source/emulator/audio/channel_base.h
         source/emulator/audio/channel_envelope.h
         source/emulator/audio/channel_wave.h
@@ -115,6 +114,7 @@ set(HEADERS
         source/operands/debug.h
         source/operands/registry.h
         source/operands/tables.h
+        source/operands/common.h
         source/util/endianness.h
         source/util/registers.h
         source/util/flags.h

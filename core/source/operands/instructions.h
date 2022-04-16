@@ -30,6 +30,10 @@
 #include <operands/rot_shifts.h>
 #include <operands/conditions.h>
 
+#else
+
+#include <operands/common.h>
+
 #endif
 
 #endif //FB_CORE_OPERANDS_H

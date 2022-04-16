@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FB_CORE_INSTRUCTIONS_H
-#define FB_CORE_INSTRUCTIONS_H
+#ifndef FB_CORE_OPERANDS_COMMON_H
+#define FB_CORE_OPERANDS_COMMON_H
 
 #include <util/flags.h>
 #include <operands/instruction_context.h>
@@ -70,4 +70,4 @@ namespace FunkyBoy::Instructions {
 
 }
 
-#endif //FB_CORE_INSTRUCTIONS_H
+#endif //FB_CORE_OPERANDS_COMMON_H
