@@ -35,11 +35,9 @@ namespace FunkyBoy::Util {
 // TODO: Maybe not the best idea...
 using namespace FunkyBoy::Flags;
 
-FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy::u8_fast opcode) {
-    instr = opcode;
-
+FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory) {
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
-    file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xff);
+    file << "0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (instr & 0xff);
     file << " B=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regB & 0xff);
     file << " C=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regC & 0xff);
     file << " D=0x" << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (*regD & 0xff);
@@ -54,17 +52,21 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
     instr++;
 #endif
 
-    switch (opcode) {
+    switch (instr) {
+        // nop
+        case 0x00: {
+            return true;
+        }
         // ld (ss),A
         case 0x02: case 0x12: {
             debug_print_4("ld (ss),A\n");
-            memory.write8BitsTo(read16BitRegister(opcode >> 4 & 1), *regA);
+            memory.write8BitsTo(read16BitRegister(instr >> 4 & 1), *regA);
             return true;
         }
             // ld A,(ss)
         case 0x0A: case 0x1A: {
             debug_print_4("ld A,(ss)\n");
-            *regA = memory.read8BitsAt(read16BitRegister(opcode >> 4 & 1));
+            *regA = memory.read8BitsAt(read16BitRegister(instr >> 4 & 1));
             return true;
         }
             // ld (HLI),A
@@ -111,7 +113,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
             // 0x70 -> 1110 110 -> A
 
             debug_print_4("ld (HL),s\n");
-            memory.write8BitsTo(readHL(), registers[opcode & 0b111]);
+            memory.write8BitsTo(readHL(), registers[instr & 0b111]);
             return true;
         }
             // ld s,(HL)
@@ -124,7 +126,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
             // 0x6E -> 1 101 110 -> L
             // --- Skip F ---
             // 0x7E -> 1 111 110 -> A
-            registers[(opcode >> 3) & 0b111] = memory.read8BitsAt(readHL());
+            registers[(instr >> 3) & 0b111] = memory.read8BitsAt(readHL());
             return true;
         }
             // ld SP,HL
@@ -156,8 +158,8 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: case 0x8f: // adc a,reg
         {
             debug_print_4("add reg,reg\n");
-            bool carry = (opcode & 8) && isCarry(regF);
-            Instructions::adc(regF, regA, registers[opcode & 7], carry);
+            bool carry = (instr & 8) && isCarry(regF);
+            Instructions::adc(regF, regA, registers[instr & 7], carry);
             return true;
         }
             // add A,d8
@@ -180,7 +182,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
             // 0x09 -> 00 1001 -> BC
             // 0x19 -> 01 1001 -> DE
             // 0x29 -> 10 1001 -> HL
-            Instructions::addToHL(*this, read16BitRegister((opcode >> 4) & 0b11));
+            Instructions::addToHL(*this, read16BitRegister((instr >> 4) & 0b11));
             return true;
         }
             // add HL,SP
@@ -209,8 +211,8 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: case 0x9f: // sbc a,reg
         {
             debug_print_4("sub reg,reg\n");
-            bool carry = (opcode & 8) && isCarry(regF);
-            Instructions::sbc(regF, regA, registers[opcode & 7], carry);
+            bool carry = (instr & 8) && isCarry(regF);
+            Instructions::sbc(regF, regA, registers[instr & 7], carry);
             return true;
         }
             // sub A,d8
@@ -239,7 +241,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // jp (N)Z,a16
         case 0xC2: case 0xCA: {
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             u16 address = Util::read16BitsAt(memory, progCounter);
             progCounter += 2;
             if ((!set && !isZero(regF)) || (set && isZero(regF))) {
@@ -251,7 +253,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // jp (N)C,a16
         case 0xD2: case 0xDA: {
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             u16 address = Util::read16BitsAt(memory, progCounter);
             progCounter += 2;
             if ((!set && !isCarry(regF)) || (set && isCarry(regF))) {
@@ -278,7 +280,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // jr (N)Z,r8
         case 0x20: case 0x28: { // TODO: Can this branch bew combined with jp (N)Z,a16 ?
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             auto signedByte = memory.readSigned8BitsAt(progCounter++);
             debug_print_4("jr (N)Z,r8 set ? %d %d\n", set, isZero(regF));
             if ((!set && !isZero(regF)) || (set && isZero(regF))) {
@@ -290,7 +292,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // jr (N)C,r8
         case 0x30: case 0x38: { // TODO: Can this branch bew combined with jp (N)C,a16 ?
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             auto signedByte = memory.readSigned8BitsAt(progCounter++);
             debug_print_4("jr (N)C,r8 set ? %d %d\n", set, isCarry(regF));
             if ((!set && !isCarry(regF)) || (set && isCarry(regF))) {
@@ -310,7 +312,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // call (N)Z,a16
         case 0xC4: case 0xCC: {
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             debug_print_4("call (N)Z,a16 set ? %d %d\n", set, isZero(regF));
             u16 address = Util::read16BitsAt(memory, progCounter);
             progCounter += 2;
@@ -324,7 +326,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // call (N)C,a16
         case 0xD4: case 0xDC: {
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             debug_print_4("call (N)C,a16 set ? %d %d\n", set, isCarry(regF));
             u16 address = Util::read16BitsAt(memory, progCounter);
             progCounter += 2;
@@ -347,7 +349,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // ret (N)Z,a16
         case 0xC0: case 0xC8: {
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             debug_print_4("ret (N)Z,a16 set ? %d %d\n", set, isZero(regF));
             if ((!set && !isZero(regF)) || (set && isZero(regF))) {
                 goto return_;
@@ -356,7 +358,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // ret (N)C,a16
         case 0xD0: case 0xD8: {
-            bool set = opcode & 0b00001000;
+            bool set = instr & 0b00001000;
             debug_print_4("ret (N)C,a16 set ? %d %d\n", set, isCarry(regF));
             if ((!set && !isCarry(regF)) || (set && isCarry(regF))) {
                 goto return_;
@@ -372,7 +374,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // rst vec
         case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF: {
-            u8 rstAddr = (opcode >> 3 & 7) * 8;
+            u8 rstAddr = (instr >> 3 & 7) * 8;
             debug_print_4("rst %02XH\n", rstAddr);
             push16Bits(memory, progCounter);
             progCounter = rstAddr;
@@ -380,7 +382,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // cp s
         case 0xB8: case 0xB9: case 0xBA: case 0xBB: case 0xBC: case 0xBD: {
-            Instructions::cp(regF, regA, registers[opcode & 0b00000111]);
+            Instructions::cp(regF, regA, registers[instr & 0b00000111]);
             return true;
         }
             // cp A
@@ -400,7 +402,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // inc ss
         case 0x03: case 0x13: case 0x23: {
-            u8 position = opcode >> 4 & 3;
+            u8 position = instr >> 4 & 3;
             u16 val = read16BitRegister(position);
             write16BitRegister(position, val + 1);
             return true;
@@ -424,7 +426,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // inc s
         case 0x04: case 0x0C: case 0x14: case 0x1C: case 0x24: case 0x2C: {
-            auto reg = registers + (opcode >> 3 & 7);
+            auto reg = registers + (instr >> 3 & 7);
             (*reg)++;
             setZero(regF, *reg == 0);
             setHalfCarry(regF, (*reg & 0x0f) == 0x00); // If half-overflow, 4 least significant bits will be 0
@@ -455,7 +457,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // dec s
         case 0x05: case 0x0D: case 0x15: case 0x1D: case 0x25: case 0x2D: {
-            auto reg = registers + (opcode >> 3 & 7);
+            auto reg = registers + (instr >> 3 & 7);
             (*reg)--;
             setZero(regF, *reg == 0);
             setHalfCarry(regF, (*reg & 0x0f) == 0x0f); // If half-underflow, 4 least significant bits will turn from 0000 (0x0) to 1111 (0xf)
@@ -474,7 +476,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // dec ss
         case 0x0B: case 0x1B: case 0x2B: {
-            u8 position = opcode >> 4 & 3;
+            u8 position = instr >> 4 & 3;
             u16 val = read16BitRegister(position);
             write16BitRegister(position, val - 1);
             return true;
@@ -494,7 +496,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
             // 0xB5 -> 10110 101 -> L
             // -- F is skipped --
             // 0xB7 -> 10110 111 -> A
-            Instructions::alu_or(regF, regA, registers[opcode & 0b111]);
+            Instructions::alu_or(regF, regA, registers[instr & 0b111]);
             return true;
         }
             // or (HL)
@@ -517,7 +519,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
             // 0xA5 -> 10100 101 -> L
             // -- F is skipped --
             // 0xA7 -> 10100 111 -> A
-            Instructions::alu_and(regF, regA, registers[opcode & 0b111]);
+            Instructions::alu_and(regF, regA, registers[instr & 0b111]);
             return true;
         }
             // and (HL)
@@ -532,7 +534,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
             // xor s
         case 0xA8: case 0xA9: case 0xAA: case 0xAB: case 0xAC: case 0xAD: case 0xAF: {
-            Instructions::alu_xor(regF, regA, registers[opcode & 0b111]);
+            Instructions::alu_xor(regF, regA, registers[instr & 0b111]);
             return true;
         }
             // xor (HL)
@@ -591,8 +593,8 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
             // 0xD5 -> 11 01 01 01
             // 0xE5 -> 11 10 01 01
 
-            u8 *reg = registers + (((opcode >> 4) & 3) * 2); // 16-bit -> x 2
-            bool push = opcode & 4;
+            u8 *reg = registers + (((instr >> 4) & 3) * 2); // 16-bit -> x 2
+            bool push = instr & 4;
             // TODO: Verify -> reg = MSB ; reg+1 = LSB ?
             if (push) {
                 push16Bits(memory, *reg, *(reg + 1));
@@ -608,7 +610,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         {
             // 0xF1 -> 11110001
             // 0xF5 -> 11110101
-            bool push = opcode & 4;
+            bool push = instr & 4;
             if (push) {
                 push16Bits(memory, readAF());
             } else {
@@ -695,7 +697,7 @@ FunkyBoy::u8_fast FunkyBoy::InstrContext::doInstruction(Memory &memory, FunkyBoy
         }
         default: {
             unknown_instr:
-            fprintf(stderr,"Illegal instruction 0x%02X at 0x%04X\n", opcode, progCounter - 1);
+            fprintf(stderr,"Illegal instruction 0x%02X at 0x%04X\n", instr, progCounter - 1);
             return false;
         }
     }

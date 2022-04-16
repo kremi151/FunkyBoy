@@ -179,7 +179,13 @@ ret_code CPU::doCycle(Memory &memory) {
         }
         shouldDoInterrupts = shouldFetch;
 #else
-#error To be implemented (execution of instruction)
+        // TODO: Sync up execution of instruction with number of cycles
+        if (!instrContext.doInstruction(memory)) {
+            return 0;
+        }
+        shouldFetch = true;
+        result |= FB_RET_INSTRUCTION_DONE;
+        shouldDoInterrupts = shouldFetch;
 #endif
     }
 
@@ -222,8 +228,6 @@ ret_code CPU::doFetchAndDecode(Memory &memory) {
         fprintf(stderr, "Illegal instruction 0x%02X at 0x%04X\n", instrContext.instr, instrContext.progCounter - 1);
         return 0;
     }
-#else
-#error To be implemented (check for illegal instruction)
 #endif
     return FB_RET_SUCCESS;
 }

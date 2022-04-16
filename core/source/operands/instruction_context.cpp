@@ -33,6 +33,11 @@ InstrContext::InstrContext(FunkyBoy::GameBoyType gbType)
     regL = registers + 5;
     regF = registers + 6;
     regA = registers + 7;
+
+#ifdef FB_USE_SWITCH_FOR_INSTRUCTIONS
+    instr = 0x00;
+    cbInstr = 0x00;
+#endif
 }
 
 void InstrContext::push16Bits(Memory &memory, u16 val) {

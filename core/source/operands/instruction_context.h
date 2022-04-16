@@ -107,7 +107,7 @@ namespace FunkyBoy {
         void deserialize(std::istream &istream);
 
 #ifdef FB_USE_SWITCH_FOR_INSTRUCTIONS
-        FunkyBoy::u8_fast doInstruction(Memory &memory, u8_fast opcode);
+        FunkyBoy::u8_fast doInstruction(Memory &memory);
 #endif
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
