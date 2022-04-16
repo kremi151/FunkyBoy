@@ -54,7 +54,6 @@ set(SOURCES
         source/operands/debug.cpp
         source/operands/registry.cpp
         source/operands/table_unprefixed_instructions.cpp
-        source/util/registers.cpp
         source/util/flags.cpp
         source/util/frame_executor.cpp
         source/exception/state_exception.cpp
@@ -68,6 +67,7 @@ set(HEADERS
         source/emulator/cpu.h
         source/emulator/ppu.h
         source/emulator/apu.h
+        source/emulator/instructions.h
         source/emulator/audio/channel_base.h
         source/emulator/audio/channel_envelope.h
         source/emulator/audio/channel_wave.h

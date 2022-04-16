@@ -45,6 +45,10 @@ namespace FunkyBoy {
 #endif
 
     class InstrContext {
+    private:
+#ifdef FB_USE_SWITCH_FOR_INSTRUCTIONS
+        FunkyBoy::u8_fast doPrefixInstruction(Memory &memory, u8_fast prefix);
+#endif
     public:
         explicit InstrContext(GameBoyType gbType);
 
@@ -86,6 +90,12 @@ namespace FunkyBoy {
 
         void writeHL(u16 val);
 
+        inline u16_fast readAF() const {
+            return (*regF & 0xffu) | (*regA << 8u);
+        }
+
+        void writeAF(u16_fast val);
+
         void push16Bits(Memory &memory, u16 val);
         void push16Bits(Memory &memory, u8 msb, u8 lsb);
         u16 pop16Bits(Memory &memory);
@@ -95,6 +105,10 @@ namespace FunkyBoy {
 
         void serialize(std::ostream &ostream) const;
         void deserialize(std::istream &istream);
+
+#ifdef FB_USE_SWITCH_FOR_INSTRUCTIONS
+        FunkyBoy::u8_fast doInstruction(Memory &memory, u8_fast opcode);
+#endif
 
 #ifdef FB_DEBUG_WRITE_EXECUTION_LOG
         std::ofstream *executionLog;

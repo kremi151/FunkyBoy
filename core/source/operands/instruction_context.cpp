@@ -58,6 +58,11 @@ void InstrContext::writeHL(u16 val) {
     *regH = (val >> 8u) & 0xffu;
 }
 
+void InstrContext::writeAF(u16_fast val) {
+    *regF = val & 0xffu;
+    *regA = (val >> 8u) & 0xffu;
+}
+
 void InstrContext::write16BitRegister(u8 position, u16 val) {
     u8 *reg = registers + (position * 2);
     *reg = (val >> 8u) & 0xffu;
